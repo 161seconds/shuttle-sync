@@ -38,19 +38,18 @@ export default function CourtDetail() {
         if (!confirm) return;
 
         try {
-            await bookingApi.createBooking({
+            // 1. Nhận response về để lấy ID của đơn đặt sân
+            const res: any = await bookingApi.createBooking({
                 courtId: id!,
                 date: selectedDate,
                 timeSlot: timeSlot
             });
-            alert('🎉 Đặt sân thành công! Chuẩn bị thanh toán nhé.');
 
-            // Load lại danh sách giờ để cập nhật trạng thái
-            setBookedSlots([...bookedSlots, timeSlot]);
+            // 2. Chuyển thẳng sang trang thanh toán kèm theo ID
+            navigate(`/payment/${res.booking._id}`);
 
-            // Tương lai: Chuyển sang trang thanh toán ở đây!
         } catch (error: any) {
-            alert(error.response?.data?.message || 'Lỗi đặt sân! Có thể ai đó đã nhanh tay hơn.');
+            alert(error.response?.data?.message || 'Lỗi đặt sân!');
         }
     };
 
