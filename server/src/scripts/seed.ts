@@ -1,7 +1,5 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
-import { connectDB } from './database.js';
-import { config } from './index.js';
+import { connectDB } from '../config/database';
 import {
     UserRole, UserStatus, AuthProvider, SportType, CourtStatus,
     SkillLevel, EventType, VoucherType,
