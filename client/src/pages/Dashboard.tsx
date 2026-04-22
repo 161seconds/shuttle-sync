@@ -1,111 +1,74 @@
-import { useEffect, useState } from 'react';
-import { courtApi } from '../api/court.api';
-import type { Court } from '../../../shared/types';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Calendar, Search } from 'lucide-react';
+import { theme as t } from '../utils/theme';
+import { useAppStore } from '../store';
+import { useFilteredCourts } from '../hooks';
+import CourtFilter from '../components/court/CourtFilter';
+import CourtList from '../components/court/CourtList';
+import type { Court } from '../types';
+
+import { MOCK_COURTS } from '../utils/mockData';
 
 export default function Dashboard() {
-    const [courts, setCourts] = useState<Court[]>([]);
+    const { setPage, filters, setFilters } = useAppStore();
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
+    const [courts, setCourts] = useState<Court[]>([]);
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-    // Lấy thông tin user từ LocalStorage để hiện lời chào
-    const userString = localStorage.getItem('user');
-    const user = userString ? JSON.parse(userString) : null;
-
+    // Simulate API fetch
     useEffect(() => {
-        const fetchCourts = async () => {
-            try {
-                const data = await courtApi.getAllCourts();
-                setCourts(data);
-            } catch (error) {
-                console.error('Lỗi khi tải danh sách sân:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchCourts();
+        const timer = setTimeout(() => {
+            setCourts(MOCK_COURTS);
+            setLoading(false);
+        }, 600);
+        return () => clearTimeout(timer);
     }, []);
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        navigate('/login');
-    };
+    const filteredCourts = useFilteredCourts(courts, filters);
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Header / Thanh điều hướng */}
-            <header className="bg-white shadow">
-                <div className="flex items-center justify-between px-6 py-4 mx-auto max-w-7xl">
-                    <h1 className="text-2xl font-bold text-blue-600">🏸 ShuttleSync</h1>
-                    <div className="flex items-center space-x-4">
-                        {user ? (
-                            <>
-                                <span className="font-medium text-gray-700">Chào, {user.name}</span>
-                                <button
-                                    onClick={handleLogout}
-                                    className="px-4 py-2 text-sm text-red-600 border border-red-600 rounded hover:bg-red-50"
-                                >
-                                    Đăng xuất
-                                </button>
-                            </>
-                        ) : (
-                            <button
-                                onClick={() => navigate('/login')}
-                                className="px-4 py-2 text-sm text-white bg-blue-600 rounded hover:bg-blue-700"
-                            >
-                                Đăng nhập
-                            </button>
-                        )}
-                    </div>
-                </div>
-            </header>
+        <div className="max-w-7xl mx-auto px-4 pb-24 md:pb-8">
+            {/* Hero */}
+            <section className="py-6 sm:py-8">
+                <h1 className="text-2xl sm:text-3xl font-black tracking-tight mb-1">
+                    <span className={t.text.primary}>Tìm sân </span>
+                    <span className={t.text.accent}>hoàn hảo</span>
+                </h1>
+                <p className={`${t.text.muted} text-sm mb-5`}>
+                    Cầu lông & Pickleball tại TPHCM
+                </p>
 
-            {/* Nội dung chính: Danh sách sân */}
-            <main className="px-6 py-8 mx-auto max-w-7xl">
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-gray-800">Danh sách sân hiện có</h2>
-                    {user?.role === 'admin' && (
-                        <button className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700">
-                            + Thêm sân mới
-                        </button>
-                    )}
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setPage('home')}
+                        className="px-5 py-2.5 rounded-xl bg-emerald-500 text-black text-sm font-bold flex items-center gap-2 hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/20 active:scale-95"
+                    >
+                        <Calendar className="w-4 h-4" /> Đặt sân
+                    </button>
+                    <button
+                        onClick={() => setPage('search')}
+                        className={`px-5 py-2.5 rounded-xl ${t.bg.elevated} border ${t.border.subtle} text-sm font-semibold ${t.text.secondary} flex items-center gap-2 hover:border-emerald-500/20 transition-colors active:scale-95`}
+                    >
+                        <Search className="w-4 h-4" /> Tìm sân
+                    </button>
                 </div>
+            </section>
 
-                {loading ? (
-                    <div className="text-center text-gray-500 py-10">Đang tải dữ liệu sân...</div>
-                ) : courts.length === 0 ? (
-                    <div className="text-center text-gray-500 py-10">Hiện chưa có sân nào trong hệ thống.</div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {courts.map((court: any) => (
-                            <div key={court._id} className="overflow-hidden bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                                <img
-                                    src={court.imageUrl || "https://placehold.co/600x400?text=Badminton+Court"}
-                                    alt={court.name}
-                                    className="object-cover w-full h-48"
-                                />
-                                <div className="p-4 space-y-2">
-                                    <h3 className="text-lg font-bold text-gray-800">{court.name}</h3>
-                                    <p className="text-sm text-gray-600">📍 {court.location}</p>
-                                    <div className="flex items-center justify-between pt-2">
-                                        <span className="font-bold text-blue-600">
-                                            {court.pricePerHour.toLocaleString('vi-VN')} VNĐ / giờ
-                                        </span>
-                                        <button
-                                            onClick={() => navigate(`/court/${court._id}`)}
-                                            className="px-3 py-1 text-sm text-white bg-blue-600 rounded hover:bg-blue-700"
-                                        >
-                                            Đặt ngay
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </main>
+            {/* Sticky filter bar */}
+            <section className={`sticky top-14 z-30 ${t.bg.base}/95 backdrop-blur-2xl py-3 -mx-4 px-4 border-b ${t.border.subtle}`}>
+                <CourtFilter
+                    filters={filters}
+                    onChange={setFilters}
+                />
+            </section>
+
+            {/* Court list */}
+            <CourtList
+                courts={filteredCourts}
+                loading={loading}
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
+            />
         </div>
     );
 }

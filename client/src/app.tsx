@@ -1,21 +1,64 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Login from './pages/Login';
+import './app.css';
+import { useState } from 'react';
+import { AppProvider, useAppStore } from './store';
+import Header from './components/layout/Header';
+import BottomNav from './components/layout/BottomNav';
 import Dashboard from './pages/Dashboard';
+import MapPage from './pages/MapPage';
+import SearchPage from './pages/SearchPage';
+import ProfilePage from './pages/ProfilePage';
+import Login from './pages/Login';
 import CourtDetail from './pages/CourtDetail';
-import Payment from './pages/Payment';
+import BookingSheet from './features/booking/BookingSheet';
+import AdminDashboard from './features/admin/AdminDashboard';
+import type { Court } from './types';
 
-function App() {
+function AppContent() {
+  const { page, bookingCourt, setBookingCourt, user } = useAppStore();
+  const [detailCourt, setDetailCourt] = useState<Court | null>(null);
+
+  if (detailCourt) {
+    return <CourtDetail court={detailCourt} onBack={() => setDetailCourt(null)} />;
+  }
+  // if (!user && page === 'login') {
+  //   return <Login />;
+  // }
+
+  if (user?.role === 'admin' && page === 'admin') {
+    return <AdminDashboard />;
+  }
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        { }
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/court/:id" element={<CourtDetail />} />
-        <Route path="/payment/:bookingId" element={<Payment />} />
-      </Routes>
-    </BrowserRouter>
+    <div className="min-h-screen bg-[#0a0a0a]">
+      <Header />
+
+      <main>
+        {page === 'home' && <Dashboard />}
+        {page === 'map' && <MapPage />}
+        {page === 'search' && <SearchPage />}
+        {page === 'profile' && <ProfilePage />}
+
+        {/* Thêm trang Login vào đây nếu bạn điều hướng nó qua biến 'page' */}
+        {page === 'login' && <Login />}
+      </main>
+
+      <BottomNav />
+
+      {/* Booking sheet overlay */}
+      {bookingCourt && (
+        <BookingSheet
+          court={bookingCourt}
+          onClose={() => setBookingCourt(null)}
+        />
+      )}
+    </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
+  );
+}
