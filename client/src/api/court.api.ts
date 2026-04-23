@@ -1,9 +1,36 @@
 import axiosClient from './axiosClient';
-import type { Court } from '../../../shared/types'; // Tái sử dụng Type
 
 export const courtApi = {
-    getAllCourts: () => {
-        // Vì axiosClient đã cấu hình trả về response.data, nên kết quả ở đây chính là mảng Court[]
-        return axiosClient.get<any, Court[]>('/courts');
-    }
+    searchCourts(params?: Record<string, any>) {
+        return axiosClient.get('/courts/search', { params });
+    },
+
+    getCourtByIdOrSlug(idOrSlug: string) {
+        return axiosClient.get(`/courts/${idOrSlug}`);
+    },
+
+    getAvailableSlots(courtId: string, subCourtId: string, date: string) {
+        return axiosClient.get(`/courts/${courtId}/slots/${subCourtId}`, { params: { date } });
+    },
+
+    getDistricts() {
+        return axiosClient.get('/courts/districts');
+    },
+
+    getActiveCourts(params?: Record<string, any>) {
+        return axiosClient.get('/courts/active', { params });
+    },
+
+    // Court owner
+    getMyCourts() {
+        return axiosClient.get('/courts/owner/my-courts');
+    },
+
+    createCourt(data: any) {
+        return axiosClient.post('/courts', data);
+    },
+
+    updateCourt(courtId: string, data: any) {
+        return axiosClient.put(`/courts/${courtId}`, data);
+    },
 };

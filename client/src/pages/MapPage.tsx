@@ -88,7 +88,7 @@ export default function MapPage() {
                     </button>
 
                     <div className="flex gap-4">
-                        <img src={mainPhoto(selected)} alt="" className="w-20 h-20 rounded-xl object-cover flex-shrink-0" />
+                        <img src={mainPhoto(selected)} alt="" className="w-20 h-20 rounded-xl object-cover shrink-0" />
                         <div className="flex-1 min-w-0">
                             <h3 className={`font-bold text-sm ${t.text.primary} truncate`}>{selected.name}</h3>
                             <p className={`text-xs ${t.text.muted} flex items-center gap-1 mt-0.5`}>
