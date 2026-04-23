@@ -30,10 +30,10 @@ const startServer = async () => {
 ║                                                  ║
 ║   ShuttleSync API Server                         ║
 ║                                                  ║
-║   Port:        ${config.port}                    ║
-║   Environment: ${config.nodeEnv.padEnd(18)}      ║
-║   API:     http://localhost:${config.port}/api/v1║
-║   Socket.IO:   ws://localhost:${config.port}     ║
+║   Port:        ${config.port}                              ║
+║   Environment: ${config.nodeEnv.padEnd(18)}                ║
+║   API:     http://localhost:${config.port}/api/v1          ║
+║   Socket.IO:   ws://localhost:${config.port}               ║
 ║                                                  ║
 ╚══════════════════════════════════════════════════╝
       `);

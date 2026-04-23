@@ -163,7 +163,7 @@ async function seed() {
     });
 
     // Load JSON
-    const jsonPath = path.resolve(__dirname, '../../data/courts-raw.json');
+    const jsonPath = path.resolve(__dirname, '../data/courts-raw.json');
     if (!fs.existsSync(jsonPath)) {
         logger.error(`❌ File not found: ${jsonPath}`);
         logger.error('   Copy your crawled JSON to: server/data/courts-raw.json');
@@ -201,7 +201,7 @@ async function seed() {
                 slug,
                 ownerId: admin._id,
                 sportTypes: sports,
-                status: CourtStatus.ACTIVE,
+                status: 'active',
                 address: {
                     street: r.street || '',
                     ward,
@@ -228,7 +228,7 @@ async function seed() {
                 averageRating: r.totalScore || 0,
                 reviewCount: r.reviewsCount || 0,
                 totalBookings: 0,
-                isVerified: false,
+                isVerified: true,
             });
             ok++;
         } catch (e: any) {
