@@ -62,7 +62,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
         || 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&h=250&fit=crop';
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
+        <div className="fixed inset-0 z-100 flex items-end sm:items-center justify-center">
             {/* Backdrop */}
             <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
@@ -105,7 +105,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                         <button
                                             key={i}
                                             onClick={() => setSelectedDate(i)}
-                                            className={`flex-shrink-0 w-14 py-3 rounded-xl flex flex-col items-center gap-1 border-2 transition-all ${selectedDate === i
+                                            className={`shrink-0 w-14 py-3 rounded-xl flex flex-col items-center gap-1 border-2 transition-all ${selectedDate === i
                                                 ? `border-emerald-400 bg-emerald-500/10 ${t.glow.sm}`
                                                 : `${t.border.subtle} ${t.bg.elevated}`
                                                 }`}
