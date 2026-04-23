@@ -20,7 +20,7 @@ export default function ProfilePage() {
             {/* Profile card */}
             <div className={`${t.bg.card} rounded-2xl border ${t.border.subtle} p-6 mb-6 text-center`}>
                 <div className="relative inline-block mb-4">
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center text-3xl font-black text-black shadow-lg shadow-emerald-500/20">
+                    <div className="w-20 h-20 rounded-2xl bg-linear-to-br from-emerald-400 to-green-600 flex items-center justify-center text-3xl font-black text-black shadow-lg shadow-emerald-500/20">
                         U
                     </div>
                     <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-emerald-500 flex items-center justify-center border-2 border-[#151515]">
