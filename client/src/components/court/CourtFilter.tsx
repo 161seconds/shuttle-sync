@@ -47,7 +47,7 @@ export default function CourtFilter({ filters, onChange, showSearch = true }: Co
                         <button
                             key={s.id}
                             onClick={() => onChange({ sport: s.id })}
-                            className={`flex-shrink-0 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition-all ${active
+                            className={`shrink-0 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition-all ${active
                                 ? `bg-emerald-500/15 border-emerald-500/30 text-emerald-400 ${t.glow.sm}`
                                 : `${t.bg.elevated} ${t.border.subtle} ${t.text.secondary} hover:border-emerald-500/20`
                                 }`}

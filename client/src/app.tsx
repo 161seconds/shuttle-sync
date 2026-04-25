@@ -1,50 +1,64 @@
 import './app.css';
 import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { AppProvider, useAppStore } from './store';
 import Header from './components/layout/Header';
 import BottomNav from './components/layout/BottomNav';
+import Dashboard from './pages/Dashboard';
 import MapPage from './pages/MapPage';
 import SearchPage from './pages/SearchPage';
 import ProfilePage from './pages/ProfilePage';
-import Login from './pages/Login';
 import CourtDetail from './pages/CourtDetail';
 import BookingSheet from './features/booking/BookingSheet';
-import AdminDashboard from './features/admin/AdminDashboard';
-
-import HomePage from './pages/HomePage';
+import { useOnboarding, OnboardingModal, GuidedTourOverlay } from './features/onboarding';
+import { theme as DS } from './utils/theme';
 import type { Court } from './types';
 
-function AppContent() {
-  const { page, bookingCourt, setBookingCourt, user } = useAppStore();
+function Shell() {
+  const { page, bookingCourt, setBookingCourt } = useAppStore();
   const [detailCourt, setDetailCourt] = useState<Court | null>(null);
+  const { showOnboarding, showTour, completeOnboarding, skipOnboarding, completeTour } = useOnboarding();
 
+  // Court detail full-screen view
   if (detailCourt) {
     return <CourtDetail court={detailCourt} onBack={() => setDetailCourt(null)} />;
   }
 
-  if (user?.role === 'admin' && page === 'admin') {
-    return <AdminDashboard />;
-  }
-
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      <Header />
+    <div className={`min-h-screen ${DS.bg.base}`}>
+      {/* Onboarding modal — shown once for new users */}
+      <AnimatePresence>
+        {showOnboarding && (
+          <OnboardingModal
+            onComplete={completeOnboarding}
+            onSkip={skipOnboarding}
+          />
+        )}
+      </AnimatePresence>
 
-      <main>
-        {page === 'home' && <HomePage />}
-        {page === 'map' && <MapPage />}
-        {page === 'search' && <SearchPage />}
-        {page === 'profile' && <ProfilePage />}
-        {page === 'login' && <Login />}
-      </main>
+      {/* Main app — only visible after onboarding */}
+      {!showOnboarding && (
+        <>
+          <Header />
 
-      <BottomNav />
+          <AnimatePresence mode="wait">
+            {page === 'home' && <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Dashboard /></motion.div>}
+            {page === 'map' && <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MapPage /></motion.div>}
+            {page === 'search' && <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SearchPage /></motion.div>}
+            {page === 'profile' && <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ProfilePage /></motion.div>}
+          </AnimatePresence>
 
-      {bookingCourt && (
-        <BookingSheet
-          court={bookingCourt}
-          onClose={() => setBookingCourt(null)}
-        />
+          <BottomNav />
+
+          <AnimatePresence>
+            {bookingCourt && <BookingSheet court={bookingCourt} onClose={() => setBookingCourt(null)} />}
+          </AnimatePresence>
+
+          {/* Guided tour — shown after onboarding completes */}
+          <AnimatePresence>
+            {showTour && <GuidedTourOverlay onComplete={completeTour} />}
+          </AnimatePresence>
+        </>
       )}
     </div>
   );
@@ -53,7 +67,7 @@ function AppContent() {
 export default function App() {
   return (
     <AppProvider>
-      <AppContent />
+      <Shell />
     </AppProvider>
   );
 }
