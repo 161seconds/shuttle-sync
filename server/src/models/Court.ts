@@ -1,5 +1,4 @@
-import mongoose from 'mongoose';
-
+const mongoose = require('mongoose');
 const courtSchema = new mongoose.Schema({
     name: { type: String, required: true },
     slug: { type: String, unique: true },
@@ -54,6 +53,6 @@ const courtSchema = new mongoose.Schema({
     timestamps: true
 });
 
-courtSchema.index({ location: '2dsphere' });
-
-export const Court = mongoose.model('Court', courtSchema);
+courtSchema.index({ name: 'text', address: 'text', description: 'text' });
+const Court = mongoose.model('Court', courtSchema);
+module.exports = Court;

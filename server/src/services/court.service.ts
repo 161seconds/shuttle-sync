@@ -4,6 +4,7 @@ import { Court, ICourtDocument, TimeSlot } from '../models';
 import { ApiError } from '../utils/ApiError';
 import { createSlug, calculatePagination, generateTimeSlots } from '../utils/helpers';
 import { logger } from '../utils/logger';
+import { any } from 'zod';
 
 class CourtService {
     /**
@@ -205,19 +206,19 @@ class CourtService {
 
         const dayOfWeek = date.getDay();
         const opHours = court.operatingHours.find(
-            h => h.dayOfWeek === dayOfWeek && h.isOpen
+            (h: any) => h.dayOfWeek === dayOfWeek && h.isOpen
         );
 
         if (!opHours) return; // Sân đóng ngày này
 
-        const activeCourts = court.courts.filter(c => c.isActive);
+        const activeCourts = court.courts.filter((c: any) => c.isActive);
 
         for (const subCourt of activeCourts) {
             const slots = generateTimeSlots(opHours.open, opHours.close, 60);
 
             // Find price for this time
             const pricing = court.pricePerHour.find(
-                p => p.sportType === subCourt.sportType
+                (p: any) => p.sportType === subCourt.sportType
             );
 
             for (const slot of slots) {
@@ -234,7 +235,7 @@ class CourtService {
                     let price = 100000; // default
                     if (pricing) {
                         const matchingPrice = pricing.timeSlots.find(
-                            ts =>
+                            (ts: any) =>
                                 ts.daysOfWeek.includes(dayOfWeek) &&
                                 slot.start >= ts.startTime &&
                                 slot.start < ts.endTime

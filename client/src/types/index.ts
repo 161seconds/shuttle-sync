@@ -1,4 +1,21 @@
 export type SportType = 'badminton' | 'pickleball' | 'both';
+export type OnboardingSport = 'badminton' | 'pickleball' | 'tennis';
+
+export interface TourStep {
+    targetId: string;
+    title: string;
+    description: string;
+    position: 'top' | 'bottom' | 'left' | 'right';
+}
+
+export interface CourtData {
+    id: string | number;
+    name: string;
+    address?: string;
+    price?: number;
+    sportType?: OnboardingSport | string;
+    [key: string]: any;
+}
 
 export interface CourtAddress {
     street: string;
