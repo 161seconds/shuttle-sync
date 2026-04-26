@@ -126,6 +126,7 @@ export interface User {
     phone?: string;
     displayName: string;
     avatar?: string;
+    favoriteCourtIds?: string[];
     role: UserRole;
     status: string;
     skillLevel?: SkillLevel;
