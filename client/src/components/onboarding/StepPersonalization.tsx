@@ -35,7 +35,7 @@ export default function StepPersonalization({ preferences, onChange, onNext, onB
 
     return (
         <motion.div
-            className="flex flex-col min-h-full px-6 pt-4 pb-6 relative z-10"
+            className="flex flex-col h-full px-6 pt-4 pb-6 relative z-10"
             initial={{ opacity: 0, x: 60 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -60 }}
             transition={{ duration: 0.4 }}
         >
@@ -172,7 +172,7 @@ export default function StepPersonalization({ preferences, onChange, onNext, onB
             </AnimatePresence>
 
             {/* === Nav === */}
-            <div className="flex gap-3 mt-4 pt-2">
+            <div className="flex gap-3 mt-4 pt-2 shrink-0">
                 <motion.button onClick={onBack} whileTap={{ scale: 0.97 }}
                     className="flex-1 py-3.5 rounded-xl border border-white/10 text-white/60 font-medium hover:border-white/20 transition-all flex items-center justify-center gap-2">
                     <ChevronLeft className="w-4 h-4" /> Quay lại

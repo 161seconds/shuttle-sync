@@ -40,7 +40,7 @@ class CourtController {
                 page: req.query.page ? Number(req.query.page) : undefined,
                 limit: req.query.limit ? Number(req.query.limit) : undefined,
             });
-            sendPaginated(res, courts, pagination);
+            sendPaginated(res, courts, { ...pagination, total: pagination.totalCourts });
         } catch (error) {
             next(error);
         }

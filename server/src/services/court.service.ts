@@ -1,15 +1,11 @@
 import mongoose from 'mongoose';
 import { CourtStatus, SportType, SlotStatus } from '@shuttle-sync/shared';
-import { Court, ICourtDocument, TimeSlot } from '../models';
+import { ICourtDocument, TimeSlot, Court } from '../models';
 import { ApiError } from '../utils/ApiError';
 import { createSlug, calculatePagination, generateTimeSlots } from '../utils/helpers';
 import { logger } from '../utils/logger';
-import { any } from 'zod';
 
 class CourtService {
-    /**
-     * Create a new court (by court owner)
-     */
     async createCourt(ownerId: string, data: any): Promise<ICourtDocument> {
         const slug = createSlug(data.name) + '-' + Date.now().toString(36);
 
@@ -56,6 +52,9 @@ class CourtService {
     /**
      * Search courts with filters, geo, text search
      */
+    /**
+     * Search courts with filters, geo, text search
+     */
     async searchCourts(params: {
         q?: string;
         sportType?: SportType;
@@ -84,8 +83,8 @@ class CourtService {
             filter.sportTypes = params.sportType;
         }
 
-        // District
-        if (params.district) {
+        // District (Sửa lại logic lọc Tất cả)
+        if (params.district && params.district !== 'Tất cả') {
             filter['address.district'] = { $regex: params.district, $options: 'i' };
         }
 
@@ -115,15 +114,31 @@ class CourtService {
             };
         }
 
-        // Count total
-        const total = await Court.countDocuments(filter);
+        // ==========================================
+        // FIX 1: Dùng $geoWithin để đếm tổng số sân (MongoDB cấm dùng $near để đếm)
+        // ==========================================
+        const countFilter = { ...filter };
+        if (countFilter.location && countFilter.location.$near) {
+            const maxDistance = countFilter.location.$near.$maxDistance;
+            const coords = countFilter.location.$near.$geometry.coordinates;
+            countFilter.location = {
+                $geoWithin: {
+                    // Chuyển mét sang radians (Bán kính trái đất ~ 6378.1 km)
+                    $centerSphere: [coords, maxDistance / 6378100]
+                }
+            };
+        }
+
+        const totalCourts = await Court.countDocuments(countFilter);
         const { page, limit, totalPages, skip } = calculatePagination(
             params.page || 1,
             params.limit || 20,
-            total
+            totalCourts
         );
 
-        // Sort
+        // ==========================================
+        // FIX 2: Không được gán lệnh .sort() nếu đang tìm theo khoảng cách
+        // ==========================================
         let sort: any = {};
         switch (params.sortBy) {
             case 'price':
@@ -135,24 +150,53 @@ class CourtService {
             case 'popularity':
                 sort = { totalBookings: -1 };
                 break;
+            case 'distance':
+                sort = undefined; // $near đã tự động sort từ gần đến xa
+                break;
             default:
                 if (params.q) {
                     sort = { score: { $meta: 'textScore' } };
-                } else {
+                } else if (!params.lat || !params.lng) {
+                    // Chỉ dùng sort mặc định nếu KHÔNG tìm theo vị trí
                     sort = { averageRating: -1, totalBookings: -1 };
+                } else {
+                    sort = undefined;
                 }
         }
 
-        const courts = await Court.find(filter)
-            .sort(sort)
+        // Build query
+        let query = Court.find(filter)
             .skip(skip)
             .limit(limit)
-            .populate('ownerId', 'displayName avatar')
-            .lean();
+            .populate('ownerId', 'displayName avatar');
+
+        // Chỉ thêm .sort() nếu biến sort tồn tại
+        if (sort) {
+            query = query.sort(sort);
+        }
+
+        const courts = await query.lean();
+
+        // Bonus: Tự động tính toán số km khoảng cách gửi về cho Frontend hiển thị
+        if (params.lat && params.lng) {
+            courts.forEach(court => {
+                if (court.location && court.location.coordinates) {
+                    const [lng, lat] = court.location.coordinates;
+                    const R = 6371; // Bán kính trái đất
+                    const dLat = (lat - params.lat!) * Math.PI / 180;
+                    const dLng = (lng - params.lng!) * Math.PI / 180;
+                    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                        Math.cos(params.lat! * Math.PI / 180) * Math.cos(lat * Math.PI / 180) *
+                        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                    (court as any).distance = R * c;
+                }
+            });
+        }
 
         return {
             courts,
-            pagination: { page, limit, total, totalPages },
+            pagination: { page, limit, totalCourts, totalPages },
         };
     }
 
@@ -175,7 +219,7 @@ class CourtService {
         const court = await Court.findById(courtId);
         if (!court) throw ApiError.notFound('Không tìm thấy sân');
 
-        if (!isAdmin && court.ownerId.toString() !== ownerId) {
+        if (!isAdmin && court.ownerId?.toString() !== ownerId) {
             throw ApiError.forbidden('Bạn không phải chủ sân này');
         }
 

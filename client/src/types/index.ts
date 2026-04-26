@@ -122,6 +122,7 @@ export type SkillLevel = 'beginner' | 'intermediate' | 'advanced' | 'professiona
 export interface User {
     _id: string;
     email: string;
+    name?: string;
     phone?: string;
     displayName: string;
     avatar?: string;
