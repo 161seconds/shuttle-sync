@@ -25,7 +25,22 @@ export default function SearchPage() {
         const fetchCourts = async () => {
             try {
                 setLoading(true);
-                // Gọi API thật, nhồi tất cả filter vào
+                let currentLat: number | undefined = undefined;
+                let currentLng: number | undefined = undefined;
+
+                if (filters.sortBy === 'distance') {
+                    try {
+                        const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+                            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+                        });
+                        currentLat = pos.coords.latitude;
+                        currentLng = pos.coords.longitude;
+                    } catch (geoErr) {
+                        console.warn("Không thể lấy vị trí, dùng vị trí mặc định (Trung tâm TPHCM):", geoErr);
+                        currentLat = 10.762622;
+                        currentLng = 106.660172;
+                    }
+                }
                 const response = await courtApi.searchCourts({
                     page: page,
                     limit: 12,
@@ -33,8 +48,9 @@ export default function SearchPage() {
                     district: filters.district !== 'Tất cả' ? filters.district : undefined,
                     sortBy: filters.sortBy,
                     q: filters.keyword || undefined,
-                    maxPrice: priceMax < 200000 ? priceMax : undefined, // Nếu max thì không cần gửi để lấy hết
-                    //isIndoor: indoorOnly ? true : undefined
+                    maxPrice: priceMax < 200000 ? priceMax : undefined,
+                    lat: currentLat,
+                    lng: currentLng
                 });
 
                 if (response.data && response.data.data) {
@@ -52,7 +68,7 @@ export default function SearchPage() {
 
         const timeoutId = setTimeout(() => fetchCourts(), 400);
         return () => clearTimeout(timeoutId);
-    }, [filters, page, priceMax]); // Chạy lại API khi bất kỳ filter nào thay đổi
+    }, [filters, page, priceMax]);
 
     const handleFilterChange = (partial: any) => {
         setFilters(partial);
