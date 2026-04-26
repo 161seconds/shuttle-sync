@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, ChevronRight, User, Phone, TrendingUp, Users, Calendar, Star, Zap } from 'lucide-react';
 import { theme as DS } from '../utils/theme';
 import { useAppStore } from '../store';
+import { authApi } from '../api/auth.api';
 
 /* ═══════════════════════════════════════════════════
    FLOATING STAT CARDS (Left panel decoration)
@@ -96,7 +97,7 @@ function FloatingCards() {
    MAIN LOGIN PAGE
    ═══════════════════════════════════════════════════ */
 export default function Login() {
-    const { setPage } = useAppStore();
+    const { setPage, setUser } = useAppStore(); // Lấy thêm setUser để lưu data người dùng
     const [mode, setMode] = useState<'login' | 'register'>('login');
     const [showPw, setShowPw] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -104,9 +105,13 @@ export default function Login() {
     const [form, setForm] = useState({ email: '', password: '', displayName: '', phone: '' });
     const [errors, setErrors] = useState<Record<string, string>>({});
 
+    // Thêm state để hiển thị lỗi từ Backend (sai pass, trùng email...)
+    const [apiError, setApiError] = useState('');
+
     const set = (k: string, v: string) => {
         setForm(p => ({ ...p, [k]: v }));
         setErrors(p => { const n = { ...p }; delete n[k]; return n; });
+        setApiError(''); // Xóa lỗi API khi người dùng gõ lại
     };
 
     const validate = () => {
@@ -123,10 +128,51 @@ export default function Login() {
     const submit = async () => {
         if (!validate()) return;
         setLoading(true);
-        // TODO: Replace with authApi.login() / authApi.register()
-        await new Promise(r => setTimeout(r, 800));
-        setLoading(false);
-        setPage('home');
+        setApiError('');
+
+        try {
+            let response;
+            if (mode === 'login') {
+                // GỌI API ĐĂNG NHẬP
+                response = await authApi.login({
+                    email: form.email,
+                    password: form.password
+                });
+            } else {
+                // GỌI API ĐĂNG KÝ
+                response = await authApi.register({
+                    email: form.email,
+                    password: form.password,
+                    displayName: form.displayName,
+                    phone: form.phone || undefined
+                });
+            }
+
+            // Trích xuất dữ liệu từ Backend trả về
+            const { user, accessToken, refreshToken } = response.data.data;
+
+            // Lưu token vào trình duyệt để các API khác xài
+            localStorage.setItem('accessToken', accessToken);
+            if (rememberMe) {
+                localStorage.setItem('refreshToken', refreshToken);
+            } else {
+                localStorage.removeItem('refreshToken');
+            }
+
+            // Lưu thông tin người dùng vào global store
+            setUser(user);
+
+            // Chuyển hướng thành công về trang chủ
+            setPage('home');
+
+        } catch (error: any) {
+            console.error('Lỗi xác thực:', error);
+            // Lấy câu thông báo lỗi từ Backend trả về (Ví dụ: "Mật khẩu không đúng")
+            const errorMsg = error.response?.data?.message || 'Có lỗi xảy ra với máy chủ, vui lòng thử lại sau';
+            setApiError(errorMsg);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -187,7 +233,7 @@ export default function Login() {
                     {/* Header */}
                     <div className="mb-8">
                         <h1 className="text-2xl font-black text-white tracking-tight">
-                            {mode === 'login' ? 'Chào mừng trở lại!' : 'Tạo tài khoản mới'}{' '}
+                            {mode === 'login' ? 'Welcome back!' : 'Create new account'}
                             <span className="inline-block animate-[wave_1.8s_ease-in-out_infinite]">👋</span>
                         </h1>
                         <p className={`text-sm ${DS.text.muted} mt-2 leading-relaxed`}>
@@ -197,13 +243,10 @@ export default function Login() {
                         </p>
                     </div>
 
-                    {/* Demo credentials hint */}
-                    {mode === 'login' && (
-                        <div className="mb-5 px-4 py-2.5 rounded-xl bg-emerald-500/8 border border-emerald-500/15">
-                            <p className="text-emerald-400/80 text-xs">
-                                Email: <span className="font-mono font-semibold">admin@shuttlesync.vn</span>{' '}
-                                / Pass: <span className="font-mono font-semibold">Admin@123</span>
-                            </p>
+                    {/* Hộp thoại báo lỗi từ API */}
+                    {apiError && (
+                        <div className="mb-5 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold text-center">
+                            {apiError}
                         </div>
                     )}
 
@@ -297,7 +340,7 @@ export default function Login() {
                     {/* Toggle mode */}
                     <p className={`text-center text-sm mt-6 ${DS.text.muted}`}>
                         {mode === 'login' ? 'Chưa có tài khoản?' : 'Đã có tài khoản?'}
-                        <button onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setErrors({}); }}
+                        <button onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setErrors({}); setApiError(''); }}
                             className="ml-1.5 text-emerald-400 font-semibold hover:text-emerald-300 transition-colors">
                             {mode === 'login' ? 'Tạo tài khoản' : 'Đăng nhập'}
                         </button>
@@ -334,17 +377,8 @@ export default function Login() {
     );
 }
 
-/* ═══════════════════════════════════════════════════
-   FORM FIELD — outlined floating-label style
-   ═══════════════════════════════════════════════════ */
 function FormField({ icon, label, placeholder, type = 'text', value, onChange, error }: {
-    icon: React.ReactNode;
-    label: string;
-    placeholder: string;
-    type?: string;
-    value: string;
-    onChange: (v: string) => void;
-    error?: string;
+    icon: React.ReactNode; label: string; placeholder: string; type?: string; value: string; onChange: (v: string) => void; error?: string;
 }) {
     const [focused, setFocused] = useState(false);
     const isActive = focused || value.length > 0;
@@ -352,7 +386,6 @@ function FormField({ icon, label, placeholder, type = 'text', value, onChange, e
     return (
         <div>
             <div className="relative">
-                {/* Floating label */}
                 <label className={`absolute left-10 transition-all duration-200 pointer-events-none ${isActive
                     ? '-top-2.5 text-[11px] px-1.5 bg-[#08090a]'
                     : 'top-3.5 text-sm'
@@ -360,26 +393,14 @@ function FormField({ icon, label, placeholder, type = 'text', value, onChange, e
                     }`}>
                     {label}
                 </label>
-
-                {/* Icon */}
                 <span className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${error ? 'text-red-400' : focused ? 'text-emerald-400' : 'text-[#5f656d]'
                     }`}>
                     {icon}
                 </span>
-
-                {/* Input */}
-                <input
-                    type={type}
-                    placeholder={isActive ? placeholder : ''}
-                    value={value}
-                    onChange={e => onChange((e.target as HTMLInputElement).value)}
-                    onFocus={() => setFocused(true)}
-                    onBlur={() => setFocused(false)}
+                <input type={type} placeholder={isActive ? placeholder : ''} value={value}
+                    onChange={e => onChange((e.target as HTMLInputElement).value)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
                     className={`w-full h-12 pl-11 pr-4 rounded-xl bg-transparent border-2 ${DS.text.primary} placeholder:text-[#3a3d40] text-sm outline-none transition-colors ${error
-                        ? 'border-red-500/50 focus:border-red-400/70'
-                        : focused
-                            ? 'border-emerald-500/50'
-                            : 'border-[#1e2124] hover:border-[#2a2d30]'
+                        ? 'border-red-500/50 focus:border-red-400/70' : focused ? 'border-emerald-500/50' : 'border-[#1e2124] hover:border-[#2a2d30]'
                         }`}
                 />
             </div>

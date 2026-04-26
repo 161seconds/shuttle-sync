@@ -1,16 +1,16 @@
-import { Calendar, Search, Bell } from 'lucide-react';
+import { Calendar, Search, Bell, LogIn } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { theme as t } from '../../utils/theme';
 
 export default function Header() {
-    const { setPage } = useAppStore();
+    const { setPage, user } = useAppStore();
 
     return (
         <header className={`sticky top-0 z-50 ${t.bg.base}/95 backdrop-blur-2xl border-b ${t.border.subtle}`}>
             <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
                 {/* Logo */}
                 <button onClick={() => setPage('home')} className="flex items-center gap-2 group">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:shadow-emerald-500/40 transition-shadow">
+                    <div className="w-8 h-8 rounded-lg bg-linear-to-br from-emerald-400 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:shadow-emerald-500/40 transition-shadow">
                         <span className="text-sm">🏸</span>
                     </div>
                     <span className="font-black text-lg hidden sm:block">
@@ -27,16 +27,27 @@ export default function Header() {
 
                 {/* Right */}
                 <div className="flex items-center gap-2">
-                    <button className={`relative w-9 h-9 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-emerald-400 transition-colors`}>
-                        <Bell className="w-4 h-4" />
-                        <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0a0a0a]" />
-                    </button>
-                    <button
-                        onClick={() => setPage('profile')}
-                        className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-400 font-bold text-xs border border-emerald-500/20 hover:bg-emerald-500/25 transition-colors"
-                    >
-                        U
-                    </button>
+                    {user ? (
+                        <>
+                            <button className={`relative w-9 h-9 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-emerald-400 transition-colors`}>
+                                <Bell className="w-4 h-4" />
+                                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0a0a0a]" />
+                            </button>
+                            <button
+                                onClick={() => setPage('profile')}
+                                className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-400 font-bold text-xs border border-emerald-500/20 hover:bg-emerald-500/25 transition-colors"
+                            >
+                                {user.displayName?.charAt(0).toUpperCase() || 'U'}
+                            </button>
+                        </>
+                    ) : (
+                        <button
+                            onClick={() => setPage('login')}
+                            className="px-4 h-9 rounded-xl bg-emerald-500 text-black font-bold text-xs flex items-center gap-2 hover:bg-emerald-400 transition-colors"
+                        >
+                            <LogIn className="w-4 h-4" /> Đăng nhập
+                        </button>
+                    )}
                 </div>
             </div>
         </header>
