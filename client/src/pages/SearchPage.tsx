@@ -28,6 +28,7 @@ export default function SearchPage() {
                 let currentLat: number | undefined = undefined;
                 let currentLng: number | undefined = undefined;
 
+                // 1. NẾU ĐANG CHỌN TÌM THEO KHOẢNG CÁCH
                 if (filters.sortBy === 'distance') {
                     try {
                         const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
@@ -36,17 +37,24 @@ export default function SearchPage() {
                         currentLat = pos.coords.latitude;
                         currentLng = pos.coords.longitude;
                     } catch (geoErr) {
-                        console.warn("Không thể lấy vị trí, dùng vị trí mặc định (Trung tâm TPHCM):", geoErr);
-                        currentLat = 10.762622;
-                        currentLng = 106.660172;
+                        // 2. NẾU BỊ CHẶN VỊ TRÍ HOẶC LỖI
+                        console.warn("Bị chặn quyền vị trí.");
+                        alert("Bạn chưa cấp quyền vị trí! Hệ thống sẽ tạm chuyển sang sắp xếp theo Đánh giá.");
+
+                        // Tự động đổi bộ lọc sang 'rating' và dừng hàm này lại 
+                        // (useEffect sẽ tự động chạy lại do filters bị thay đổi)
+                        setFilters({ sortBy: 'rating' });
+                        return;
                     }
                 }
+
+                // ... Giữ nguyên phần gọi API courtApi.searchCourts bên dưới ...
                 const response = await courtApi.searchCourts({
                     page: page,
                     limit: 12,
                     sportType: filters.sport !== 'all' ? filters.sport : undefined,
                     district: filters.district !== 'Tất cả' ? filters.district : undefined,
-                    sortBy: filters.sortBy,
+                    sortBy: filters.sortBy, // Bây giờ nếu bị lỗi vị trí, nó đã biến thành 'rating'
                     q: filters.keyword || undefined,
                     maxPrice: priceMax < 200000 ? priceMax : undefined,
                     lat: currentLat,
