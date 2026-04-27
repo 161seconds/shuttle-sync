@@ -57,7 +57,7 @@ axiosClient.interceptors.response.use(
                 processQueue(err, null);
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
-                window.location.href = '/login';
+                window.location.reload();
                 return Promise.reject(err);
             } finally {
                 isRefreshing = false;
