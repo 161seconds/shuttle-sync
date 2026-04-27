@@ -64,6 +64,6 @@ export function AppProvider({ children }: AppProviderProps) {
 
 export function useAppStore() {
     const ctx = useContext(AppContext);
-    if (!ctx) throw new Error('useAppStore must be used within AppProvider');
+    if (!ctx) throw new Error('useAppStore must be used within AppProvi der');
     return ctx;
 }
