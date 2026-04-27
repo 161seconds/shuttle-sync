@@ -35,20 +35,23 @@ export default function StepPersonalization({ preferences, onChange, onNext, onB
 
     return (
         <motion.div
-            className="flex flex-col h-full px-6 pt-4 pb-6 relative z-10"
+            // Bật thanh cuộn cho toàn bộ trang
+            className="w-full h-full px-6 pt-4 pb-6 overflow-y-auto scrollbar-thin flex flex-col relative z-10"
             initial={{ opacity: 0, x: 60 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -60 }}
             transition={{ duration: 0.4 }}
         >
-            <h2 className="text-2xl font-bold text-white mb-1 tracking-tight">Cá nhân hóa</h2>
-            <p className="text-white/40 text-sm mb-6">Giúp chúng tôi hiểu bạn hơn</p>
+            <h2 className="text-2xl font-bold text-white mb-1 tracking-tight shrink-0">Cá nhân hóa</h2>
+            <p className="text-white/40 text-sm mb-6 shrink-0">Giúp chúng tôi hiểu bạn hơn</p>
 
-            <div className="flex-1 overflow-y-auto space-y-6 pr-1 scrollbar-thin">
+            {/* Vùng nội dung chính */}
+            <div className="space-y-6">
+
                 {/* === Môn thể thao === */}
                 <div>
                     <label className="text-xs font-mono uppercase tracking-widest text-emerald-400/70 mb-3 block">
                         Môn thể thao yêu thích
                     </label>
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                         {SPORTS.map((s: any) => {
                             const selected = preferences.sports.includes(s.id);
                             return (
@@ -132,28 +135,30 @@ export default function StepPersonalization({ preferences, onChange, onNext, onB
                             onFocus={() => setShowLocDropdown(true)}
                             className="w-full py-3.5 pl-11 pr-4 rounded-xl bg-white/5 border-2 border-white/8 text-white placeholder-white/25 text-sm outline-none focus:border-emerald-400/50 transition-colors"
                         />
+
+                        {/* Drop-up: Nổi lên trên input */}
+                        <AnimatePresence>
+                            {showLocDropdown && filteredDistricts.length > 0 && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                                    className="absolute bottom-full mb-2 left-0 right-0 z-20 bg-gray-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl max-h-48 overflow-y-auto scrollbar-thin"
+                                >
+                                    {filteredDistricts.map((d: string) => (
+                                        <button key={d}
+                                            onClick={() => {
+                                                setLocSearch(d);
+                                                onChange({ ...preferences, location: d });
+                                                setShowLocDropdown(false);
+                                            }}
+                                            className="w-full px-4 py-3 text-left text-sm text-white/70 hover:bg-emerald-500/10 hover:text-emerald-300 transition-colors first:rounded-t-xl last:rounded-b-xl"
+                                        >
+                                            {d}
+                                        </button>
+                                    ))}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
-                    <AnimatePresence>
-                        {showLocDropdown && filteredDistricts.length > 0 && (
-                            <motion.div
-                                initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-                                className="absolute z-20 mt-2 w-full bg-gray-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl max-h-48 overflow-y-auto"
-                            >
-                                {filteredDistricts.map((d: string) => (
-                                    <button key={d}
-                                        onClick={() => {
-                                            setLocSearch(d);
-                                            onChange({ ...preferences, location: d });
-                                            setShowLocDropdown(false);
-                                        }}
-                                        className="w-full px-4 py-3 text-left text-sm text-white/70 hover:bg-emerald-500/10 hover:text-emerald-300 transition-colors first:rounded-t-xl last:rounded-b-xl"
-                                    >
-                                        {d}
-                                    </button>
-                                ))}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
                 </div>
             </div>
 
@@ -162,7 +167,7 @@ export default function StepPersonalization({ preferences, onChange, onNext, onB
                 {errors.length > 0 && (
                     <motion.div
                         initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-                        className="mt-3 px-4 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20"
+                        className="mt-3 px-4 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 shrink-0"
                     >
                         {errors.map((e, i) => (
                             <p key={i} className="text-red-400 text-xs">{e}</p>
@@ -171,8 +176,8 @@ export default function StepPersonalization({ preferences, onChange, onNext, onB
                 )}
             </AnimatePresence>
 
-            {/* === Nav === */}
-            <div className="flex gap-3 mt-4 pt-2 shrink-0">
+            {/* === Nút Bấm (Dùng mt-auto để đẩy xuống đáy nội dung) === */}
+            <div className="flex gap-3 mt-auto pt-8 pb-2 shrink-0">
                 <motion.button onClick={onBack} whileTap={{ scale: 0.97 }}
                     className="flex-1 py-3.5 rounded-xl border border-white/10 text-white/60 font-medium hover:border-white/20 transition-all flex items-center justify-center gap-2">
                     <ChevronLeft className="w-4 h-4" /> Quay lại

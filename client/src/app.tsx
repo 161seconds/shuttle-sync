@@ -43,13 +43,15 @@ function Shell() {
           {page !== 'login' && <Header />}
 
           <AnimatePresence mode="wait">
+            {/* 4. KHAI BÁO HIỂN THỊ TRANG LOGIN */}
+            {page === 'login' && <motion.div key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Login /></motion.div>}
+
             {page === 'home' && <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Dashboard /></motion.div>}
             {page === 'map' && <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MapPage /></motion.div>}
             {page === 'search' && <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SearchPage /></motion.div>}
             {page === 'profile' && <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ProfilePage /></motion.div>}
 
-            {/* 4. KHAI BÁO HIỂN THỊ TRANG LOGIN */}
-            {page === 'login' && <motion.div key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Login /></motion.div>}
+
           </AnimatePresence>
 
           {/* 5. ẨN BOTTOM NAV Ở TRANG LOGIN */}
@@ -60,7 +62,7 @@ function Shell() {
           </AnimatePresence>
 
           <AnimatePresence>
-            {showTour && <GuidedTourOverlay onComplete={completeTour} />}
+            {showTour && page != 'login' && <GuidedTourOverlay onComplete={completeTour} />}
           </AnimatePresence>
         </>
       )}

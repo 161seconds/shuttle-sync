@@ -39,7 +39,7 @@ export default function Dashboard() {
         c.photos?.find(p => p.isMain)?.url || c.photos?.[0]?.url || 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&h=250&fit=crop';
 
     // Xử lý khi bấm vào các danh mục truy cập nhanh
-    const handleQuickFilter = (sportType: 'all' | 'badminton' | 'pickleball' | 'tennis') => {
+    const handleQuickFilter = (sportType: 'all' | 'badminton' | 'pickleball') => {
         setFilters({ sport: sportType });
         setPage('search'); // Chuyển sang trang tìm kiếm
     };
@@ -79,7 +79,7 @@ export default function Dashboard() {
             {/* 3. Truy cập nhanh (Quick Categories) */}
             <motion.div
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                className="grid grid-cols-3 gap-3"
+                className="grid grid-cols-2 gap-3"
             >
                 <button onClick={() => handleQuickFilter('badminton')} className={`p-4 rounded-2xl ${t.bg.card} border ${t.border.subtle} hover:border-emerald-500/30 flex flex-col items-center gap-2 transition-all`}>
                     <span className="text-3xl">🏸</span>
@@ -88,10 +88,6 @@ export default function Dashboard() {
                 <button onClick={() => handleQuickFilter('pickleball')} className={`p-4 rounded-2xl ${t.bg.card} border ${t.border.subtle} hover:border-lime-500/30 flex flex-col items-center gap-2 transition-all`}>
                     <span className="text-3xl">🏓</span>
                     <span className={`text-xs font-semibold ${t.text.primary}`}>Pickleball</span>
-                </button>
-                <button onClick={() => handleQuickFilter('tennis')} className={`p-4 rounded-2xl ${t.bg.card} border ${t.border.subtle} hover:border-blue-500/30 flex flex-col items-center gap-2 transition-all`}>
-                    <span className="text-3xl">🎾</span>
-                    <span className={`text-xs font-semibold ${t.text.primary}`}>Tennis</span>
                 </button>
             </motion.div>
 

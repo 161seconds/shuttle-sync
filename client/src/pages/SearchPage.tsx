@@ -48,7 +48,6 @@ export default function SearchPage() {
                     }
                 }
 
-                // ... Giữ nguyên phần gọi API courtApi.searchCourts bên dưới ...
                 const response = await courtApi.searchCourts({
                     page: page,
                     limit: 12,

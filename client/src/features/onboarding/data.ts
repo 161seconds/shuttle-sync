@@ -3,7 +3,6 @@ import type { OnboardingSport, SkillLevel, TourStep } from '../../types';
 export const SPORTS: { id: OnboardingSport; label: string; icon: string; color: string }[] = [
     { id: 'badminton', label: 'Cầu lông', icon: '🏸', color: 'from-emerald-400 to-green-600' },
     { id: 'pickleball', label: 'Pickleball', icon: '🏓', color: 'from-lime-400 to-emerald-500' },
-    { id: 'tennis', label: 'Tennis', icon: '🎾', color: 'from-green-400 to-teal-500' },
 ];
 
 export const SKILLS: { id: SkillLevel; label: string; desc: string; iconName: string }[] = [
