@@ -21,6 +21,10 @@ export const authApi = {
         return axiosClient.get('/auth/me');
     },
 
+    updateProfile: (data: any) => {
+        return axiosClient.put('/auth/profile', data);
+    },
+
     changePassword(data: { currentPassword: string; newPassword: string }) {
         return axiosClient.put('/auth/change-password', data);
     },
