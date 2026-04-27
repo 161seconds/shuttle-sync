@@ -19,7 +19,6 @@ export default function OnboardingModal({ onComplete, onSkip }: Props) {
     const [errors, setErrors] = useState<string[]>([]);
     const totalSteps = 4;
 
-    // Lock body scroll
     useEffect(() => {
         document.body.style.overflow = 'hidden';
         return () => { document.body.style.overflow = ''; };
@@ -43,22 +42,18 @@ export default function OnboardingModal({ onComplete, onSkip }: Props) {
             className="fixed inset-0 z-1000 flex items-center justify-center"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         >
-            {/* Backdrop */}
             <div className="absolute inset-0 bg-[#0a0f0d]" />
             <ParticleField />
 
-            {/* Noise texture */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
                 style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")" }}
             />
 
-            {/* Container */}
             <motion.div
-                className="relative w-full h-full sm:max-w-md sm:max-h-170 sm:h-auto sm:rounded-3xl overflow-hidden flex flex-col bg-transparent"
+                className="relative w-full h-full sm:max-w-md sm:h-162.5 sm:rounded-3xl overflow-hidden flex flex-col bg-transparent"
                 layout
             >
-                {/* Top bar */}
-                <div className="flex items-center justify-between relative z-20">
+                <div className="flex items-center justify-between relative z-20 shrink-0">
                     <ProgressBar current={step} total={totalSteps} />
                     {step > 1 && (
                         <button onClick={onSkip}
@@ -69,8 +64,7 @@ export default function OnboardingModal({ onComplete, onSkip }: Props) {
                     )}
                 </div>
 
-                {/* Steps */}
-                <div className="flex-1 relative overflow-hidden">
+                <div className="flex-1 relative overflow-hidden min-h-0">
                     <AnimatePresence mode="wait">
                         {step === 1 && <StepWelcome key="s1" onNext={goNext} onSkip={onSkip} />}
                         {step === 2 && <StepCarousel key="s2" onNext={goNext} onBack={() => setStep(1)} />}

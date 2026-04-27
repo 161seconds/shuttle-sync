@@ -1,5 +1,5 @@
 export type SportType = 'badminton' | 'pickleball' | 'both';
-export type OnboardingSport = 'badminton' | 'pickleball' | 'tennis';
+export type OnboardingSport = 'badminton' | 'pickleball';
 
 export interface TourStep {
     targetId: string;

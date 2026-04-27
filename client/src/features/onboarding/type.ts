@@ -1,4 +1,4 @@
-export type OnboardingSport = 'badminton' | 'pickleball' | 'tennis';
+export type OnboardingSport = 'badminton' | 'pickleball';
 export type SkillLevel = 'beginner' | 'intermediate' | 'advanced';
 
 export interface UserPreferences {
