@@ -16,16 +16,21 @@ import { theme as DS } from './utils/theme';
 import type { Court } from './types';
 
 function Shell() {
-  const { page, setPage, bookingCourt, setBookingCourt } = useAppStore();
+  const { page, setPage, bookingCourt, setBookingCourt, user } = useAppStore();
   const [detailCourt, setDetailCourt] = useState<Court | null>(null);
   const { showOnboarding, showTour, completeOnboarding, skipOnboarding, completeTour } = useOnboarding();
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token && page !== 'login') {
+    const publicPages = ['home', 'map', 'search', 'login'];
+
+    if (!user && !publicPages.includes(page)) {
       setPage('login');
     }
-  }, [page, setPage]);
+
+    if (user && page === 'login') {
+      setPage('home');
+    }
+  }, [user, page, setPage]);
 
   if (detailCourt) {
     return <CourtDetail court={detailCourt} onBack={() => setDetailCourt(null)} />;
