@@ -16,6 +16,10 @@ import { ParticleField } from './components/onboarding/Shared';
 import { theme as DS } from './utils/theme';
 import type { Court } from './types';
 import { authApi } from './api/auth.api';
+import {
+  EditProfilePage, FavoritesPage, BookingHistoryPage,
+  TournamentsPage, GroupsPage, NotificationsPage, SettingsPage
+} from './pages/ProfileSubPages';
 
 function Shell() {
   const { page, setPage, bookingCourt, setBookingCourt, user, setUser } = useAppStore();
@@ -82,6 +86,13 @@ function Shell() {
               {page === 'map' && <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MapPage /></motion.div>}
               {page === 'search' && <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SearchPage /></motion.div>}
               {page === 'profile' && <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ProfilePage /></motion.div>}
+              {page === 'edit-profile' && <EditProfilePage key="edit" />}
+              {page === 'favorites' && <FavoritesPage key="fav" />}
+              {page === 'history' && <BookingHistoryPage key="history" />}
+              {page === 'tournaments' && <TournamentsPage key="tour" />}
+              {page === 'groups' && <GroupsPage key="groups" />}
+              {page === 'notifications' && <NotificationsPage key="notif" />}
+              {page === 'settings' && <SettingsPage key="settings" />}
             </AnimatePresence>
           </main>
 

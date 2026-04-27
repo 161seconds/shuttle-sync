@@ -161,4 +161,6 @@ export interface ApiResponse<T = unknown> {
 // ========================
 // NAVIGATION
 // ========================
-export type AppPage = 'home' | 'map' | 'search' | 'profile' | 'court-detail' | 'login' | 'admin';
+export type AppPage = 'home' | 'map' | 'search' | 'profile' | 'court-detail' | 'login' | 'admin'
+    | 'edit-profile' | 'favorites' | 'history' | 'tournaments'
+    | 'groups' | 'notifications' | 'settings';
