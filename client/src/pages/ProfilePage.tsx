@@ -10,17 +10,14 @@ export default function ProfilePage() {
     const { user, setUser, setPage } = useAppStore();
 
     const handleLogout = () => {
-        // 1. Lấy token để gửi API đăng xuất ngầm (Không dùng await để tránh bị treo nút)
         const refreshToken = localStorage.getItem('refreshToken');
+
         if (refreshToken) {
             authApi.logout(refreshToken).catch((err) => console.log('Logout API:', err));
         }
-
-        // 2. Xóa sạch sẽ dữ liệu ở dưới LocalStorage NGAY LẬP TỨC
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-
-        // 3. Xóa user trong Store và đá về trang Login
+        //localStorage.clear(); xóa luôn hasOnboarding để mỗi lần đăng nhập lại sẽ thấy onboarding
         setUser(null);
         setPage('login');
     };

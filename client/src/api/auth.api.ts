@@ -17,6 +17,10 @@ export const authApi = {
         return axiosClient.post('/auth/logout', { refreshToken });
     },
 
+    getMe: () => {
+        return axiosClient.get('/auth/me');
+    },
+
     changePassword(data: { currentPassword: string; newPassword: string }) {
         return axiosClient.put('/auth/change-password', data);
     },

@@ -58,13 +58,14 @@ export default function Dashboard() {
                         {user?.name || 'Vợt thủ'} 👋
                     </h1>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                <div id="tour-matchmaking" className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
                     <Trophy className="w-5 h-5 text-emerald-400" />
                 </div>
             </motion.div>
 
             {/* 2. Thanh tìm kiếm nhanh */}
             <motion.div
+                id="tour-search"
                 initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
                 onClick={() => setPage('search')}
                 className={`relative flex items-center w-full p-4 rounded-2xl ${t.bg.elevated} border ${t.border.subtle} cursor-text shadow-lg`}
@@ -78,6 +79,7 @@ export default function Dashboard() {
 
             {/* 3. Truy cập nhanh (Quick Categories) */}
             <motion.div
+                id="tour-booking"
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                 className="grid grid-cols-2 gap-3"
             >
