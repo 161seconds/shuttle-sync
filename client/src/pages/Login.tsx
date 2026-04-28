@@ -1,12 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, ChevronRight, User, Phone, TrendingUp, Users, Calendar, Star, Zap } from 'lucide-react';
 import { theme as DS } from '../utils/theme';
 import { useAppStore } from '../store';
 import { authApi } from '../api/auth.api';
 
-/* ═══════════════════════════════════════════════════
-   FLOATING STAT CARDS (Left panel decoration)
-   ═══════════════════════════════════════════════════ */
 function FloatingCards() {
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -95,21 +92,19 @@ function FloatingCards() {
 
 /*MAIN LOGIN PAGE*/
 export default function Login() {
-    const { setPage, setUser } = useAppStore(); // Lấy thêm setUser để lưu data người dùng
+    const { setPage, setUser } = useAppStore();
     const [mode, setMode] = useState<'login' | 'register'>('login');
     const [showPw, setShowPw] = useState(false);
     const [loading, setLoading] = useState(false);
     const [rememberMe, setRememberMe] = useState(true);
     const [form, setForm] = useState({ email: '', password: '', displayName: '', phone: '' });
     const [errors, setErrors] = useState<Record<string, string>>({});
-
-    // Thêm state để hiển thị lỗi từ Backend (sai pass, trùng email...)
     const [apiError, setApiError] = useState('');
 
     const set = (k: string, v: string) => {
         setForm(p => ({ ...p, [k]: v }));
         setErrors(p => { const n = { ...p }; delete n[k]; return n; });
-        setApiError(''); // Xóa lỗi API khi người dùng gõ lại
+        setApiError('');
     };
 
     const validate = () => {
@@ -144,8 +139,6 @@ export default function Login() {
                 });
             }
 
-            // Xử lý trường hợp Backend trả về 200 OK nhưng thực chất là sai pass
-            // Kiểm tra xem data có rỗng hoặc thiếu token không
             if (response.data.success === false || response.data.status === 'error' || !response.data.data?.accessToken) {
                 setApiError(response.data.message || 'Tài khoản hoặc mật khẩu không chính xác');
                 setLoading(false);
@@ -171,6 +164,11 @@ export default function Login() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleFormSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        submit();
     };
 
     return (
@@ -248,8 +246,8 @@ export default function Login() {
                         </div>
                     )}
 
-                    {/* Form fields */}
-                    <div className="space-y-4">
+                    {/*fix enter: Bọc bằng thẻ Form */}
+                    <form onSubmit={handleFormSubmit} className="space-y-4">
                         {mode === 'register' && (
                             <FormField icon={<User className="w-4 h-4" />} label="Tên hiển thị"
                                 placeholder="Nguyễn Văn A" value={form.displayName}
@@ -260,12 +258,16 @@ export default function Login() {
                             placeholder="you@example.com" type="email" value={form.email}
                             onChange={v => set('email', v)} error={errors.email} />
 
+                        {/* MẬT KHẨU VÀ CON MẮT */}
                         <div className="relative">
                             <FormField icon={<Lock className="w-4 h-4" />} label="Mật khẩu"
                                 placeholder="••••••" type={showPw ? 'text' : 'password'} value={form.password}
                                 onChange={v => set('password', v)} error={errors.password} />
+
+                            {/*neo vào đáy (bottom) với đúng chiều cao của ô input */}
                             <button onClick={() => setShowPw(!showPw)} type="button"
-                                className={`absolute right-4 top-9.5 ${DS.text.muted} hover:text-emerald-400 transition-colors`}>
+                                className={`absolute right-2 bottom-0 h-12 w-10 flex items-center justify-center ${DS.text.muted} hover:text-emerald-400 transition-colors`}
+                            >
                                 {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             </button>
                         </div>
@@ -275,39 +277,39 @@ export default function Login() {
                                 placeholder="0901 234 567 (tuỳ chọn)" value={form.phone}
                                 onChange={v => set('phone', v)} />
                         )}
-                    </div>
 
-                    {/* Remember me + Forgot password */}
-                    {mode === 'login' && (
-                        <div className="flex items-center justify-between mt-5">
-                            <label className="flex items-center gap-2 cursor-pointer group">
-                                <button type="button" onClick={() => setRememberMe(!rememberMe)}
-                                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${rememberMe
-                                        ? 'bg-emerald-500 border-emerald-500'
-                                        : `${DS.bg.elevated} border-[#2a2d30] group-hover:border-[#3a3d40]`
-                                        }`}>
-                                    {rememberMe && (
-                                        <svg className="w-3 h-3 text-black" viewBox="0 0 12 12" fill="none">
-                                            <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                        </svg>
-                                    )}
+                        {/* Remember me + Forgot password */}
+                        {mode === 'login' && (
+                            <div className="flex items-center justify-between mt-5 pb-2">
+                                <label className="flex items-center gap-2 cursor-pointer group">
+                                    <button type="button" onClick={() => setRememberMe(!rememberMe)}
+                                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${rememberMe
+                                            ? 'bg-emerald-500 border-emerald-500'
+                                            : `${DS.bg.elevated} border-[#2a2d30] group-hover:border-[#3a3d40]`
+                                            }`}>
+                                        {rememberMe && (
+                                            <svg className="w-3 h-3 text-black" viewBox="0 0 12 12" fill="none">
+                                                <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                            </svg>
+                                        )}
+                                    </button>
+                                    <span className={`text-sm ${DS.text.secondary}`}>Ghi nhớ</span>
+                                </label>
+                                <button type="button" className="text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors">
+                                    Quên mật khẩu?
                                 </button>
-                                <span className={`text-sm ${DS.text.secondary}`}>Ghi nhớ</span>
-                            </label>
-                            <button className="text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors">
-                                Quên mật khẩu?
-                            </button>
-                        </div>
-                    )}
+                            </div>
+                        )}
 
-                    {/* Submit */}
-                    <button onClick={submit} disabled={loading}
-                        className="w-full mt-6 py-3.5 rounded-xl bg-emerald-500 text-black font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 active:scale-[0.98] transition-all disabled:opacity-50">
-                        {loading
-                            ? <span className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                            : <>{mode === 'login' ? 'Đăng nhập' : 'Đăng ký'} <ChevronRight className="w-4 h-4" /></>
-                        }
-                    </button>
+                        {/*Đổi thành type="submit" để nhận phím Enter */}
+                        <button type="submit" disabled={loading}
+                            className="w-full mt-6 py-3.5 rounded-xl bg-emerald-500 text-black font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 active:scale-[0.98] transition-all disabled:opacity-50">
+                            {loading
+                                ? <span className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                                : <>{mode === 'login' ? 'Đăng nhập' : 'Đăng ký'} <ChevronRight className="w-4 h-4" /></>
+                            }
+                        </button>
+                    </form>
 
                     {/* Divider */}
                     <div className="flex items-center gap-3 my-6">
@@ -338,14 +340,14 @@ export default function Login() {
                     {/* Toggle mode */}
                     <p className={`text-center text-sm mt-6 ${DS.text.muted}`}>
                         {mode === 'login' ? 'Chưa có tài khoản?' : 'Đã có tài khoản?'}
-                        <button onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setErrors({}); setApiError(''); }}
+                        <button type="button" onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setErrors({}); setApiError(''); }}
                             className="ml-1.5 text-emerald-400 font-semibold hover:text-emerald-300 transition-colors">
                             {mode === 'login' ? 'Tạo tài khoản' : 'Đăng nhập'}
                         </button>
                     </p>
 
                     {/* Skip */}
-                    <button onClick={() => setPage('home')}
+                    <button type="button" onClick={() => setPage('home')}
                         className={`w-full mt-3 text-xs ${DS.text.muted} hover:text-emerald-400/60 transition-colors text-center py-2`}>
                         Bỏ qua, xem sân trước →
                     </button>
@@ -382,10 +384,10 @@ function FormField({ icon, label, placeholder, type = 'text', value, onChange, e
     const isActive = focused || value.length > 0;
 
     return (
-        <div>
+        <div className="relative pt-2">
             <div className="relative">
-                <label className={`absolute left-10 transition-all duration-200 pointer-events-none ${isActive
-                    ? '-top-2.5 text-[11px] px-1.5 bg-[#08090a]'
+                <label className={`absolute left-10 transition-all duration-200 pointer-events-none z-10 ${isActive
+                    ? '-top-2 text-[11px] px-1 bg-[#0a0d0f]' // Background trùng màu nền form
                     : 'top-3.5 text-sm'
                     } ${error ? 'text-red-400' : focused ? 'text-emerald-400' : 'text-[#5f656d]'
                     }`}>
@@ -402,7 +404,7 @@ function FormField({ icon, label, placeholder, type = 'text', value, onChange, e
                         }`}
                 />
             </div>
-            {error && <p className="text-red-400 text-[11px] mt-1.5 ml-1">{error}</p>}
+            {error && <p className="text-red-400 text-[11px] mt-1 ml-1">{error}</p>}
         </div>
     );
 }

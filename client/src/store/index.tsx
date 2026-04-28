@@ -15,6 +15,9 @@ interface AppState {
     filters: CourtFilters;
     setFilters: (f: Partial<CourtFilters>) => void;
     resetFilters: () => void;
+
+    profileSubPage: string | null;
+    setProfileSubPage: (p: string | null) => void;
 }
 
 const defaultFilters: CourtFilters = {
@@ -35,6 +38,7 @@ export function AppProvider({ children }: AppProviderProps) {
     const [bookingCourt, setBookingCourt] = useState<Court | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [filters, setFiltersState] = useState<CourtFilters>(defaultFilters);
+    const [profileSubPage, setProfileSubPage] = useState<string | null>(null);
 
     const setFilters = useCallback((partial: Partial<CourtFilters>) => {
         setFiltersState(prev => ({ ...prev, ...partial }));
@@ -53,7 +57,9 @@ export function AppProvider({ children }: AppProviderProps) {
                 setUser,
                 filters,
                 setFilters,
-                resetFilters
+                resetFilters,
+                profileSubPage,
+                setProfileSubPage,
             }
             }
         >

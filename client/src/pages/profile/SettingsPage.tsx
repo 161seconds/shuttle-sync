@@ -69,11 +69,11 @@ export default function SettingsPage({ onBack }: Props) {
                 {/* Ngôn ngữ & Giao diện */}
                 <Section title="Giao diện">
                     <SelectRow icon={<Globe className="w-4 h-4" />} label="Ngôn ngữ"
-                        value={settings.language === 'vi' ? 'Tiếng Việt' : 'English'}
+                        value={settings.language || 'vi'}
                         options={[{ v: 'vi', l: 'Tiếng Việt' }, { v: 'en', l: 'English' }]}
                         onChange={v => updateSetting('language', v)} />
                     <SelectRow icon={<Moon className="w-4 h-4" />} label="Chế độ"
-                        value={settings.theme === 'dark' ? 'Tối' : 'Sáng'}
+                        value={settings.theme || 'dark'}
                         options={[{ v: 'dark', l: 'Tối' }, { v: 'light', l: 'Sáng' }]}
                         onChange={v => updateSetting('theme', v)} />
                 </Section>
@@ -136,9 +136,16 @@ function ToggleRow({ icon, label, checked, onChange }: {
         <div className={`flex items-center gap-4 px-4 py-3 rounded-xl bg-[#1a1a1a] border border-[#1e1e1e]`}>
             <span className="text-[#555]">{icon}</span>
             <span className="flex-1 text-sm text-[#999]">{label}</span>
-            <button onClick={() => onChange(!checked)}
-                className={`w-11 h-6 rounded-full transition-colors relative ${checked ? 'bg-emerald-500' : 'bg-[#2a2a2a]'}`}>
-                <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-5.5' : 'translate-x-0.5'}`} />
+
+            <button
+                onClick={() => onChange(!checked)}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${checked ? 'bg-emerald-500' : 'bg-[#2a2a2a]'
+                    }`}
+            >
+                <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${checked ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                />
             </button>
         </div>
     );

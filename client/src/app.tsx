@@ -17,12 +17,13 @@ import { theme as DS } from './utils/theme';
 import type { Court } from './types';
 import { authApi } from './api/auth.api';
 
+import Notifications from './pages/profile/Notifications';
+
 function Shell() {
   const { page, setPage, bookingCourt, setBookingCourt, user, setUser } = useAppStore();
   const [detailCourt, setDetailCourt] = useState<Court | null>(null);
   const { showOnboarding, showTour, completeOnboarding, skipOnboarding, completeTour } = useOnboarding();
 
-  // TỰ ĐỘNG KHÔI PHỤC ĐĂNG NHẬP KHI TẢI LẠI TRANG (F5)
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem('accessToken');
@@ -53,10 +54,8 @@ function Shell() {
   }
 
   return (
-    // 👇 2. ĐẢM BẢO LỚP NỀN CÓ MÀU TỐI DS.bg.base
     <div className={`min-h-screen ${DS.bg.base} relative overflow-hidden`}>
 
-      {/* 👇 3. CHÈN NỀN HẠT 3D TOÀN CỤC Ở ĐÂY 👇 */}
       {/* Chúng ta để pointer-events-none để nó không chặn cú click, và z-0 để nằm dưới cùng */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
         <ParticleField />
@@ -68,31 +67,25 @@ function Shell() {
       </AnimatePresence>
 
       {!showOnboarding && (
-        // 👇 4. BỌC TOÀN BỘ NỘI DUNG VÀO relative z-10 ĐỂ NẰM TRÊN NỀN HẠT
         <div className="relative z-10 flex flex-col min-h-screen">
-          {/* 3. ẨN HEADER Ở TRANG LOGIN */}
+          {/* ẨN HEADER Ở TRANG LOGIN */}
           {page !== 'login' && <Header />}
 
           <main className="flex-1">
             <AnimatePresence mode="wait">
-              {/* 4. KHAI BÁO HIỂN THỊ TRANG LOGIN */}
+              {/* KHAI BÁO HIỂN THỊ CÁC TRANG CHÍNH */}
               {page === 'login' && <motion.div key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Login /></motion.div>}
-
               {page === 'home' && <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Dashboard /></motion.div>}
               {page === 'map' && <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MapPage /></motion.div>}
               {page === 'search' && <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SearchPage /></motion.div>}
               {page === 'profile' && <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ProfilePage /></motion.div>}
-              {/* {page === 'edit-profile' && <EditProfilePage key="edit" />}
-              {page === 'favorites' && <FavoritesPage key="fav" />}
-              {page === 'history' && <BookingHistoryPage key="history" />}
-              {page === 'tournaments' && <TournamentsPage key="tour" />}
-              {page === 'groups' && <GroupsPage key="groups" />}
-              {page === 'notifications' && <NotificationsPage key="notif" />}
-              {page === 'settings' && <SettingsPage key="settings" />} */}
+
+              {/* TRANG THÔNG BÁO ĐỘC LẬP */}
+              {page === 'notifications' && <motion.div key="noti" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Notifications onBack={() => setPage('home')} /></motion.div>}
             </AnimatePresence>
           </main>
 
-          {/* 5. ẨN BOTTOM NAV Ở TRANG LOGIN */}
+          {/* ẨN BOTTOM NAV Ở TRANG LOGIN */}
           {page !== 'login' && <BottomNav />}
 
           <AnimatePresence>
