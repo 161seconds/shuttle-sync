@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Edit, Bookmark, History, Award, Users, Bell, Settings,
     LogOut, ChevronRight, Check,
@@ -21,6 +21,25 @@ type SubPage = null | 'edit' | 'favorites' | 'history' | 'tournaments' | 'groups
 export default function ProfilePage() {
     const { user, setUser, setPage } = useAppStore();
     const [subPage, setSubPage] = useState<SubPage>(null);
+    const [isSyncing, setIsSyncing] = useState(false);
+
+    useEffect(() => {
+        const syncData = async () => {
+            try {
+                setIsSyncing(true);
+                const res = await authApi.getMe();
+                setUser(res.data.user || res.data.data || res.data);
+            } catch (error) {
+                console.error("Lỗi đồng bộ dữ liệu Profile:", error);
+            } finally {
+                setIsSyncing(false);
+            }
+        };
+
+        if (localStorage.getItem('accessToken')) {
+            syncData();
+        }
+    }, [setUser]);
 
     const handleLogout = () => {
         const refreshToken = localStorage.getItem('refreshToken');
@@ -66,7 +85,12 @@ export default function ProfilePage() {
     return (
         <div className="max-w-lg mx-auto px-4 pb-24 md:pb-8 py-6">
             {/* Profile card */}
-            <div className={`${t.bg.card} rounded-2xl border ${t.border.subtle} p-6 mb-6 text-center`}>
+            <div className={`${t.bg.card} rounded-2xl border ${t.border.subtle} p-6 mb-6 text-center relative overflow-hidden`}>
+
+                {isSyncing && (
+                    <div className="absolute top-3 right-3 w-3 h-3 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin" />
+                )}
+
                 <div className="relative inline-block mb-4">
                     <div className="w-20 h-20 rounded-2xl bg-linear-to-br from-emerald-400 to-green-600 flex items-center justify-center text-3xl font-black text-black shadow-lg shadow-emerald-500/20 overflow-hidden">
                         {user.avatar ? (
