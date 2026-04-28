@@ -93,9 +93,7 @@ function FloatingCards() {
     );
 }
 
-/* ═══════════════════════════════════════════════════
-   MAIN LOGIN PAGE
-   ═══════════════════════════════════════════════════ */
+/*MAIN LOGIN PAGE*/
 export default function Login() {
     const { setPage, setUser } = useAppStore(); // Lấy thêm setUser để lưu data người dùng
     const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -133,13 +131,11 @@ export default function Login() {
         try {
             let response;
             if (mode === 'login') {
-                // GỌI API ĐĂNG NHẬP
                 response = await authApi.login({
                     email: form.email,
                     password: form.password
                 });
             } else {
-                // GỌI API ĐĂNG KÝ
                 response = await authApi.register({
                     email: form.email,
                     password: form.password,
@@ -148,10 +144,16 @@ export default function Login() {
                 });
             }
 
-            // Trích xuất dữ liệu từ Backend trả về
+            // Xử lý trường hợp Backend trả về 200 OK nhưng thực chất là sai pass
+            // Kiểm tra xem data có rỗng hoặc thiếu token không
+            if (response.data.success === false || response.data.status === 'error' || !response.data.data?.accessToken) {
+                setApiError(response.data.message || 'Tài khoản hoặc mật khẩu không chính xác');
+                setLoading(false);
+                return;
+            }
+
             const { user, accessToken, refreshToken } = response.data.data;
 
-            // Lưu token vào trình duyệt để các API khác xài
             localStorage.setItem('accessToken', accessToken);
             if (rememberMe) {
                 localStorage.setItem('refreshToken', refreshToken);
@@ -159,15 +161,11 @@ export default function Login() {
                 localStorage.removeItem('refreshToken');
             }
 
-            // Lưu thông tin người dùng vào global store
             setUser(user);
-
-            // Chuyển hướng thành công về trang chủ
             setPage('home');
 
         } catch (error: any) {
             console.error('Lỗi xác thực:', error);
-            // Lấy câu thông báo lỗi từ Backend trả về (Ví dụ: "Mật khẩu không đúng")
             const errorMsg = error.response?.data?.message || 'Có lỗi xảy ra với máy chủ, vui lòng thử lại sau';
             setApiError(errorMsg);
         } finally {

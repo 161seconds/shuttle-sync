@@ -30,6 +30,10 @@ axiosClient.interceptors.response.use(
     (res) => res,
     async (error) => {
         const original = error.config;
+        if (error.response?.status === 401 && (original.url?.includes('/auth/login') || original.url?.includes('/auth/register'))) {
+            return Promise.reject(error);
+        }
+
         if (error.response?.status === 401 && !original._retry) {
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
@@ -37,6 +41,8 @@ axiosClient.interceptors.response.use(
                 }).then(token => {
                     original.headers.Authorization = `Bearer ${token}`;
                     return axiosClient(original);
+                }).catch(err => {
+                    return Promise.reject(err);
                 });
             }
 
@@ -45,24 +51,31 @@ axiosClient.interceptors.response.use(
 
             try {
                 const refreshToken = localStorage.getItem('refreshToken');
+                if (!refreshToken) throw new Error("No refresh token");
+
                 const { data } = await axios.post(`${API_URL}/api/v1/auth/refresh-token`, { refreshToken });
                 const newAccess = data.data.accessToken;
                 const newRefresh = data.data.refreshToken;
+
                 localStorage.setItem('accessToken', newAccess);
                 localStorage.setItem('refreshToken', newRefresh);
+
                 processQueue(null, newAccess);
                 original.headers.Authorization = `Bearer ${newAccess}`;
+
                 return axiosClient(original);
             } catch (err) {
                 processQueue(err, null);
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
                 window.location.reload();
+
                 return Promise.reject(err);
             } finally {
                 isRefreshing = false;
             }
         }
+
         return Promise.reject(error);
     }
 );

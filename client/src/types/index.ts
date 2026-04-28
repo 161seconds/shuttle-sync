@@ -111,6 +111,7 @@ export interface Booking {
     payment: { method: PaymentMethod; status: string; transactionId?: string; qrCodeUrl?: string; paidAt?: string; expiresAt: string };
     notes?: string;
     court?: Court;
+    cancelReason?: string;
 }
 
 // ========================
