@@ -83,7 +83,7 @@ export default function ProfilePage() {
     ];
 
     return (
-        <div className="max-w-lg mx-auto px-4 pb-24 md:pb-8 py-6">
+        <div className="max-w-lg mx-auto px-4 pb-36 md:pb-16 py-6">
             {/* Profile card */}
             <div className={`${t.bg.card} rounded-2xl border ${t.border.subtle} p-6 mb-6 text-center relative overflow-hidden`}>
 
