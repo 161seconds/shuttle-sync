@@ -116,7 +116,7 @@ export default function SettingsPage({ onBack }: Props) {
                     <p className={`text-[10px] ${t.text.muted} mt-1 ml-1`}>Hành động này không thể hoàn tác</p>
                 </Section>
             </div>
-        </div>
+        </div>      
     );
 }
 

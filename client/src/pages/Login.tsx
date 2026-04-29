@@ -11,7 +11,7 @@ function FloatingCards() {
             <div className="absolute w-125 h-125 rounded-full blur-[120px] opacity-20 bg-emerald-500 -top-20 -left-20 animate-[drift_20s_ease-in-out_infinite]" />
             <div className="absolute w-100 h-100 rounded-full blur-[100px] opacity-10 bg-green-400 bottom-10 right-10 animate-[drift_15s_ease-in-out_infinite_reverse]" />
 
-            {/* Card 1: Bookings stat — top-left */}
+            {/* Card 1: Bookings stat */}
             <div className="absolute top-[12%] left-[8%] animate-[float_6s_ease-in-out_infinite]">
                 <div className="bg-[#141617]/80 backdrop-blur-xl border border-emerald-500/15 rounded-2xl px-5 py-4 shadow-2xl shadow-black/40 w-48">
                     <div className="flex items-center justify-between mb-2">
@@ -30,7 +30,7 @@ function FloatingCards() {
                 </div>
             </div>
 
-            {/* Card 2: Active users — top-right */}
+            {/* Card 2: Active users */}
             <div className="absolute top-[6%] right-[12%] animate-[float_7s_ease-in-out_infinite_0.5s]">
                 <div className="bg-[#141617]/80 backdrop-blur-xl border border-white/5 rounded-2xl px-5 py-4 shadow-2xl shadow-black/40 w-44">
                     <div className="flex items-center justify-between mb-2">
@@ -46,7 +46,7 @@ function FloatingCards() {
                 </div>
             </div>
 
-            {/* Card 3: Rating + mini sparkline — bottom-right */}
+            {/* Card 3: Rating */}
             <div className="absolute bottom-[18%] right-[8%] animate-[float_8s_ease-in-out_infinite_1s]">
                 <div className="bg-[#141617]/80 backdrop-blur-xl border border-white/5 rounded-2xl px-5 py-4 shadow-2xl shadow-black/40 w-52">
                     <div className="flex items-center gap-2 mb-1">
@@ -72,7 +72,7 @@ function FloatingCards() {
                 </div>
             </div>
 
-            {/* Card 4: Satisfaction — bottom-left */}
+            {/* Card 4: Satisfaction */}
             <div className="absolute bottom-[32%] left-[15%] animate-[float_5s_ease-in-out_infinite_1.5s]">
                 <div className="bg-[#141617]/80 backdrop-blur-xl border border-emerald-500/10 rounded-2xl px-5 py-4 shadow-2xl shadow-black/40 w-40">
                     <div className="w-9 h-9 rounded-xl bg-purple-500/15 flex items-center justify-center mb-2">
@@ -97,7 +97,9 @@ export default function Login() {
     const [showPw, setShowPw] = useState(false);
     const [loading, setLoading] = useState(false);
     const [rememberMe, setRememberMe] = useState(true);
-    const [form, setForm] = useState({ email: '', password: '', displayName: '', phone: '' });
+
+    //Bổ sung 'role' vào form state (Mặc định là USER)
+    const [form, setForm] = useState({ email: '', password: '', displayName: '', phone: '', role: 'USER' });
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [apiError, setApiError] = useState('');
 
@@ -135,7 +137,8 @@ export default function Login() {
                     email: form.email,
                     password: form.password,
                     displayName: form.displayName,
-                    phone: form.phone || undefined
+                    phone: form.phone || undefined,
+                    role: form.role
                 });
             }
 
@@ -155,7 +158,13 @@ export default function Login() {
             }
 
             setUser(user);
-            setPage('home');
+
+            //Chủ sân thì văng ra dashboard riêng
+            if (user.role === 'OWNER' || user.role === 'MANAGER') {
+                setPage('owner-dashboard');
+            } else {
+                setPage('home');
+            }
 
         } catch (error: any) {
             console.error('Lỗi xác thực:', error);
@@ -172,8 +181,8 @@ export default function Login() {
     };
 
     return (
-        <div className={`min-h-screen ${DS.bg.base} flex`}>
-            {/* ========== LEFT PANEL — Illustration ========== */}
+        <div className={`h-screen overflow-hidden ${DS.bg.base} flex`}>
+            {/*  LEFT PANEL — Illustration  */}
             <div className="hidden lg:flex lg:w-[55%] relative items-center justify-center bg-[#0a0d0f] overflow-hidden">
                 <FloatingCards />
 
@@ -204,7 +213,6 @@ export default function Login() {
                     </div>
                 </div>
 
-                {/* Dot grid overlay */}
                 <div className="absolute inset-0 opacity-[0.03]"
                     style={{
                         backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0)',
@@ -212,21 +220,16 @@ export default function Login() {
                     }}
                 />
             </div>
-
-            {/* ========== RIGHT PANEL — Form ========== */}
-            <div className="flex-1 flex items-center justify-center px-6 py-12 relative">
-                {/* Ambient glow */}
+            {/* RIGHT PANEL — Form  */}
+            <div className="flex-1 flex items-center justify-center px-6 py-12 relative overflow-y-auto">
                 <div className="absolute top-0 right-0 w-72 h-72 rounded-full blur-[100px] opacity-[0.06] bg-emerald-400 pointer-events-none" />
-
                 <div className="w-full max-w-sm relative z-10">
-                    {/* Logo — mobile only */}
                     <div className="lg:hidden text-center mb-8">
                         <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-emerald-400 to-green-600 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-500/20">
                             <span className="text-2xl">🏸</span>
                         </div>
                     </div>
 
-                    {/* Header */}
                     <div className="mb-8">
                         <h1 className="text-2xl font-black text-white tracking-tight">
                             {mode === 'login' ? 'Welcome back!' : 'Create new account'}
@@ -239,18 +242,33 @@ export default function Login() {
                         </p>
                     </div>
 
-                    {/* Hộp thoại báo lỗi từ API */}
                     {apiError && (
                         <div className="mb-5 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold text-center">
                             {apiError}
                         </div>
                     )}
 
-                    {/*fix enter: Bọc bằng thẻ Form */}
                     <form onSubmit={handleFormSubmit} className="space-y-4">
+
+                        {/*THANH CHỌN ROLE DÀNH CHO ĐĂNG KÝ */}
                         {mode === 'register' && (
-                            <FormField icon={<User className="w-4 h-4" />} label="Tên hiển thị"
-                                placeholder="Nguyễn Văn A" value={form.displayName}
+                            <div className="flex gap-1.5 p-1 bg-white/5 rounded-xl border border-white/5 mb-2">
+                                <button type="button" onClick={() => set('role', 'USER')}
+                                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${form.role === 'USER' ? 'bg-emerald-500 text-black shadow-md' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                                >
+                                    🏸 Người chơi
+                                </button>
+                                <button type="button" onClick={() => set('role', 'OWNER')}
+                                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${form.role === 'OWNER' ? 'bg-emerald-500 text-black shadow-md' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                                >
+                                    🏪 Chủ sân
+                                </button>
+                            </div>
+                        )}
+
+                        {mode === 'register' && (
+                            <FormField icon={<User className="w-4 h-4" />} label={form.role === 'OWNER' ? 'Tên sân / Thương hiệu' : 'Tên hiển thị'}
+                                placeholder={form.role === 'OWNER' ? 'VD: Sân Cầu Lông A1' : 'Nguyễn Văn A'} value={form.displayName}
                                 onChange={v => set('displayName', v)} error={errors.displayName} />
                         )}
 
@@ -258,19 +276,23 @@ export default function Login() {
                             placeholder="you@example.com" type="email" value={form.email}
                             onChange={v => set('email', v)} error={errors.email} />
 
-                        {/* MẬT KHẨU VÀ CON MẮT */}
-                        <div className="relative">
-                            <FormField icon={<Lock className="w-4 h-4" />} label="Mật khẩu"
-                                placeholder="••••••" type={showPw ? 'text' : 'password'} value={form.password}
-                                onChange={v => set('password', v)} error={errors.password} />
-
-                            {/*neo vào đáy (bottom) với đúng chiều cao của ô input */}
-                            <button onClick={() => setShowPw(!showPw)} type="button"
-                                className={`absolute right-2 bottom-0 h-12 w-10 flex items-center justify-center ${DS.text.muted} hover:text-emerald-400 transition-colors`}
-                            >
-                                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                            </button>
-                        </div>
+                        <FormField
+                            icon={<Lock className="w-4 h-4" />}
+                            label="Mật khẩu"
+                            placeholder="••••••"
+                            type={showPw ? 'text' : 'password'}
+                            value={form.password}
+                            onChange={v => set('password', v)}
+                            error={errors.password}
+                            // Nhét nút vào đây
+                            rightElement={
+                                <button onClick={() => setShowPw(!showPw)} type="button"
+                                    className={`h-full px-4 flex items-center justify-center ${DS.text.muted} hover:text-emerald-400 transition-colors`}
+                                >
+                                    {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                            }
+                        />
 
                         {mode === 'register' && (
                             <FormField icon={<Phone className="w-4 h-4" />} label="Số điện thoại"
@@ -301,7 +323,6 @@ export default function Login() {
                             </div>
                         )}
 
-                        {/*Đổi thành type="submit" để nhận phím Enter */}
                         <button type="submit" disabled={loading}
                             className="w-full mt-6 py-3.5 rounded-xl bg-emerald-500 text-black font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 active:scale-[0.98] transition-all disabled:opacity-50">
                             {loading
@@ -337,7 +358,6 @@ export default function Login() {
                         </button>
                     </div>
 
-                    {/* Toggle mode */}
                     <p className={`text-center text-sm mt-6 ${DS.text.muted}`}>
                         {mode === 'login' ? 'Chưa có tài khoản?' : 'Đã có tài khoản?'}
                         <button type="button" onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setErrors({}); setApiError(''); }}
@@ -346,7 +366,6 @@ export default function Login() {
                         </button>
                     </p>
 
-                    {/* Skip */}
                     <button type="button" onClick={() => setPage('home')}
                         className={`w-full mt-3 text-xs ${DS.text.muted} hover:text-emerald-400/60 transition-colors text-center py-2`}>
                         Bỏ qua, xem sân trước →
@@ -354,7 +373,6 @@ export default function Login() {
                 </div>
             </div>
 
-            {/* Keyframe animations */}
             <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
@@ -377,8 +395,8 @@ export default function Login() {
     );
 }
 
-function FormField({ icon, label, placeholder, type = 'text', value, onChange, error }: {
-    icon: React.ReactNode; label: string; placeholder: string; type?: string; value: string; onChange: (v: string) => void; error?: string;
+function FormField({ icon, label, placeholder, type = 'text', value, onChange, error, rightElement }: {
+    icon: React.ReactNode; label: string; placeholder: string; type?: string; value: string; onChange: (v: string) => void; error?: string; rightElement?: React.ReactNode;
 }) {
     const [focused, setFocused] = useState(false);
     const isActive = focused || value.length > 0;
@@ -387,7 +405,7 @@ function FormField({ icon, label, placeholder, type = 'text', value, onChange, e
         <div className="relative pt-2">
             <div className="relative">
                 <label className={`absolute left-10 transition-all duration-200 pointer-events-none z-10 ${isActive
-                    ? '-top-2 text-[11px] px-1 bg-[#0a0d0f]' // Background trùng màu nền form
+                    ? '-top-2 text-[11px] px-1 bg-[#0a0d0f]'
                     : 'top-3.5 text-sm'
                     } ${error ? 'text-red-400' : focused ? 'text-emerald-400' : 'text-[#5f656d]'
                     }`}>
@@ -397,12 +415,19 @@ function FormField({ icon, label, placeholder, type = 'text', value, onChange, e
                     }`}>
                     {icon}
                 </span>
+
                 <input type={type} placeholder={isActive ? placeholder : ''} value={value}
                     onChange={e => onChange((e.target as HTMLInputElement).value)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
-                    className={`w-full h-12 pl-11 pr-4 rounded-xl bg-transparent border-2 ${DS.text.primary} placeholder:text-[#3a3d40] text-sm outline-none transition-colors ${error
+                    className={`w-full h-12 pl-11 ${rightElement ? 'pr-12' : 'pr-4'} rounded-xl bg-transparent border-2 ${DS.text.primary} placeholder:text-[#3a3d40] text-sm outline-none transition-colors ${error
                         ? 'border-red-500/50 focus:border-red-400/70' : focused ? 'border-emerald-500/50' : 'border-[#1e2124] hover:border-[#2a2d30]'
                         }`}
                 />
+
+                {rightElement && (
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 h-full">
+                        {rightElement}
+                    </div>
+                )}
             </div>
             {error && <p className="text-red-400 text-[11px] mt-1 ml-1">{error}</p>}
         </div>

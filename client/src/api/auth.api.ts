@@ -1,7 +1,7 @@
 import axiosClient from './axiosClient';
 
 export const authApi = {
-    register(data: { email: string; password: string; displayName: string; phone?: string }) {
+    register(data: { email: string; password: string; displayName: string; phone?: string; role?: string }) {
         return axiosClient.post('/auth/register', data);
     },
 
