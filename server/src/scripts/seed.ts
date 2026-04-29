@@ -102,7 +102,7 @@ async function seed() {
     await Promise.all([
         User.deleteMany({}),
         Venue.deleteMany({}), // Collection Cơ sở
-        Court.deleteMany({}), // Collection Sân lẻ
+        Court.collection.drop().catch(() => { }),
         Booking.deleteMany({}),
         GroupPlay.deleteMany({}),
         Tournament.deleteMany({}),
