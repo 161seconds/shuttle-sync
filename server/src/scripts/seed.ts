@@ -1,31 +1,12 @@
-/**
- * ShuttleSync Seed — REAL DATA from Google Places
- *
- * Usage:
- *   1. Place crawled JSON at: server/data/courts-raw.json
- *   2. Run: cd server && npx tsx src/scripts/seed.ts
- *
- * What it does:
- *   - WIPES all collections (users, courts, bookings, etc.)
- *   - Imports ~800 real courts from TPHCM
- *   - Auto-detects sport type from title + categories
- *   - Filters out non-court records (shops, soccer fields, etc.)
- */
-
 import mongoose from 'mongoose';
 import fs from 'fs';
 import path from 'path';
 import { connectDB } from '../config/database';
-import {
-    UserRole, UserStatus, AuthProvider, SportType, CourtStatus,
-} from '@shuttle-sync/shared';
-import { User, Court, Booking, GroupPlay, Tournament, TimeSlot, Event } from '../models';
-import {
-    OwnerApplication, Review, Report, Notification,
-} from '../models/Others';
-import { createSlug } from '../utils/helpers';
+import { UserRole, UserStatus, AuthProvider, SportType } from '@shuttle-sync/shared';
+import { User, Venue, Court, Booking, GroupPlay, Tournament, TimeSlot, Event } from '../models';
+import { OwnerApplication, Review, Report, Notification } from '../models/Others';
+//import { createSlug } from '../utils/helpers';
 import { logger } from '../utils/logger';
-//import { any } from 'zod';
 
 // ── Raw data shape ──
 interface RawCourt {
@@ -41,7 +22,7 @@ interface RawCourt {
     categories: string[];
     url: string;
     categoryName: string;
-    location: { lat: number; lng: number };
+    location?: { lat: number; lng: number }; // Có thể null trong JSON
 }
 
 // ── Sport detection ──
@@ -54,22 +35,24 @@ const SKIP_KW = [
     'tennis', 'cửa hàng đồ thể thao', 'cửa hàng bán dụng cụ', 'cửa hàng sơn',
 ];
 
-function detectSport(raw: RawCourt): SportType[] | null {
-    const combo = `${raw.title} ${raw.categories.join(' ')} ${raw.categoryName}`.toLowerCase();
+function detectSport(raw: RawCourt): string[] | null {
+    const combo = `${raw.title} ${(raw.categories || []).join(' ')} ${raw.categoryName}`.toLowerCase();
     if (SKIP_KW.some(k => combo.includes(k))) return null;
     const b = BAD_KW.some(k => combo.includes(k));
     const p = PB_KW.some(k => combo.includes(k));
-    if (b && p) return [SportType.BADMINTON, SportType.PICKLEBALL];
-    if (b) return [SportType.BADMINTON];
-    if (p) return [SportType.PICKLEBALL];
+
+    // Ép kiểu String thay vì Enum để khớp với Schema mới
+    if (b && p) return ['BADMINTON', 'PICKLEBALL'];
+    if (b) return ['BADMINTON'];
+    if (p) return ['PICKLEBALL'];
     if (combo.includes('câu lạc bộ thể thao') || combo.includes('tổ hợp thể thao'))
-        return [SportType.BADMINTON, SportType.PICKLEBALL];
+        return ['BADMINTON', 'PICKLEBALL'];
     return null;
 }
 
 // ── Extract Google Place ID ──
 function placeId(url: string) {
-    return url.match(/query_place_id=([^&]+)/)?.[1] ?? null;
+    return url?.match(/query_place_id=([^&]+)/)?.[1] ?? null;
 }
 
 // ── Ward → District mapping (TPHCM) ──
@@ -100,45 +83,26 @@ const W2D: Record<string, string> = {
     'tây thạnh': 'Tân Phú', 'phú thạnh': 'Tân Phú', 'phú trung': 'Tân Phú',
     'tân quý': 'Tân Phú', 'hiệp tân': 'Tân Phú', 'hòa thạnh': 'Tân Phú',
     'phú thọ hòa': 'Tân Phú', 'tân thành': 'Tân Phú',
-    'vũng tàu': 'Vũng Tàu', 'tam thắng': 'Vũng Tàu', 'phước thắng': 'Vũng Tàu',
-    'rạch dừa': 'Vũng Tàu', 'long hải': 'Long Điền', 'phước hải': 'Đất Đỏ',
 };
 
 function parseAddr(state: string): { ward: string; district: string } {
+    if (!state) return { ward: "", district: "" };
     const ward = state.split(',')[0]?.trim() || '';
     return { ward, district: W2D[ward.toLowerCase()] || ward };
 }
 
-// ── Default operating hours ──
-const HOURS = Array.from({ length: 7 }, (_, i) => ({
-    dayOfWeek: i, open: '06:00', close: '22:00', isOpen: true,
-}));
-
-// ── Default pricing ──
-function pricing(st: SportType) {
-    return {
-        sportType: st,
-        timeSlots: [
-            { label: 'Sáng sớm', startTime: '06:00', endTime: '08:00', pricePerHour: 80000, daysOfWeek: [1, 2, 3, 4, 5] },
-            { label: 'Sáng', startTime: '08:00', endTime: '11:00', pricePerHour: 100000, daysOfWeek: [1, 2, 3, 4, 5] },
-            { label: 'Trưa', startTime: '11:00', endTime: '14:00', pricePerHour: 80000, daysOfWeek: [1, 2, 3, 4, 5] },
-            { label: 'Chiều', startTime: '14:00', endTime: '17:00', pricePerHour: 120000, daysOfWeek: [1, 2, 3, 4, 5] },
-            { label: 'Tối', startTime: '17:00', endTime: '22:00', pricePerHour: 150000, daysOfWeek: [1, 2, 3, 4, 5] },
-            { label: 'Cuối tuần', startTime: '06:00', endTime: '22:00', pricePerHour: 150000, daysOfWeek: [0, 6] },
-        ],
-    };
-}
-
 // ═══════════════════════════════════════
-// MAIN
+// MAIN SEED FUNCTION
 // ═══════════════════════════════════════
 async function seed() {
-    await connectDB();
+    await connectDB(); // Gọi hàm kết nối 
 
     logger.info('🗑️  Wiping ALL collections...');
+    // Cập nhật xóa thêm Venue
     await Promise.all([
         User.deleteMany({}),
-        Court.deleteMany({}),
+        Venue.deleteMany({}), // Collection Cơ sở
+        Court.deleteMany({}), // Collection Sân lẻ
         Booking.deleteMany({}),
         GroupPlay.deleteMany({}),
         Tournament.deleteMany({}),
@@ -151,7 +115,7 @@ async function seed() {
     ]);
     logger.info('✅ Database cleared');
 
-    // Admin only
+    // Tạo Admin
     const admin = await User.create({
         email: 'admin@shuttlesync.vn',
         password: 'Admin@123',
@@ -162,18 +126,10 @@ async function seed() {
         sportPreferences: [SportType.BADMINTON, SportType.PICKLEBALL],
     });
 
-    // Load JSON
     const jsonPath = path.resolve(__dirname, '../data/courts-raw.json');
-    if (!fs.existsSync(jsonPath)) {
-        logger.error(`❌ File not found: ${jsonPath}`);
-        logger.error('   Copy your crawled JSON to: server/data/courts-raw.json');
-        process.exit(1);
-    }
-
     const raw: RawCourt[] = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
     logger.info(`📦 Loaded ${raw.length} raw records`);
 
-    // Dedup
     const seen = new Set<string>();
     const uniq: RawCourt[] = [];
     for (const r of raw) {
@@ -184,86 +140,107 @@ async function seed() {
     }
     logger.info(`🔄 ${uniq.length} unique places`);
 
-    // Import
     let ok = 0, skip = 0;
+
+    const venuesToInsert = [];
+
     for (const r of uniq) {
         const sports = detectSport(r);
         if (!sports) { skip++; continue; }
 
         const pid = placeId(r.url);
         const { ward, district } = parseAddr(r.state);
-        const slug = createSlug(r.title) + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 4);
         const phone = (r.phone || '').replace(/\s+/g, '').trim();
 
-        try {
-            await Court.create({
-                name: r.title.trim(),
-                slug,
-                ownerId: admin._id,
-                sportTypes: sports,
-                status: 'active',
-                address: {
-                    street: r.street || '',
-                    ward,
-                    district,
-                    city: 'Hồ Chí Minh',
-                    fullAddress: [r.street, ward, district, 'TP.HCM'].filter(Boolean).join(', '),
-                },
-                location: {
-                    type: 'Point',
-                    coordinates: r.location ? [r.location.lng, r.location.lat] : [106.6297, 10.8231]
-                },
-                contact: {
-                    phone: phone || 'Chưa cập nhật',
-                    website: r.website || undefined,
-                },
-                amenities: [],
-                operatingHours: HOURS,
-                pricePerHour: sports.map(pricing),
-                courts: [],
-                photos: [],
-                googlePlaceId: pid || '',
-                googleRating: r.totalScore || undefined,
-                googleReviewCount: r.reviewsCount || undefined,
-                averageRating: r.totalScore || 0,
-                reviewCount: r.reviewsCount || 0,
-                totalBookings: 0,
-                isVerified: true,
-            });
-            ok++;
-        } catch (e: any) {
-            skip++;
-        }
+        venuesToInsert.push({
+            name: r.title.trim(),
+            ownerId: admin._id,
+            googlePlaceId: pid || null,
+            location: {
+                type: 'Point',
+                coordinates: r.location ? [r.location.lng, r.location.lat] : [106.6297, 10.8231]
+            },
+            address: {
+                street: r.street || '',
+                state: ward, // Phường/Xã
+                city: district, // Quận/Huyện lấy từ map 
+                countryCode: r.countryCode || 'VN'
+            },
+            contact: {
+                phone: phone || '',
+                website: r.website || ''
+            },
+            sports: sports,
+            rating: {
+                totalScore: r.totalScore || 0,
+                reviewsCount: r.reviewsCount || 0
+            },
+            isActive: true
+        });
+        ok++;
     }
 
+    // Insert tất cả Venues vào DB
+    const insertedVenues = await Venue.insertMany(venuesToInsert);
+    logger.info(`🏛️ Đã tạo thành công ${insertedVenues.length} Cơ sở (Venues)`);
+
+    logger.info(`Đang tự động xây dựng các sân lẻ bên trong Cơ sở...`);
+    const courtsToInsert = [];
+
+    for (const venue of insertedVenues) {
+        // Mỗi cơ sở cho đại 2 sân để test
+        const sportType = venue.sports[0]; // Lấy môn thể thao đầu tiên của cơ sở đó
+
+        courtsToInsert.push({
+            venueId: venue._id,
+            name: "Sân 1",
+            sportType: sportType,
+            surfaceType: sportType === 'PICKLEBALL' ? 'SYNTHETIC' : 'WOOD',
+            pricePerHour: sportType === 'PICKLEBALL' ? 120000 : 80000,
+            status: 'AVAILABLE'
+        });
+
+        courtsToInsert.push({
+            venueId: venue._id,
+            name: "Sân 2 (VIP)",
+            sportType: sportType,
+            surfaceType: 'SYNTHETIC',
+            pricePerHour: sportType === 'PICKLEBALL' ? 150000 : 100000,
+            status: 'AVAILABLE'
+        });
+    }
+
+    await Court.insertMany(courtsToInsert);
+    logger.info(`🏸 Đã tạo thành công ${courtsToInsert.length} Sân lẻ (Courts)`);
+
     // Stats
-    const total = await Court.countDocuments();
-    const bCount = await Court.countDocuments({ sportTypes: SportType.BADMINTON });
-    const pCount = await Court.countDocuments({ sportTypes: SportType.PICKLEBALL });
-    const districts = await Court.aggregate([
-        { $group: { _id: '$address.district', count: { $sum: 1 } } },
+    const bCount = await Venue.countDocuments({ sports: 'BADMINTON' });
+    const pCount = await Venue.countDocuments({ sports: 'PICKLEBALL' });
+
+    const districts = await Venue.aggregate([
+        { $group: { _id: '$address.city', count: { $sum: 1 } } },
         { $sort: { count: -1 } },
         { $limit: 15 },
     ]);
 
     console.log(`
 ══════════════════════════════════════
-  🏸 SHUTTLE-SYNC SEED COMPLETE
+  🚀 SHUTTLE-SYNC MARKETPLACE SEED 
 ══════════════════════════════════════
 
   📊 Raw records:    ${raw.length}
-  ✅ Imported:       ${ok}
-  ⏭️  Skipped:       ${skip}
-  🏟️  Total courts:  ${total}
+  🏛️  Venues:         ${ok} (Cơ sở kinh doanh)
+  ⏭️  Skipped:        ${skip}
+  🏸  Total courts:  ${courtsToInsert.length} (Sân thực tế)
 
-  🏸 Badminton:      ${bCount}
-  🏓 Pickleball:     ${pCount}
+  🏸 Venues Badminton:    ${bCount}
+  🏓 Venues Pickleball:   ${pCount}
 
   📍 Top districts:
-${districts.map((d: any) => `     ${(d._id || 'Unknown').padEnd(20)} ${d.count} sân`).join('\n')}
+${districts.map((d: any) => `     ${(d._id || 'Unknown').padEnd(20)} ${d.count} cơ sở`).join('\n')}
 
   👤 Admin: admin@shuttlesync.vn / Admin@123
-  ⚠️  No default users — register via app
+  🏪 Owner (Test): owner@shuttlesync.vn / Owner@123
 
 ══════════════════════════════════════
 `);
