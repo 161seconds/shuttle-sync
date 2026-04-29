@@ -1,12 +1,68 @@
 import mongoose from 'mongoose';
 import { CourtStatus, SportType, SlotStatus } from '@shuttle-sync/shared';
-import { ICourtDocument, TimeSlot, Court } from '../models';
+import { ICourtDocument, TimeSlot, Court, Venue } from '../models';
 import { ApiError } from '../utils/ApiError';
 import { createSlug, calculatePagination, generateTimeSlots } from '../utils/helpers';
 import { logger } from '../utils/logger';
 
 class CourtService {
-    async createCourt(ownerId: string, data: any): Promise<ICourtDocument> {
+    private async formatVenueForFrontend(venue: any) {
+        const subCourts = await Court.find({ venueId: venue._id, status: 'AVAILABLE' }).lean();
+
+        const formattedSubCourts = subCourts.map(c => ({
+            ...c,
+            sportType: c.sportType.toLowerCase()
+        }));
+
+        // 2. Xử lý địa chỉ thông minh: Loại bỏ các phần tử bị trống
+        const street = venue.address?.street || '';
+        const ward = venue.address?.state || '';
+        const district = venue.address?.city || '';
+        const city = 'Hồ Chí Minh';
+
+        const addrParts = [street, ward, district, city].filter(part => part && part.trim() !== '');
+        const fullAddr = addrParts.join(', ');
+
+        return {
+            ...venue,
+            id: venue._id,
+            _id: venue._id,
+
+            address: {
+                street: street,
+                ward: ward,
+                district: district,
+                city: city,
+                fullAddress: fullAddr
+            },
+            fullAddress: fullAddr,
+
+            sportTypes: venue.sports ? venue.sports.map((s: string) => s.toLowerCase()) : ['pickleball'],
+            averageRating: venue.rating?.totalScore || 0,
+            reviewCount: venue.rating?.reviewsCount || 0,
+            status: venue.isActive ? 'active' : 'closed',
+            isVerified: true,
+            totalBookings: 0,
+            photos: venue.photos || [],
+            amenities: venue.amenities || [],
+
+            courts: formattedSubCourts || [],
+
+            operatingHours: Array.from({ length: 7 }, (_, i) => ({
+                dayOfWeek: i, open: '06:00', close: '22:00', isOpen: true,
+            })),
+
+            pricePerHour: [
+                { sportType: 'pickleball', timeSlots: [{ pricePerHour: 120000, daysOfWeek: [0, 1, 2, 3, 4, 5, 6], startTime: '00:00', endTime: '23:59' }] },
+                { sportType: 'badminton', timeSlots: [{ pricePerHour: 80000, daysOfWeek: [0, 1, 2, 3, 4, 5, 6], startTime: '00:00', endTime: '23:59' }] }
+            ]
+        };
+    }
+
+    // ============================================================================
+    // 1. TẠO SÂN MỚI (Tạm giữ logic cũ cho Owner)
+    // ============================================================================
+    async createCourt(ownerId: string, data: any): Promise<any> {
         const slug = createSlug(data.name) + '-' + Date.now().toString(36);
 
         const court = await Court.create({
@@ -29,266 +85,145 @@ class CourtService {
         return court;
     }
 
-    /**
-     * Get court by ID or slug
-     */
-    async getCourtByIdOrSlug(idOrSlug: string): Promise<ICourtDocument> {
+    // ============================================================================
+    // 2. LẤY CHI TIẾT 1 CƠ SỞ (Tích hợp bộ chuyển đổi)
+    // ============================================================================
+    async getCourtByIdOrSlug(idOrSlug: string) {
         const query = mongoose.isValidObjectId(idOrSlug)
             ? { _id: idOrSlug }
-            : { slug: idOrSlug };
+            : { _id: idOrSlug }; // Tạm dùng _id vì Venue chưa có slug
 
-        const court = await Court.findOne({
+        const venue = await Venue.findOne({
             ...query,
-            status: { $in: [CourtStatus.ACTIVE, CourtStatus.PENDING_APPROVAL] },
-        }).populate('ownerId', 'displayName avatar phone');
+            isActive: true,
+        }).populate('ownerId', 'displayName avatar phone').lean();
 
-        if (!court) {
-            throw ApiError.notFound('Không tìm thấy sân');
+        if (!venue) {
+            throw ApiError.notFound('Không tìm thấy cơ sở sân này');
         }
 
-        return court;
+        return await this.formatVenueForFrontend(venue);
     }
 
-    /**
-     * Search courts with filters, geo, text search
-     */
-    /**
-     * Search courts with filters, geo, text search
-     */
-    async searchCourts(params: {
-        q?: string;
-        sportType?: SportType;
-        district?: string;
-        minPrice?: number;
-        maxPrice?: number;
-        date?: string;
-        isIndoor?: boolean;
-        lat?: number;
-        lng?: number;
-        radius?: number;
-        sortBy?: string;
-        sortOrder?: string;
-        page?: number;
-        limit?: number;
-    }) {
-        const filter: any = { status: CourtStatus.ACTIVE };
+    // ============================================================================
+    // 3. TÌM KIẾM CƠ SỞ
+    // ============================================================================
+    async searchCourts(params: any) {
+        const { q, sportType, district, sortBy, page = 1, limit = 12, lat, lng, radius } = params;
 
-        // Text search
-        if (params.q) {
-            filter.$text = { $search: params.q };
+        const filter: any = { isActive: true };
+
+        if (q) filter.name = { $regex: q as string, $options: 'i' };
+
+        if (sportType) {
+            filter.sports = sportType.toUpperCase();
         }
 
-        // Sport type
-        if (params.sportType) {
-            filter.sportTypes = params.sportType;
+        if (district && district !== 'Tất cả') {
+            filter['address.city'] = { $regex: district as string, $options: 'i' };
         }
 
-        // District (Sửa lại logic lọc Tất cả)
-        if (params.district && params.district !== 'Tất cả') {
-            filter['address.district'] = { $regex: params.district, $options: 'i' };
-        }
-
-        // Indoor filter
-        if (params.isIndoor !== undefined) {
-            filter['courts.isIndoor'] = params.isIndoor;
-        }
-
-        // Price range
-        if (params.minPrice || params.maxPrice) {
-            filter['pricePerHour.timeSlots.pricePerHour'] = {};
-            if (params.minPrice) filter['pricePerHour.timeSlots.pricePerHour'].$gte = params.minPrice;
-            if (params.maxPrice) filter['pricePerHour.timeSlots.pricePerHour'].$lte = params.maxPrice;
-        }
-
-        // Geo search
-        if (params.lat && params.lng) {
-            const radiusKm = params.radius || 10;
+        if (lat && lng) {
+            const radiusKm = radius || 10;
             filter.location = {
                 $near: {
-                    $geometry: {
-                        type: 'Point',
-                        coordinates: [params.lng, params.lat],
-                    },
+                    $geometry: { type: 'Point', coordinates: [lng, lat] },
                     $maxDistance: radiusKm * 1000,
                 },
             };
         }
 
-        // ==========================================
-        // FIX 1: Dùng $geoWithin để đếm tổng số sân (MongoDB cấm dùng $near để đếm)
-        // ==========================================
+        // Đếm số lượng tổng (Xử lý lỗi $near)
         const countFilter = { ...filter };
         if (countFilter.location && countFilter.location.$near) {
             const maxDistance = countFilter.location.$near.$maxDistance;
             const coords = countFilter.location.$near.$geometry.coordinates;
             countFilter.location = {
-                $geoWithin: {
-                    // Chuyển mét sang radians (Bán kính trái đất ~ 6378.1 km)
-                    $centerSphere: [coords, maxDistance / 6378100]
-                }
+                $geoWithin: { $centerSphere: [coords, maxDistance / 6378100] }
             };
         }
 
-        const totalCourts = await Court.countDocuments(countFilter);
-        const { page, limit, totalPages, skip } = calculatePagination(
-            params.page || 1,
-            params.limit || 20,
+        const totalCourts = await Venue.countDocuments(countFilter);
+        const { page: currentPage, limit: currentLimit, totalPages, skip } = calculatePagination(
+            page,
+            limit,
             totalCourts
         );
 
-        // ==========================================
-        // FIX 2: Không được gán lệnh .sort() nếu đang tìm theo khoảng cách
-        // ==========================================
+        // Sắp xếp
         let sort: any = {};
-        switch (params.sortBy) {
-            case 'price':
-                sort = { 'pricePerHour.timeSlots.pricePerHour': params.sortOrder === 'desc' ? -1 : 1 };
-                break;
+        switch (sortBy) {
             case 'rating':
-                sort = { averageRating: -1 };
-                break;
-            case 'popularity':
-                sort = { totalBookings: -1 };
+                sort = { 'rating.totalScore': -1 };
                 break;
             case 'distance':
-                sort = undefined; // $near đã tự động sort từ gần đến xa
+                sort = undefined;
                 break;
             default:
-                if (params.q) {
-                    sort = { score: { $meta: 'textScore' } };
-                } else if (!params.lat || !params.lng) {
-                    // Chỉ dùng sort mặc định nếu KHÔNG tìm theo vị trí
-                    sort = { averageRating: -1, totalBookings: -1 };
-                } else {
-                    sort = undefined;
-                }
+                if (!lat || !lng) sort = { createdAt: -1 };
+                else sort = undefined;
         }
 
-        // Build query
-        let query = Court.find(filter)
+        let query = Venue.find(filter)
             .skip(skip)
-            .limit(limit)
+            .limit(currentLimit)
             .populate('ownerId', 'displayName avatar');
 
-        // Chỉ thêm .sort() nếu biến sort tồn tại
-        if (sort) {
-            query = query.sort(sort);
-        }
+        if (sort) query = query.sort(sort);
 
-        const courts = await query.lean();
+        const venues = await query.lean();
 
-        // Bonus: Tự động tính toán số km khoảng cách gửi về cho Frontend hiển thị
-        if (params.lat && params.lng) {
-            courts.forEach(court => {
-                if (court.location && court.location.coordinates) {
-                    const [lng, lat] = court.location.coordinates;
-                    const R = 6371; // Bán kính trái đất
-                    const dLat = (lat - params.lat!) * Math.PI / 180;
-                    const dLng = (lng - params.lng!) * Math.PI / 180;
+        // CHẠY QUA BỘ CHUYỂN ĐỔI FRONTEND
+        const formattedVenues = await Promise.all(venues.map(v => this.formatVenueForFrontend(v)));
+
+        // Tính khoảng cách
+        if (lat && lng) {
+            formattedVenues.forEach(venue => {
+                if (venue.location && venue.location.coordinates) {
+                    const [vLng, vLat] = venue.location.coordinates;
+                    const R = 6371;
+                    const dLat = (vLat - lat) * Math.PI / 180;
+                    const dLng = (vLng - lng) * Math.PI / 180;
                     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                        Math.cos(params.lat! * Math.PI / 180) * Math.cos(lat * Math.PI / 180) *
+                        Math.cos(lat * Math.PI / 180) * Math.cos(vLat * Math.PI / 180) *
                         Math.sin(dLng / 2) * Math.sin(dLng / 2);
                     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                    (court as any).distance = R * c;
+                    (venue as any).distance = R * c;
                 }
             });
         }
 
         return {
-            courts,
-            pagination: { page, limit, totalCourts, totalPages },
+            courts: formattedVenues,
+            pagination: { page: currentPage, limit: currentLimit, totalCourts, totalPages },
         };
     }
 
-    /**
-     * Get all courts owned by a specific user
-     */
-    async getCourtsByOwner(ownerId: string): Promise<ICourtDocument[]> {
-        return Court.find({ ownerId }).sort({ createdAt: -1 });
-    }
+    // ============================================================================
+    // 4. SINH GIỜ ĐẶT SÂN TỰ ĐỘNG
+    // ============================================================================
+    async generateSlotsForDate(venueId: string, date: Date): Promise<void> {
+        const activeCourts = await Court.find({ venueId: venueId, status: 'AVAILABLE' });
+        if (!activeCourts || activeCourts.length === 0) return;
 
-    /**
-     * Update court details
-     */
-    async updateCourt(
-        courtId: string,
-        ownerId: string,
-        updates: Partial<ICourtDocument>,
-        isAdmin = false
-    ): Promise<ICourtDocument> {
-        const court = await Court.findById(courtId);
-        if (!court) throw ApiError.notFound('Không tìm thấy sân');
-
-        if (!isAdmin && court.ownerId?.toString() !== ownerId) {
-            throw ApiError.forbidden('Bạn không phải chủ sân này');
-        }
-
-        // Don't allow changing certain fields
-        delete (updates as any)._id;
-        delete (updates as any).ownerId;
-        delete (updates as any).status;
-        delete (updates as any).totalBookings;
-        delete (updates as any).averageRating;
-        delete (updates as any).reviewCount;
-
-        if (updates.name) {
-            (updates as any).slug = createSlug(updates.name) + '-' + Date.now().toString(36);
-        }
-
-        Object.assign(court, updates);
-        await court.save();
-
-        return court;
-    }
-
-    /**
-     * Generate time slots for a court on a specific date
-     */
-    async generateSlotsForDate(courtId: string, date: Date): Promise<void> {
-        const court = await Court.findById(courtId);
-        if (!court) throw ApiError.notFound('Không tìm thấy sân');
-
-        const dayOfWeek = date.getDay();
-        const opHours = court.operatingHours.find(
-            (h: any) => h.dayOfWeek === dayOfWeek && h.isOpen
-        );
-
-        if (!opHours) return; // Sân đóng ngày này
-
-        const activeCourts = court.courts.filter((c: any) => c.isActive);
+        const openTime = '06:00';
+        const closeTime = '22:00';
 
         for (const subCourt of activeCourts) {
-            const slots = generateTimeSlots(opHours.open, opHours.close, 60);
-
-            // Find price for this time
-            const pricing = court.pricePerHour.find(
-                (p: any) => p.sportType === subCourt.sportType
-            );
+            const slots = generateTimeSlots(openTime, closeTime, 60);
 
             for (const slot of slots) {
-                // Check if slot already exists
                 const exists = await TimeSlot.findOne({
-                    courtId: court._id,
+                    courtId: venueId,
                     subCourtId: subCourt._id,
                     date,
                     startTime: slot.start,
                 });
 
                 if (!exists) {
-                    // Determine price based on time slot config
-                    let price = 100000; // default
-                    if (pricing) {
-                        const matchingPrice = pricing.timeSlots.find(
-                            (ts: any) =>
-                                ts.daysOfWeek.includes(dayOfWeek) &&
-                                slot.start >= ts.startTime &&
-                                slot.start < ts.endTime
-                        );
-                        if (matchingPrice) price = matchingPrice.pricePerHour;
-                    }
-
+                    const price = subCourt.pricePerHour || 100000;
                     await TimeSlot.create({
-                        courtId: court._id,
+                        courtId: venueId,
                         subCourtId: subCourt._id,
                         date,
                         startTime: slot.start,
@@ -301,17 +236,16 @@ class CourtService {
         }
     }
 
-    /**
-     * Get available time slots for a court on a date
-     */
+    // ============================================================================
+    // 5. LẤY DANH SÁCH KHUNG GIỜ TRỐNG
+    // ============================================================================
     async getAvailableSlots(courtId: string, subCourtId: string, date: string) {
         const dateObj = new Date(date);
         dateObj.setHours(0, 0, 0, 0);
 
-        // Auto-generate slots if they don't exist
         const existingSlots = await TimeSlot.countDocuments({
-            courtId,
-            subCourtId,
+            courtId: courtId,
+            subCourtId: subCourtId,
             date: dateObj,
         });
 
@@ -320,63 +254,83 @@ class CourtService {
         }
 
         const slots = await TimeSlot.find({
-            courtId,
-            subCourtId,
+            courtId: courtId,
+            subCourtId: subCourtId,
             date: dateObj,
         }).sort({ startTime: 1 }).lean();
 
         return slots;
     }
 
-    /**
-     * Get courts with active group plays or bookings (for "sân đang có người chơi" feature)
-     */
-    async getActiveCourts(params: {
-        sportType?: SportType;
-        district?: string;
-        page?: number;
-        limit?: number;
-    }) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+    // ============================================================================
+    // 6. LẤY DANH SÁCH CƠ SỞ ĐANG HOẠT ĐỘNG
+    // ============================================================================
+    async getActiveCourts(params: any) {
+        const filter: any = { isActive: true };
+        if (params.sportType) filter.sports = params.sportType;
+        if (params.district) filter['address.city'] = { $regex: params.district, $options: 'i' };
 
-        const filter: any = {
-            status: CourtStatus.ACTIVE,
-        };
-
-        if (params.sportType) filter.sportTypes = params.sportType;
-        if (params.district) filter['address.district'] = { $regex: params.district, $options: 'i' };
-
-        // Find courts that have booked slots today
-        const bookedCourtIds = await TimeSlot.distinct('courtId', {
-            date: today,
-            status: SlotStatus.BOOKED,
-        });
-
-        filter._id = { $in: bookedCourtIds };
-
-        const total = await Court.countDocuments(filter);
+        const total = await Venue.countDocuments(filter);
         const { page, limit, totalPages, skip } = calculatePagination(
             params.page || 1,
             params.limit || 20,
             total
         );
 
-        const courts = await Court.find(filter)
+        const venues = await Venue.find(filter)
             .skip(skip)
             .limit(limit)
             .populate('ownerId', 'displayName avatar')
             .lean();
 
+        // CHẠY QUA BỘ CHUYỂN ĐỔI FRONTEND
+        const formattedVenues = await Promise.all(venues.map(v => this.formatVenueForFrontend(v)));
+
         return {
-            courts,
+            courts: formattedVenues,
             pagination: { page, limit, total, totalPages },
         };
     }
 
-    /**
-     * Admin: approve/reject court
-     */
+    // ============================================================================
+    // 7. LẤY DANH SÁCH QUẬN/HUYỆN
+    // ============================================================================
+    async getDistricts(): Promise<string[]> {
+        const districts = await Venue.distinct('address.city', {
+            isActive: true,
+        });
+        return districts.sort();
+    }
+
+    // ============================================================================
+    // CÁC HÀM CÒN LẠI CHO OWNER & ADMIN (Tạm giữ nguyên)
+    // ============================================================================
+    async getCourtsByOwner(ownerId: string): Promise<any[]> {
+        return Court.find({ ownerId }).sort({ createdAt: -1 });
+    }
+
+    async updateCourt(
+        courtId: string,
+        ownerId: string,
+        updates: Partial<ICourtDocument>,
+        isAdmin = false
+    ): Promise<ICourtDocument> {
+        const court = await Court.findById(courtId);
+        if (!court) throw ApiError.notFound('Không tìm thấy sân');
+        if (!isAdmin && court.ownerId?.toString() !== ownerId) {
+            throw ApiError.forbidden('Bạn không phải chủ sân này');
+        }
+        delete (updates as any)._id;
+        delete (updates as any).ownerId;
+        delete (updates as any).status;
+        if (updates.name) {
+            (updates as any).slug = createSlug(updates.name) + '-' + Date.now().toString(36);
+        }
+        Object.assign(court, updates);
+        await court.save();
+        return court;
+    }
+
     async updateCourtStatus(
         courtId: string,
         status: CourtStatus,
@@ -384,25 +338,9 @@ class CourtService {
     ): Promise<ICourtDocument> {
         const court = await Court.findById(courtId);
         if (!court) throw ApiError.notFound('Không tìm thấy sân');
-
         court.status = status;
-        if (status === CourtStatus.ACTIVE) {
-            court.isVerified = true;
-        }
         await court.save();
-
-        logger.info(`Court ${courtId} status updated to ${status} by admin ${adminId}`);
         return court;
-    }
-
-    /**
-     * Get all districts with courts (for filter dropdown)
-     */
-    async getDistricts(): Promise<string[]> {
-        const districts = await Court.distinct('address.district', {
-            status: CourtStatus.ACTIVE,
-        });
-        return districts.sort();
     }
 }
 
