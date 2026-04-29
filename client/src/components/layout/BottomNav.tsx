@@ -1,50 +1,51 @@
-import { Home, Map, User } from 'lucide-react';
+import { Home, Search, MapPin, User } from 'lucide-react';
 import { useAppStore } from '../../store';
-import { theme as t } from '../../utils/theme';
-import type { AppPage } from '../../types';
-
-const TABS: { id: AppPage; label: string; Icon: typeof Home }[] = [
-    { id: 'home', label: 'Trang chủ', Icon: Home },
-    { id: 'map', label: 'Bản đồ', Icon: Map },
-    { id: 'profile', label: 'Tài khoản', Icon: User },
-];
 
 export default function BottomNav() {
     const { page, setPage } = useAppStore();
 
+    const NAV_ITEMS = [
+        { id: 'home', icon: <Home className="w-4.5 h-4.5" />, label: 'Trang chủ' },
+        { id: 'search', icon: <Search className="w-4.5 h-4.5" />, label: 'Tìm sân' },
+        { id: 'map', icon: <MapPin className="w-4.5 h-4.5" />, label: 'Bản đồ' },
+        { id: 'profile', icon: <User className="w-4.5 h-4.5" />, label: 'Hồ sơ' },
+    ];
+
     return (
-        <nav className={`fixed bottom-0 left-0 right-0 z-50 ${t.bg.base}/95 backdrop-blur-2xl border-t ${t.border.subtle} md:hidden`}
+        <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center pointer-events-none px-4"
             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
-            <div className="flex items-center justify-around h-16 px-2">
-                {TABS.map((tab) => {
-                    const active = page === tab.id;
+            <nav className="pointer-events-auto w-full max-w-75 bg-[#141617] border border-[#2a2d30] rounded-[18px] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8)] flex items-center justify-around px-1.5 py-1.5">
+
+                {NAV_ITEMS.map((item) => {
+                    const isProfilePage = item.id === 'profile' && ['profile', 'edit-profile', 'favorites', 'history', 'tournaments', 'groups', 'notifications', 'settings'].includes(page);
+                    const isActive = page === item.id || isProfilePage;
+
                     return (
                         <button
-                            key={tab.id}
-                            onClick={() => setPage(tab.id)}
-                            className="relative flex flex-col items-center justify-center w-16 h-full gap-0.5 group"
-                            aria-label={tab.label}
+                            key={item.id}
+                            onClick={() => setPage(item.id as any)}
+                            className={`relative flex flex-col items-center justify-center w-15 h-11.5 rounded-[14px] transition-all duration-300 ${isActive
+                                ? 'text-emerald-400'
+                                : 'text-[#5f656d] hover:text-[#999] hover:bg-white/5'
+                                }`}
                         >
-                            {/* Active glow bar */}
-                            {active && (
-                                <span
-                                    className="absolute -top-px left-2 right-2 h-0.5 rounded-full bg-emerald-400 transition-all"
-                                    style={{ boxShadow: '0 0 12px rgba(16,185,129,0.6)' }}
-                                />
+                            {isActive && (
+                                <div className="absolute inset-0 bg-emerald-500/10 rounded-[14px] transition-all duration-300 scale-100 opacity-100" />
                             )}
 
-                            <tab.Icon
-                                className={`w-5 h-5 transition-all duration-200 ${active ? 'text-emerald-400 drop-shadow-[0_0_6px_rgba(16,185,129,0.5)]' : `${t.text.muted} group-hover:text-emerald-400/60`
-                                    }`}
-                            />
-                            <span className={`text-[10px] font-semibold transition-colors ${active ? 'text-emerald-400' : t.text.muted}`}>
-                                {tab.label}
+                            <div className={`relative z-10 transition-transform duration-300 ${isActive ? '-translate-y-1.5' : 'translate-y-0'}`}>
+                                {item.icon}
+                            </div>
+
+                            <span className={`absolute bottom-1 text-[9px] font-bold tracking-wide transition-all duration-300 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+                                }`}>
+                                {item.label}
                             </span>
                         </button>
                     );
                 })}
-            </div>
-        </nav>
+            </nav>
+        </div>
     );
 }
