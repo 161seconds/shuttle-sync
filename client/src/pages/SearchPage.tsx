@@ -108,7 +108,7 @@ export default function SearchPage() {
             <div className="flex flex-col lg:flex-row gap-6">
 
                 {/* CỘT TRÁI: BỘ LỌC & DANH SÁCH SÂN */}
-                <div className="w-full lg:w-[55%] flex flex-col">
+                <div className="w-full lg:w-[55%] flex flex-col pb-15">
                     <CourtFilter filters={filters} onChange={handleFilterChange} />
 
                     {/* Extended filters */}
