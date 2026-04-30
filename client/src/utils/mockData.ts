@@ -1,5 +1,5 @@
 import type { Court } from '../types';
-
+//trang data mẫu
 export const MOCK_COURTS: Court[] = [
     {
         _id: '1', name: 'Cầu lông Phú Thọ', slug: 'cau-long-phu-tho',
