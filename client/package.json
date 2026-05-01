@@ -11,10 +11,10 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@tanstack/react-query": "^5.96.2",
+    "@vietmap/vietmap-gl-js": "^7.0.0-pre.1",
     "axios": "^1.14.0",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.7.0",
-    "maplibre-gl": "^5.24.0",
     "preact": "^10.29.1",
     "react-hook-form": "^7.72.1",
     "react-router-dom": "^7.14.0",

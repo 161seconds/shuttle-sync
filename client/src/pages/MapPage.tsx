@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { Search, SlidersHorizontal, Navigation, MapPin, Star, Calendar, X } from 'lucide-react';
-import maplibregl from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
+//import vietmapgl from '@vietmap/vietmap-gl-js';
+//import '@vietmap/vietmap-gl-js/dist/vietmap-gl.css';
 import { theme as t, formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
 import { courtApi } from '../api/court.api';
 import type { Court } from '../types';
+
+const vietmapgl = (window as any).vietmapgl;
 
 export default function MapPage() {
     const { setBookingCourt } = useAppStore();
@@ -14,20 +16,20 @@ export default function MapPage() {
     const [searchVal, setSearchVal] = useState('');
 
     const mapContainer = useRef<HTMLDivElement>(null);
-    const map = useRef<maplibregl.Map | null>(null);
-    const markersRef = useRef<maplibregl.Marker[]>([]);
-    const userMarkerRef = useRef<maplibregl.Marker | null>(null);
+    const map = useRef<any | null>(null);
+    const markersRef = useRef<any[]>([]);
+    const userMarkerRef = useRef<any | null>(null);
 
-    const MAPTILER_KEY = import.meta.env.VITE_MAPTILER_KEY;
+    const VIETMAP_KEY = import.meta.env.VITE_VIETMAP_KEY;
 
-    // 1. HÀM FETCH DỮ LIỆU SÂN (CÓ THỂ TRUYỀN VỊ TRÍ ĐỂ TÌM SÂN GẦN)
+    // 1. HÀM FETCH DỮ LIỆU SÂN
     const fetchCourts = async (lat?: number, lng?: number) => {
         try {
             const res = await courtApi.searchCourts({
                 limit: 50,
                 lat,
                 lng,
-                sortBy: lat && lng ? 'distance' : undefined // Nếu có vị trí thì sort theo khoảng cách
+                sortBy: lat && lng ? 'distance' : undefined
             });
             if (res.data?.data) {
                 setCourts(res.data.data);
@@ -37,34 +39,34 @@ export default function MapPage() {
         }
     };
 
-    // Load data lần đầu (Không có vị trí)
     useEffect(() => {
         fetchCourts();
     }, []);
 
-    // 2. KHỞI TẠO BẢN ĐỒ VÀ VẼ CÁC MARKER GIÁ TIỀN
+    // 2. KHỞI TẠO BẢN ĐỒ VIETMAP CHÍNH HÃNG
     useEffect(() => {
-        if (!mapContainer.current || !MAPTILER_KEY) return;
+        if (!mapContainer.current || !VIETMAP_KEY) return;
 
         if (!map.current) {
-            map.current = new maplibregl.Map({
+            map.current = new vietmapgl.Map({
                 container: mapContainer.current,
-                style: `https://api.maptiler.com/maps/dataviz-dark/style.json?key=${MAPTILER_KEY}`,
-                center: [106.660172, 10.762622], // Mặc định TP.HCM
+                // Dùng mã 'dm' (Dark Mode) theo chuẩn tài liệu mới của Vietmap
+                style: `https://maps.vietmap.vn/maps/styles/dm/style.json?apikey=${VIETMAP_KEY}`,
+                center: [106.660172, 10.762622],
                 zoom: 12.5,
-                pitch: 45, // Góc nghiêng 3D
+                pitch: 45,
             });
 
-            // Click vào chỗ trống trên map thì tắt thẻ Detail đi
+            // Thêm bộ điều khiển Zoom và La bàn (NavigationControl) vào góc dưới bên trái
+            map.current.addControl(new vietmapgl.NavigationControl(), 'bottom-left');
+
             map.current.on('click', () => setSelected(null));
         }
 
-        // Xóa các cây kim cũ khi data thay đổi
         markersRef.current.forEach(m => m.remove());
         markersRef.current = [];
 
         courts.forEach(court => {
-            // 🚨 ĐÃ SỬA: Kiểm tra lat, lng thay vì mảng coordinates
             if (!court.location || typeof court.location.lat !== 'number' || typeof court.location.lng !== 'number') return;
 
             const price = court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0;
@@ -72,7 +74,6 @@ export default function MapPage() {
 
             const isActive = selected?._id === court._id;
 
-            // HTML Custom Marker
             const el = document.createElement('div');
             el.innerHTML = `
                 <div style="display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.2s; transform: ${isActive ? 'scale(1.1)' : 'scale(1)'}; z-index: ${isActive ? 10 : 1};">
@@ -83,29 +84,26 @@ export default function MapPage() {
                 </div>
             `;
 
-            // Bấm vào Marker thì chọn sân và bay camera tới đó
             el.addEventListener('click', (e) => {
-                e.stopPropagation(); // Ngăn sự kiện click lan ra map
+                e.stopPropagation();
                 setSelected(court);
                 map.current?.flyTo({
-                    // 🚨 ĐÃ SỬA: Dùng court.location.lng và court.location.lat
                     center: [court.location.lng, court.location.lat],
                     zoom: 14.5,
                     duration: 1200
                 });
             });
 
-            const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
-                // 🚨 ĐÃ SỬA: Dùng court.location.lng và court.location.lat
+            const marker = new vietmapgl.Marker({ element: el, anchor: 'bottom' })
                 .setLngLat([court.location.lng, court.location.lat])
                 .addTo(map.current!);
 
             markersRef.current.push(marker);
         });
 
-    }, [courts, selected, MAPTILER_KEY]);
+    }, [courts, selected, VIETMAP_KEY]);
 
-    // 3. XỬ LÝ NÚT "SÂN GẦN TÔI"
+    // 3. XỬ LÝ NÚT "SÂN GẦN TÔI" 
     const handleLocateMe = () => {
         if (!navigator.geolocation) {
             alert("Trình duyệt không hỗ trợ định vị");
@@ -118,19 +116,16 @@ export default function MapPage() {
                 const lng = pos.coords.longitude;
 
                 if (map.current) {
-                    // Bay camera mượt mà
                     map.current.flyTo({
                         center: [lng, lat],
                         zoom: 14.5,
-                        pitch: 60, // Cụp góc máy quay xuống
-                        duration: 2500, // Bay trong 2.5s
+                        pitch: 60,
+                        duration: 2500,
                         essential: true
                     });
 
-                    // Xóa chấm user cũ (nếu có)
                     if (userMarkerRef.current) userMarkerRef.current.remove();
 
-                    // Vẽ chấm xanh dương nhấp nháy cho vị trí User
                     const userEl = document.createElement('div');
                     userEl.innerHTML = `
                         <div style="position: relative; width: 24px; height: 24px;">
@@ -140,11 +135,10 @@ export default function MapPage() {
                         <style>@keyframes pingUser { 75%, 100% { transform: scale(2.5); opacity: 0; } }</style>
                     `;
 
-                    userMarkerRef.current = new maplibregl.Marker({ element: userEl, anchor: 'center' })
+                    userMarkerRef.current = new vietmapgl.Marker({ element: userEl, anchor: 'center' })
                         .setLngLat([lng, lat])
                         .addTo(map.current);
 
-                    // GỌI LẠI API ĐỂ LẤY CÁC SÂN GẦN VỊ TRÍ NÀY NHẤT
                     fetchCourts(lat, lng);
                 }
             },
@@ -159,16 +153,14 @@ export default function MapPage() {
     const mainPhoto = (c: Court) =>
         c.photos?.find(p => p.isMain)?.url || c.photos?.[0]?.url || 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&h=250&fit=crop';
 
-    if (!MAPTILER_KEY) {
-        return <div className="h-full flex items-center justify-center text-emerald-500">Thiếu MAPTILER_KEY trong file .env</div>;
+    if (!VIETMAP_KEY) {
+        return <div className="h-full flex items-center justify-center text-emerald-500 font-bold bg-[#121212]">Thiếu VITE_VIETMAP_KEY trong file .env của client!</div>;
     }
 
     return (
         <div className="relative h-[calc(100vh-3.5rem-4rem)] md:h-[calc(100vh-3.5rem)] overflow-hidden">
-            {/* 🗺️ BẢN ĐỒ THẬT */}
             <div ref={mapContainer} className="absolute inset-0 bg-[#121212]" />
 
-            {/* 🔍 SEARCH BAR & QUICK FILTERS */}
             <div className="absolute top-4 left-4 right-4 z-20 pointer-events-none">
                 <div className="relative max-w-md mx-auto pointer-events-auto">
                     <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${t.text.muted}`} />
@@ -184,7 +176,6 @@ export default function MapPage() {
                     </button>
                 </div>
 
-                {/* 🌟 NÚT LỌC NHANH (Nằm dưới thanh tìm kiếm) */}
                 <div className="max-w-md mx-auto mt-3 flex gap-2 overflow-x-auto hide-scrollbar pointer-events-auto snap-x">
                     {['Cầu lông', 'Pickleball', 'Gần tôi', 'Giá rẻ', 'Đánh giá cao'].map((tag, idx) => (
                         <button key={idx} className={`snap-start shrink-0 px-3 py-1.5 rounded-full ${t.bg.card}/90 backdrop-blur-md border ${t.border.subtle} text-xs font-medium ${t.text.secondary} hover:bg-emerald-500 hover:text-black transition-colors shadow-lg`}>
@@ -194,7 +185,6 @@ export default function MapPage() {
                 </div>
             </div>
 
-            {/* 🎯 NÚT SÂN GẦN TÔI */}
             <button
                 onClick={handleLocateMe}
                 className={`absolute right-4 z-20 px-4 py-3 rounded-xl bg-emerald-500 text-black text-xs font-bold flex items-center gap-2 shadow-xl ${t.glow.md} hover:bg-emerald-400 transition-all duration-300 active:scale-95 ${selected
@@ -205,14 +195,12 @@ export default function MapPage() {
                 <Navigation className="w-4 h-4" /> Sân gần tôi
             </button>
 
-            {/* 📸 CAROUSEL SÂN GỢI Ý (Hiện khi CHƯA CHỌN sân nào) */}
             {!selected && courts.length > 0 && (
                 <div className="absolute bottom-30 md:bottom-4 left-0 right-0 z-10 w-full pointer-events-none">
                     <div className="flex overflow-x-auto px-4 pb-4 gap-4 snap-x snap-mandatory hide-scrollbar pointer-events-auto">
                         {courts.slice(0, 6).map((court) => (
                             <div
                                 key={court._id}
-                                // Bấm vào thẻ này thì camera cũng bay tới sân đó luôn
                                 onClick={() => {
                                     setSelected(court);
                                     map.current?.flyTo({ center: [court.location.lng, court.location.lat], zoom: 14.5, duration: 1200 });
@@ -240,7 +228,6 @@ export default function MapPage() {
                 </div>
             )}
 
-            {/* 📄 THẺ THÔNG TIN SÂN CHI TIẾT (Nổi lên khi CHỌN 1 sân) */}
             {selected && (
                 <div className={`absolute bottom-28 md:bottom-24 left-4 right-4 md:left-auto md:w-87.5 z-30 ${t.bg.card}/95 backdrop-blur-xl rounded-2xl border ${t.border.subtle} p-4 shadow-2xl transition-all animate-in fade-in slide-in-from-bottom-4`}>                    <button
                     onClick={() => setSelected(null)}

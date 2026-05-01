@@ -18,7 +18,7 @@ export const authApi = {
     },
 
     getMe: () => {
-        return axiosClient.get('/auth/me');
+        return axiosClient.get('/auth/profile');
     },
 
     updateProfile: (data: any) => {

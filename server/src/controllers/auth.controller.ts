@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { authService } from '../services';
 import { AuthRequest } from '../middlewares';
 import { sendSuccess, sendCreated } from '../utils/response';
+import { User } from '@/models/User';
 
 class AuthController {
     async register(req: Request, res: Response, next: NextFunction) {
@@ -31,6 +32,28 @@ class AuthController {
             }
             const tokens = await authService.refreshToken(refreshToken);
             sendSuccess(res, tokens, 'Làm mới token thành công');
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getProfile(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const userId = req.userId;
+
+            if (!userId) {
+                res.status(401).json({ success: false, message: 'Không tìm thấy ID người dùng' });
+                return;
+            }
+
+            const user = await User.findById(userId).select('-password');
+
+            if (!user) {
+                res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
+                return;
+            }
+
+            sendSuccess(res, user, 'Lấy thông tin cá nhân thành công');
         } catch (error) {
             next(error);
         }

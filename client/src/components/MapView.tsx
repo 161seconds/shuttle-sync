@@ -1,18 +1,20 @@
 import React, { useEffect, useRef, useMemo } from 'react';
-import maplibregl from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
+//import vietmapgl from '@vietmap/vietmap-gl-js';
+//import '@vietmap/vietmap-gl-js/dist/vietmap-gl.css';
 import { formatPrice } from '../utils/theme';
+
+const vietmapgl = (window as any).vietmapgl;
 
 interface MapViewProps {
     courts: any[];
 }
 
 const MapView: React.FC<MapViewProps> = ({ courts }) => {
-    const MAPTILER_KEY = import.meta.env.VITE_MAPTILER_KEY;
+    const VIETMAP_KEY = import.meta.env.VITE_VIETMAP_KEY;
 
     const mapContainer = useRef<HTMLDivElement>(null);
-    const map = useRef<maplibregl.Map | null>(null);
-    const markersRef = useRef<maplibregl.Marker[]>([]);
+    const map = useRef<any>(null);
+    const markersRef = useRef<any[]>([]);
 
     // Lọc sân có tọa độ hợp lệ
     const validCourts = useMemo(() => {
@@ -26,18 +28,18 @@ const MapView: React.FC<MapViewProps> = ({ courts }) => {
         : [106.660172, 10.762622];
 
     useEffect(() => {
-        if (!mapContainer.current || !MAPTILER_KEY) return;
+        if (!mapContainer.current || !VIETMAP_KEY) return;
 
         // 1. KHỞI TẠO BẢN ĐỒ (Chỉ chạy 1 lần)
         if (!map.current) {
-            map.current = new maplibregl.Map({
+            map.current = new vietmapgl.Map({
                 container: mapContainer.current,
-                style: `https://api.maptiler.com/maps/dataviz-dark/style.json?key=${MAPTILER_KEY}`,
+                style: `https://maps.vietmap.vn/maps/styles/dm/style.json?apikey=${VIETMAP_KEY}`,
                 center: defaultCenter as [number, number],
                 zoom: 12.5,
                 pitch: 45, // Hiệu ứng 3D nghiêng
             });
-            map.current.addControl(new maplibregl.NavigationControl(), 'bottom-right');
+            map.current.addControl(new vietmapgl.NavigationControl(), 'bottom-right');
         }
 
         // 2. XÓA MARKER CŨ MỖI KHI DANH SÁCH SÂN THAY ĐỔI
@@ -67,7 +69,7 @@ const MapView: React.FC<MapViewProps> = ({ courts }) => {
             const rating = court.averageRating?.toFixed(1) || '5.0';
             const address = court.address?.fullAddress || court.address?.district || 'Chưa cập nhật địa chỉ';
 
-            const popup = new maplibregl.Popup({ offset: 45, maxWidth: '260px' })
+            const popup = new vietmapgl.Popup({ offset: 45, maxWidth: '260px' })
                 .setHTML(`
           <div style="margin: -10px -10px -15px -10px;"> <!-- CSS trick tràn viền popup -->
             <img src="${photoUrl}" style="width: 100%; height: 120px; object-fit: cover; border-top-left-radius: 4px; border-top-right-radius: 4px; margin-bottom: 8px;" />
@@ -83,7 +85,7 @@ const MapView: React.FC<MapViewProps> = ({ courts }) => {
         `);
 
             // -- Gắn Marker và Popup lên Map --
-            const marker = new maplibregl.Marker({ element: markerEl, anchor: 'bottom' })
+            const marker = new vietmapgl.Marker({ element: markerEl, anchor: 'bottom' })
                 .setLngLat([court.location.coordinates[0], court.location.coordinates[1]])
                 .setPopup(popup)
                 .addTo(map.current!);
@@ -91,12 +93,12 @@ const MapView: React.FC<MapViewProps> = ({ courts }) => {
             markersRef.current.push(marker);
         });
 
-    }, [validCourts, defaultCenter, MAPTILER_KEY]);
+    }, [validCourts, defaultCenter, VIETMAP_KEY]);
 
-    if (!MAPTILER_KEY) {
+    if (!VIETMAP_KEY) {
         return (
             <div className="w-full h-full flex items-center justify-center bg-[#121212] text-emerald-400 p-4 text-center rounded-2xl border border-emerald-500/20 shadow-lg">
-                <p className="font-bold tracking-wide">Vui lòng cấu hình biến VITE_MAPTILER_KEY trong file .env nhé!</p>
+                <p className="font-bold tracking-wide">Vui lòng cấu hình biến VITE_VIETMAP_KEY trong file .env nhé!</p>
             </div>
         );
     }
