@@ -54,7 +54,7 @@ export default function MapPage() {
                 pitch: 45,
             });
 
-            map.current.addControl(new vietmapgl.NavigationControl(), 'bottom-left');
+            map.current.addControl(new vietmapgl.NavigationControl(), 'top-right');
             map.current.on('click', () => setSelected(null));
         }
 
@@ -196,8 +196,7 @@ export default function MapPage() {
             {/* 4. NÚT "SÂN GẦN TÔI" */}
             <button
                 onClick={handleLocateMe}
-                // DÙNG CHUẨN TAILWIND: bottom-64 (16rem), bottom-96 (24rem)
-                className={`absolute right-4 z-20 px-4 py-3.5 rounded-full bg-emerald-500 text-black text-sm font-bold flex items-center gap-2.5 shadow-[0_8px_20px_rgba(16,185,129,0.3)] hover:bg-emerald-400 hover:scale-105 transition-all duration-300 active:scale-95 ${selected ? 'bottom-96 md:bottom-80' : 'bottom-64 md:bottom-48'
+                className={`absolute right-4 z-20 px-4 py-3 rounded-full bg-emerald-500 text-black text-sm font-bold flex items-center gap-2.5 shadow-[0_8px_20px_rgba(16,185,129,0.3)] hover:bg-emerald-400 hover:scale-105 transition-all duration-300 active:scale-95 ${selected ? 'bottom-56' : 'bottom-48'
                     }`}
             >
                 <Navigation className="w-4 h-4" /> Sân gần tôi
@@ -205,9 +204,8 @@ export default function MapPage() {
 
             {/* 5. DANH SÁCH CAROUSEL CÁC SÂN */}
             {!selected && courts.length > 0 && (
-                // DÙNG CHUẨN TAILWIND: bottom-28 (7rem ~ 112px) để thoát Bottom Nav
-                <div className="absolute bottom-28 md:bottom-12 left-0 right-0 z-20 w-full pointer-events-none">
-                    <div className="flex overflow-x-auto px-4 pb-4 gap-4 snap-x snap-mandatory hide-scrollbar pointer-events-auto">
+                <div className="absolute bottom-16.5 left-0 right-0 z-20 w-full pointer-events-none">
+                    <div className="flex overflow-x-auto px-4 pb-4 gap-3 snap-x snap-mandatory hide-scrollbar pointer-events-auto">
                         {courts.slice(0, 6).map((court) => {
                             const lng = (court.location as any)?.coordinates?.[0] || court.location?.lng;
                             const lat = (court.location as any)?.coordinates?.[1] || court.location?.lat;
@@ -219,20 +217,20 @@ export default function MapPage() {
                                         setSelected(court);
                                         if (lng && lat) map.current?.flyTo({ center: [lng, lat], zoom: 14.5, duration: 1200 });
                                     }}
-                                    className="min-w-75 md:min-w-[320px] snap-center shrink-0 bg-[#1a1a1a]/80 backdrop-blur-2xl rounded-2xl border border-white/10 p-3 shadow-2xl cursor-pointer hover:border-emerald-500/40 hover:bg-[#222]/90 transition-all duration-300 group"
+                                    className="min-w-65 md:min-w-70 snap-center shrink-0 bg-[#1a1a1a]/80 backdrop-blur-2xl rounded-2xl border border-white/10 p-2.5 shadow-2xl cursor-pointer hover:border-emerald-500/40 hover:bg-[#222]/90 transition-all duration-300 group"
                                 >
-                                    <div className="flex gap-3.5 items-center">
-                                        <img src={mainPhoto(court)} alt="" className="w-20 h-20 rounded-xl object-cover shrink-0 border border-white/5 group-hover:scale-105 transition-transform duration-500" />
-                                        <div className="flex-1 min-w-0 py-1">
-                                            <h3 className="font-bold text-[15px] text-white truncate group-hover:text-emerald-400 transition-colors">{court.name}</h3>
-                                            <p className="text-[13px] text-gray-400 truncate mt-1 flex items-center gap-1">
+                                    <div className="flex gap-3 items-center">
+                                        <img src={mainPhoto(court)} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0 border border-white/5 group-hover:scale-105 transition-transform duration-500" />
+                                        <div className="flex-1 min-w-0 py-0.5">
+                                            <h3 className="font-bold text-[14px] text-white truncate group-hover:text-emerald-400 transition-colors">{court.name}</h3>
+                                            <p className="text-[12px] text-gray-400 truncate mt-0.5 flex items-center gap-1">
                                                 <MapPin className="w-3 h-3" /> {court.address?.district}
                                             </p>
-                                            <div className="flex items-center justify-between mt-2.5">
-                                                <span className="text-emerald-400 font-bold text-sm bg-emerald-500/10 px-2 py-1 rounded-lg">
+                                            <div className="flex items-center justify-between mt-2">
+                                                <span className="text-emerald-400 font-bold text-[13px] bg-emerald-500/10 px-1.5 py-0.5 rounded-lg">
                                                     {formatPrice(court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0)}/h
                                                 </span>
-                                                <span className="text-[12px] font-bold bg-[#2a2a2a] text-amber-400 px-2 py-1 rounded-lg flex items-center gap-1 border border-white/5">
+                                                <span className="text-[11px] font-bold bg-[#2a2a2a] text-amber-400 px-1.5 py-0.5 rounded-lg flex items-center gap-1 border border-white/5">
                                                     ⭐ {court.averageRating?.toFixed(1) || '5.0'}
                                                 </span>
                                             </div>
@@ -247,30 +245,30 @@ export default function MapPage() {
 
             {/* 6. POPUP CHI TIẾT */}
             {selected && (
-                // DÙNG CHUẨN TAILWIND: bottom-28 giống hệt vị trí của Carousel
-                <div className="absolute bottom-28 md:bottom-12 left-4 right-4 md:left-auto md:w-96 z-30 bg-[#1a1a1a]/95 backdrop-blur-2xl rounded-3xl border border-white/10 p-5 shadow-[0_10px_40px_rgba(0,0,0,0.7)] transition-all animate-in fade-in slide-in-from-bottom-8">
+                // Cùng chiều cao bottom-28 với Carousel để không bị nhảy vị trí
+                <div className="absolute bottom-28 left-4 right-4 md:left-auto md:right-8 md:w-88 z-30 bg-[#1a1a1a]/95 backdrop-blur-2xl rounded-3xl border border-white/10 p-4 shadow-[0_10px_40px_rgba(0,0,0,0.7)] transition-all animate-in fade-in slide-in-from-bottom-8">
                     <button
                         onClick={() => setSelected(null)}
-                        className="absolute top-7 right-7 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 hover:text-white hover:bg-red-500 hover:border-red-500 hover:scale-110 hover:shadow-[0_0_15px_rgba(239,68,68,0.6)] transition-all duration-300 z-10"
+                        className="absolute top-6 right-6 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 hover:text-white hover:bg-red-500 hover:border-red-500 hover:scale-110 hover:shadow-[0_0_15px_rgba(239,68,68,0.6)] transition-all duration-300 z-10"
                     >
                         <X className="w-4 h-4 stroke-[2.5px]" />
                     </button>
 
-                    <div className="flex flex-col gap-4">
-                        <img src={mainPhoto(selected)} alt="" className="w-full h-36 rounded-2xl object-cover shrink-0 border border-white/5" />
+                    <div className="flex flex-col gap-3">
+                        <img src={mainPhoto(selected)} alt="" className="w-full h-32 rounded-2xl object-cover shrink-0 border border-white/5" />
                         <div className="flex-1 min-w-0">
-                            <h3 className="font-extrabold text-[18px] text-white leading-tight">{selected.name}</h3>
-                            <p className="text-[13px] text-gray-400 flex items-start gap-1.5 mt-2">
-                                <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-emerald-500" />
+                            <h3 className="font-extrabold text-[16px] text-white leading-tight">{selected.name}</h3>
+                            <p className="text-[12px] text-gray-400 flex items-start gap-1.5 mt-1.5">
+                                <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5 text-emerald-500" />
                                 <span className="line-clamp-2">{selected.address?.fullAddress || selected.address.district}</span>
                             </p>
 
-                            <div className="flex items-center gap-3 mt-4 pt-4 border-t border-white/10">
-                                <span className="flex items-center gap-1.5 text-sm bg-[#2a2a2a] px-3 py-1.5 rounded-xl border border-white/5">
-                                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/10">
+                                <span className="flex items-center gap-1.5 text-[13px] bg-[#2a2a2a] px-2.5 py-1 rounded-xl border border-white/5">
+                                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                                     <span className="text-white font-bold">{selected.averageRating?.toFixed(1) || '5.0'}</span>
                                 </span>
-                                <span className="text-emerald-400 text-[15px] font-black bg-emerald-500/10 px-3 py-1.5 rounded-xl flex-1 text-center border border-emerald-500/20">
+                                <span className="text-emerald-400 text-[14px] font-black bg-emerald-500/10 px-2.5 py-1 rounded-xl flex-1 text-center border border-emerald-500/20">
                                     {formatPrice(selected.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0)} / Giờ
                                 </span>
                             </div>
@@ -279,9 +277,9 @@ export default function MapPage() {
 
                     <button
                         onClick={() => setBookingCourt(selected)}
-                        className="w-full mt-5 py-3.5 rounded-xl bg-linear-to-r from-emerald-500 to-emerald-400 text-black text-[15px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_5px_20px_rgba(16,185,129,0.4)] active:scale-[0.98]"
+                        className="w-full mt-4 py-3 rounded-xl bg-linear-to-r from-emerald-500 to-emerald-400 text-black text-[14px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_5px_20px_rgba(16,185,129,0.4)] active:scale-[0.98]"
                     >
-                        <Calendar className="w-5 h-5" /> Đặt lịch sân này
+                        <Calendar className="w-4 h-4" /> Đặt lịch sân này
                     </button>
                 </div>
             )}
