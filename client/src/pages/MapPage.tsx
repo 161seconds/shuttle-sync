@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Search, SlidersHorizontal, Navigation, MapPin, Star, Calendar, X } from 'lucide-react';
-//import vietmapgl from '@vietmap/vietmap-gl-js';
-//import '@vietmap/vietmap-gl-js/dist/vietmap-gl.css';
-import { theme as t, formatPrice } from '../utils/theme';
+import { formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
 import { courtApi } from '../api/court.api';
 import type { Court } from '../types';
@@ -43,31 +41,32 @@ export default function MapPage() {
         fetchCourts();
     }, []);
 
-    // 2. KHỞI TẠO BẢN ĐỒ VIETMAP CHÍNH HÃNG
+    // 2. KHỞI TẠO BẢN ĐỒ VIETMAP
     useEffect(() => {
         if (!mapContainer.current || !VIETMAP_KEY) return;
 
         if (!map.current) {
             map.current = new vietmapgl.Map({
                 container: mapContainer.current,
-                // Dùng mã 'dm' (Dark Mode) theo chuẩn tài liệu mới của Vietmap
                 style: `https://maps.vietmap.vn/maps/styles/dm/style.json?apikey=${VIETMAP_KEY}`,
                 center: [106.660172, 10.762622],
                 zoom: 12.5,
                 pitch: 45,
             });
 
-            // Thêm bộ điều khiển Zoom và La bàn (NavigationControl) vào góc dưới bên trái
             map.current.addControl(new vietmapgl.NavigationControl(), 'bottom-left');
-
             map.current.on('click', () => setSelected(null));
         }
 
+        // Xóa marker cũ trước khi vẽ lại
         markersRef.current.forEach(m => m.remove());
         markersRef.current = [];
 
         courts.forEach(court => {
-            if (!court.location || typeof court.location.lat !== 'number' || typeof court.location.lng !== 'number') return;
+            const lng = (court.location as any)?.coordinates?.[0] || court.location?.lng;
+            const lat = (court.location as any)?.coordinates?.[1] || court.location?.lat;
+
+            if (typeof lng !== 'number' || typeof lat !== 'number') return;
 
             const price = court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0;
             const priceText = price > 0 ? `${Math.round(price / 1000)}K` : '??K';
@@ -88,14 +87,14 @@ export default function MapPage() {
                 e.stopPropagation();
                 setSelected(court);
                 map.current?.flyTo({
-                    center: [court.location.lng, court.location.lat],
+                    center: [lng, lat],
                     zoom: 14.5,
                     duration: 1200
                 });
             });
 
             const marker = new vietmapgl.Marker({ element: el, anchor: 'bottom' })
-                .setLngLat([court.location.lng, court.location.lat])
+                .setLngLat([lng, lat])
                 .addTo(map.current!);
 
             markersRef.current.push(marker);
@@ -103,7 +102,7 @@ export default function MapPage() {
 
     }, [courts, selected, VIETMAP_KEY]);
 
-    // 3. XỬ LÝ NÚT "SÂN GẦN TÔI" 
+    // 3. NÚT ĐỊNH VỊ
     const handleLocateMe = () => {
         if (!navigator.geolocation) {
             alert("Trình duyệt không hỗ trợ định vị");
@@ -158,98 +157,121 @@ export default function MapPage() {
     }
 
     return (
-        <div className="relative h-[calc(100vh-3.5rem-4rem)] md:h-[calc(100vh-3.5rem)] overflow-hidden">
-            <div ref={mapContainer} className="absolute inset-0 bg-[#121212]" />
+        <div className="relative w-full h-[calc(100dvh-64px)] overflow-hidden font-sans">
+            {/* 1. CONTAINER BẢN ĐỒ */}
+            <div ref={mapContainer} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} className="bg-[#121212]" />
 
-            <div className="absolute top-4 left-4 right-4 z-20 pointer-events-none">
-                <div className="relative max-w-md mx-auto pointer-events-auto">
-                    <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${t.text.muted}`} />
+            {/* 2. HIỆU ỨNG VIGNETTE */}
+            <div className="absolute top-0 left-0 right-0 h-40 bg-linear-to-b from-[#121212]/90 via-[#121212]/50 to-transparent z-10 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-64 bg-linear-to-t from-[#121212] via-[#121212]/80 to-transparent z-10 pointer-events-none" />
+
+            {/* 3. KHU VỰC TÌM KIẾM & FILTER */}
+            <div className="absolute top-6 left-4 right-4 z-20 pointer-events-none">
+                <div className="relative max-w-md mx-auto pointer-events-auto group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-emerald-400 transition-colors" />
                     <input
                         type="text"
                         placeholder="Tìm sân trên bản đồ..."
                         value={searchVal}
                         onChange={(e) => setSearchVal((e.target as HTMLInputElement).value)}
-                        className={`w-full h-12 pl-11 pr-12 rounded-2xl ${t.bg.card}/95 backdrop-blur-xl border ${t.border.subtle} ${t.text.primary} placeholder:text-[#555] text-sm outline-none shadow-2xl`}
+                        className="w-full h-14 pl-12 pr-14 rounded-2xl bg-[#1e1e1e]/70 backdrop-blur-2xl border border-white/10 text-white placeholder:text-gray-500 text-[15px] outline-none shadow-[0_8px_30px_rgb(0,0,0,0.5)] focus:border-emerald-500/50 focus:bg-[#1e1e1e]/90 transition-all"
                     />
-                    <button className={`absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted}`}>
-                        <SlidersHorizontal className="w-4 h-4" />
+                    <button className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-300 transition-colors border border-white/5">
+                        <SlidersHorizontal className="w-5 h-5" />
                     </button>
                 </div>
 
-                <div className="max-w-md mx-auto mt-3 flex gap-2 overflow-x-auto hide-scrollbar pointer-events-auto snap-x">
+                <div className="max-w-md mx-auto mt-4 flex gap-2.5 overflow-x-auto hide-scrollbar pointer-events-auto snap-x pb-2">
                     {['Cầu lông', 'Pickleball', 'Gần tôi', 'Giá rẻ', 'Đánh giá cao'].map((tag, idx) => (
-                        <button key={idx} className={`snap-start shrink-0 px-3 py-1.5 rounded-full ${t.bg.card}/90 backdrop-blur-md border ${t.border.subtle} text-xs font-medium ${t.text.secondary} hover:bg-emerald-500 hover:text-black transition-colors shadow-lg`}>
+                        <button
+                            key={idx}
+                            className="snap-start shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full bg-[#1e1e1e]/80 backdrop-blur-xl border border-white/10 text-[12px] font-medium text-gray-300 hover:bg-emerald-500 hover:text-black hover:border-emerald-500 hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all duration-300"
+                        >
                             {tag}
                         </button>
                     ))}
                 </div>
             </div>
 
+            {/* 4. NÚT "SÂN GẦN TÔI" */}
             <button
                 onClick={handleLocateMe}
-                className={`absolute right-4 z-20 px-4 py-3 rounded-xl bg-emerald-500 text-black text-xs font-bold flex items-center gap-2 shadow-xl ${t.glow.md} hover:bg-emerald-400 transition-all duration-300 active:scale-95 ${selected
-                    ? 'bottom-70 md:bottom-67.5'
-                    : 'bottom-52.5 md:bottom-52.5'
+                // DÙNG CHUẨN TAILWIND: bottom-64 (16rem), bottom-96 (24rem)
+                className={`absolute right-4 z-20 px-4 py-3.5 rounded-full bg-emerald-500 text-black text-sm font-bold flex items-center gap-2.5 shadow-[0_8px_20px_rgba(16,185,129,0.3)] hover:bg-emerald-400 hover:scale-105 transition-all duration-300 active:scale-95 ${selected ? 'bottom-96 md:bottom-80' : 'bottom-64 md:bottom-48'
                     }`}
             >
                 <Navigation className="w-4 h-4" /> Sân gần tôi
             </button>
 
+            {/* 5. DANH SÁCH CAROUSEL CÁC SÂN */}
             {!selected && courts.length > 0 && (
-                <div className="absolute bottom-30 md:bottom-4 left-0 right-0 z-10 w-full pointer-events-none">
+                // DÙNG CHUẨN TAILWIND: bottom-28 (7rem ~ 112px) để thoát Bottom Nav
+                <div className="absolute bottom-28 md:bottom-12 left-0 right-0 z-20 w-full pointer-events-none">
                     <div className="flex overflow-x-auto px-4 pb-4 gap-4 snap-x snap-mandatory hide-scrollbar pointer-events-auto">
-                        {courts.slice(0, 6).map((court) => (
-                            <div
-                                key={court._id}
-                                onClick={() => {
-                                    setSelected(court);
-                                    map.current?.flyTo({ center: [court.location.lng, court.location.lat], zoom: 14.5, duration: 1200 });
-                                }}
-                                className={`min-w-65 md:min-w-75 snap-center shrink-0 ${t.bg.card}/95 backdrop-blur-md rounded-xl border ${t.border.subtle} p-2.5 shadow-xl cursor-pointer hover:border-emerald-500/50 transition-colors`}
-                            >
-                                <div className="flex gap-3 items-center">
-                                    <img src={mainPhoto(court)} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0 border border-[#333]" />
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className={`font-bold text-sm ${t.text.primary} truncate`}>{court.name}</h3>
-                                        <p className={`text-xs ${t.text.muted} truncate mt-0.5`}>{court.address?.district}</p>
-                                        <div className="flex items-center justify-between mt-1.5">
-                                            <span className="text-emerald-400 font-bold text-sm">
-                                                {formatPrice(court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0)}/h
-                                            </span>
-                                            <span className="text-xs font-semibold bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded flex items-center gap-1">
-                                                ⭐ {court.averageRating?.toFixed(1) || '5.0'}
-                                            </span>
+                        {courts.slice(0, 6).map((court) => {
+                            const lng = (court.location as any)?.coordinates?.[0] || court.location?.lng;
+                            const lat = (court.location as any)?.coordinates?.[1] || court.location?.lat;
+
+                            return (
+                                <div
+                                    key={court._id}
+                                    onClick={() => {
+                                        setSelected(court);
+                                        if (lng && lat) map.current?.flyTo({ center: [lng, lat], zoom: 14.5, duration: 1200 });
+                                    }}
+                                    className="min-w-75 md:min-w-[320px] snap-center shrink-0 bg-[#1a1a1a]/80 backdrop-blur-2xl rounded-2xl border border-white/10 p-3 shadow-2xl cursor-pointer hover:border-emerald-500/40 hover:bg-[#222]/90 transition-all duration-300 group"
+                                >
+                                    <div className="flex gap-3.5 items-center">
+                                        <img src={mainPhoto(court)} alt="" className="w-20 h-20 rounded-xl object-cover shrink-0 border border-white/5 group-hover:scale-105 transition-transform duration-500" />
+                                        <div className="flex-1 min-w-0 py-1">
+                                            <h3 className="font-bold text-[15px] text-white truncate group-hover:text-emerald-400 transition-colors">{court.name}</h3>
+                                            <p className="text-[13px] text-gray-400 truncate mt-1 flex items-center gap-1">
+                                                <MapPin className="w-3 h-3" /> {court.address?.district}
+                                            </p>
+                                            <div className="flex items-center justify-between mt-2.5">
+                                                <span className="text-emerald-400 font-bold text-sm bg-emerald-500/10 px-2 py-1 rounded-lg">
+                                                    {formatPrice(court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0)}/h
+                                                </span>
+                                                <span className="text-[12px] font-bold bg-[#2a2a2a] text-amber-400 px-2 py-1 rounded-lg flex items-center gap-1 border border-white/5">
+                                                    ⭐ {court.averageRating?.toFixed(1) || '5.0'}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             )}
 
+            {/* 6. POPUP CHI TIẾT */}
             {selected && (
-                <div className={`absolute bottom-28 md:bottom-24 left-4 right-4 md:left-auto md:w-87.5 z-30 ${t.bg.card}/95 backdrop-blur-xl rounded-2xl border ${t.border.subtle} p-4 shadow-2xl transition-all animate-in fade-in slide-in-from-bottom-4`}>                    <button
-                    onClick={() => setSelected(null)}
-                    className={`absolute top-3 right-3 w-7 h-7 rounded-lg ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-white transition-colors z-10`}
-                >
-                    <X className="w-3.5 h-3.5" />
-                </button>
+                // DÙNG CHUẨN TAILWIND: bottom-28 giống hệt vị trí của Carousel
+                <div className="absolute bottom-28 md:bottom-12 left-4 right-4 md:left-auto md:w-96 z-30 bg-[#1a1a1a]/95 backdrop-blur-2xl rounded-3xl border border-white/10 p-5 shadow-[0_10px_40px_rgba(0,0,0,0.7)] transition-all animate-in fade-in slide-in-from-bottom-8">
+                    <button
+                        onClick={() => setSelected(null)}
+                        className="absolute top-7 right-7 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 hover:text-white hover:bg-red-500 hover:border-red-500 hover:scale-110 hover:shadow-[0_0_15px_rgba(239,68,68,0.6)] transition-all duration-300 z-10"
+                    >
+                        <X className="w-4 h-4 stroke-[2.5px]" />
+                    </button>
 
-                    <div className="flex gap-4">
-                        <img src={mainPhoto(selected)} alt="" className="w-20 h-20 rounded-xl object-cover shrink-0 border border-[#333]" />
-                        <div className="flex-1 min-w-0 pr-4">
-                            <h3 className={`font-bold text-sm ${t.text.primary} truncate`}>{selected.name}</h3>
-                            <p className={`text-xs ${t.text.muted} flex items-center gap-1 mt-1 truncate`}>
-                                <MapPin className="w-3 h-3 shrink-0" /> <span className="truncate">{selected.address?.fullAddress || selected.address.district}</span>
+                    <div className="flex flex-col gap-4">
+                        <img src={mainPhoto(selected)} alt="" className="w-full h-36 rounded-2xl object-cover shrink-0 border border-white/5" />
+                        <div className="flex-1 min-w-0">
+                            <h3 className="font-extrabold text-[18px] text-white leading-tight">{selected.name}</h3>
+                            <p className="text-[13px] text-gray-400 flex items-start gap-1.5 mt-2">
+                                <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-emerald-500" />
+                                <span className="line-clamp-2">{selected.address?.fullAddress || selected.address.district}</span>
                             </p>
-                            <div className="flex items-center gap-3 mt-2">
-                                <span className="flex items-center gap-1 text-xs">
-                                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                                    <span className={`${t.text.primary} font-medium`}>{selected.averageRating?.toFixed(1) || '5.0'}</span>
+
+                            <div className="flex items-center gap-3 mt-4 pt-4 border-t border-white/10">
+                                <span className="flex items-center gap-1.5 text-sm bg-[#2a2a2a] px-3 py-1.5 rounded-xl border border-white/5">
+                                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                                    <span className="text-white font-bold">{selected.averageRating?.toFixed(1) || '5.0'}</span>
                                 </span>
-                                <span className="text-emerald-400 text-sm font-black bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                                    {formatPrice(selected.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0)}/h
+                                <span className="text-emerald-400 text-[15px] font-black bg-emerald-500/10 px-3 py-1.5 rounded-xl flex-1 text-center border border-emerald-500/20">
+                                    {formatPrice(selected.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0)} / Giờ
                                 </span>
                             </div>
                         </div>
@@ -257,9 +279,9 @@ export default function MapPage() {
 
                     <button
                         onClick={() => setBookingCourt(selected)}
-                        className="w-full mt-4 py-2.5 rounded-xl bg-emerald-500 text-black text-xs font-bold flex items-center justify-center gap-2 hover:bg-emerald-400 transition-colors active:scale-95 shadow-lg shadow-emerald-500/20"
+                        className="w-full mt-5 py-3.5 rounded-xl bg-linear-to-r from-emerald-500 to-emerald-400 text-black text-[15px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_5px_20px_rgba(16,185,129,0.4)] active:scale-[0.98]"
                     >
-                        <Calendar className="w-4 h-4" /> Đặt sân này
+                        <Calendar className="w-5 h-5" /> Đặt lịch sân này
                     </button>
                 </div>
             )}
