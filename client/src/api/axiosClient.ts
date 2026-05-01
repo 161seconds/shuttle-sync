@@ -9,13 +9,18 @@ const axiosClient = axios.create({
 });
 
 // Request interceptor — attach access token
-axiosClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem('accessToken');
-    if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
+axiosClient.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
     }
-    return config;
-});
+);
 
 // Response interceptor — handle 401 + token refresh
 let isRefreshing = false;

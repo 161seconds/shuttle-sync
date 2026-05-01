@@ -6,7 +6,7 @@ import morgan from 'morgan';
 import path from 'path';
 import { config } from './config';
 import routes from './routes';
-import { errorHandler, notFoundHandler, apiLimiter } from './middlewares';
+import { errorHandler, notFoundHandler, apiLimiter, searchCourtLimiter } from './middlewares';
 
 const app = express();
 
@@ -33,13 +33,16 @@ if (!config.isProduction) {
     app.use(morgan('combined'));
 }
 
-// Rate limiting
+// Rate limiting (Global)
 app.use('/api', apiLimiter);
 
 // Static files (uploads)
 app.use('/uploads', express.static(path.join(__dirname, '..', config.upload.dir)));
 
-// API Routes`
+// 2. Sử dụng cái searchCourtLimiter đã import ở trên
+app.use('/api/v1/courts/search', searchCourtLimiter);
+
+// API Routes
 app.use('/api/v1', routes);
 
 // 404 handler

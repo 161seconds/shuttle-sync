@@ -42,3 +42,13 @@ export const bookingLimiter = rateLimit({
         message: 'Vui lòng chờ trước khi đặt sân tiếp',
     },
 });
+
+// Thêm khiên bảo vệ riêng cho API Tìm Sân
+export const searchCourtLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 phút
+    max: 30, // 30 requests / phút
+    message: {
+        success: false,
+        message: 'Thao tác tìm kiếm quá nhanh! Vui lòng chậm lại chút nhé.'
+    }
+});
