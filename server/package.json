@@ -6,11 +6,15 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc -b && tsc-alias",
-    "start": "node dist/server.js",
+    "start": "node -r module-alias/register dist/server.js",
     "seed": "tsx src/scripts/seed.ts",
     "lint": "eslint src --ext .ts"
   },
+  "_moduleAliases": {
+    "@": "./dist"
+  },
   "dependencies": {
+    "module-alias": "^2.2.3",
     "@shuttle-sync/shared": "file:../shared",
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",
