@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
     Edit, Bookmark, History, Award, Users, Bell, Settings,
-    LogOut, ChevronRight, Check,
+    LogOut, ChevronRight, Check, UserCircle, LogIn, ShieldAlert
 } from 'lucide-react';
 import { theme as t } from '../utils/theme';
 import { useAppStore } from '../store';
@@ -52,7 +52,35 @@ export default function ProfilePage() {
         setPage('login');
     };
 
-    if (!user) return null;
+    if (!user) {
+        return (
+            <div className="max-w-md mx-auto px-6 pt-20 pb-24 flex flex-col items-center justify-center min-h-[75vh] text-center">
+                <div className="relative w-28 h-28 bg-[#1e1e1e] rounded-full flex items-center justify-center mb-6 border border-white/10 shadow-[0_0_40px_rgba(16,185,129,0.15)]">
+                    <div className="absolute inset-0 rounded-full border border-emerald-500/20 animate-ping" style={{ animationDuration: '3s' }}></div>
+                    <UserCircle className="w-14 h-14 text-emerald-500/80" />
+                </div>
+
+                <h2 className="text-2xl font-black text-white mb-3">Chưa đăng nhập</h2>
+
+                <p className="text-gray-400 text-[14px] leading-relaxed mb-10 px-2">
+                    Vui lòng đăng nhập để xem thông tin cá nhân, quản lý lịch đặt sân và nhận nhiều ưu đãi hấp dẫn từ ShuttleSync.
+                </p>
+
+                <button
+                    onClick={() => setPage('login')}
+                    className="w-full flex items-center justify-center gap-2 bg-linear-to-r from-emerald-500 to-emerald-400 hover:opacity-90 text-black font-bold py-4 px-6 rounded-2xl transition-all shadow-[0_8px_25px_rgba(16,185,129,0.3)] active:scale-[0.98]"
+                >
+                    <LogIn className="w-5 h-5" />
+                    Đăng nhập / Đăng ký ngay
+                </button>
+
+                <div className="mt-8 flex items-center gap-2 text-xs text-gray-500">
+                    <ShieldAlert className="w-4 h-4" />
+                    <span>Dữ liệu của bạn được mã hóa và bảo mật</span>
+                </div>
+            </div>
+        );
+    }
 
     // Sub-page routing
     if (subPage === 'edit') return <EditProfile onBack={() => setSubPage(null)} />;
