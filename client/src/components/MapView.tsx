@@ -1,99 +1,364 @@
-import React, { useEffect, useRef, useMemo } from 'react';
-//import vietmapgl from '@vietmap/vietmap-gl-js';
-//import '@vietmap/vietmap-gl-js/dist/vietmap-gl.css';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { formatPrice } from '../utils/theme';
 
 const vietmapgl = (window as any).vietmapgl;
 
-interface MapViewProps {
-    courts: any[];
+function getCoords(court: any): [number, number] | null {
+    const loc = court.location;
+    if (!loc) return null;
+    if (loc.coordinates && Array.isArray(loc.coordinates) && loc.coordinates.length === 2) {
+        return [loc.coordinates[0], loc.coordinates[1]];
+    }
+    if (typeof loc.lng === 'number' && typeof loc.lat === 'number') {
+        return [loc.lng, loc.lat];
+    }
+    return null;
 }
 
-const MapView: React.FC<MapViewProps> = ({ courts }) => {
-    const VIETMAP_KEY = import.meta.env.VITE_VIETMAP_KEY;
+function decodePolyline(encoded: string): [number, number][] {
+    const coords: [number, number][] = [];
+    let index = 0, lat = 0, lng = 0;
+    while (index < encoded.length) {
+        let b, shift = 0, result = 0;
+        do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+        lat += (result & 1) ? ~(result >> 1) : (result >> 1);
+        shift = 0; result = 0;
+        do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+        lng += (result & 1) ? ~(result >> 1) : (result >> 1);
+        coords.push([lng / 1e5, lat / 1e5]);
+    }
+    return coords;
+}
+
+interface MapViewProps {
+    courts: any[];
+    selectedCourtId?: string | null;
+    onCourtSelect?: (court: any) => void;
+    hoveredCourtId?: string | null;
+    triggerLocateMe?: boolean;
+}
+
+const MapView: React.FC<MapViewProps> = ({
+    courts,
+    selectedCourtId,
+    onCourtSelect,
+    hoveredCourtId,
+    triggerLocateMe
+}) => {
+    const VIETMAP_KEY = (import.meta as any).env?.VITE_VIETMAP_KEY;
 
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<any>(null);
-    const markersRef = useRef<any[]>([]);
+    const markersRef = useRef<Map<string, any>>(new Map());
+    const markerElementsRef = useRef<Map<string, HTMLDivElement>>(new Map());
 
-    // Lọc sân có tọa độ hợp lệ
-    const validCourts = useMemo(() => {
-        return courts.filter(
-            (c) => c.location && c.location.coordinates && c.location.coordinates.length === 2
-        );
-    }, [courts]);
+    const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null);
+    const userMarkerRef = useRef<any | null>(null);
+    const radiusLayerRef = useRef<boolean>(false);
 
-    const defaultCenter = validCourts.length > 0
-        ? [validCourts[0].location.coordinates[0], validCourts[0].location.coordinates[1]]
-        : [106.660172, 10.762622];
+    const validCourts = useMemo(() => courts.filter(c => getCoords(c) !== null), [courts]);
+    console.log("📍 Tọa độ 10 sân đầu tiên:", validCourts.slice(0, 10).map(c => getCoords(c)));
+    const defaultCenter: [number, number] = useMemo(() => {
+        if (validCourts.length > 0) {
+            const c = getCoords(validCourts[0]);
+            return c || [106.660172, 10.762622];
+        }
+        return [106.660172, 10.762622];
+    }, [validCourts]);
 
+    // 1. Init map
     useEffect(() => {
-        if (!mapContainer.current || !VIETMAP_KEY) return;
+        if (!mapContainer.current || !VIETMAP_KEY || !vietmapgl) return;
 
-        // 1. KHỞI TẠO BẢN ĐỒ (Chỉ chạy 1 lần)
         if (!map.current) {
             map.current = new vietmapgl.Map({
                 container: mapContainer.current,
                 style: `https://maps.vietmap.vn/maps/styles/dm/style.json?apikey=${VIETMAP_KEY}`,
-                center: defaultCenter as [number, number],
+                center: defaultCenter,
                 zoom: 12.5,
-                pitch: 45, // Hiệu ứng 3D nghiêng
+                pitch: 40,
             });
             map.current.addControl(new vietmapgl.NavigationControl(), 'bottom-right');
+
+            map.current.on('click', () => {
+                onCourtSelect?.(null);
+                clearRoute();
+            });
         }
+    }, [VIETMAP_KEY]);
 
-        // 2. XÓA MARKER CŨ MỖI KHI DANH SÁCH SÂN THAY ĐỔI
-        markersRef.current.forEach(marker => marker.remove());
-        markersRef.current = [];
+    // 2. Sync markers & Popups
+    useEffect(() => {
+        if (!map.current || !vietmapgl) return;
 
-        // 3. VẼ MARKER & POPUP MỚI
+        // Remove old markers
+        markersRef.current.forEach(m => m.remove());
+        markersRef.current.clear();
+        markerElementsRef.current.clear();
+
+        const bounds = new vietmapgl.LngLatBounds();
+        let hasCoords = false;
+
         validCourts.forEach((court) => {
-            // -- Tạo HTML cho cây kim (Marker) --
-            const markerEl = document.createElement('div');
-            markerEl.className = 'custom-marker';
-            markerEl.innerHTML = `
-        <div style="cursor: pointer; transition: transform 0.3s; transform-origin: bottom;">
-          <div style="background-color: #10b981; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(16,185,129,0.6); border: 2.5px solid #1e1e1e;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-          </div>
-          <div style="width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 9px solid #10b981; margin: -2px auto 0;"></div>
-        </div>
-      `;
-            // Hiệu ứng phóng to khi rê chuột
-            markerEl.addEventListener('mouseenter', () => markerEl.style.transform = 'scale(1.2) translateY(-5px)');
-            markerEl.addEventListener('mouseleave', () => markerEl.style.transform = 'scale(1) translateY(0)');
+            const coords = getCoords(court)!;
+            hasCoords = true;
+            bounds.extend(coords);
 
-            // -- Tạo HTML cho Popup --
-            const photoUrl = court.photos?.[0]?.url || 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&h=200&fit=crop';
+            const isSelected = court._id === selectedCourtId;
+            const isHovered = court._id === hoveredCourtId;
+            const highlight = isSelected || isHovered;
+
             const price = court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0;
             const rating = court.averageRating?.toFixed(1) || '5.0';
-            const address = court.address?.fullAddress || court.address?.district || 'Chưa cập nhật địa chỉ';
 
-            const popup = new vietmapgl.Popup({ offset: 45, maxWidth: '260px' })
-                .setHTML(`
-          <div style="margin: -10px -10px -15px -10px;"> <!-- CSS trick tràn viền popup -->
-            <img src="${photoUrl}" style="width: 100%; height: 120px; object-fit: cover; border-top-left-radius: 4px; border-top-right-radius: 4px; margin-bottom: 8px;" />
-            <div style="padding: 0 12px 12px 12px;">
-              <h3 style="font-weight: bold; font-size: 15px; color: #111827; margin: 0 0 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${court.name}</h3>
-              <p style="font-size: 12px; color: #6B7280; margin: 0 0 12px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${address}</p>
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="color: #059669; font-weight: 900; font-size: 14px;">${formatPrice(price)}/h</span>
-                <span style="font-size: 12px; font-weight: bold; background-color: #FEF3C7; color: #B45309; padding: 2px 8px; border-radius: 4px;">⭐ ${rating}</span>
-              </div>
-            </div>
-          </div>
-        `);
+            const el = document.createElement('div');
+            el.className = 'mapview-marker';
+            el.style.cursor = 'pointer';
+            el.style.transition = 'transform 0.2s';
+            el.style.transform = highlight ? 'scale(1.2) translateY(-5px)' : 'scale(1) translateY(0)';
+            el.style.zIndex = highlight ? '10' : '1';
+            el.innerHTML = `
+                <div style="display:flex;flex-direction:column;align-items:center;">
+                    <div style="background:${highlight ? '#10b981' : '#151515'};color:${highlight ? '#000' : '#eaeaea'};border:1.5px solid ${highlight ? '#10b981' : '#2a2a2a'};border-radius:8px;padding:3px 7px;font-size:10px;font-weight:800;font-family:'Outfit',sans-serif;box-shadow:0 4px 12px rgba(0,0,0,0.4);white-space:nowrap;">
+                        ${price > 0 ? `${Math.round(price / 1000)}K` : '??K'}
+                    </div>
+                    <div style="width:7px;height:7px;margin-top:2px;background:${highlight ? '#10b981' : 'rgba(16,185,129,0.4)'};border-radius:50%;border:${highlight ? '2px solid #fff' : 'none'};"></div>
+                </div>
+            `;
 
-            // -- Gắn Marker và Popup lên Map --
-            const marker = new vietmapgl.Marker({ element: markerEl, anchor: 'bottom' })
-                .setLngLat([court.location.coordinates[0], court.location.coordinates[1]])
-                .setPopup(popup)
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                onCourtSelect?.(court);
+                map.current?.flyTo({ center: coords, zoom: 15, duration: 1000 });
+                if (userLoc) {
+                    handleGetDirections(coords);
+                }
+            });
+
+            el.addEventListener('mouseenter', () => {
+                el.style.transform = 'scale(1.2) translateY(-5px)';
+                el.style.zIndex = '10';
+            });
+            el.addEventListener('mouseleave', () => {
+                if (court._id !== selectedCourtId && court._id !== hoveredCourtId) {
+                    el.style.transform = 'scale(1) translateY(0)';
+                    el.style.zIndex = '1';
+                }
+            });
+
+            const marker = new vietmapgl.Marker({ element: el, anchor: 'bottom' })
+                .setLngLat(coords)
                 .addTo(map.current!);
 
-            markersRef.current.push(marker);
+            // Popup on hover 
+            const photoUrl = court.photos?.[0]?.url || 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&h=200&fit=crop';
+            const address = court.address?.fullAddress || court.address?.district || '';
+            if (court.name) {
+                const popup = new vietmapgl.Popup({ offset: 35, maxWidth: '240px', closeButton: false, closeOnClick: true })
+                    .setHTML(`
+                        <div style="margin:-10px -10px -15px;font-family:'Outfit',sans-serif;">
+                            ${photoUrl ? `<img src="${photoUrl}" style="width:100%;height:100px;object-fit:cover;border-radius:4px 4px 0 0;" />` : ''}
+                            <div style="padding:8px 10px 10px;">
+                                <div style="font-weight:800;font-size:13px;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${court.name}</div>
+                                <div style="font-size:11px;color:#6B7280;margin:2px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${address}</div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;">
+                                    <span style="color:#059669;font-weight:900;font-size:13px;">${formatPrice(price)}/h</span>
+                                    <span style="font-size:11px;font-weight:700;background:#FEF3C7;color:#B45309;padding:1px 6px;border-radius:4px;">⭐ ${rating}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                marker.setPopup(popup);
+            }
+
+            markersRef.current.set(court._id, marker);
+            markerElementsRef.current.set(court._id, el);
         });
 
-    }, [validCourts, defaultCenter, VIETMAP_KEY]);
+        // Fit bounds logic from Claude
+        if (hasCoords && validCourts.length > 1 && !selectedCourtId) {
+            map.current.fitBounds(bounds, { padding: 60, maxZoom: 15, duration: 800 });
+        } else if (hasCoords && validCourts.length === 1) {
+            const c = getCoords(validCourts[0])!;
+            map.current.flyTo({ center: c, zoom: 14, duration: 800 });
+        }
+    }, [validCourts, selectedCourtId, hoveredCourtId]);
+
+    // 3. Highlight from external hover/select
+    useEffect(() => {
+        markerElementsRef.current.forEach((el, id) => {
+            const highlight = id === selectedCourtId || id === hoveredCourtId;
+            el.style.transform = highlight ? 'scale(1.2) translateY(-5px)' : 'scale(1) translateY(0)';
+            el.style.zIndex = highlight ? '10' : '1';
+        });
+
+        // Pan to selected & attempt route
+        if (selectedCourtId) {
+            const court = validCourts.find(c => c._id === selectedCourtId);
+            if (court) {
+                const coords = getCoords(court);
+                if (coords) {
+                    map.current?.flyTo({ center: coords, zoom: 15, duration: 800 });
+                    if (userLoc) handleGetDirections(coords);
+                }
+            }
+        } else {
+            clearRoute();
+        }
+    }, [selectedCourtId, hoveredCourtId]);
+
+    // 4. DRAW RADIUS CIRCLE (From Claude)
+    const drawRadiusCircle = (lng: number, lat: number, radiusKm: number) => {
+        if (!map.current) return;
+
+        const points = 64;
+        const coords: [number, number][] = [];
+        for (let i = 0; i <= points; i++) {
+            const angle = (i / points) * 2 * Math.PI;
+            const dx = radiusKm / 111.32 * Math.cos(angle);
+            const dy = radiusKm / (111.32 * Math.cos(lat * Math.PI / 180)) * Math.sin(angle);
+            coords.push([lng + dy, lat + dx]);
+        }
+
+        const geojson = {
+            type: 'Feature' as const,
+            geometry: { type: 'Polygon' as const, coordinates: [coords] },
+            properties: {},
+        };
+
+        if (radiusLayerRef.current) {
+            try {
+                map.current.removeLayer('radius-fill');
+                map.current.removeLayer('radius-border');
+                map.current.removeSource('radius-circle');
+            } catch { /* ignore */ }
+        }
+
+        map.current.addSource('radius-circle', { type: 'geojson', data: geojson });
+        map.current.addLayer({
+            id: 'radius-fill',
+            type: 'fill',
+            source: 'radius-circle',
+            paint: { 'fill-color': '#10b981', 'fill-opacity': 0.06 },
+        });
+        map.current.addLayer({
+            id: 'radius-border',
+            type: 'line',
+            source: 'radius-circle',
+            paint: { 'line-color': '#10b981', 'line-width': 1.5, 'line-opacity': 0.3, 'line-dasharray': [4, 4] },
+        });
+
+        radiusLayerRef.current = true;
+    };
+
+    // 5. LOCATE ME (Triggered via prop or internal logic)
+    useEffect(() => {
+        if (triggerLocateMe) {
+            handleLocateMe();
+        }
+    }, [triggerLocateMe]);
+
+    const handleLocateMe = () => {
+        if (!navigator.geolocation) {
+            alert('Trình duyệt không hỗ trợ định vị');
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                setUserLoc({ lat, lng });
+
+                if (map.current) {
+                    map.current.flyTo({ center: [lng, lat], zoom: 14, pitch: 55, duration: 2000 });
+
+                    // User marker
+                    if (userMarkerRef.current) userMarkerRef.current.remove();
+                    const userEl = document.createElement('div');
+                    userEl.innerHTML = `
+                        <div style="position:relative;width:22px;height:22px;">
+                            <div style="position:absolute;inset:-8px;background:rgba(59,130,246,0.15);border-radius:50%;animation:mapPulse 2s ease-out infinite;"></div>
+                            <div style="width:22px;height:22px;background:#2563eb;border-radius:50%;border:3px solid white;box-shadow:0 0 12px rgba(59,130,246,0.6);position:relative;"></div>
+                        </div>
+                    `;
+
+                    // Inject animation styles if not present
+                    if (!document.getElementById('map-pulse-css')) {
+                        const style = document.createElement('style');
+                        style.id = 'map-pulse-css';
+                        style.textContent = `@keyframes mapPulse { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(2.5); opacity: 0; } }`;
+                        document.head.appendChild(style);
+                    }
+
+                    userMarkerRef.current = new vietmapgl.Marker({ element: userEl, anchor: 'center' })
+                        .setLngLat([lng, lat]).addTo(map.current);
+
+                    // Draw 5km radius
+                    drawRadiusCircle(lng, lat, 5);
+                }
+            },
+            () => console.warn('Vui lòng cho phép quyền truy cập vị trí!'),
+            { enableHighAccuracy: true, timeout: 8000 }
+        );
+    };
+
+    // 6. ROUTING (From Claude)
+    const clearRoute = () => {
+        try {
+            map.current.removeLayer('route-line');
+            map.current.removeLayer('route-outline');
+            map.current.removeSource('route');
+        } catch { /* ignore */ }
+    }
+
+    const handleGetDirections = async (courtCoords: [number, number]) => {
+        if (!userLoc || !map.current) return;
+
+        try {
+            const url = `https://maps.vietmap.vn/api/route?api-version=1.1&apikey=${VIETMAP_KEY}&point=${userLoc.lat},${userLoc.lng}&point=${courtCoords[1]},${courtCoords[0]}&vehicle=car&optimize=true`;
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data.paths && data.paths.length > 0) {
+                const path = data.paths[0];
+                const routeCoords = decodePolyline(path.points);
+
+                clearRoute();
+
+                map.current.addSource('route', {
+                    type: 'geojson',
+                    data: {
+                        type: 'Feature',
+                        geometry: { type: 'LineString', coordinates: routeCoords },
+                        properties: {},
+                    },
+                });
+
+                map.current.addLayer({
+                    id: 'route-outline',
+                    type: 'line',
+                    source: 'route',
+                    paint: { 'line-color': '#000', 'line-width': 7, 'line-opacity': 0.3 },
+                });
+
+                map.current.addLayer({
+                    id: 'route-line',
+                    type: 'line',
+                    source: 'route',
+                    paint: { 'line-color': '#10b981', 'line-width': 4, 'line-opacity': 0.9 },
+                });
+
+                // Fit to route
+                const routeBounds = new vietmapgl.LngLatBounds();
+                routeCoords.forEach((c: [number, number]) => routeBounds.extend(c));
+                map.current.fitBounds(routeBounds, { padding: { top: 50, bottom: 50, left: 50, right: 400 }, duration: 1500 }); // Padded to avoid covering UI
+            }
+        } catch (err) {
+            console.error('Lỗi routing:', err);
+        }
+    };
+
 
     if (!VIETMAP_KEY) {
         return (
