@@ -1,13 +1,14 @@
 {
-  "name": "client",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "name": "@shuttle-sync/shared",
+  "version": "1.0.0",
+  "description": "Shared types and interfaces for ShuttleSync",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "start": "node dist/index.js"
+    "build": "tsc"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
