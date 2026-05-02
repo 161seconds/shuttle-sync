@@ -3,16 +3,35 @@ import { formatPrice } from '../utils/theme';
 
 const vietmapgl = (window as any).vietmapgl;
 
+// ⚠️ ĐÃ NÂNG CẤP: HÀM AUTO-FIX LỖI NGƯỢC TỌA ĐỘ
 function getCoords(court: any): [number, number] | null {
     const loc = court.location;
     if (!loc) return null;
-    if (loc.coordinates && Array.isArray(loc.coordinates) && loc.coordinates.length === 2) {
-        return [loc.coordinates[0], loc.coordinates[1]];
+
+    let lng = 0, lat = 0;
+
+    // Lấy tọa độ ra từ data
+    if (loc.coordinates && Array.isArray(loc.coordinates) && loc.coordinates.length >= 2) {
+        lng = Number(loc.coordinates[0]);
+        lat = Number(loc.coordinates[1]);
+    } else if (loc.lng !== undefined && loc.lat !== undefined) {
+        lng = Number(loc.lng);
+        lat = Number(loc.lat);
+    } else {
+        return null;
     }
-    if (typeof loc.lng === 'number' && typeof loc.lat === 'number') {
-        return [loc.lng, loc.lat];
+
+    if (isNaN(lng) || isNaN(lat)) return null;
+
+    // 🔥 PHÉP THUẬT Ở ĐÂY: Fix lỗi "Latitude must be between -90 and 90"
+    // Ở VN, Lng ~ 106, Lat ~ 10. Nếu Lat > 90 hoặc Lng < Lat => Chắc chắn data bị ngược!
+    if (lat > 90 || lng < lat) {
+        const temp = lng;
+        lng = lat;
+        lat = temp;
     }
-    return null;
+
+    return [lng, lat];
 }
 
 function decodePolyline(encoded: string): [number, number][] {
@@ -57,7 +76,7 @@ const MapView: React.FC<MapViewProps> = ({
     const radiusLayerRef = useRef<boolean>(false);
 
     const validCourts = useMemo(() => courts.filter(c => getCoords(c) !== null), [courts]);
-    console.log("📍 Tọa độ 10 sân đầu tiên:", validCourts.slice(0, 10).map(c => getCoords(c)));
+
     const defaultCenter: [number, number] = useMemo(() => {
         if (validCourts.length > 0) {
             const c = getCoords(validCourts[0]);
@@ -111,13 +130,17 @@ const MapView: React.FC<MapViewProps> = ({
             const price = court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0;
             const rating = court.averageRating?.toFixed(1) || '5.0';
 
+            // Dùng inline-style luôn cho chắc, khỏi sợ thiếu class CSS
             const el = document.createElement('div');
-            el.className = 'mapview-marker';
-            el.style.cursor = 'pointer';
-            el.style.transition = 'transform 0.2s';
-            el.style.transform = highlight ? 'scale(1.2) translateY(-5px)' : 'scale(1) translateY(0)';
+            el.style.backgroundColor = 'transparent';
             el.style.zIndex = highlight ? '10' : '1';
-            el.innerHTML = `
+
+            const inner = document.createElement('div');
+            inner.style.cursor = 'pointer';
+            inner.style.transition = 'transform 0.2s ease-in-out';
+            inner.style.transform = highlight ? 'scale(1.2) translateY(-5px)' : 'scale(1) translateY(0)';
+
+            inner.innerHTML = `
                 <div style="display:flex;flex-direction:column;align-items:center;">
                     <div style="background:${highlight ? '#10b981' : '#151515'};color:${highlight ? '#000' : '#eaeaea'};border:1.5px solid ${highlight ? '#10b981' : '#2a2a2a'};border-radius:8px;padding:3px 7px;font-size:10px;font-weight:800;font-family:'Outfit',sans-serif;box-shadow:0 4px 12px rgba(0,0,0,0.4);white-space:nowrap;">
                         ${price > 0 ? `${Math.round(price / 1000)}K` : '??K'}
@@ -125,36 +148,18 @@ const MapView: React.FC<MapViewProps> = ({
                     <div style="width:7px;height:7px;margin-top:2px;background:${highlight ? '#10b981' : 'rgba(16,185,129,0.4)'};border-radius:50%;border:${highlight ? '2px solid #fff' : 'none'};"></div>
                 </div>
             `;
-
-            el.addEventListener('click', (e) => {
-                e.stopPropagation();
-                onCourtSelect?.(court);
-                map.current?.flyTo({ center: coords, zoom: 15, duration: 1000 });
-                if (userLoc) {
-                    handleGetDirections(coords);
-                }
-            });
-
-            el.addEventListener('mouseenter', () => {
-                el.style.transform = 'scale(1.2) translateY(-5px)';
-                el.style.zIndex = '10';
-            });
-            el.addEventListener('mouseleave', () => {
-                if (court._id !== selectedCourtId && court._id !== hoveredCourtId) {
-                    el.style.transform = 'scale(1) translateY(0)';
-                    el.style.zIndex = '1';
-                }
-            });
+            el.appendChild(inner);
 
             const marker = new vietmapgl.Marker({ element: el, anchor: 'bottom' })
                 .setLngLat(coords)
                 .addTo(map.current!);
 
-            // Popup on hover 
             const photoUrl = court.photos?.[0]?.url || 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&h=200&fit=crop';
             const address = court.address?.fullAddress || court.address?.district || '';
+            let popup: any = null;
+
             if (court.name) {
-                const popup = new vietmapgl.Popup({ offset: 35, maxWidth: '240px', closeButton: false, closeOnClick: true })
+                popup = new vietmapgl.Popup({ offset: 35, maxWidth: '240px', closeButton: false, closeOnClick: true })
                     .setHTML(`
                         <div style="margin:-10px -10px -15px;font-family:'Outfit',sans-serif;">
                             ${photoUrl ? `<img src="${photoUrl}" style="width:100%;height:100px;object-fit:cover;border-radius:4px 4px 0 0;" />` : ''}
@@ -171,11 +176,33 @@ const MapView: React.FC<MapViewProps> = ({
                 marker.setPopup(popup);
             }
 
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                onCourtSelect?.(court);
+                map.current?.flyTo({ center: coords, zoom: 15, duration: 1000 });
+                if (userLoc) {
+                    handleGetDirections(coords);
+                }
+                if (popup) {
+                    marker.togglePopup();
+                }
+            });
+
+            el.addEventListener('mouseenter', () => {
+                inner.style.transform = 'scale(1.2) translateY(-5px)';
+                el.style.zIndex = '10';
+            });
+            el.addEventListener('mouseleave', () => {
+                if (court._id !== selectedCourtId && court._id !== hoveredCourtId) {
+                    inner.style.transform = 'scale(1) translateY(0)';
+                    el.style.zIndex = '1';
+                }
+            });
+
             markersRef.current.set(court._id, marker);
             markerElementsRef.current.set(court._id, el);
         });
 
-        // Fit bounds logic from Claude
         if (hasCoords && validCourts.length > 1 && !selectedCourtId) {
             map.current.fitBounds(bounds, { padding: 60, maxZoom: 15, duration: 800 });
         } else if (hasCoords && validCourts.length === 1) {
@@ -188,11 +215,14 @@ const MapView: React.FC<MapViewProps> = ({
     useEffect(() => {
         markerElementsRef.current.forEach((el, id) => {
             const highlight = id === selectedCourtId || id === hoveredCourtId;
-            el.style.transform = highlight ? 'scale(1.2) translateY(-5px)' : 'scale(1) translateY(0)';
             el.style.zIndex = highlight ? '10' : '1';
+
+            const inner = el.firstChild as HTMLDivElement;
+            if (inner) {
+                inner.style.transform = highlight ? 'scale(1.2) translateY(-5px)' : 'scale(1) translateY(0)';
+            }
         });
 
-        // Pan to selected & attempt route
         if (selectedCourtId) {
             const court = validCourts.find(c => c._id === selectedCourtId);
             if (court) {
@@ -207,7 +237,7 @@ const MapView: React.FC<MapViewProps> = ({
         }
     }, [selectedCourtId, hoveredCourtId]);
 
-    // 4. DRAW RADIUS CIRCLE (From Claude)
+    // 4. DRAW RADIUS CIRCLE
     const drawRadiusCircle = (lng: number, lat: number, radiusKm: number) => {
         if (!map.current) return;
 
@@ -251,7 +281,7 @@ const MapView: React.FC<MapViewProps> = ({
         radiusLayerRef.current = true;
     };
 
-    // 5. LOCATE ME (Triggered via prop or internal logic)
+    // 5. LOCATE ME 
     useEffect(() => {
         if (triggerLocateMe) {
             handleLocateMe();
@@ -273,7 +303,6 @@ const MapView: React.FC<MapViewProps> = ({
                 if (map.current) {
                     map.current.flyTo({ center: [lng, lat], zoom: 14, pitch: 55, duration: 2000 });
 
-                    // User marker
                     if (userMarkerRef.current) userMarkerRef.current.remove();
                     const userEl = document.createElement('div');
                     userEl.innerHTML = `
@@ -283,7 +312,6 @@ const MapView: React.FC<MapViewProps> = ({
                         </div>
                     `;
 
-                    // Inject animation styles if not present
                     if (!document.getElementById('map-pulse-css')) {
                         const style = document.createElement('style');
                         style.id = 'map-pulse-css';
@@ -294,7 +322,6 @@ const MapView: React.FC<MapViewProps> = ({
                     userMarkerRef.current = new vietmapgl.Marker({ element: userEl, anchor: 'center' })
                         .setLngLat([lng, lat]).addTo(map.current);
 
-                    // Draw 5km radius
                     drawRadiusCircle(lng, lat, 5);
                 }
             },
@@ -303,7 +330,7 @@ const MapView: React.FC<MapViewProps> = ({
         );
     };
 
-    // 6. ROUTING (From Claude)
+    // 6. ROUTING 
     const clearRoute = () => {
         try {
             map.current.removeLayer('route-line');
@@ -349,16 +376,14 @@ const MapView: React.FC<MapViewProps> = ({
                     paint: { 'line-color': '#10b981', 'line-width': 4, 'line-opacity': 0.9 },
                 });
 
-                // Fit to route
                 const routeBounds = new vietmapgl.LngLatBounds();
                 routeCoords.forEach((c: [number, number]) => routeBounds.extend(c));
-                map.current.fitBounds(routeBounds, { padding: { top: 50, bottom: 50, left: 50, right: 400 }, duration: 1500 }); // Padded to avoid covering UI
+                map.current.fitBounds(routeBounds, { padding: { top: 50, bottom: 50, left: 50, right: 400 }, duration: 1500 });
             }
         } catch (err) {
             console.error('Lỗi routing:', err);
         }
     };
-
 
     if (!VIETMAP_KEY) {
         return (
