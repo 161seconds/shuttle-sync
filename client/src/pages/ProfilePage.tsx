@@ -76,7 +76,7 @@ export default function ProfilePage() {
 
                 <div className="mt-8 flex items-center gap-2 text-xs text-gray-500">
                     <ShieldAlert className="w-4 h-4" />
-                    <span>Dữ liệu của bạn được mã hóa và bảo mật 100%</span>
+                    <span>Dữ liệu của bạn được mã hóa và bảo mật</span>
                 </div>
             </div>
         );
