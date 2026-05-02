@@ -17,17 +17,17 @@
     "sourceMap": true,
     "paths": {
       "@shuttle-sync/shared": [
-        "../shared/src" 
+        "../shared/src"
       ],
       "@shuttle-sync/shared/*": [
-        "../shared/src/*" 
+        "../shared/src/*"
       ],
       "@/*": [
         "./src/*"
       ]
     },
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0"
+    "ignoreDeprecations": "6.0",
   },
   "include": [
     "src/**/*"
