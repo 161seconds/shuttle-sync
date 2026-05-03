@@ -126,9 +126,14 @@ async function seed() {
         sportPreferences: [SportType.BADMINTON, SportType.PICKLEBALL],
     });
 
-    const jsonPath = path.resolve(__dirname, '../data/courts-raw.json');
-    const raw: RawCourt[] = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
-    logger.info(`📦 Loaded ${raw.length} raw records`);
+    const pbPath = path.resolve(__dirname, '../data/pickleball-courts.json');
+    const bmPath = path.resolve(__dirname, '../data/badminton-courts.json');
+
+    const pbData = JSON.parse(fs.readFileSync(pbPath, 'utf-8'));
+    const bmData = JSON.parse(fs.readFileSync(bmPath, 'utf-8'));
+
+    const raw: RawCourt[] = [...pbData, ...bmData];
+    logger.info(`📦 Loaded ${raw.length} raw records from both files`);
 
     const seen = new Set<string>();
     const uniq: RawCourt[] = [];
@@ -152,18 +157,34 @@ async function seed() {
         const { ward, district } = parseAddr(r.state);
         const phone = (r.phone || '').replace(/\s+/g, '').trim();
 
+        // 1. TÍNH TOÁN TỌA ĐỘ Ở NGOÀI OBJECT
+        let coords = null;
+        const data = r as any;
+        if (r.location && r.location.lng && r.location.lat) {
+            coords = [r.location.lng, r.location.lat];
+        } else if (data.lng && data.lat) {
+            coords = [data.lng, data.lat];
+        } else if (data.longitude && data.latitude) {
+            coords = [data.longitude, data.latitude];
+        }
+
+        // 2. LẮP VÀO OBJECT VÀ PUSH
         venuesToInsert.push({
             name: r.title.trim(),
             ownerId: admin._id,
             googlePlaceId: pid || null,
             location: {
                 type: 'Point',
-                coordinates: r.location ? [r.location.lng, r.location.lat] : [106.6297, 10.8231]
+                coordinates: coords ? coords : [
+                    // Fallback ngẫu nhiên nếu thực sự có sân bị thiếu tọa độ
+                    106.6297 + (Math.random() - 0.5) * 0.2,
+                    10.8231 + (Math.random() - 0.5) * 0.2
+                ]
             },
             address: {
                 street: r.street || '',
                 state: ward, // Phường/Xã
-                city: district, // Quận/Huyện lấy từ map 
+                city: district, // Quận/Huyện
                 countryCode: r.countryCode || 'VN'
             },
             contact: {
