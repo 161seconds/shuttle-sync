@@ -11,9 +11,11 @@ import { errorHandler, notFoundHandler, apiLimiter, searchCourtLimiter } from '.
 const app = express();
 
 // Security
-app.use(helmet());
 app.use(cors({
-    origin: config.client.url,
+    origin: [
+        config.client.url,
+        'https://shuttle-sync-nu.vercel.app'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
