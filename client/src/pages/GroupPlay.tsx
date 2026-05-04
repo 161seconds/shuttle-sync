@@ -4,6 +4,7 @@ import {
     Users, Search, MapPin, Calendar, Clock, Star,
     Filter, Plus, Crown, Loader2, Zap, Target, Trophy, Leaf,
     ChevronDown, X, Check, UserPlus,
+    Flame,
 } from 'lucide-react';
 import { theme as t, formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
@@ -33,10 +34,23 @@ interface GroupPlay {
 
 // ═══ Constants ═══
 const SKILL_MAP: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-    beginner: { label: 'Mới chơi', icon: <Leaf className="w-3 h-3" />, color: 'text-green-400 bg-green-500/10' },
-    intermediate: { label: 'Trung bình', icon: <Target className="w-3 h-3" />, color: 'text-blue-400 bg-blue-500/10' },
-    advanced: { label: 'Nâng cao', icon: <Trophy className="w-3 h-3" />, color: 'text-amber-400 bg-amber-500/10' },
-    professional: { label: 'Chuyên nghiệp', icon: <Star className="w-3 h-3" />, color: 'text-purple-400 bg-purple-500/10' },
+    y: { label: 'Y', icon: <Leaf className="w-3 h-3" />, color: 'text-green-400 bg-green-500/10' },
+    y_minus: { label: 'Y-', icon: <Leaf className="w-3 h-3" />, color: 'text-green-400 bg-green-500/10' },
+    y_plus: { label: 'Y+', icon: <Leaf className="w-3 h-3" />, color: 'text-green-400 bg-green-500/10' },
+
+    tby_minus: { label: 'TBY-', icon: <Target className="w-3 h-3" />, color: 'text-cyan-400 bg-cyan-500/10' },
+    tby: { label: 'TBY', icon: <Target className="w-3 h-3" />, color: 'text-cyan-400 bg-cyan-500/10' },
+    tby_plus: { label: 'TBY+', icon: <Target className="w-3 h-3" />, color: 'text-cyan-400 bg-cyan-500/10' },
+
+    tb_minus: { label: 'TB-', icon: <Zap className="w-3 h-3" />, color: 'text-blue-400 bg-blue-500/10' },
+    tb: { label: 'TB', icon: <Zap className="w-3 h-3" />, color: 'text-blue-400 bg-blue-500/10' },
+    tb_plus: { label: 'TB+', icon: <Zap className="w-3 h-3" />, color: 'text-blue-400 bg-blue-500/10' },
+    tb_plus_2: { label: 'TB++', icon: <Zap className="w-3 h-3" />, color: 'text-blue-400 bg-blue-500/10' },
+    tb_plus_3: { label: 'TB+++', icon: <Zap className="w-3 h-3" />, color: 'text-blue-400 bg-blue-500/10' },
+
+    tbk: { label: 'TBK', icon: <Flame className="w-3 h-3" />, color: 'text-orange-400 bg-orange-500/10' },
+    bc: { label: 'BC', icon: <Trophy className="w-3 h-3" />, color: 'text-amber-400 bg-amber-500/10' },
+    cn: { label: 'CN', icon: <Star className="w-3 h-3" />, color: 'text-purple-400 bg-purple-500/10' },
 };
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
@@ -54,10 +68,20 @@ const SPORT_FILTERS = [
 ];
 
 const SKILL_FILTERS = [
-    { id: 'all', label: 'Mọi trình độ' },
-    { id: 'beginner', label: 'Mới chơi' },
-    { id: 'intermediate', label: 'Trung bình' },
-    { id: 'advanced', label: 'Nâng cao' },
+    { id: 'y', label: 'Y' },
+    { id: 'y_minus', label: 'Y-' },
+    { id: 'y_plus', label: 'Y+' },
+    { id: 'tby_minus', label: 'TBY-' },
+    { id: 'tby', label: 'TBY' },
+    { id: 'tby_plus', label: 'TBY+' },
+    { id: 'tb_minus', label: 'TB-' },
+    { id: 'tb', label: 'TB' },
+    { id: 'tb_plus', label: 'TB+' },
+    { id: 'tb_plus_2', label: 'TB++' },
+    { id: 'tb_plus_3', label: 'TB+++' },
+    { id: 'tbk', label: 'TBK' },
+    { id: 'bc', label: 'BC (Bán chuyên)' },
+    { id: 'cn', label: 'CN (Chuyên nghiệp)' },
 ];
 
 // ═══ Component ═══
@@ -472,6 +496,12 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
     });
 
     const set = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, []);
 
     const handleCreate = async () => {
         if (!form.title.trim()) { alert('Nhập tên nhóm'); return; }
@@ -528,7 +558,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                             ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400'
                                             : `${theme.bg.elevated} ${theme.border.subtle} ${theme.text.muted}`
                                             }`}>
-                                        {s === 'badminton' ? '🏸' : '🏓'}
+                                        {s === 'badminton' ? 'Cầu lông' : 'Pickleball'}
                                     </button>
                                 ))}
                             </div>
@@ -537,9 +567,11 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                             <label className={`text-[10px] font-semibold ${theme.text.muted} uppercase mb-1.5 block`}>Trình độ</label>
                             <select value={form.skillLevel} onChange={e => set('skillLevel', (e.target as HTMLSelectElement).value)}
                                 className={`w-full h-9 px-3 rounded-lg ${theme.bg.elevated} border ${theme.border.subtle} ${theme.text.secondary} text-xs outline-none`}>
-                                <option value="beginner">Mới chơi</option>
-                                <option value="intermediate">Trung bình</option>
-                                <option value="advanced">Nâng cao</option>
+                                {SKILL_FILTERS.filter(f => f.id !== 'all').map(f => (
+                                    <option key={f.id} value={f.id}>
+                                        {f.label}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </div>
@@ -553,7 +585,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                     <div className="grid grid-cols-2 gap-3">
                         <InputField label="Số người tối đa" type="number" value={String(form.maxPlayers)}
                             onChange={v => set('maxPlayers', parseInt(v) || 4)} />
-                        <InputField label="Giá/người (đ)" type="number" value={String(form.pricePerPlayer)}
+                        <InputField label="Giá (vnd, có thể giao động)" type="number" value={String(form.pricePerPlayer)}
                             onChange={v => set('pricePerPlayer', parseInt(v) || 0)} />
                     </div>
 
@@ -592,6 +624,7 @@ function InputField({ label, placeholder, value, onChange, type = 'text' }: {
             <label className={`text-[10px] font-semibold text-[#555] uppercase tracking-wider mb-1.5 block`}>{label}</label>
             <input type={type} placeholder={placeholder} value={value}
                 onChange={e => onChange((e.target as HTMLInputElement).value)}
+                onWheel={e => (e.target as HTMLElement).blur()}
                 className="w-full h-10 px-3 rounded-lg bg-[#1a1a1a] border border-[#1e1e1e] text-[#eaeaea] placeholder:text-[#3a3d40] text-sm outline-none focus:border-emerald-500/40 transition-colors" />
         </div>
     );

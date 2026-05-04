@@ -58,7 +58,11 @@ export default function Dashboard() {
                         {user?.name || 'Vợt thủ'} 👋
                     </h1>
                 </div>
-                <div id="tour-matchmaking" className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                <div
+                    id="tour-matchmaking"
+                    onClick={() => setPage('groupplay')}
+                    className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 cursor-pointer hover:bg-emerald-500/20 transition-colors"
+                >
                     <Trophy className="w-5 h-5 text-emerald-400" />
                 </div>
             </motion.div>
