@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import fs from 'fs';
 import path from 'path';
 import { connectDB } from '../config/database';
-import { UserRole, UserStatus, AuthProvider, SportType } from '@shuttle-sync/shared';
+import { UserRole, UserStatus, AuthProvider, SportType, GroupPlayStatus, SkillLevel } from '@shuttle-sync/shared';
 import { User, Venue, Court, Booking, GroupPlay, Tournament, TimeSlot, Event } from '../models';
 import { OwnerApplication, Review, Report, Notification } from '../models/Others';
 //import { createSlug } from '../utils/helpers';
@@ -233,6 +233,46 @@ async function seed() {
 
     await Court.insertMany(courtsToInsert);
     logger.info(`🏸 Đã tạo thành công ${courtsToInsert.length} Sân lẻ (Courts)`);
+
+    logger.info(`Đang tạo dữ liệu Tìm nhóm (GroupPlay)...`);
+    const allCourts = await Court.find({}).limit(10);
+
+    // Tạo thêm 1 User thường để làm Host
+    const hostUser = await User.create({
+        email: 'host@shuttlesync.vn',
+        password: 'Password@123',
+        displayName: 'Chủ Xới Trùm Khu',
+        role: UserRole.USER,
+        status: UserStatus.ACTIVE,
+        authProvider: AuthProvider.LOCAL,
+    });
+
+    const groupPlaysToInsert = [];
+
+    for (let i = 0; i < allCourts.length; i++) {
+        const court = allCourts[i];
+        const isBadminton = court.sportType === SportType.BADMINTON;
+
+        groupPlaysToInsert.push({
+            title: isBadminton ? 'Kèo giao lưu mồ hôi là chính' : 'Pickleball dưỡng sinh cuối tuần',
+            description: 'Nhóm vui vẻ, thiện lành, không quạu. Cần tuyển thêm người gánh tạ. Yêu cầu biết đếm điểm.',
+            hostId: hostUser._id,
+            venueId: court.venueId,
+            courtId: court._id,
+            sportType: court.sportType,
+            level: SkillLevel.INTERMEDIATE, // Dùng đúng Enum 
+            date: new Date(Date.now() + 86400000 * (Math.floor(Math.random() * 7) + 1)),
+            startTime: '18:00',
+            endTime: '20:00',
+            maxPlayers: isBadminton ? 6 : 4,
+            currentPlayers: 2,
+            costPerPlayer: isBadminton ? 50000 : 70000,
+            status: GroupPlayStatus.OPEN // Dùng đúng Enum 
+        });
+    }
+
+    await GroupPlay.insertMany(groupPlaysToInsert);
+    logger.info(`🔥 Đã tạo thành công ${groupPlaysToInsert.length} nhóm giao lưu!`);
 
     // Stats
     const bCount = await Venue.countDocuments({ sports: 'BADMINTON' });
