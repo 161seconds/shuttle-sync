@@ -1,0 +1,38 @@
+import axiosClient from './axiosClient';
+
+export const groupPlayApi = {
+    // Tìm kiếm / Lấy danh sách nhóm (Có phân trang, lọc theo môn, trình độ...)
+    searchGroupPlays(params?: Record<string, any>) {
+        return axiosClient.get('/group-plays/search', { params });
+    },
+
+    // Lấy chi tiết 1 nhóm
+    getGroupPlayById(id: string) {
+        return axiosClient.get(`/group-plays/${id}`);
+    },
+
+    // Tạo kèo giao lưu mới
+    createGroupPlay(data: any) {
+        return axiosClient.post('/group-plays', data);
+    },
+
+    // Lấy danh sách các nhóm mình đã tạo hoặc tham gia
+    getMyGroupPlays(params?: Record<string, any>) {
+        return axiosClient.get('/group-plays/user/my', { params });
+    },
+
+    // Tham gia nhóm
+    joinGroupPlay(groupPlayId: string) {
+        return axiosClient.post(`/group-plays/${groupPlayId}/join`);
+    },
+
+    // Rời khỏi nhóm
+    leaveGroupPlay(groupPlayId: string) {
+        return axiosClient.post(`/group-plays/${groupPlayId}/leave`);
+    },
+
+    // Chủ nhóm hủy kèo
+    cancelGroupPlay(groupPlayId: string) {
+        return axiosClient.post(`/group-plays/${groupPlayId}/cancel`);
+    }
+};
