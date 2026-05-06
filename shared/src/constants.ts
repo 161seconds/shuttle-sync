@@ -87,10 +87,20 @@ export enum GroupPlayRole {
 }
 
 export enum SkillLevel {
-    BEGINNER = 'beginner',
-    INTERMEDIATE = 'intermediate',
-    ADVANCED = 'advanced',
-    PROFESSIONAL = 'professional',
+    Y = 'y',
+    Y_MINUS = 'y_minus',
+    Y_PLUS = 'y_plus',
+    TBY_MINUS = 'tby_minus',
+    TBY = 'tby',
+    TBY_PLUS = 'tby_plus',
+    TB_MINUS = 'tb_minus',
+    TB = 'tb',
+    TB_PLUS = 'tb_plus',
+    TB_PLUS_2 = 'tb_plus_2',
+    TB_PLUS_3 = 'tb_plus_3',
+    TBK = 'tbk',
+    BC = 'bc',             // Bán chuyên
+    CN = 'cn',             // Chuyên nghiệp
 }
 
 // ========================
