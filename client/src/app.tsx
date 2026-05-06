@@ -31,7 +31,8 @@ function Shell() {
       if (token && !user) {
         try {
           const res = await authApi.getMe();
-          setUser(res.data.user || res.data);
+          const userData = res.data?.data?.user || res.data?.data || res.data?.user || res.data;
+          setUser(userData);
         } catch (error) {
           console.error("Phiên đăng nhập hết hạn:", error);
           localStorage.removeItem('accessToken');

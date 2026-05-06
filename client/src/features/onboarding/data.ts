@@ -6,9 +6,9 @@ export const SPORTS: { id: OnboardingSport; label: string; icon: string; color: 
 ];
 
 export const SKILLS: { id: SkillLevel; label: string; desc: string; iconName: string }[] = [
-    { id: 'beginner', label: 'Mới chơi', desc: 'Vừa bắt đầu tập', iconName: 'leaf' },
-    { id: 'intermediate', label: 'Trung bình', desc: 'Chơi thường xuyên', iconName: 'target' },
-    { id: 'advanced', label: 'Nâng cao', desc: 'Thi đấu chuyên nghiệp', iconName: 'trophy' },
+    { id: 'y', label: 'Mới chơi (Y)', desc: 'Vừa bắt đầu tập, đánh nhẹ nhàng', iconName: 'leaf' },
+    { id: 'tb', label: 'Trung bình (TB)', desc: 'Đánh thường xuyên, biết rõ luật', iconName: 'target' },
+    { id: 'tbk', label: 'Nâng cao (TBK+)', desc: 'Kỹ thuật tốt, thích cạnh tranh', iconName: 'trophy' },
 ];
 
 export const CAROUSEL_SLIDES = [
