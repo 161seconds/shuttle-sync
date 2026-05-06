@@ -6,10 +6,9 @@ import axiosClient from '../../api/axiosClient';
 import type { SkillLevel, SportType } from '../../types';
 
 const SKILL_OPTIONS: { id: SkillLevel; label: string; desc: string }[] = [
-    { id: 'beginner', label: 'Mới chơi', desc: 'Vừa bắt đầu' },
-    { id: 'intermediate', label: 'Trung bình', desc: 'Chơi thường xuyên' },
-    { id: 'advanced', label: 'Nâng cao', desc: 'Thi đấu nghiệp dư' },
-    { id: 'professional', label: 'Chuyên nghiệp', desc: 'VĐV / HLV' },
+    { id: 'y', label: 'Mới chơi (Y)', desc: 'Vừa bắt đầu tập, đánh nhẹ nhàng' },
+    { id: 'tb', label: 'Trung bình (TB)', desc: 'Đánh thường xuyên, biết rõ luật' },
+    { id: 'tbk', label: 'Nâng cao (TBK+)', desc: 'Kỹ thuật tốt, thích cạnh tranh' },
 ];
 
 const SPORT_OPTIONS: { id: SportType; label: string; icon: string }[] = [

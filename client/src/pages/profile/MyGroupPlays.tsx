@@ -16,8 +16,8 @@ interface GroupPlay {
     currentPlayers: number;
     pricePerPlayer: number;
     status: string;
-    organizerId: { _id: string; displayName: string; avatar?: string } | string;
-    courtId: { _id: string; name: string; address?: { district: string } } | string;
+    organizerId: { _id: string; displayName: string; avatar?: string } | string | null;
+    courtId: { _id: string; name: string; address?: { district: string } } | string | null;
     participants: { userId: string; displayName: string; role: string }[];
 }
 
@@ -30,7 +30,10 @@ const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> =
 };
 
 const SKILL_LABEL: Record<string, string> = {
-    beginner: 'Mới chơi', intermediate: 'Trung bình', advanced: 'Nâng cao', professional: 'Chuyên nghiệp',
+    y: 'Y', y_minus: 'Y-', y_plus: 'Y+',
+    tby_minus: 'TBY-', tby: 'TBY', tby_plus: 'TBY+',
+    tb_minus: 'TB-', tb: 'TB', tb_plus: 'TB+', tb_plus_2: 'TB++', tb_plus_3: 'TB+++',
+    tbk: 'TBK', bc: 'Bán chuyên', cn: 'Chuyên nghiệp',
 };
 
 interface Props {
@@ -70,7 +73,11 @@ export default function MyGroupPlays({ onBack }: Props) {
         }
     };
 
-    const formatDate = (d: string) => new Date(d).toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' });
+    const formatDate = (d: string) => {
+        if (!d) return '--/--';
+        return new Date(d).toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' });
+    };
+
     const sportIcon = (s: string) => s === 'pickleball' ? '🏓' : '🏸';
 
     return (
@@ -98,12 +105,15 @@ export default function MyGroupPlays({ onBack }: Props) {
                     </div>
                 ) : (
                     groups.map(g => {
-                        const s = STATUS_MAP[g.status] || STATUS_MAP.open;
-                        const courtName = typeof g.courtId === 'object' ? g.courtId.name : 'Sân';
-                        const district = typeof g.courtId === 'object' ? g.courtId.address?.district : '';
-                        //const organizerName = typeof g.organizerId === 'object' ? g.organizerId.displayName : '';
-                        const isOrganizer = typeof g.organizerId === 'object'
-                            ? g.organizerId._id === user?._id
+                        const s = STATUS_MAP[g?.status] || STATUS_MAP.open;
+
+                        const courtObj = g.courtId && typeof g.courtId === 'object' ? g.courtId as any : null;
+                        const courtName = courtObj?.name || 'Sân (Đã xóa)';
+                        const district = courtObj?.address?.district || '';
+
+                        const orgObj = g.organizerId && typeof g.organizerId === 'object' ? g.organizerId as any : null;
+                        const isOrganizer = orgObj
+                            ? orgObj._id === user?._id
                             : g.organizerId === user?._id;
 
                         return (
@@ -112,12 +122,12 @@ export default function MyGroupPlays({ onBack }: Props) {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-1">
                                             <span className="text-lg">{sportIcon(g.sportType)}</span>
-                                            <h3 className={`font-bold text-sm ${t.text.primary} truncate`}>{g.title}</h3>
+                                            <h3 className={`font-bold text-sm ${t.text.primary} truncate`}>{g.title || 'Kèo giao lưu'}</h3>
                                         </div>
                                         <div className="flex items-center gap-2 flex-wrap">
                                             <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${s.bg} ${s.color}`}>{s.label}</span>
                                             <span className={`px-2 py-0.5 rounded-md text-[10px] ${t.bg.elevated} ${t.text.muted}`}>
-                                                {SKILL_LABEL[g.skillLevel] || g.skillLevel}
+                                                {SKILL_LABEL[g.skillLevel] || g.skillLevel || 'Mọi trình độ'}
                                             </span>
                                             {isOrganizer && (
                                                 <span className="px-2 py-0.5 rounded-md text-[10px] bg-amber-500/10 text-amber-400 font-bold flex items-center gap-1">
@@ -136,7 +146,7 @@ export default function MyGroupPlays({ onBack }: Props) {
                                         <Calendar className="w-3 h-3" /> {formatDate(g.date)}
                                     </span>
                                     <span className={`${t.text.muted} flex items-center gap-1`}>
-                                        <Clock className="w-3 h-3" /> {g.startTime}-{g.endTime}
+                                        <Clock className="w-3 h-3" /> {g.startTime || '--:--'} - {g.endTime || '--:--'}
                                     </span>
                                 </div>
 
@@ -144,17 +154,18 @@ export default function MyGroupPlays({ onBack }: Props) {
                                     <div className="flex items-center gap-2">
                                         <Users className={`w-3.5 h-3.5 ${t.text.muted}`} />
                                         <span className={`text-xs ${t.text.secondary}`}>
-                                            {g.currentPlayers}/{g.maxPlayers} người
+                                            {g.currentPlayers || 0}/{g.maxPlayers || 0} người
                                         </span>
                                         <div className="flex -space-x-1.5">
-                                            {g.participants.slice(0, 4).map((p, i) => (
+                                            {/* 🛡️ Bảo vệ lỗi undefinded participants bằng (g.participants || []) */}
+                                            {(g.participants || []).slice(0, 4).map((p, i) => (
                                                 <div key={i} className={`w-5 h-5 rounded-full ${t.bg.elevated} border border-[#151515] flex items-center justify-center text-[8px] ${t.text.muted}`}>
-                                                    {p.displayName.charAt(0)}
+                                                    {p?.displayName ? p.displayName.charAt(0).toUpperCase() : 'U'}
                                                 </div>
                                             ))}
-                                            {g.participants.length > 4 && (
+                                            {(g.participants || []).length > 4 && (
                                                 <div className={`w-5 h-5 rounded-full ${t.bg.elevated} border border-[#151515] flex items-center justify-center text-[8px] ${t.text.muted}`}>
-                                                    +{g.participants.length - 4}
+                                                    +{(g.participants || []).length - 4}
                                                 </div>
                                             )}
                                         </div>
@@ -162,7 +173,7 @@ export default function MyGroupPlays({ onBack }: Props) {
 
                                     <div className="flex items-center gap-2">
                                         <span className="text-emerald-400 text-sm font-black">
-                                            {g.pricePerPlayer.toLocaleString()}đ
+                                            {(g.pricePerPlayer || 0).toLocaleString()}đ
                                         </span>
                                         {!isOrganizer && (g.status === 'open' || g.status === 'full') && (
                                             <button onClick={() => handleLeave(g._id)} disabled={leaving === g._id}
