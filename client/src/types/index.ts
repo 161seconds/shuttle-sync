@@ -118,7 +118,7 @@ export interface Booking {
 // USER
 // ========================
 export type UserRole = 'user' | 'court_owner' | 'admin';
-export type SkillLevel = 'beginner' | 'intermediate' | 'advanced' | 'professional';
+export type SkillLevel = 'y' | 'y_minus' | 'y_plus' | 'tby_minus' | 'tby' | 'tby_plus' | 'tb_minus' | 'tb' | 'tb_plus' | 'tb_plus_2' | 'tb_plus_3' | 'tbk' | 'bc' | 'cn';
 
 export interface User {
     _id: string;
