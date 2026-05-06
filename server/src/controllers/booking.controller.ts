@@ -1,99 +1,60 @@
-import { Request, Response, NextFunction } from 'express';
-import { bookingService } from '../services';
-import { AuthRequest } from '../middlewares';
-import { sendSuccess, sendCreated, sendPaginated } from '../utils/response';
+import { Response, NextFunction } from 'express';
+import { bookingService } from '../services/booking.service';
 
 class BookingController {
-    async createBooking(req: AuthRequest, res: Response, next: NextFunction) {
+    // 1. Tạo đơn đặt sân
+    async createBooking(req: any, res: Response, next: NextFunction) {
         try {
-            const booking = await bookingService.createBooking({
-                userId: req.userId,
-                ...req.body,
-            });
-            sendCreated(res, booking, 'Đặt sân thành công');
+            const userId = req.user?._id || req.user?.id || req.userId;
+            const booking = await bookingService.createBooking(userId, req.body);
+            res.status(201).json({ success: true, data: booking, message: 'Tạo đơn đặt sân thành công' });
         } catch (error) {
-            next(error);
+            console.log("❌ Lỗi Create Booking:", error);
+            res.status(500).json({ success: false, message: 'Lỗi server khi đặt sân' });
         }
     }
 
-    async confirmPayment(req: AuthRequest, res: Response, next: NextFunction) {
+    // 2. Lấy danh sách đặt sân của User
+    async getMyBookings(req: any, res: Response, next: NextFunction) {
         try {
-            const booking = await bookingService.confirmPayment(
-                req.params.bookingId as string,
-                req.body.transactionId,
-                req.userId
-            );
-            sendSuccess(res, booking, 'Xác nhận thanh toán thành công');
+            const userId = req.user?._id || req.user?.id || req.userId;
+            const status = req.query.status as string;
+            const bookings = await bookingService.getMyBookings(userId, status);
+            res.status(200).json({ success: true, data: bookings, message: 'Lấy lịch sử thành công' });
         } catch (error) {
-            next(error);
+            console.log("❌ Lỗi Get My Bookings:", error);
+            res.status(500).json({ success: false, message: 'Lỗi server khi lấy lịch sử' });
         }
     }
 
-    async cancelBooking(req: AuthRequest, res: Response, next: NextFunction) {
+    // 3. Xác nhận thanh toán
+    async confirmPayment(req: any, res: Response, next: NextFunction) {
         try {
-            const booking = await bookingService.cancelBooking(
-                req.params.bookingId as string,
-                req.body.reason,
-                req.userId
-            );
-            sendSuccess(res, booking, 'Hủy đặt sân thành công');
+            const userId = req.user?._id || req.user?.id || req.userId;
+            const bookingCode = req.params.bookingId;
+
+            const booking = await bookingService.confirmPayment(bookingCode, userId);
+            res.status(200).json({ success: true, data: booking, message: 'Thanh toán thành công' });
         } catch (error) {
-            next(error);
+            console.log("❌ Lỗi Confirm Payment:", error);
+            res.status(500).json({ success: false, message: 'Lỗi server khi thanh toán' });
         }
     }
 
-    async getMyBookings(req: AuthRequest, res: Response, next: NextFunction) {
-        try {
-            const { bookings, pagination } = await bookingService.getUserBookings(
-                req.userId!,
-                {
-                    status: req.query.status as any,
-                    page: req.query.page ? Number(req.query.page) : undefined,
-                    limit: req.query.limit ? Number(req.query.limit) : undefined,
-                }
-            );
-            sendPaginated(res, bookings, pagination);
-        } catch (error) {
-            next(error);
-        }
+    async getBookingByCode(code: string) {
+        return null;
     }
 
-    async getBookingById(req: AuthRequest, res: Response, next: NextFunction) {
-        try {
-            const booking = await bookingService.getBookingById(
-                req.params.bookingId as string,
-                req.userId
-            );
-            sendSuccess(res, booking);
-        } catch (error) {
-            next(error);
-        }
+    async getBookingById(id: string) {
+        return null;
     }
 
-    async getBookingByCode(req: Request, res: Response, next: NextFunction) {
-        try {
-            const booking = await bookingService.getBookingByCode(req.params.code as string);
-            sendSuccess(res, booking);
-        } catch (error) {
-            next(error);
-        }
+    async cancelBooking(id: string, data?: any) {
+        return null;
     }
 
-    async getCourtBookings(req: AuthRequest, res: Response, next: NextFunction) {
-        try {
-            const { bookings, pagination } = await bookingService.getCourtBookings(
-                req.params.courtId as string,
-                {
-                    date: req.query.date as string,
-                    status: req.query.status as any,
-                    page: req.query.page ? Number(req.query.page) : undefined,
-                    limit: req.query.limit ? Number(req.query.limit) : undefined,
-                }
-            );
-            sendPaginated(res, bookings, pagination);
-        } catch (error) {
-            next(error);
-        }
+    async getCourtBookings(courtId: string) {
+        return [];
     }
 }
 
