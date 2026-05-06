@@ -192,7 +192,7 @@ class GroupPlayService {
             .sort({ date: 1, startTime: 1 })
             .skip(skip)
             .limit(limit)
-            .populate('courtId', 'name slug address photos')
+            .populate({ path: 'courtId', model: 'Venue', select: 'name slug address photos' })
             .populate('organizerId', 'displayName avatar stats.rating')
             .lean();
 
@@ -221,7 +221,7 @@ class GroupPlayService {
             .sort({ date: -1 })
             .skip(skip)
             .limit(limit)
-            .populate('courtId', 'name slug address photos')
+            .populate({ path: 'courtId', model: 'Venue', select: 'name slug address photos' })
             .populate('organizerId', 'displayName avatar')
             .lean();
 
@@ -236,7 +236,7 @@ class GroupPlayService {
      */
     async getGroupPlayById(id: string): Promise<IGroupPlayDocument> {
         const groupPlay = await GroupPlay.findById(id)
-            .populate('courtId', 'name slug address photos contact')
+            .populate({ path: 'courtId', model: 'Venue', select: 'name slug address photos contact' })
             .populate('organizerId', 'displayName avatar phone stats');
 
         if (!groupPlay) throw ApiError.notFound('Không tìm thấy nhóm chơi');
