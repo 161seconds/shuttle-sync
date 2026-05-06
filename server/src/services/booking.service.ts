@@ -42,6 +42,23 @@ class BookingService {
             }
         });
 
+        setTimeout(async () => {
+            try {
+                // Tìm lại đơn hàng xem có đúng là đang chờ thanh toán không
+                const b = await Booking.findById(booking._id);
+                if (b && b.status === BookingStatus.PENDING_PAYMENT) {
+                    b.status = BookingStatus.CONFIRMED;
+                    b.payment.status = PaymentStatus.PAID;
+                    b.payment.paidAt = new Date();
+                    b.confirmedAt = new Date();
+                    await b.save();
+                    console.log(`✅ [Auto-Bot] Đã tự động xác nhận đơn ${bookingCode} sau 10s`);
+                }
+            } catch (error) {
+                console.error("❌ Lỗi tự động xác nhận:", error);
+            }
+        }, 10000);
+
         return booking;
     }
 
@@ -62,7 +79,7 @@ class BookingService {
         if (!booking) throw new Error('Không tìm thấy đơn đặt sân');
 
         booking.status = BookingStatus.CONFIRMED;
-        booking.payment.status = 'SUCCESS' as any;
+        booking.payment.status = PaymentStatus.PAID;
         booking.payment.paidAt = new Date();
         booking.confirmedAt = new Date();
 
