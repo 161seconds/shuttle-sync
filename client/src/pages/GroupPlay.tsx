@@ -9,6 +9,7 @@ import {
 import { theme as t, formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
 import { groupPlayApi } from '../api/groupPlay.api';
+import { bookingApi } from '../api/booking.api';
 
 // ═══ Types ═══
 interface GroupPlay {
@@ -143,6 +144,7 @@ export default function GroupPlayPage() {
 
     // Helpers
     const formatDate = (d: string) => {
+        if (!d) return '--/--';
         const date = new Date(d);
         const today = new Date();
         const tomorrow = new Date(today);
@@ -156,24 +158,26 @@ export default function GroupPlayPage() {
     const sportIcon = (s: string) => s === 'pickleball' ? '🏓' : '🏸';
 
     const getOrganizerName = (g: GroupPlay) =>
-        typeof g.organizerId === 'object' ? g.organizerId.displayName : 'Tổ chức viên';
+        g.organizerId && typeof g.organizerId === 'object' ? g.organizerId.displayName : 'Tổ chức viên';
 
     const getCourtName = (g: GroupPlay) =>
-        typeof g.courtId === 'object' ? g.courtId.name : 'Sân';
+        g.courtId && typeof g.courtId === 'object' ? g.courtId.name : 'Sân (Đã xóa)';
 
     const getCourtDistrict = (g: GroupPlay) =>
-        typeof g.courtId === 'object' ? g.courtId.address?.district || '' : '';
+        g.courtId && typeof g.courtId === 'object' ? g.courtId.address?.district || '' : '';
 
     const getCourtPhoto = (g: GroupPlay) =>
-        typeof g.courtId === 'object' ? g.courtId.photos?.[0]?.url : null;
+        g.courtId && typeof g.courtId === 'object' ? g.courtId.photos?.[0]?.url : null;
 
     const isJoined = (g: GroupPlay) =>
-        user && g.participants.some(p => p.userId === user._id);
+        user && (g.participants || []).some(p => p.userId === user._id);
 
-    const isOrganizer = (g: GroupPlay) =>
-        user && (typeof g.organizerId === 'object' ? g.organizerId._id === user._id : g.organizerId === user._id);
+    const isOrganizer = (g: GroupPlay) => {
+        if (!user) return false;
+        return g.organizerId && typeof g.organizerId === 'object' ? g.organizerId._id === user._id : g.organizerId === user._id;
+    }
 
-    const spotsLeft = (g: GroupPlay) => g.maxPlayers - g.currentPlayers;
+    const spotsLeft = (g: GroupPlay) => (g.maxPlayers || 0) - (g.currentPlayers || 0);
 
     return (
         <div className="max-w-3xl mx-auto px-4 pb-28 md:pb-8 pt-6">
@@ -386,7 +390,7 @@ export default function GroupPlayPage() {
                                                 {/* Organizer */}
                                                 <div className="flex items-center gap-3">
                                                     <div className={`w-8 h-8 rounded-lg ${t.bg.elevated} flex items-center justify-center text-xs font-bold ${t.text.muted}`}>
-                                                        {typeof g.organizerId === 'object' && g.organizerId.avatar
+                                                        {g.organizerId && typeof g.organizerId === 'object' && g.organizerId.avatar
                                                             ? <img src={g.organizerId.avatar} className="w-full h-full rounded-lg object-cover" />
                                                             : getOrganizerName(g).charAt(0)
                                                         }
@@ -480,44 +484,75 @@ export default function GroupPlayPage() {
 }
 
 // ═══ CREATE GROUP MODAL ═══
+// ═══ CREATE GROUP MODAL (ĐÃ NÂNG CẤP BẮT BUỘC ĐẶT SÂN) ═══
 function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+    const { setPage } = useAppStore(); // Để điều hướng đi đặt sân
     const [creating, setCreating] = useState(false);
+
+    // Quản lý Booking
+    const [myBookings, setMyBookings] = useState<any[]>([]);
+    const [fetchingBookings, setFetchingBookings] = useState(true);
+    const [selectedBookingId, setSelectedBookingId] = useState('');
+
     const [form, setForm] = useState({
         title: '',
         description: '',
         sportType: 'badminton',
-        skillLevel: 'intermediate',
+        skillLevel: 'tb',
         maxPlayers: 4,
         pricePerPlayer: 50000,
-        date: new Date().toISOString().split('T')[0],
-        startTime: '18:00',
-        endTime: '19:00',
         requirements: '',
     });
 
     const set = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
+
+    // Tự động tải lịch sử đặt sân (Đã xác nhận) của User
     useEffect(() => {
         document.body.style.overflow = 'hidden';
-        return () => {
-            document.body.style.overflow = 'unset';
+
+        const loadBookings = async () => {
+            try {
+                // Gọi API lấy các đơn đã thanh toán/xác nhận
+                const res = await bookingApi.getMyBookings({ status: 'confirmed' });
+                setMyBookings(res.data?.data || []);
+            } catch (err) {
+                console.error('Lỗi tải booking:', err);
+            } finally {
+                setFetchingBookings(false);
+            }
         };
+        loadBookings();
+
+        return () => { document.body.style.overflow = 'unset'; };
     }, []);
 
     const handleCreate = async () => {
+        if (!selectedBookingId) { alert('Vui lòng chọn một lịch bạn đã đặt!'); return; }
         if (!form.title.trim()) { alert('Nhập tên nhóm'); return; }
+        if (form.maxPlayers > 20) { alert('Số người tối đa không được vượt quá 20'); return; }
+
+        const selectedBooking = myBookings.find(b => b._id === selectedBookingId);
+        if (!selectedBooking) return;
+
         setCreating(true);
         try {
             await groupPlayApi.createGroupPlay({
                 ...form,
-                courtId: '663344556677889900112233', // Giả lập 1 ID tạm thời hoặc để trống tùy Validation Backend 
-                venueId: '663344556677889900112233', // Thường backend sẽ yêu cầu có sân
+                // Tự động bế data từ Booking đã chọn qua
+                courtId: typeof selectedBooking.court === 'object' ? selectedBooking.court._id : selectedBooking.courtId,
+                subCourtId: selectedBooking.subCourtId,
+                bookingId: selectedBooking._id,
+                date: selectedBooking.date,
+                startTime: selectedBooking.startTime,
+                endTime: selectedBooking.endTime,
                 isPublic: true,
             });
 
             alert('Tạo nhóm chơi thành công!');
             onCreated();
         } catch (err: any) {
-            alert(err.response?.data?.message || 'Tạo nhóm thất bại. Bạn cần đặt sân trước.');
+            console.error("Lỗi từ server:", err.response?.data?.errors);
+            alert(err.response?.data?.message || 'Tạo nhóm thất bại. Hãy kiểm tra Console.');
         } finally {
             setCreating(false);
         }
@@ -530,80 +565,101 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
             <motion.div className={`relative w-full sm:max-w-md max-h-[85vh] ${theme.bg.card} rounded-t-3xl sm:rounded-3xl border-t sm:border ${theme.border.subtle} overflow-hidden flex flex-col`}
                 initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}>
 
-                <div className="flex justify-center pt-3 pb-1 sm:hidden">
-                    <div className="w-10 h-1 rounded-full bg-white/10" />
-                </div>
-
                 <div className={`px-5 py-3 border-b ${theme.border.subtle} flex items-center justify-between`}>
                     <h2 className={`font-bold ${theme.text.primary}`}>Tạo nhóm chơi</h2>
-                    <button onClick={onClose} className={`w-8 h-8 rounded-lg ${theme.bg.elevated} flex items-center justify-center ${theme.text.muted}`}>
+                    <button onClick={onClose} className={`w-8 h-8 rounded-lg ${theme.bg.elevated} flex items-center justify-center ${theme.text.muted} hover:bg-red-500/20 hover:text-red-400 transition-all`}>
                         <X className="w-4 h-4" />
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-                    <InputField label="Tên nhóm" placeholder="VD: Đánh giao lưu quận 7" value={form.title}
-                        onChange={v => set('title', v)} />
+                {fetchingBookings ? (
+                    <div className="flex-1 flex flex-col items-center justify-center py-20">
+                        <Loader2 className="w-8 h-8 text-emerald-400 animate-spin mb-4" />
+                        <p className={`text-sm ${theme.text.muted}`}>Đang kiểm tra lịch đặt sân của bạn...</p>
+                    </div>
+                ) : myBookings.length === 0 ? (
+                    // CHẶN HOÀN TOÀN NẾU KHÔNG CÓ ĐƠN ĐẶT SÂN
+                    <div className="flex-1 flex flex-col items-center justify-center py-16 px-6 text-center">
+                        <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
+                            <Calendar className="w-8 h-8 text-red-400" />
+                        </div>
+                        <h3 className="font-bold text-white text-lg mb-2">Chưa có lịch đặt sân!</h3>
+                        <p className={`text-sm ${theme.text.muted} mb-8 leading-relaxed`}>
+                            Để tạo được nhóm chơi, bạn bắt buộc phải đặt sân và thanh toán thành công trước.
+                        </p>
+                        <button onClick={() => { onClose(); setPage('search'); }}
+                            className="w-full py-3.5 rounded-xl bg-emerald-500 text-black font-bold text-sm shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 transition-colors">
+                            Đi đặt sân ngay
+                        </button>
+                    </div>
+                ) : (
+                    // NẾU CÓ SÂN -> HIỂN THỊ FORM
+                    <>
+                        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
 
-                    <InputField label="Mô tả (tuỳ chọn)" placeholder="Thông tin thêm..." value={form.description}
-                        onChange={v => set('description', v)} />
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                            <label className={`text-[10px] font-semibold ${theme.text.muted} uppercase mb-1.5 block`}>Môn</label>
-                            <div className="flex gap-2">
-                                {['badminton', 'pickleball'].map(s => (
-                                    <button key={s} onClick={() => set('sportType', s)}
-                                        className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all ${form.sportType === s
-                                            ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400'
-                                            : `${theme.bg.elevated} ${theme.border.subtle} ${theme.text.muted}`
-                                            }`}>
-                                        {s === 'badminton' ? 'Cầu lông' : 'Pickleball'}
-                                    </button>
-                                ))}
+                            {/* ÉP CHỌN SÂN TỪ LỊCH SỬ BOOKING */}
+                            <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+                                <label className={`text-[10px] font-semibold text-emerald-400 uppercase tracking-wider mb-2 block`}>
+                                    Chọn lịch sân đã đặt <span className="text-red-400">*</span>
+                                </label>
+                                <select value={selectedBookingId} onChange={e => setSelectedBookingId(e.target.value)}
+                                    className={`w-full h-11 px-3 rounded-lg ${theme.bg.elevated} border ${theme.border.subtle} text-emerald-400 font-bold text-xs outline-none cursor-pointer`}>
+                                    <option value="" disabled>-- Bấm để chọn sân của bạn --</option>
+                                    {myBookings.map(b => {
+                                        const cName = typeof b.court === 'object' ? b.court?.name : 'Sân của bạn';
+                                        const d = new Date(b.date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+                                        return (
+                                            <option key={b._id} value={b._id}>
+                                                {cName} • {d} ({b.startTime} - {b.endTime})
+                                            </option>
+                                        );
+                                    })}
+                                </select>
                             </div>
+
+                            <InputField label="Tên nhóm" placeholder="VD: Giao lưu sáng cuối tuần" value={form.title} onChange={v => set('title', v)} />
+                            <InputField label="Mô tả (tuỳ chọn)" placeholder="Nhóm đánh vui vẻ mồ hôi..." value={form.description} onChange={v => set('description', v)} />
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className={`text-[10px] font-semibold ${theme.text.muted} uppercase mb-1.5 block`}>Môn</label>
+                                    <div className="flex gap-2">
+                                        {['badminton', 'pickleball'].map(s => (
+                                            <button key={s} onClick={() => set('sportType', s)}
+                                                className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all ${form.sportType === s ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' : `${theme.bg.elevated} ${theme.border.subtle} ${theme.text.muted}`}`}>
+                                                {s === 'badminton' ? 'Cầu lông' : 'Pickleball'}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className={`text-[10px] font-semibold ${theme.text.muted} uppercase mb-1.5 block`}>Trình độ</label>
+                                    <select value={form.skillLevel} onChange={e => set('skillLevel', (e.target as HTMLSelectElement).value)}
+                                        className={`w-full h-9 px-3 rounded-lg ${theme.bg.elevated} border ${theme.border.subtle} ${theme.text.secondary} text-xs outline-none`}>
+                                        <option value="y">Y (Mới chơi)</option>
+                                        <option value="tb">TB (Trung bình)</option>
+                                        <option value="tbk">TBK+ (Khá/Giỏi)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <InputField label="Tổng số người" type="number" value={String(form.maxPlayers)} onChange={v => set('maxPlayers', parseInt(v) || 4)} />
+                                <InputField label="Giá thu/người (vnd)" type="number" value={String(form.pricePerPlayer)} onChange={v => set('pricePerPlayer', parseInt(v) || 0)} />
+                            </div>
+
+                            <InputField label="Yêu cầu riêng (tuỳ chọn)" placeholder="VD: Mang vợt riêng, bao cầu..." value={form.requirements} onChange={v => set('requirements', v)} />
                         </div>
-                        <div>
-                            <label className={`text-[10px] font-semibold ${theme.text.muted} uppercase mb-1.5 block`}>Trình độ</label>
-                            <select value={form.skillLevel} onChange={e => set('skillLevel', (e.target as HTMLSelectElement).value)}
-                                className={`w-full h-9 px-3 rounded-lg ${theme.bg.elevated} border ${theme.border.subtle} ${theme.text.secondary} text-xs outline-none`}>
-                                {SKILL_FILTERS.filter(f => f.id !== 'all').map(f => (
-                                    <option key={f.id} value={f.id}>
-                                        {f.label}
-                                    </option>
-                                ))}
-                            </select>
+
+                        <div className={`px-5 py-4 border-t ${theme.border.subtle}`}>
+                            <button onClick={handleCreate} disabled={creating || !selectedBookingId || !form.title.trim()}
+                                className="w-full py-3.5 rounded-xl bg-emerald-500 text-black font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-40 hover:bg-emerald-400 active:scale-[0.98] transition-all shadow-lg shadow-emerald-500/20">
+                                {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                                Mở nhóm chơi
+                            </button>
                         </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-3">
-                        <InputField label="Ngày" type="date" value={form.date} onChange={v => set('date', v)} />
-                        <InputField label="Bắt đầu" type="time" value={form.startTime} onChange={v => set('startTime', v)} />
-                        <InputField label="Kết thúc" type="time" value={form.endTime} onChange={v => set('endTime', v)} />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <InputField label="Số người tối đa" type="number" value={String(form.maxPlayers)}
-                            onChange={v => set('maxPlayers', parseInt(v) || 4)} />
-                        <InputField label="Giá (vnd, có thể giao động)" type="number" value={String(form.pricePerPlayer)}
-                            onChange={v => set('pricePerPlayer', parseInt(v) || 0)} />
-                    </div>
-
-                    <InputField label="Yêu cầu (tuỳ chọn)" placeholder="VD: Mang vợt riêng, đúng giờ" value={form.requirements}
-                        onChange={v => set('requirements', v)} />
-
-                    <p className={`text-[10px] ${theme.text.muted} leading-relaxed`}>
-                        Lưu ý: Bạn cần đặt sân trước, sau đó tạo nhóm chơi dựa trên booking đã có.
-                    </p>
-                </div>
-
-                <div className={`px-5 py-4 border-t ${theme.border.subtle}`}>
-                    <button onClick={handleCreate} disabled={creating || !form.title.trim()}
-                        className="w-full py-3 rounded-xl bg-emerald-500 text-black font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-40 hover:bg-emerald-400 active:scale-[0.98] transition-all shadow-lg shadow-emerald-500/20">
-                        {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                        Tạo nhóm chơi
-                    </button>
-                </div>
+                    </>
+                )}
             </motion.div>
         </motion.div>
     );

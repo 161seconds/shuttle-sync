@@ -170,16 +170,16 @@ class GroupPlayService {
         if (params.sportType) filter.sportType = params.sportType;
         if (params.skillLevel) filter.skillLevel = params.skillLevel;
 
-        if (params.date) {
-            const date = new Date(params.date);
-            date.setHours(0, 0, 0, 0);
-            const nextDay = new Date(date);
-            nextDay.setDate(nextDay.getDate() + 1);
-            filter.date = { $gte: date, $lt: nextDay };
-        } else {
-            // Default: only show future group plays
-            filter.date = { $gte: new Date() };
-        }
+        // if (params.date) {
+        //     const date = new Date(params.date);
+        //     date.setHours(0, 0, 0, 0);
+        //     const nextDay = new Date(date);
+        //     nextDay.setDate(nextDay.getDate() + 1);
+        //     filter.date = { $gte: date, $lt: nextDay };
+        // } else {
+        //     // Default: only show future group plays
+        //     filter.date = { $gte: new Date() };
+        // }
 
         const total = await GroupPlay.countDocuments(filter);
         const { page, limit, totalPages, skip } = calculatePagination(
@@ -222,6 +222,7 @@ class GroupPlayService {
             .skip(skip)
             .limit(limit)
             .populate('courtId', 'name slug address photos')
+            .populate('organizerId', 'displayName avatar')
             .lean();
 
         return {
