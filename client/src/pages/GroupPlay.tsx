@@ -116,6 +116,14 @@ export default function GroupPlayPage() {
         }
     };
 
+    useEffect(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        if (searchParams.get('openCreate') === 'true') {
+            setShowCreate(true);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }, []);
+
     useEffect(() => { fetchGroups(); }, [sportFilter, skillFilter]);
 
     // Search filter (client-side)
@@ -536,13 +544,19 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
 
         setCreating(true);
         try {
+            const courtIdString = typeof selectedBooking.courtId === 'object'
+                ? selectedBooking.courtId._id
+                : selectedBooking.courtId;
+
+            const d = new Date(selectedBooking.date);
+            const formattedDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
             await groupPlayApi.createGroupPlay({
                 ...form,
-                // Tự động bế data từ Booking đã chọn qua
-                courtId: typeof selectedBooking.court === 'object' ? selectedBooking.court._id : selectedBooking.courtId,
+                courtId: courtIdString,
                 subCourtId: selectedBooking.subCourtId,
                 bookingId: selectedBooking._id,
-                date: selectedBooking.date,
+                date: formattedDate,
                 startTime: selectedBooking.startTime,
                 endTime: selectedBooking.endTime,
                 isPublic: true,

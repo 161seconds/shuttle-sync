@@ -142,11 +142,11 @@ export default function BookingHistory({ onBack }: Props) {
                                         {statusKey === 'confirmed' && (
                                             <button
                                                 onClick={() => {
-                                                    window.location.href = `/group-plays/create?bookingId=${b._id}&subCourtId=${b.subCourtId}`;
+                                                    window.location.href = `/?tab=group-plays&openCreate=true`;
                                                 }}
                                                 className="w-full mt-4 py-2.5 rounded-xl bg-blue-500/10 text-blue-400 text-xs font-bold flex items-center justify-center gap-2 hover:bg-blue-500/20 transition-colors">
                                                 <Users className="w-4 h-4" />
-                                                Tạo nhóm chơi từ sân này
+                                                Mở trang Tạo nhóm chơi
                                             </button>
                                         )}
 
