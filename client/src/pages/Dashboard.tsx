@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Star, Flame, ChevronRight, Search, Trophy, Zap } from 'lucide-react';
+import { MapPin, Star, Flame, ChevronRight, Search, Users, Zap } from 'lucide-react';
 import { theme as t, formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
 import { courtApi } from '../api/court.api';
@@ -63,7 +63,7 @@ export default function Dashboard() {
                     onClick={() => setPage('groupplay')}
                     className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 cursor-pointer hover:bg-emerald-500/20 transition-colors"
                 >
-                    <Trophy className="w-5 h-5 text-emerald-400" />
+                    <Users className="w-5 h-5 text-emerald-400" />
                 </div>
             </motion.div>
 

@@ -87,6 +87,29 @@ class BookingService {
         return booking;
     }
 
+    async getCourtBookings(courtId: string, date: string) {
+        const query: any = {
+            courtId,
+            status: { $ne: BookingStatus.CANCELLED }
+        };
+
+        if (date) {
+            const startOfDay = new Date(date);
+            startOfDay.setHours(0, 0, 0, 0);
+
+            const endOfDay = new Date(date);
+            endOfDay.setHours(23, 59, 59, 999);
+
+            query.date = { $gte: startOfDay, $lte: endOfDay };
+        }
+
+        const bookings = await Booking.find(query)
+            .select('subCourtId startTime endTime date status')
+            .lean();
+
+        return bookings;
+    }
+
     async getBookingByCode(code: string) {
         return null;
     }
@@ -97,10 +120,6 @@ class BookingService {
 
     async cancelBooking(id: string, data?: any) {
         return null;
-    }
-
-    async getCourtBookings(courtId: string) {
-        return [];
     }
 }
 

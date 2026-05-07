@@ -41,20 +41,30 @@ class BookingController {
         }
     }
 
-    async getBookingByCode(code: string) {
-        return null;
+    // 4. Lấy danh sách giờ đã đặt của một Sân (Dùng để Frontend làm mờ nút)
+    async getCourtBookings(req: any, res: Response, next: NextFunction) {
+        try {
+            const { courtId } = req.params;
+            const { date } = req.query; // Frontend sẽ gửi ngày lên đây
+
+            const bookings = await bookingService.getCourtBookings(courtId, date as string);
+            res.status(200).json({ success: true, data: bookings, message: 'Lấy danh sách giờ đã đặt thành công' });
+        } catch (error) {
+            console.log("❌ Lỗi Get Court Bookings:", error);
+            res.status(500).json({ success: false, message: 'Lỗi server khi lấy lịch sân' });
+        }
     }
 
-    async getBookingById(id: string) {
-        return null;
+    async getBookingByCode(req: any, res: Response, next: NextFunction) {
+        res.status(200).json({ success: true, message: 'Chưa có logic' });
     }
 
-    async cancelBooking(id: string, data?: any) {
-        return null;
+    async getBookingById(req: any, res: Response, next: NextFunction) {
+        res.status(200).json({ success: true, message: 'Chưa có logic' });
     }
 
-    async getCourtBookings(courtId: string) {
-        return [];
+    async cancelBooking(req: any, res: Response, next: NextFunction) {
+        res.status(200).json({ success: true, message: 'Chưa có logic' });
     }
 }
 
