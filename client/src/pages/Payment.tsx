@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Check, Clock, Copy, ChevronLeft, AlertCircle, QrCode, ShieldCheck, Loader2 } from 'lucide-react';
 import { theme as DS } from '../utils/theme';
 import { motion } from 'framer-motion';
+//import { bookingApi } from '../api/booking.api'; 
 
 interface Props {
     bookingCode: string;
@@ -31,10 +32,16 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
 
     const confirm = async () => {
         setStatus('confirming');
-        // TODO: bookingApi.confirmPayment()
-        await new Promise(r => setTimeout(r, 2000));
-        setStatus('success');
-        setTimeout(onComplete, 2000);
+        try {
+            //await bookingApi.confirmPayment(bookingCode);
+            await new Promise(r => setTimeout(r, 2000));
+            setStatus('success');
+            setTimeout(onComplete, 2000);
+        } catch (err) {
+            console.error(err);
+            alert("Lỗi xác nhận thanh toán!");
+            setStatus('pending');
+        }
     };
 
     const copy = () => {
@@ -43,7 +50,6 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
         setTimeout(() => setCopied(false), 2000);
     };
 
-    // ═══ TRẠNG THÁI THÀNH CÔNG ═══
     if (status === 'success') {
         return (
             <Wrapper>
@@ -62,7 +68,6 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
         );
     }
 
-    // ═══ TRẠNG THÁI HẾT HẠN ═══
     if (status === 'expired') {
         return (
             <Wrapper>
@@ -82,12 +87,9 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
         );
     }
 
-    // ═══ GIAO DIỆN THANH TOÁN CHÍNH ═══
     return (
         <Wrapper>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full">
-
-                {/* Header */}
                 <div className="flex items-center justify-between mb-8 relative">
                     <button onClick={onBack} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors border border-white/5 absolute left-0">
                         <ChevronLeft className="w-5 h-5" />
@@ -98,14 +100,9 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
                     </div>
                 </div>
 
-                {/* QR Code Box */}
                 <div className="relative w-56 h-56 mx-auto mb-8">
-                    {/* Ánh sáng tỏa phía sau QR */}
                     <div className="absolute inset-0 bg-emerald-500/20 blur-3xl rounded-full" />
-
-                    {/* Khung quét mã */}
                     <div className="relative w-full h-full bg-white p-3.5 rounded-3xl shadow-2xl flex items-center justify-center">
-                        {/* 4 góc Bracket */}
                         <div className="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-emerald-500 rounded-tl-[20px]" />
                         <div className="absolute -top-1 -right-1 w-8 h-8 border-t-4 border-r-4 border-emerald-500 rounded-tr-[20px]" />
                         <div className="absolute -bottom-1 -left-1 w-8 h-8 border-b-4 border-l-4 border-emerald-500 rounded-bl-[20px]" />
@@ -120,7 +117,6 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
                     </div>
                 </div>
 
-                {/* Timer */}
                 <div className="flex justify-center mb-6">
                     <div className={`flex items-center gap-2 px-4 py-2 rounded-full border backdrop-blur-md ${countdown < 120 ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
                         <Clock className="w-4 h-4" />
@@ -130,19 +126,14 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
                     </div>
                 </div>
 
-                {/* Hóa đơn / Receipt */}
                 <div className="bg-[#141617]/80 backdrop-blur-xl rounded-2xl p-5 mb-6 border border-white/10 shadow-xl relative overflow-hidden">
-                    {/* Hình mờ trang trí */}
                     <ShieldCheck className="absolute -right-4 -bottom-4 w-24 h-24 text-white/2 -rotate-12 pointer-events-none" />
-
                     <div className="space-y-3.5 relative z-10">
                         <DetailRow label="Mã đơn" value={bookingCode} copyable onCopy={copy} copied={copied} />
                         <DetailRow label="Sân" value={courtName} />
                         <DetailRow label="Ngày" value={date} />
                         <DetailRow label="Giờ" value={slots.join(', ')} accent />
-
                         <div className="w-full h-px border-t border-dashed border-white/10 my-4" />
-
                         <div className="flex justify-between items-end">
                             <span className={`text-xs font-semibold ${DS.text.muted} uppercase tracking-wider`}>Tổng thanh toán</span>
                             <span className="text-2xl font-black text-emerald-400">{amount.toLocaleString()}<span className="text-sm font-bold text-emerald-400/60 ml-0.5">đ</span></span>
@@ -150,7 +141,6 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
                     </div>
                 </div>
 
-                {/* Action Button */}
                 <button onClick={confirm} disabled={status === 'confirming'}
                     className="w-full py-4 rounded-2xl bg-linear-to-r from-emerald-500 to-emerald-400 text-black font-black text-[15px] flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(16,185,129,0.25)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-60 disabled:hover:scale-100 disabled:cursor-not-allowed relative overflow-hidden group">
                     {status === 'confirming' ? (
@@ -158,7 +148,6 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
                     ) : (
                         <>
                             <Check className="w-5 h-5 transition-transform group-hover:scale-110" /> Tôi đã thanh toán
-                            {/* Hiệu ứng chớp sáng khi hover */}
                             <div className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/30 to-transparent group-hover:animate-[shimmer_1.5s_infinite]" />
                         </>
                     )}
@@ -168,13 +157,10 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
                     <ShieldCheck className="w-3.5 h-3.5 text-gray-400" />
                     <span className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">Giao dịch được mã hóa an toàn</span>
                 </div>
-
             </motion.div>
         </Wrapper>
     );
 }
-
-// ═══ COMPONENT HỖ TRỢ ═══
 
 function DetailRow({ label, value, accent, copyable, onCopy, copied }: { label: string; value: string; accent?: boolean; copyable?: boolean; onCopy?: () => void; copied?: boolean }) {
     return (
@@ -195,10 +181,8 @@ function DetailRow({ label, value, accent, copyable, onCopy, copied }: { label: 
 function Wrapper({ children }: { children: React.ReactNode }) {
     return (
         <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center px-6 py-8 relative overflow-hidden">
-            {/* Background Orbs */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/5 blur-[100px] rounded-full pointer-events-none" />
-
             <div className="w-full max-w-sm relative z-10 flex flex-col">
                 {children}
             </div>

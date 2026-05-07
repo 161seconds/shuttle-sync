@@ -53,6 +53,7 @@ export default function GuidedTourOverlay({ onComplete }: Props) {
                         <rect width="100%" height="100%" fill="white" />
                         {rect && (
                             <motion.rect rx={12} fill="black"
+                                initial={{ x: spotX, y: spotY, width: Math.max(spotW, 1), height: Math.max(spotH, 1) }}
                                 animate={{ x: spotX, y: spotY, width: spotW, height: spotH }}
                                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                             />

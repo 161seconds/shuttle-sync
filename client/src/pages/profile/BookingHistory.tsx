@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, Calendar, Clock, Loader2, Check, X, ChevronRight } from 'lucide-react';
+//import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, Calendar, Clock, Loader2, Check, X, ChevronRight, Users } from 'lucide-react';
 import { theme as t } from '../../utils/theme';
 import axiosClient from '../../api/axiosClient';
 import type { Booking } from '../../types';
@@ -27,7 +28,8 @@ export default function BookingHistory({ onBack }: Props) {
         setLoading(true);
         try {
             const params: any = {};
-            if (tab !== 'all') params.status = tab;
+            if (tab !== 'all') params.status = tab.toUpperCase();
+
             const res = await axiosClient.get('/bookings/my', { params });
             setBookings(res.data.data || []);
         } catch (err) {
@@ -70,7 +72,6 @@ export default function BookingHistory({ onBack }: Props) {
                     </button>
                     <h1 className={`font-bold ${t.text.primary}`}>Lịch sử đặt sân</h1>
                 </div>
-                {/* Tab bar */}
                 <div className="flex gap-1 px-4 pb-3 overflow-x-auto scrollbar-none">
                     {TABS.map(tb => (
                         <button key={tb.id} onClick={() => setTab(tb.id)}
@@ -92,11 +93,12 @@ export default function BookingHistory({ onBack }: Props) {
                     <div className="flex flex-col items-center py-20">
                         <Calendar className={`w-12 h-12 ${t.text.muted} mb-4`} />
                         <p className={`${t.text.secondary} font-semibold mb-1`}>Chưa có đặt sân nào</p>
-                        <p className={`text-xs ${t.text.muted}`}>Đặt sân đầu tiên của bạn ngay!</p>
                     </div>
                 ) : (
                     bookings.map(b => {
-                        const s = STATUS_MAP[b.status] || STATUS_MAP.confirmed;
+                        // FIX: Đảm bảo chuyển về chữ thường để lấy đúng màu sắc
+                        const statusKey = b.status?.toLowerCase() || 'pending_payment';
+                        const s = STATUS_MAP[statusKey] || STATUS_MAP.confirmed;
                         const isExpanded = expanded === b._id;
                         const courtName = (b.court as any)?.name || 'Sân';
 
@@ -105,9 +107,9 @@ export default function BookingHistory({ onBack }: Props) {
                                 <button onClick={() => setExpanded(isExpanded ? null : b._id)}
                                     className="w-full p-4 flex items-start gap-3 text-left">
                                     <div className={`w-10 h-10 rounded-xl ${s.bg} flex items-center justify-center shrink-0 mt-0.5`}>
-                                        {b.status === 'confirmed' ? <Check className={`w-4 h-4 ${s.color}`} /> :
-                                            b.status === 'cancelled' ? <X className={`w-4 h-4 ${s.color}`} /> :
-                                                b.status === 'pending_payment' ? <Clock className={`w-4 h-4 ${s.color}`} /> :
+                                        {statusKey === 'confirmed' ? <Check className={`w-4 h-4 ${s.color}`} /> :
+                                            statusKey === 'cancelled' ? <X className={`w-4 h-4 ${s.color}`} /> :
+                                                statusKey === 'pending_payment' ? <Clock className={`w-4 h-4 ${s.color}`} /> :
                                                     <Calendar className={`w-4 h-4 ${s.color}`} />}
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -135,13 +137,22 @@ export default function BookingHistory({ onBack }: Props) {
                                     <div className={`px-4 pb-4 border-t ${t.border.subtle} pt-3 space-y-2`}>
                                         <DetailRow label="Thanh toán" value={b.payment?.method === 'qr_code' ? 'QR Code' : b.payment?.method || '—'} />
                                         <DetailRow label="Tạm tính" value={`${b.totalAmount?.toLocaleString()}đ`} />
-                                        {b.discount > 0 && <DetailRow label="Giảm giá" value={`-${b.discount?.toLocaleString()}đ`} accent />}
-                                        {b.notes && <DetailRow label="Ghi chú" value={b.notes} />}
-                                        {b.cancelReason && <DetailRow label="Lý do hủy" value={b.cancelReason} />}
 
-                                        {(b.status === 'pending_payment' || b.status === 'confirmed') && (
+                                        {/* NÚT TẠO NHÓM CHƠI (Chỉ hiện khi đã xác nhận) */}
+                                        {statusKey === 'confirmed' && (
+                                            <button
+                                                onClick={() => {
+                                                    window.location.href = `/?tab=group-plays&openCreate=true`;
+                                                }}
+                                                className="w-full mt-4 py-2.5 rounded-xl bg-blue-500/10 text-blue-400 text-xs font-bold flex items-center justify-center gap-2 hover:bg-blue-500/20 transition-colors">
+                                                <Users className="w-4 h-4" />
+                                                Mở trang Tạo nhóm chơi
+                                            </button>
+                                        )}
+
+                                        {(statusKey === 'pending_payment' || statusKey === 'confirmed') && (
                                             <button onClick={() => handleCancel(b._id)} disabled={cancelling === b._id}
-                                                className="w-full mt-3 py-2.5 rounded-xl bg-red-500/10 text-red-400 text-xs font-bold flex items-center justify-center gap-2 hover:bg-red-500/15 transition-colors">
+                                                className="w-full mt-2 py-2.5 rounded-xl bg-red-500/10 text-red-400 text-xs font-bold flex items-center justify-center gap-2 hover:bg-red-500/15 transition-colors">
                                                 {cancelling === b._id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <X className="w-3.5 h-3.5" />}
                                                 Hủy đặt sân
                                             </button>
