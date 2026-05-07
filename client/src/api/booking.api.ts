@@ -15,17 +15,13 @@ export const bookingApi = {
         return axiosClient.post('/bookings', data);
     },
 
-    confirmPayment(bookingId: string, transactionId: string) {
-        return axiosClient.post(`/bookings/${bookingId}/confirm-payment`, { transactionId });
-    },
+    confirmPayment: (code: string) => axiosClient.post(`/bookings/${code}/confirm-payment`),
 
     cancelBooking(bookingId: string, reason: string) {
         return axiosClient.post(`/bookings/${bookingId}/cancel`, { reason });
     },
 
-    getMyBookings(params?: Record<string, any>) {
-        return axiosClient.get('/bookings/my', { params });
-    },
+    getMyBookings: (params?: any) => axiosClient.get('/bookings/my', { params }),
 
     getBookingById(bookingId: string) {
         return axiosClient.get(`/bookings/${bookingId}`);
