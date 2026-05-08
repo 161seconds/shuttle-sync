@@ -4,6 +4,7 @@ import { authenticate } from '../middlewares';
 
 const router = Router();
 
+router.get('/court/:courtId', bookingController.getCourtBookings);
 router.get('/code/:code', bookingController.getBookingByCode);
 
 router.post('/', authenticate, bookingController.createBooking);

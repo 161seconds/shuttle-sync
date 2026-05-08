@@ -31,7 +31,7 @@ const MOCK_SLOTS: Omit<TimeSlot, '_id' | 'courtId' | 'subCourtId' | 'date'>[] = 
 ];
 
 export default function BookingSheet({ court, onClose }: BookingSheetProps) {
-    const { setPage, setProfileSubPage } = useAppStore();
+    const { user, setPage, setProfileSubPage } = useAppStore();
     const [step, setStep] = useState(1);
     const [selectedDate, setSelectedDate] = useState(0);
     const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
@@ -109,6 +109,12 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
     }, 0);
 
     const handleConfirm = async () => {
+        if (!user) {
+            alert('Bạn cần đăng nhập để có thể đặt sân nhé!');
+            onClose(); // Đóng cái bảng chọn giờ lại
+            setPage('login'); // Chuyển thẳng họ sang trang Đăng nhập
+            return; // Dừng luôn
+        }
         setIsBooking(true);
         try {
             const res = await bookingApi.createBooking({
