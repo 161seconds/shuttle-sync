@@ -132,8 +132,13 @@ export interface User {
     status: string;
     skillLevel?: SkillLevel;
     sportPreferences: SportType[];
-    stats: { totalBookings: number; totalGroupPlays: number; rating: number; reviewCount: number };
-    settings: { notifications: boolean; language: 'vi' | 'en'; theme: 'light' | 'dark' };
+    stats?: {
+        totalBookings: number;
+        totalGroupsCreated: number;
+        totalGroupsJoined: number; 
+        rating: number;
+        reviewCount: number;
+    };    settings: { notifications: boolean; language: 'vi' | 'en'; theme: 'light' | 'dark' };
 }
 
 // ========================

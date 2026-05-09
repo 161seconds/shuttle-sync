@@ -19,7 +19,8 @@ export interface IUserDocument extends Document {
     favoriteCourtIds: mongoose.Types.ObjectId[];
     stats: {
         totalBookings: number;
-        totalGroupPlays: number;
+        totalGroupsCreated: number;
+        totalGroupsJoined: number;
         totalTournaments: number;
         noShowCount: number;
         rating: number;
@@ -90,7 +91,8 @@ const userSchema = new Schema<IUserDocument>(
         favoriteCourtIds: [{ type: Schema.Types.ObjectId, ref: 'Court' }],
         stats: {
             totalBookings: { type: Number, default: 0 },
-            totalGroupPlays: { type: Number, default: 0 },
+            totalGroupsCreated: { type: Number, default: 0 },
+            totalGroupsJoined: { type: Number, default: 0 },
             totalTournaments: { type: Number, default: 0 },
             noShowCount: { type: Number, default: 0 },
             rating: { type: Number, default: 0 },
@@ -147,7 +149,8 @@ userSchema.methods.toPublicProfile = function () {
         stats: {
             rating: this.stats.rating,
             reviewCount: this.stats.reviewCount,
-            totalGroupPlays: this.stats.totalGroupPlays,
+            totalGroupsCreated: this.stats.totalGroupsCreated,
+            totalGroupsJoined: this.stats.totalGroupsJoined,
         },
     };
 };

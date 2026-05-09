@@ -103,8 +103,8 @@ export default function ProfilePage() {
         },
         { icon: <Award className="w-4 h-4" />, label: 'Giải đấu của tôi', badge: null, action: 'tournaments' },
         {
-            icon: <Users className="w-4 h-4" />, label: 'Nhóm chơi',
-            badge: user.stats?.totalGroupPlays || null, action: 'groups'
+            icon: <Users className="w-4 h-4" />, label: 'Quản lý nhóm chơi',
+            badge: (user.stats?.totalGroupsCreated || 0) + (user.stats?.totalGroupsJoined || 0) || null, action: 'groups'
         },
         { icon: <Bell className="w-4 h-4" />, label: 'Thông báo', badge: null, action: 'notifications' },
         { icon: <Settings className="w-4 h-4" />, label: 'Cài đặt', badge: null, action: 'settings' },
@@ -134,15 +134,17 @@ export default function ProfilePage() {
                 <h2 className={`text-lg font-bold ${t.text.primary}`}>{user.displayName || 'Vợt thủ'}</h2>
                 <p className={`text-xs ${t.text.muted} mt-0.5`}>{user.email}</p>
 
-                <div className="grid grid-cols-3 gap-3 mt-5">
+                {/* THỐNG KÊ CHI TIẾT 4 Ô */}
+                <div className="grid grid-cols-2 gap-3 mt-5">
                     {[
-                        { label: 'Đã đặt', value: user.stats?.totalBookings || '0' },
-                        { label: 'Nhóm chơi', value: user.stats?.totalGroupPlays || '0' },
-                        { label: 'Đánh giá', value: user.stats?.rating?.toFixed(1) || '0.0' },
+                        { label: 'Sân đã đặt', value: user.stats?.totalBookings || '0', color: 'text-emerald-400' },
+                        { label: 'Nhóm đã tạo', value: user.stats?.totalGroupsCreated || '0', color: 'text-amber-400' },
+                        { label: 'Nhóm tham gia', value: user.stats?.totalGroupsJoined || '0', color: 'text-blue-400' },
+                        { label: 'Điểm đánh giá', value: user.stats?.rating?.toFixed(1) || '0.0', color: 'text-purple-400' },
                     ].map(s => (
-                        <div key={s.label} className={`py-3 rounded-xl ${t.bg.elevated}`}>
-                            <div className={`text-lg font-black ${t.text.accent}`}>{s.value}</div>
-                            <div className={`text-[10px] ${t.text.muted} mt-0.5`}>{s.label}</div>
+                        <div key={s.label} className={`py-3 rounded-xl ${t.bg.elevated} flex flex-col items-center justify-center border border-white/5`}>
+                            <div className={`text-xl font-black ${s.color}`}>{s.value}</div>
+                            <div className={`text-xs ${t.text.muted} mt-1 font-medium`}>{s.label}</div>
                         </div>
                     ))}
                 </div>
