@@ -3,13 +3,8 @@ import { ChevronLeft, Camera, Check, Loader2 } from 'lucide-react';
 import { theme as t } from '../../utils/theme';
 import { useAppStore } from '../../store';
 import axiosClient from '../../api/axiosClient';
-import type { SkillLevel, SportType } from '../../types';
-
-const SKILL_OPTIONS: { id: SkillLevel; label: string; desc: string }[] = [
-    { id: 'y', label: 'Mới chơi (Y)', desc: 'Vừa bắt đầu tập, đánh nhẹ nhàng' },
-    { id: 'tb', label: 'Trung bình (TB)', desc: 'Đánh thường xuyên, biết rõ luật' },
-    { id: 'tbk', label: 'Nâng cao (TBK+)', desc: 'Kỹ thuật tốt, thích cạnh tranh' },
-];
+import type { SportType } from '../../types';
+import { SKILLS } from '../../features/onboarding/data';
 
 const SPORT_OPTIONS: { id: SportType; label: string; icon: string }[] = [
     { id: 'badminton', label: 'Cầu lông', icon: '🏸' },
@@ -133,20 +128,20 @@ export default function EditProfile({ onBack }: Props) {
                     </div>
                 </FieldGroup>
 
-                {/* Trình độ */}
                 <FieldGroup label="Trình độ">
-                    <div className="space-y-2">
-                        {SKILL_OPTIONS.map(s => {
+                    {/* Bật cuộn dọc nếu danh sách quá dài */}
+                    <div className="space-y-2 max-h-87.5 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10">
+                        {SKILLS.map(s => {
                             const active = form.skillLevel === s.id;
                             return (
                                 <button key={s.id} onClick={() => set('skillLevel', s.id)}
-                                    className={`w-full px-4 py-3 rounded-xl border-2 flex items-center justify-between transition-all text-left ${active
+                                    className={`w-full px-4 py-3 rounded-xl border-2 flex flex-row items-center justify-between transition-all text-left ${active
                                         ? 'border-emerald-400 bg-emerald-500/10' : `${t.border.subtle} ${t.bg.elevated}`}`}>
-                                    <div>
-                                        <span className={`text-sm font-semibold ${active ? 'text-emerald-300' : t.text.secondary}`}>{s.label}</span>
-                                        <span className={`text-xs ${t.text.muted} ml-2`}>{s.desc}</span>
+                                    <div className="flex-1 pr-4">
+                                        <div className={`text-sm font-bold ${active ? 'text-emerald-300' : t.text.primary}`}>{s.label}</div>
+                                        <div className={`text-xs ${active ? 'text-emerald-400/70' : t.text.muted} mt-1 leading-relaxed`}>{s.desc}</div>
                                     </div>
-                                    {active && <Check className="w-4 h-4 text-emerald-400" />}
+                                    {active && <Check className="w-5 h-5 text-emerald-400 shrink-0" />}
                                 </button>
                             );
                         })}
@@ -160,10 +155,8 @@ export default function EditProfile({ onBack }: Props) {
 function FieldGroup({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <label className={`text-xs font-semibold ${DS.text.muted} uppercase tracking-wider mb-2 block`}>{label}</label>
+            <label className={`text-xs font-semibold ${t.text.muted} uppercase tracking-wider mb-2 block`}>{label}</label>
             {children}
         </div>
     );
 }
-
-const DS = { text: { muted: 'text-[#555]' } };
