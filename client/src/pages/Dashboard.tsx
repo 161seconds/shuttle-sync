@@ -46,7 +46,6 @@ export default function Dashboard() {
 
     return (
         <div className="max-w-7xl mx-auto px-4 pb-24 md:pb-8 pt-6 space-y-8 overflow-x-hidden">
-
             {/* 1. Header & Lời chào */}
             <motion.div
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
@@ -175,7 +174,6 @@ export default function Dashboard() {
                     </button>
                 </div>
             </motion.div>
-
         </div>
     );
 }
