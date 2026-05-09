@@ -33,5 +33,6 @@ router.use('/notifications', notificationRoutes);
 router.use('/owner-applications', ownerApplicationRoutes);
 router.use('/reports', reportRoutes);
 // router.use('/admin', adminRoutes); // Tạm ẩn để bypass lỗi undefined
+router.use('/tournaments', require('./tournament.routes').default); // Import động để tránh circular dependency
 
 export default router;
