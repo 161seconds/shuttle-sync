@@ -1,149 +1,176 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, Bell, Calendar, Users, Trophy, Megaphone, Settings, Check, Loader2 } from 'lucide-react';
+import {
+    ChevronLeft, Bell, CheckCheck, Rocket,
+    Trophy, Users, CalendarClock, CreditCard,
+    ShieldAlert, Info, Circle, Loader2
+} from 'lucide-react';
 import { theme as t } from '../../utils/theme';
 import axiosClient from '../../api/axiosClient';
-
-interface Notification {
-    _id: string;
-    title: string;
-    message: string;
-    type: 'booking' | 'group_play' | 'tournament' | 'system' | 'promotion';
-    isRead: boolean;
-    createdAt: string;
-}
-
-const TYPE_ICON: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
-    booking: { icon: <Calendar className="w-4 h-4" />, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-    group_play: { icon: <Users className="w-4 h-4" />, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-    tournament: { icon: <Trophy className="w-4 h-4" />, color: 'text-amber-400', bg: 'bg-amber-500/10' },
-    system: { icon: <Settings className="w-4 h-4" />, color: 'text-[#999]', bg: 'bg-white/5' },
-    promotion: { icon: <Megaphone className="w-4 h-4" />, color: 'text-purple-400', bg: 'bg-purple-500/10' },
-};
 
 interface Props {
     onBack: () => void;
 }
 
+// Hàm tính thời gian trôi qua (Ví dụ: 5 phút trước, 2 giờ trước...)
+const timeAgo = (dateString: string) => {
+    const now = new Date();
+    const past = new Date(dateString);
+    const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return 'Vừa xong';
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) return `${diffInMinutes} phút trước`;
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours} giờ trước`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 30) return `${diffInDays} ngày trước`;
+    return past.toLocaleDateString('vi-VN');
+};
+
 export default function Notifications({ onBack }: Props) {
-    const [notifications, setNotifications] = useState<Notification[]>([]);
-    const [unreadCount, setUnreadCount] = useState(0);
+    const [notifications, setNotifications] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [markingAll, setMarkingAll] = useState(false);
 
     useEffect(() => {
-        const fetch = async () => {
+        const fetchNotifications = async () => {
             try {
                 const res = await axiosClient.get('/notifications');
-                const data = res.data.data || {};
-                setNotifications(data.notifications || []);
-                setUnreadCount(data.unreadCount || 0);
-            } catch (err) {
-                console.error('Lỗi lấy thông báo:', err);
+
+                // 1. In ra console để xem Backend thực sự trả về cái gì
+                console.log("Dữ liệu API thông báo trả về:", res.data);
+
+                // 2. Trích xuất đúng mảng dữ liệu (Phòng hờ các cấu trúc trả về khác nhau)
+                const dataList = res.data.data || res.data.notifications || res.data;
+
+                // 3. Ép kiểu an toàn: Nếu là mảng thì lấy, không thì lấy mảng rỗng
+                setNotifications(Array.isArray(dataList) ? dataList : []);
+
+            } catch (error) {
+                console.error("Lỗi lấy thông báo:", error);
+                setNotifications([]); // Lỗi API thì cho mảng rỗng để không bị crash
             } finally {
                 setLoading(false);
             }
         };
-        fetch();
+
+        fetchNotifications();
     }, []);
 
-    const markAsRead = async (id: string) => {
-        try {
-            await axiosClient.put(`/notifications/${id}/read`);
-            setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
-            setUnreadCount(prev => Math.max(0, prev - 1));
-        } catch (err) {
-            console.error('Lỗi:', err);
+    // HÀM CHỌN ICON DỰA TRÊN LOẠI THÔNG BÁO
+    const getNotificationIcon = (type: string) => {
+        switch (type) {
+            case 'SYSTEM': return <Rocket className="w-5 h-5 text-purple-400" />;
+            case 'WELCOME': return <Trophy className="w-5 h-5 text-yellow-400" />;
+            case 'BOOKING': return <CalendarClock className="w-5 h-5 text-emerald-400" />;
+            case 'GROUP': return <Users className="w-5 h-5 text-blue-400" />;
+            case 'PAYMENT': return <CreditCard className="w-5 h-5 text-amber-400" />;
+            case 'REPUTATION': return <ShieldAlert className="w-5 h-5 text-red-400" />;
+            default: return <Info className="w-5 h-5 text-emerald-400" />;
         }
     };
 
-    const markAllRead = async () => {
-        setMarkingAll(true);
+    const getIconBackground = (type: string) => {
+        switch (type) {
+            case 'SYSTEM': return 'bg-purple-500/10 border-purple-500/20';
+            case 'WELCOME': return 'bg-yellow-500/10 border-yellow-500/20';
+            case 'BOOKING': return 'bg-emerald-500/10 border-emerald-500/20';
+            case 'GROUP': return 'bg-blue-500/10 border-blue-500/20';
+            case 'PAYMENT': return 'bg-amber-500/10 border-amber-500/20';
+            case 'REPUTATION': return 'bg-red-500/10 border-red-500/20';
+            default: return 'bg-emerald-500/10 border-emerald-500/20';
+        }
+    };
+
+    // GỌI API ĐÁNH DẤU ĐÃ ĐỌC TOÀN BỘ
+    const handleMarkAllRead = async () => {
         try {
-            await axiosClient.put('/notifications/read-all');
+            // Cập nhật UI ngay lập tức để người dùng thấy mượt (Optimistic Update)
             setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-            setUnreadCount(0);
-        } catch (err) {
-            console.error('Lỗi:', err);
-        } finally {
-            setMarkingAll(false);
-        }
-    };
 
-    const timeAgo = (dateStr: string) => {
-        const diff = Date.now() - new Date(dateStr).getTime();
-        const mins = Math.floor(diff / 60000);
-        if (mins < 1) return 'Vừa xong';
-        if (mins < 60) return `${mins} phút trước`;
-        const hours = Math.floor(mins / 60);
-        if (hours < 24) return `${hours} giờ trước`;
-        const days = Math.floor(hours / 24);
-        if (days < 7) return `${days} ngày trước`;
-        return new Date(dateStr).toLocaleDateString('vi-VN');
+            // Bắn lệnh xuống Backend để lưu vào DB
+            await axiosClient.put('/notifications/read-all');
+        } catch (error) {
+            console.error("Lỗi cập nhật trạng thái đã đọc:", error);
+        }
     };
 
     return (
         <div className={`min-h-screen ${t.bg.base} pb-24`}>
+            {/* Header */}
             <div className={`sticky top-0 z-30 ${t.bg.base}/95 backdrop-blur-xl border-b ${t.border.subtle}`}>
-                <div className="flex items-center gap-3 px-4 h-14">
-                    <button onClick={onBack} className={`w-9 h-9 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted}`}>
-                        <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <h1 className={`font-bold ${t.text.primary}`}>Thông báo</h1>
-                    {unreadCount > 0 && (
-                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 text-[10px] font-bold">
-                            {unreadCount} mới
-                        </span>
-                    )}
-                    <div className="flex-1" />
-                    {unreadCount > 0 && (
-                        <button onClick={markAllRead} disabled={markingAll}
-                            className={`text-xs ${t.text.accent} font-semibold flex items-center gap-1`}>
-                            {markingAll ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
-                            Đọc hết
+                <div className="flex items-center justify-between px-4 h-14">
+                    <div className="flex items-center gap-3">
+                        <button onClick={onBack} className={`w-9 h-9 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-white transition-colors`}>
+                            <ChevronLeft className="w-5 h-5" />
                         </button>
-                    )}
+                        <h1 className={`font-bold ${t.text.primary}`}>Thông báo</h1>
+                    </div>
+
+                    <button
+                        onClick={handleMarkAllRead}
+                        disabled={loading || notifications.length === 0}
+                        className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg flex items-center gap-1.5 hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
+                    >
+                        <CheckCheck className="w-3.5 h-3.5" />
+                        Đã đọc tất cả
+                    </button>
                 </div>
             </div>
 
-            <div className="max-w-lg mx-auto">
+            {/* Danh sách thông báo */}
+            <div className="max-w-lg mx-auto p-4 space-y-3">
                 {loading ? (
-                    <div className="px-4 py-4 space-y-3">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                            <div key={i} className={`h-20 rounded-2xl ${t.bg.card} border ${t.border.subtle} animate-pulse`} />
-                        ))}
+                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-4" />
+                        <p className={t.text.muted}>Đang tải thông báo...</p>
                     </div>
                 ) : notifications.length === 0 ? (
-                    <div className="flex flex-col items-center py-20">
-                        <Bell className={`w-12 h-12 ${t.text.muted} mb-4`} />
-                        <p className={`${t.text.secondary} font-semibold mb-1`}>Không có thông báo</p>
-                        <p className={`text-xs ${t.text.muted}`}>Bạn sẽ nhận thông báo khi có hoạt động mới</p>
+                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                        <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                            <Bell className="w-8 h-8 text-white/20" />
+                        </div>
+                        <p className={t.text.muted}>Bạn chưa có thông báo nào.</p>
                     </div>
-                ) : (
-                    <div>
-                        {notifications.map(n => {
-                            const ti = TYPE_ICON[n.type] || TYPE_ICON.system;
-                            return (
-                                <button key={n._id} onClick={() => !n.isRead && markAsRead(n._id)}
-                                    className={`w-full flex items-start gap-3 px-4 py-4 border-b ${t.border.subtle} text-left transition-colors ${n.isRead ? '' : `${t.bg.card}`
-                                        }`}>
-                                    <div className={`w-10 h-10 rounded-xl ${ti.bg} flex items-center justify-center shrink-0 mt-0.5 ${ti.color}`}>
-                                        {ti.icon}
+                ) : Array.isArray(notifications) && notifications.map((noti) => (
+                        <div
+                            key={noti._id}
+                            className={`relative p-4 rounded-2xl border transition-all cursor-pointer group hover:bg-[#1a1b1f] overflow-hidden ${noti.isRead
+                                ? 'bg-[#121316] border-[#22242a] opacity-75 hover:opacity-100'
+                                : 'bg-[#16181c] border-[#2a2d35] shadow-lg'
+                                }`}
+                        >
+                            {/* Dải màu đánh dấu chưa đọc */}
+                            {!noti.isRead && (
+                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                            )}
+
+                            <div className="flex gap-4">
+                                {/* Icon */}
+                                <div className={`w-12 h-12 shrink-0 rounded-full border flex items-center justify-center ${getIconBackground(noti.type)}`}>
+                                    {getNotificationIcon(noti.type)}
+                                </div>
+
+                                {/* Content */}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-start justify-between gap-2 mb-1">
+                                        <h3 className={`text-sm font-bold truncate ${noti.isRead ? 'text-white/80' : 'text-white'}`}>
+                                            {noti.title}
+                                        </h3>
+                                        {!noti.isRead && (
+                                            <Circle className="w-2.5 h-2.5 fill-emerald-500 text-emerald-500 shrink-0 mt-1" />
+                                        )}
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-0.5">
-                                            <h3 className={`text-sm font-semibold ${n.isRead ? t.text.secondary : t.text.primary} truncate`}>
-                                                {n.title}
-                                            </h3>
-                                            {!n.isRead && <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />}
-                                        </div>
-                                        <p className={`text-xs ${t.text.muted} line-clamp-2 leading-relaxed`}>{n.message}</p>
-                                        <p className={`text-[10px] ${t.text.muted} mt-1.5`}>{timeAgo(n.createdAt)}</p>
+                                    <p className={`text-xs leading-relaxed ${noti.isRead ? 'text-white/40' : 'text-white/60'}`}>
+                                        {noti.message}
+                                    </p>
+                                    <div className="mt-2 text-[10px] font-medium text-white/30 uppercase tracking-wider">
+                                        {timeAgo(noti.createdAt)}
                                     </div>
-                                </button>
-                            );
-                        })}
-                    </div>
-                )}
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                }
             </div>
         </div>
     );
