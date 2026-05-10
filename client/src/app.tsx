@@ -19,6 +19,7 @@ import { authApi } from './api/auth.api';
 import GroupPlayPage from './pages/GroupPlay';
 import AiCoach from './pages/AiCoach';
 import Notifications from './pages/profile/Notifications';
+import AppSidebar from './components/layout/Sidebar';
 
 function Shell() {
   const { page, setPage, bookingCourt, setBookingCourt, user, setUser } = useAppStore();
@@ -72,7 +73,7 @@ function Shell() {
         <div className="relative z-10 flex flex-col min-h-screen">
           {/* ẨN HEADER Ở TRANG LOGIN */}
           {page !== 'login' && <Header />}
-
+          {page !== 'login' && <AppSidebar />}
           <main className="flex-1">
             <AnimatePresence mode="wait">
               {/* KHAI BÁO HIỂN THỊ CÁC TRANG CHÍNH */}
