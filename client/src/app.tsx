@@ -74,7 +74,7 @@ function Shell() {
           {/* ẨN HEADER Ở TRANG LOGIN */}
           {page !== 'login' && <Header />}
           {page !== 'login' && <AppSidebar />}
-          <main className="flex-1">
+          <main className="flex-1 ">
             <AnimatePresence mode="wait">
               {/* KHAI BÁO HIỂN THỊ CÁC TRANG CHÍNH */}
               {page === 'login' && <motion.div key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Login /></motion.div>}
