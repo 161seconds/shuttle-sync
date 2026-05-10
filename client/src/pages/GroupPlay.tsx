@@ -4,12 +4,14 @@ import {
     Users, Search, MapPin, Calendar, Clock, Star,
     Filter, Plus, Crown, Loader2, Zap, Target, Trophy, Leaf,
     ChevronDown, X, Check, UserPlus,
-    Flame,
+    Flame, Settings
 } from 'lucide-react';
 import { theme as t, formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
 import { groupPlayApi } from '../api/groupPlay.api';
 import { bookingApi } from '../api/booking.api';
+import MatchLeaderboard from '../components/groups/MatchLeaderboard';
+import PriceConfigModal from '../components/groups/PriceConfigModal';
 
 // ═══ Types ═══
 interface GroupPlay {
@@ -97,6 +99,9 @@ export default function GroupPlayPage() {
     const [showFilters, setShowFilters] = useState(false);
     const [showCreate, setShowCreate] = useState(false);
     const [expandedId, setExpandedId] = useState<string | null>(null);
+
+    // STATE QUẢN LÝ MODAL THU PHÍ
+    const [priceConfigGroup, setPriceConfigGroup] = useState<GroupPlay | null>(null);
 
     // Fetch
     const fetchGroups = async () => {
@@ -471,6 +476,25 @@ export default function GroupPlayPage() {
                                                         <Users className="w-3.5 h-3.5" /> Nhóm đã đủ người
                                                     </div>
                                                 )}
+
+                                                {isOrg && (
+                                                    <div className={`mt-4 pt-4 border-t ${t.border.subtle}`}>
+                                                        <span className={`text-[10px] font-semibold text-amber-400 uppercase tracking-wider block mb-2 items-center gap-1.5`}>
+                                                            <Crown className="w-3 h-3" /> Công cụ Chủ xị
+                                                        </span>
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); setPriceConfigGroup(g); }}
+                                                            className="w-full py-2.5 rounded-xl bg-[#16181c] border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center gap-2 hover:bg-emerald-500/10 transition-colors"
+                                                        >
+                                                            <Settings className="w-3.5 h-3.5" /> Cấu hình Thu phí & Campuchia
+                                                        </button>
+                                                    </div>
+                                                )}
+                                        
+                                                <div className={`mt-6 pt-4 border-t ${t.border.subtle}`}>
+                                                    <MatchLeaderboard />
+                                                </div>
+
                                             </div>
                                         </motion.div>
                                     )}
@@ -487,11 +511,27 @@ export default function GroupPlayPage() {
                     <CreateGroupModal onClose={() => setShowCreate(false)} onCreated={() => { setShowCreate(false); fetchGroups(); }} />
                 )}
             </AnimatePresence>
+
+            {/* ═══ PRICE CONFIG MODAL (THÊM MỚI Ở ĐÂY) ═══ */}
+            <AnimatePresence>
+                {priceConfigGroup && (
+                    <PriceConfigModal
+                        onClose={() => setPriceConfigGroup(null)}
+                        onSave={(data) => {
+                            // Chỗ này gọi API lưu data xuống DB
+                            console.log('Đã lưu cấu hình giá cho nhóm:', priceConfigGroup._id, data);
+                            setPriceConfigGroup(null);
+                        }}
+                    />
+                )}
+            </AnimatePresence>
+
         </div>
     );
 }
 
-// ═══ CREATE GROUP MODAL ═══
+// ... (Phần code CreateGroupModal giữ nguyên y hệt như cũ của bạn, không đụng chạm một dòng nào) ...
+
 // ═══ CREATE GROUP MODAL (ĐÃ NÂNG CẤP BẮT BUỘC ĐẶT SÂN) ═══
 function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
     const { setPage } = useAppStore(); // Để điều hướng đi đặt sân

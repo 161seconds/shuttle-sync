@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Khởi tạo Gemini bằng API Key
-const genAI = new GoogleGenerativeAI('process.env.GEMINI_API_KEY');
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 
 export const aiCoachController = {
     askCoach: async (req: Request, res: Response) => {
