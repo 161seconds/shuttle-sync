@@ -35,6 +35,6 @@ router.use('/owner-applications', ownerApplicationRoutes);
 router.use('/reports', reportRoutes);
 // router.use('/admin', adminRoutes); // Tạm ẩn để bypass lỗi undefined
 router.use('/tournaments', require('./tournament.routes').default);
-router.post('/ask-coach', aiCoachController.askCoach)
+router.post('/ask-coach', aiCoachController.askCoach);
 
 export default router;

@@ -17,7 +17,7 @@ import { theme as DS } from './utils/theme';
 import type { Court } from './types';
 import { authApi } from './api/auth.api';
 import GroupPlayPage from './pages/GroupPlay';
-
+import AiCoach from './pages/AiCoach';
 import Notifications from './pages/profile/Notifications';
 
 function Shell() {
@@ -82,8 +82,7 @@ function Shell() {
               {page === 'search' && <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SearchPage /></motion.div>}
               {page === 'profile' && <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ProfilePage /></motion.div>}
               {page === 'groupplay' && <motion.div key="group-play" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><GroupPlayPage /></motion.div>}
-              {/* TRANG THÔNG BÁO ĐỘC LẬP */}
-              {page === 'notifications' && <motion.div key="noti" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Notifications onBack={() => setPage('home')} /></motion.div>}
+              {page === 'aicoach' && <motion.div key="aicoach" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AiCoach /></motion.div>}              {page === 'notifications' && <motion.div key="noti" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Notifications onBack={() => setPage('home')} /></motion.div>}
             </AnimatePresence>
           </main>
 

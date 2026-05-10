@@ -37,7 +37,7 @@ export default function AiCoach() {
 
         try {
             // Gọi API lên Backend
-            const res = await axiosClient.post('/ai-coach/ask-coach', { message: userMsg });
+            const res = await axiosClient.post('/ask-coach', { message: userMsg });
 
             setMessages(prev => [...prev, {
                 id: (Date.now() + 1).toString(),

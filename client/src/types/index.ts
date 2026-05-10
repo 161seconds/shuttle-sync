@@ -135,10 +135,10 @@ export interface User {
     stats?: {
         totalBookings: number;
         totalGroupsCreated: number;
-        totalGroupsJoined: number; 
+        totalGroupsJoined: number;
         rating: number;
         reviewCount: number;
-    };    settings: { notifications: boolean; language: 'vi' | 'en'; theme: 'light' | 'dark' };
+    }; settings: { notifications: boolean; language: 'vi' | 'en'; theme: 'light' | 'dark' };
 }
 
 // ========================
@@ -169,4 +169,4 @@ export interface ApiResponse<T = unknown> {
 // ========================
 export type AppPage = 'home' | 'map' | 'search' | 'profile' | 'court-detail' | 'login' | 'admin'
     | 'edit-profile' | 'favorites' | 'history' | 'tournaments'
-    | 'groups' | 'notifications' | 'settings' | 'owner-dashboard' | 'groupplay';
+    | 'groups' | 'notifications' | 'settings' | 'owner-dashboard' | 'groupplay' | 'aicoach';
