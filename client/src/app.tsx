@@ -88,7 +88,9 @@ function Shell() {
           </main>
 
           {/* ẨN BOTTOM NAV Ở TRANG LOGIN */}
-          {page !== 'login' && <BottomNav />}
+          {['home', 'map', 'search', 'groupplay', 'profile'].includes(page) && (
+            <BottomNav />
+          )}
 
           <AnimatePresence>
             {bookingCourt && <BookingSheet court={bookingCourt} onClose={() => setBookingCourt(null)} />}

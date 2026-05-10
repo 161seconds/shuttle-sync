@@ -108,7 +108,7 @@ export default function AiCoach() {
             </div>
 
             {/* Input Area */}
-            <div className="p-4 bg-[#121316] border-t border-[#2a2d35]">
+            <div className="p-4 pb-6 bg-[#121316] border-t border-[#2a2d35]">
                 {/* Gợi ý nhanh */}
                 {messages.length === 1 && (
                     <div className="flex flex-wrap gap-2 mb-4 justify-center">
