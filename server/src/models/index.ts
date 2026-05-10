@@ -12,3 +12,4 @@ export {
     Report, IReportDocument,
     Notification, INotificationDocument,
 } from './Others';
+export * from './Notification';
