@@ -23,8 +23,9 @@ export interface IUserDocument extends Document {
         totalGroupsJoined: number;
         totalTournaments: number;
         noShowCount: number;
-        rating: number;
+        rating: number; // Đánh giá thái độ (1-5 sao)
         reviewCount: number;
+        eloScore: number; 
     };
     settings: {
         notifications: boolean;
@@ -97,6 +98,7 @@ const userSchema = new Schema<IUserDocument>(
             noShowCount: { type: Number, default: 0 },
             rating: { type: Number, default: 0 },
             reviewCount: { type: Number, default: 0 },
+            eloScore: { type: Number, default: 1200 }, // Khởi đầu ai cũng có 1200 điểm Elo
         },
         settings: {
             notifications: { type: Boolean, default: true },
@@ -126,13 +128,11 @@ const userSchema = new Schema<IUserDocument>(
     }
 );
 
-// Hash password before save
 userSchema.pre('save', async function () {
     if (!this.isModified('password') || !this.password) return;
     this.password = await bcrypt.hash(this.password, 12);
 });
 
-// Instance methods
 userSchema.methods.comparePassword = async function (
     candidatePassword: string
 ): Promise<boolean> {
@@ -151,17 +151,17 @@ userSchema.methods.toPublicProfile = function () {
             reviewCount: this.stats.reviewCount,
             totalGroupsCreated: this.stats.totalGroupsCreated,
             totalGroupsJoined: this.stats.totalGroupsJoined,
+            eloScore: this.stats.eloScore, 
         },
     };
 };
 
-// Static methods
 userSchema.statics.findByEmail = function (email: string) {
     return this.findOne({ email: email.toLowerCase() });
 };
 
-// Indexes
 userSchema.index({ displayName: 'text' });
 userSchema.index({ role: 1, status: 1 });
+userSchema.index({ 'stats.eloScore': -1 }); 
 
 export const User = mongoose.model<IUserDocument, IUserModel>('User', userSchema);
