@@ -10,7 +10,7 @@ export const aiCoachController = {
             const { message } = req.body;
             if (!message) return res.status(400).json({ error: 'Bạn chưa nhập câu hỏi!' });
 
-            const model = genAI.getGenerativeModel({ model: "gemini-3.1-pro-preview" });
+            const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
             const prompt = `
                 Bạn là một Huấn luyện viên Cầu lông chuyên nghiệp mang tên "ShuttleSync Coach".
@@ -20,14 +20,37 @@ export const aiCoachController = {
                 2. Trả lời ngắn gọn, súc tích, có ngắt dòng, dùng emoji thể thao cho thân thiện.
                 3. NẾU NGƯỜI DÙNG HỎI NGOÀI PHẠM VI CẦU LÔNG, hãy từ chối khéo léo và lái câu chuyện về cầu lông.
                 
+                QUAN TRỌNG: Bạn BẮT BUỘC phải trả về kết quả dưới định dạng chuỗi JSON hợp lệ với cấu trúc chính xác như sau (không kèm markdown):
+                {
+                  "reply": "Câu trả lời của bạn ở đây",
+                  "suggestions": ["Gợi ý câu hỏi 1", "Gợi ý câu hỏi 2", "Gợi ý câu hỏi 3"]
+                }
+
                 Câu hỏi của vợt thủ: "${message}"
             `;
 
             // Gọi AI xử lý
             const result = await model.generateContent(prompt);
-            const responseText = result.response.text();
+            let responseText = result.response.text();
 
-            res.status(200).json({ reply: responseText });
+            responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+
+            let responseData;
+            try {
+                responseData = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('Lỗi parse JSON từ AI:', parseError, 'Raw text:', responseText);
+                responseData = {
+                    reply: responseText,
+                    suggestions: []
+                };
+            }
+
+            res.status(200).json({
+                reply: responseData.reply,
+                suggestions: responseData.suggestions || []
+            });
+
         } catch (error) {
             console.error('Lỗi AI Coach:', error);
             res.status(500).json({ error: 'Coach đang bận hướng dẫn học viên khác, bạn thử lại sau nhé!' });
