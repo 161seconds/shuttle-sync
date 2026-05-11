@@ -20,6 +20,8 @@ import GroupPlayPage from './pages/GroupPlay';
 import AiCoach from './pages/AiCoach';
 import Notifications from './pages/profile/Notifications';
 import AppSidebar from './components/layout/Sidebar';
+import AdminDashboard from './features/admin/AdminDashboard';
+//import MatchLeaderboard from './components/groups/MatchLeaderboard';
 
 function Shell() {
   const { page, setPage, bookingCourt, setBookingCourt, user, setUser } = useAppStore();
@@ -88,7 +90,9 @@ function Shell() {
               {page === 'profile' && <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ProfilePage /></motion.div>}
               {page === 'groupplay' && <motion.div key="group-play" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><GroupPlayPage /></motion.div>}
               {page === 'aicoach' && <motion.div key="aicoach" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AiCoach /></motion.div>}
+              {page === 'admin' && <motion.div key="admin" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AdminDashboard /></motion.div>}
               {page === 'notifications' && <motion.div key="noti" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Notifications onBack={() => setPage('home')} /></motion.div>}
+              {/* {page === 'match-leaderboard' && <motion.div key="leaderboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MatchLeaderboard onBack={() => setPage('groupplay')} /></motion.div>} */}
             </AnimatePresence>
           </main>
 
