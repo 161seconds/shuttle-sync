@@ -74,8 +74,8 @@ export default function AiCoach() {
                     <Bot className="w-6 h-6 text-emerald-400" />
                 </div>
                 <div>
-                    <h1 className="font-bold text-white text-lg">Huấn luyện viên AI Thông minh</h1>
-                    <p className="text-xs text-emerald-400 font-medium">Nâng tầm kỹ năng của bạn mỗi ngày</p>
+                    <h1 className="font-bold text-white text-lg">Huấn luyện viên AI </h1>
+                    <p className="text-xs text-emerald-400 font-medium">Nâng tầm kỹ năng của bạn</p>
                 </div>
             </div>
 
