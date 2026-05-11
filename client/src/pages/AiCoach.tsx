@@ -16,7 +16,7 @@ export default function AiCoach() {
         {
             id: 'welcome',
             sender: 'coach',
-            text: 'Chào vợt thủ! Coach đã sẵn sàng. Hôm nay bạn muốn tư vấn về kỹ thuật đập cầu, cách di chuyển, hay soi lỗi đánh hỏng nào?'
+            text: 'Chào vợt thủ! Shuttle Coach đã sẵn sàng. Hôm nay bạn muốn tư vấn về kỹ thuật đập cầu, cách di chuyển, hay soi lỗi đánh hỏng nào?'
         }
     ]);
     const endOfMessagesRef = useRef<HTMLDivElement>(null);
@@ -48,7 +48,7 @@ export default function AiCoach() {
             setMessages(prev => [...prev, {
                 id: (Date.now() + 1).toString(),
                 sender: 'coach',
-                text: 'Xin lỗi, Coach đang bị đứt lưới vợt (Lỗi kết nối). Bạn vui lòng hỏi lại sau nhé!'
+                text: 'Xin lỗi, Shuttle Coach đang bị lỗi (Lỗi kết nối). Bạn vui lòng hỏi lại sau nhé!'
             }]);
         } finally {
             setIsLoading(false);
@@ -63,7 +63,7 @@ export default function AiCoach() {
     return (
         <div className={`flex flex-col h-[calc(100vh-80px)] ${t.bg.base}`}>
             {/* Header */}
-            <div className={`p-4 border-b ${t.border.subtle} flex items-center gap-3 bg-[#121316]`}>
+            <div className={`p-5 border-b ${t.border.subtle} flex items-center gap-3 bg-[#121316]`}>
                 <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
                     <Bot className="w-6 h-6 text-emerald-400" />
                 </div>
@@ -74,17 +74,20 @@ export default function AiCoach() {
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar">
                 {messages.map((msg) => (
                     <div key={msg.id} className={`flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto flex-row-reverse' : ''}`}>
                         {/* Avatar */}
-                        <div className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center ${msg.sender === 'user' ? 'bg-blue-500' : 'bg-emerald-500/20 border border-emerald-500/30'}`}>
+                        <div className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center ${msg.sender === 'user'
+                            ? 'bg-emerald-500'
+                            : 'bg-emerald-500/20 border border-emerald-500/30'
+                            }`}>
                             {msg.sender === 'user' ? <User className="w-5 h-5 text-white" /> : <Bot className="w-5 h-5 text-emerald-400" />}
                         </div>
 
-                        {/* Bubble */}
+                        {/* Bubble (Khung chat) */}
                         <div className={`p-4 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${msg.sender === 'user'
-                            ? 'bg-blue-600 text-white rounded-tr-sm'
+                            ? 'bg-emerald-600 text-white rounded-tr-sm'
                             : 'bg-[#1a1b1f] border border-[#2a2d35] text-gray-200 rounded-tl-sm'
                             }`}>
                             {msg.text}
@@ -108,13 +111,14 @@ export default function AiCoach() {
             </div>
 
             {/* Input Area */}
-            <div className="p-4 pb-6 bg-[#121316] border-t border-[#2a2d35]">
+            <div className="p-4 pb-6">
+
                 {/* Gợi ý nhanh */}
                 {messages.length === 1 && (
                     <div className="flex flex-wrap gap-2 mb-4 justify-center">
-                        <button onClick={() => handleQuickAsk('Sửa lỗi đập cầu không cắm')} className="px-4 py-2 rounded-full border border-[#2a2d35] text-xs font-medium text-gray-300 hover:text-emerald-400 hover:border-emerald-400 transition-colors">SỬA CÚ ĐẬP</button>
-                        <button onClick={() => handleQuickAsk('Cách di chuyển footwork nhanh hơn')} className="px-4 py-2 rounded-full border border-[#2a2d35] text-xs font-medium text-gray-300 hover:text-emerald-400 hover:border-emerald-400 transition-colors">DI CHUYỂN NHANH HƠN</button>
-                        <button onClick={() => handleQuickAsk('Gợi ý dây cước trợ lực cho tay yếu')} className="px-4 py-2 rounded-full border border-[#2a2d35] text-xs font-medium text-gray-300 hover:text-emerald-400 hover:border-emerald-400 transition-colors">CHỌN DÂY CƯỚC</button>
+                        <button onClick={() => handleQuickAsk('Sửa lỗi đập cầu không cắm')} className="px-4 py-2 rounded-full border border-[#2a2d35] text-xs font-medium text-gray-300 hover:text-emerald-400 hover:border-emerald-400 transition-colors bg-[#0a0a0a]/50">SỬA CÚ ĐẬP</button>
+                        <button onClick={() => handleQuickAsk('Cách di chuyển footwork nhanh hơn')} className="px-4 py-2 rounded-full border border-[#2a2d35] text-xs font-medium text-gray-300 hover:text-emerald-400 hover:border-emerald-400 transition-colors bg-[#0a0a0a]/50">DI CHUYỂN NHANH HƠN</button>
+                        <button onClick={() => handleQuickAsk('Gợi ý dây cước trợ lực cho tay yếu')} className="px-4 py-2 rounded-full border border-[#2a2d35] text-xs font-medium text-gray-300 hover:text-emerald-400 hover:border-emerald-400 transition-colors bg-[#0a0a0a]/50">CHỌN DÂY CƯỚC</button>
                     </div>
                 )}
 
@@ -122,20 +126,21 @@ export default function AiCoach() {
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-emerald-500/10 rounded-full flex items-center justify-center">
                         <Stethoscope className="w-4 h-4 text-emerald-500" />
                     </div>
+                    {/* Ô input chính được thêm shadow để nổi khối nhẹ nhàng */}
                     <input
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Khai lỗi hoặc hỏi Coach..."
-                        className="w-full bg-[#1a1b1f] border border-[#2a2d35] rounded-full py-4 pl-14 pr-14 text-white text-sm focus:border-emerald-500 focus:outline-none transition-colors"
+                        placeholder="Nhập câu hỏi của bạn..."
+                        className="w-full bg-[#1a1b1f] border border-[#2a2d35] rounded-full py-4 pl-14 pr-14 text-white text-sm focus:border-emerald-500 focus:outline-none transition-colors shadow-lg"
                         disabled={isLoading}
                     />
                     <button
                         type="submit"
                         disabled={!input.trim() || isLoading}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-emerald-500 hover:bg-emerald-400 text-black rounded-full flex items-center justify-center transition-all disabled:opacity-50 disabled:hover:bg-emerald-500"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-emerald-500 hover:bg-emerald-400 text-black rounded-full flex items-center justify-center transition-all disabled:opacity-50 disabled:hover:bg-emerald-500 shadow-md"
                     >
-                        <Send className="w-4 h-4 ml-1" />
+                        <Send className="w-4 h-4 ml-0.3" />
                     </button>
                 </form>
             </div>
