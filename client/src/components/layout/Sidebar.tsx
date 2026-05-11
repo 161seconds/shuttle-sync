@@ -19,7 +19,7 @@ export default function AppSidebar() {
     ];
 
     return (
-        <aside className={`fixed left-0 top-16 bottom-0 z-40 w-64 ${t.bg.base} border-r ${t.border.subtle} flex flex-col h-[calc(100vh-64px)]`}>
+        <aside className={`fixed left-0 top-16 bottom-0 z-40 w-60 ${t.bg.base} border-r ${t.border.subtle} flex flex-col h-[calc(100vh-64px)]`}>
 
             {/* KHU VỰC 1: TÊN NGƯỜI DÙNG (Đã trang trí thêm cho bớt trống) */}
             <button

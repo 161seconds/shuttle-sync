@@ -71,10 +71,14 @@ function Shell() {
 
       {!showOnboarding && (
         <div className="relative z-10 flex flex-col min-h-screen">
-          {/* ẨN HEADER Ở TRANG LOGIN */}
+
+          {/* HIỂN THỊ HEADER KHI KHÔNG Ở TRANG LOGIN */}
           {page !== 'login' && <Header />}
-          {page !== 'login' && <AppSidebar />}
-          <main className="flex-1 ">
+
+          {/* HIỂN THỊ SIDEBAR (ẨN Ở TRANG LOGIN VÀ TRANG MAP) */}
+          {page !== 'login' && page !== 'map' && <AppSidebar />}
+
+          <main className={`flex-1 transition-all duration-300 ${page !== 'login' ? 'pt-16' : ''} ${(page !== 'login' && page !== 'map') ? 'pl-60' : 'pl-0'}`}>
             <AnimatePresence mode="wait">
               {/* KHAI BÁO HIỂN THỊ CÁC TRANG CHÍNH */}
               {page === 'login' && <motion.div key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Login /></motion.div>}
@@ -83,7 +87,8 @@ function Shell() {
               {page === 'search' && <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SearchPage /></motion.div>}
               {page === 'profile' && <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ProfilePage /></motion.div>}
               {page === 'groupplay' && <motion.div key="group-play" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><GroupPlayPage /></motion.div>}
-              {page === 'aicoach' && <motion.div key="aicoach" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AiCoach /></motion.div>}              {page === 'notifications' && <motion.div key="noti" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Notifications onBack={() => setPage('home')} /></motion.div>}
+              {page === 'aicoach' && <motion.div key="aicoach" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AiCoach /></motion.div>}
+              {page === 'notifications' && <motion.div key="noti" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Notifications onBack={() => setPage('home')} /></motion.div>}
             </AnimatePresence>
           </main>
 
