@@ -1,7 +1,8 @@
 import {
     Bot, Trophy, Wallet, Settings,
     UserCircle, ClipboardList, BookOpen, Dumbbell,
-    Zap, ChevronRight
+    Zap, ChevronRight,
+    BarChart2
 } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { theme as t } from '../../utils/theme';
@@ -54,8 +55,22 @@ export default function AppSidebar() {
             {/* KHU VỰC 2: CÁC CHỨC NĂNG (Dùng nền đen chuẩn) */}
             <div className="flex-1 overflow-y-auto py-6 px-3 space-y-1 custom-scrollbar">
                 <p className={`text-[10px] font-black ${t.text.muted} uppercase tracking-[2px] pl-3 mb-4`}>
-                    Hệ sinh thái
+                    Các tính năng
                 </p>
+                {user?.role === 'admin' && (
+                    <button
+                        onClick={() => setPage('admin')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 mb-1 rounded-xl transition-all duration-200 ${page === 'admin'
+                            ? `bg-emerald-500/10 border ${t.border.accent} ${t.text.accent} font-bold shadow-[0_0_15px_rgba(16,185,129,0.05)]`
+                            : `text-gray-500 hover:bg-white/5 hover:text-gray-200 font-semibold border border-transparent`
+                            }`}
+                    >
+                        <div className={`${page === 'admin' ? 'scale-110' : 'opacity-70'} transition-transform`}>
+                            <BarChart2 className="w-5 h-5 text-indigo-400" />
+                        </div>
+                        <span className="text-sm tracking-tight">Admin Dashboard</span>
+                    </button>
+                )}
 
                 {menuItems.map((item) => (
                     <button
