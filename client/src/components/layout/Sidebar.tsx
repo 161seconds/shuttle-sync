@@ -1,5 +1,5 @@
 import {
-    Bot, Trophy, Settings,
+    Bot, Settings,
     UserCircle, BookOpen, Dumbbell,
     Zap, ChevronRight,
     BarChart2
@@ -12,8 +12,7 @@ export default function AppSidebar() {
 
     const menuItems = [
         { id: 'aicoach', label: 'Huấn luyện viên AI', icon: <Bot className="w-5 h-5 text-emerald-400" /> },
-        { id: 'leaderboard', label: 'Bảng Xếp hạng', icon: <Trophy className="w-5 h-5 text-yellow-500" /> },
-        { id: 'rules', label: 'Bài tập, luật chơi', icon: <BookOpen className="w-5 h-5 text-orange-400" /> },
+        { id: 'rules', label: 'Luật chơi & thi đấu', icon: <BookOpen className="w-5 h-5 text-orange-400" /> },
         { id: 'supplementary', label: 'Các bài tập bổ trợ', icon: <Dumbbell className="w-5 h-5 text-red-400" /> },
     ];
 

@@ -22,6 +22,8 @@ import Notifications from './pages/profile/Notifications';
 import AppSidebar from './components/layout/Sidebar';
 import AdminDashboard from './features/admin/AdminDashboard';
 import MatchLeaderboard from './components/groups/MatchLeaderboard';
+import RulesPage from './pages/RulesPage';
+import SupplementaryPage from './pages/SupplementaryPage';
 
 function Shell() {
   const { page, setPage, bookingCourt, setBookingCourt, user, setUser } = useAppStore();
@@ -93,6 +95,8 @@ function Shell() {
               {page === 'admin' && <motion.div key="admin" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AdminDashboard /></motion.div>}
               {page === 'notifications' && <motion.div key="noti" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Notifications onBack={() => setPage('home')} /></motion.div>}
               {page === 'match-leaderboard' && <motion.div key="leaderboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MatchLeaderboard onBack={() => setPage('groupplay')} /></motion.div>}
+              {page === 'rules' && <motion.div key="rules" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><RulesPage /></motion.div>}
+              {page === 'supplementary' && <motion.div key="supplementary" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SupplementaryPage /></motion.div>}
             </AnimatePresence>
           </main>
 
