@@ -65,22 +65,22 @@ const SPORT_FILTERS = [
     { id: 'pickleball', label: 'Pickleball', icon: '🏓' },
 ];
 
-const SKILL_FILTERS = [
-    { id: 'y', label: 'Y' },
-    { id: 'y_minus', label: 'Y-' },
-    { id: 'y_plus', label: 'Y+' },
-    { id: 'tby_minus', label: 'TBY-' },
-    { id: 'tby', label: 'TBY' },
-    { id: 'tby_plus', label: 'TBY+' },
-    { id: 'tb_minus', label: 'TB-' },
-    { id: 'tb', label: 'TB' },
-    { id: 'tb_plus', label: 'TB+' },
-    { id: 'tb_plus_2', label: 'TB++' },
-    { id: 'tb_plus_3', label: 'TB+++' },
-    { id: 'tbk', label: 'TBK' },
-    { id: 'bc', label: 'BC (Bán chuyên)' },
-    { id: 'cn', label: 'CN (Chuyên nghiệp)' },
-];
+// const SKILL_FILTERS = [
+//     { id: 'y', label: 'Y' },
+//     { id: 'y_minus', label: 'Y-' },
+//     { id: 'y_plus', label: 'Y+' },
+//     { id: 'tby_minus', label: 'TBY-' },
+//     { id: 'tby', label: 'TBY' },
+//     { id: 'tby_plus', label: 'TBY+' },
+//     { id: 'tb_minus', label: 'TB-' },
+//     { id: 'tb', label: 'TB' },
+//     { id: 'tb_plus', label: 'TB+' },
+//     { id: 'tb_plus_2', label: 'TB++' },
+//     { id: 'tb_plus_3', label: 'TB+++' },
+//     { id: 'tbk', label: 'TBK' },
+//     { id: 'bc', label: 'BC (Bán chuyên)' },
+//     { id: 'cn', label: 'CN (Chuyên nghiệp)' },
+// ];
 
 export default function GroupPlayPage() {
     const { user, setPage } = useAppStore();
@@ -89,7 +89,7 @@ export default function GroupPlayPage() {
     const [joining, setJoining] = useState<string | null>(null);
     const [searchVal, setSearchVal] = useState('');
     const [sportFilter, setSportFilter] = useState('all');
-    const [skillFilter, setSkillFilter] = useState('all');
+    const [skillFilter] = useState('all');
     const [showFilters, setShowFilters] = useState(false);
     const [showCreate, setShowCreate] = useState(false);
     const [expandedId, setExpandedId] = useState<string | null>(null);
