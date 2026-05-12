@@ -77,6 +77,10 @@ class GroupPlayService {
             role: GroupPlayRole.PARTICIPANT,
             joinedAt: new Date(),
             hasPaid: false,
+            isGuest: false,
+            gender: (user as any).gender || 'male',
+            beveragesConsumed: [],
+            totalOwed: 0
         });
 
         groupPlay.currentPlayers += 1;

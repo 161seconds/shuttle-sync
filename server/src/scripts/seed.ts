@@ -260,7 +260,7 @@ async function seed() {
             venueId: court.venueId,
             courtId: court._id,
             sportType: court.sportType,
-            level: SkillLevel.INTERMEDIATE, // Dùng đúng Enum 
+            level: SkillLevel.TB, // Dùng đúng Enum 
             date: new Date(Date.now() + 86400000 * (Math.floor(Math.random() * 7) + 1)),
             startTime: '18:00',
             endTime: '20:00',
