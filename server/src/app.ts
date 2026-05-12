@@ -10,6 +10,14 @@ import { errorHandler, notFoundHandler, apiLimiter, searchCourtLimiter } from '.
 
 const app = express();
 
+app.set('trust proxy', 1);
+const rateLimit = require('express-rate-limit');
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100
+});
+app.use(limiter);
+
 // Security
 app.use(cors({
     origin: [
