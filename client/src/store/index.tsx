@@ -18,6 +18,10 @@ interface AppState {
 
     profileSubPage: string | null;
     setProfileSubPage: (p: string | null) => void;
+
+    //sidebar
+    isSideBarOpen: boolean;
+    toggleSidebar: () => void;
 }
 
 const defaultFilters: CourtFilters = {
@@ -40,17 +44,27 @@ export function AppProvider({ children }: AppProviderProps) {
     const [filters, setFiltersState] = useState<CourtFilters>(defaultFilters);
     const [profileSubPage, setProfileSubPage] = useState<string | null>(null);
 
+    const [isSideBarOpen, setIsSideBarOpen] = useState(false);
+
     const setFilters = useCallback((partial: Partial<CourtFilters>) => {
         setFiltersState(prev => ({ ...prev, ...partial }));
     }, []);
 
     const resetFilters = useCallback(() => setFiltersState(defaultFilters), []);
 
+    const handleSetPage = useCallback((newPage: AppPage) => {
+        setPage(newPage);
+    }, []);
+
+    const toggleSidebar = useCallback(() => {
+        setIsSideBarOpen(prev => !prev);
+    }, []);
+
     return (
         <AppContext.Provider
             value={{
                 page,
-                setPage,
+                setPage: handleSetPage, // Dùng hàm mới đã bọc logic tự đóng sidebar
                 bookingCourt,
                 setBookingCourt,
                 user,
@@ -60,8 +74,9 @@ export function AppProvider({ children }: AppProviderProps) {
                 resetFilters,
                 profileSubPage,
                 setProfileSubPage,
-            }
-            }
+                isSideBarOpen,
+                toggleSidebar,
+            }}
         >
             {children}
         </AppContext.Provider>
@@ -70,6 +85,6 @@ export function AppProvider({ children }: AppProviderProps) {
 
 export function useAppStore() {
     const ctx = useContext(AppContext);
-    if (!ctx) throw new Error('useAppStore must be used within AppProvi der');
+    if (!ctx) throw new Error('useAppStore must be used within AppProvider');
     return ctx;
 }

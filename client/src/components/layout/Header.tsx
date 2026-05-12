@@ -1,17 +1,25 @@
-import { Calendar, Search, Bell } from 'lucide-react';
+import { Calendar, Search, Bell, Menu } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { theme as t } from '../../utils/theme';
 
 export default function Header() {
-    const { setPage, user } = useAppStore();
+    const { setPage, user, isSideBarOpen, toggleSidebar } = useAppStore();
 
     return (
         <header
             className={`fixed top-0 left-0 right-0 z-50 w-full h-16 border-b ${t.border.subtle} ${t.bg.base}/90 backdrop-blur-xl`}
         >
-            <div className="w-full h-full grid grid-cols-3 items-center px-6">
+            <div className="w-full h-full grid grid-cols-3 items-center px-4 md:px-6">
                 {/* LEFT */}
-                <div className="flex items-center justify-start">
+                <div className="flex items-center justify-start gap-2">
+                    {/* NÚT BẬT TẮT SIDEBAR */}
+                    <button
+                        onClick={toggleSidebar}
+                        className={`p-2 rounded-xl transition-all ${isSideBarOpen ? 'bg-emerald-500/10 text-emerald-400' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
+                    >
+                        {isSideBarOpen ? <Menu className="w-5 h-5 md:w-6 md:h-6" /> : <Menu className="w-5 h-5 md:w-6 md:h-6" />}
+                    </button>
+
                     <button
                         onClick={() => setPage('home')}
                         className="flex items-center gap-3 group"
@@ -51,7 +59,6 @@ export default function Header() {
                                 className={`relative w-10 h-10 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-emerald-400 hover:bg-white/5 transition-all`}
                             >
                                 <Bell className="w-5 h-5" />
-
                                 <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0a0a0a]" />
                             </button>
 
