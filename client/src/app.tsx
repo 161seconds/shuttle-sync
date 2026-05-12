@@ -26,7 +26,7 @@ import RulesPage from './pages/RulesPage';
 import SupplementaryPage from './pages/SupplementaryPage';
 
 function Shell() {
-  const { page, setPage, bookingCourt, setBookingCourt, user, setUser } = useAppStore();
+  const { page, setPage, bookingCourt, setBookingCourt, user, setUser, isSideBarOpen } = useAppStore();
   const [detailCourt, setDetailCourt] = useState<Court | null>(null);
   const { showOnboarding, showTour, completeOnboarding, skipOnboarding, completeTour } = useOnboarding();
 
@@ -82,26 +82,24 @@ function Shell() {
           {/* HIỂN THỊ SIDEBAR (ẨN Ở TRANG LOGIN VÀ TRANG MAP) */}
           {page !== 'login' && page !== 'map' && <AppSidebar />}
 
-          <main className={`flex-1 transition-all duration-300 ${page !== 'login' ? 'pt-16' : ''}`}>
-            <div className="w-full flex justify-center">
-              <div className="w-full max-w-400">
-                <AnimatePresence mode="wait">
-                  {/* KHAI BÁO HIỂN THỊ CÁC TRANG CHÍNH */}
-                  {page === 'login' && <motion.div key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Login /></motion.div>}
-                  {page === 'home' && <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Dashboard /></motion.div>}
-                  {page === 'map' && <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MapPage /></motion.div>}
-                  {page === 'search' && <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SearchPage /></motion.div>}
-                  {page === 'profile' && <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ProfilePage /></motion.div>}
-                  {page === 'groupplay' && <motion.div key="group-play" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><GroupPlayPage /></motion.div>}
-                  {page === 'aicoach' && <motion.div key="aicoach" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AiCoach /></motion.div>}
-                  {page === 'admin' && <motion.div key="admin" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AdminDashboard /></motion.div>}
-                  {page === 'notifications' && <motion.div key="noti" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Notifications onBack={() => setPage('home')} /></motion.div>}
-                  {page === 'match-leaderboard' && <motion.div key="leaderboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MatchLeaderboard onBack={() => setPage('groupplay')} /></motion.div>}
-                  {page === 'rules' && <motion.div key="rules" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><RulesPage /></motion.div>}
-                  {page === 'supplementary' && <motion.div key="supplementary" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SupplementaryPage /></motion.div>}
-                </AnimatePresence>
-              </div>
-            </div>
+          <main
+            className={`flex-1 transition-all duration-300 ease-in-out ${page !== 'login' ? 'pt-16' : ''} ${(isSideBarOpen && page !== 'login' && page !== 'map') ? 'md:pl-64 pl-0' : 'pl-0'
+              } w-full min-h-screen`}
+          >            <AnimatePresence mode="wait">
+              {/* KHAI BÁO HIỂN THỊ CÁC TRANG CHÍNH */}
+              {page === 'login' && <motion.div key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Login /></motion.div>}
+              {page === 'home' && <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Dashboard /></motion.div>}
+              {page === 'map' && <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MapPage /></motion.div>}
+              {page === 'search' && <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SearchPage /></motion.div>}
+              {page === 'profile' && <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ProfilePage /></motion.div>}
+              {page === 'groupplay' && <motion.div key="group-play" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><GroupPlayPage /></motion.div>}
+              {page === 'aicoach' && <motion.div key="aicoach" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AiCoach /></motion.div>}
+              {page === 'admin' && <motion.div key="admin" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AdminDashboard /></motion.div>}
+              {page === 'notifications' && <motion.div key="noti" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Notifications onBack={() => setPage('home')} /></motion.div>}
+              {page === 'match-leaderboard' && <motion.div key="leaderboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MatchLeaderboard onBack={() => setPage('groupplay')} /></motion.div>}
+              {page === 'rules' && <motion.div key="rules" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><RulesPage /></motion.div>}
+              {page === 'supplementary' && <motion.div key="supplementary" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SupplementaryPage /></motion.div>}
+            </AnimatePresence>
           </main>
 
           {/* ẨN BOTTOM NAV Ở TRANG LOGIN */}
