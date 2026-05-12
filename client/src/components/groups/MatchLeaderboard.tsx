@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trophy, Swords, Send, Info, Zap, ArrowLeft } from 'lucide-react'; // Thêm ArrowLeft
+import { Trophy, Swords, Send, Info, ArrowLeft } from 'lucide-react';
 import { theme as t } from '../../utils/theme';
 
 interface Props {
@@ -9,11 +9,11 @@ interface Props {
 export default function MatchLeaderboard({ onBack }: Props) {
     const [quickInput, setQuickInput] = useState('');
 
-    // Mock data Bảng xếp hạng (Phong Thần Bảng)
+    // Mock data Bảng xếp hạng
     const leaderboard = [
-        { id: 1, name: 'Quốc Bảo', elo: 1350, wins: 5, losses: 1, trend: '+25' },
-        { id: 2, name: 'Tiến Minh', elo: 1280, wins: 3, losses: 2, trend: '+10' },
-        { id: 3, name: 'Hoàng Nam', elo: 1190, wins: 1, losses: 4, trend: '-15' },
+        { id: 1, name: 'Quốc Bảo', wins: 5, losses: 1 },
+        { id: 2, name: 'Tiến Minh', wins: 3, losses: 2 },
+        { id: 3, name: 'Hoàng Nam', wins: 1, losses: 4 },
     ];
 
     // Hàm xử lý "Ghi nhận nhanh" (Giả lập việc bóc tách chuỗi)
@@ -47,10 +47,6 @@ export default function MatchLeaderboard({ onBack }: Props) {
 
                 {/* KHU VỰC 1: GHI NHẬN NHANH */}
                 <div className={`p-5 rounded-2xl ${t.bg.elevated} border ${t.border.subtle} relative overflow-hidden`}>
-                    <div className="absolute top-0 right-0 px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold rounded-bl-xl flex items-center gap-1">
-                        <Zap className="w-3 h-3 fill-emerald-500" /> AI READY
-                    </div>
-
                     <h3 className="text-sm font-bold text-emerald-500 uppercase tracking-wider mb-4 flex items-center gap-2">
                         <Swords className="w-4 h-4" /> Ghi nhận kết quả
                     </h3>
@@ -59,7 +55,7 @@ export default function MatchLeaderboard({ onBack }: Props) {
                         <textarea
                             value={quickInput}
                             onChange={(e) => setQuickInput(e.target.value)}
-                            placeholder="Nhập theo cú pháp: p l c p 21-19 20k&#10;(Phong, Long - Cường, Phong; Tỉ số 21-19; Kèo 20k)"
+                            placeholder="Nhập theo cú pháp: bao minh hai nam; 21-15; 50k&#10;(Bảo, Minh - Hải, Nam; Tỉ số 21-15; Kèo 50k)"
                             className="w-full h-24 bg-[#16181c] border border-[#2a2d35] rounded-xl p-3 text-white text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none resize-none mb-3 placeholder-gray-600"
                         />
                         <button
@@ -83,11 +79,11 @@ export default function MatchLeaderboard({ onBack }: Props) {
                     </div>
                 </div>
 
-                {/* KHU VỰC 2: PHONG THẦN BẢNG (LEADERBOARD) */}
+                {/* KHU VỰC 2: LEADERBOARD */}
                 <div className={`p-5 rounded-2xl ${t.bg.elevated} border ${t.border.subtle}`}>
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-sm font-bold text-yellow-500 uppercase tracking-wider flex items-center gap-2">
-                            <Trophy className="w-4 h-4" /> Phong thần bảng
+                            <Trophy className="w-4 h-4" /> Bảng xếp hạng
                         </h3>
                     </div>
 
@@ -98,7 +94,6 @@ export default function MatchLeaderboard({ onBack }: Props) {
                                     <th className="pb-3 font-semibold pl-2">Vợt thủ</th>
                                     <th className="pb-3 font-semibold text-center">Set Đánh</th>
                                     <th className="pb-3 font-semibold text-center">Thắng/Thua</th>
-                                    <th className="pb-3 font-semibold text-right pr-2">Điểm Elo</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -117,12 +112,6 @@ export default function MatchLeaderboard({ onBack }: Props) {
                                             <span className="text-xs font-bold text-emerald-400">{player.wins}W</span>
                                             <span className="text-gray-600 mx-1">-</span>
                                             <span className="text-xs font-bold text-red-400">{player.losses}L</span>
-                                        </td>
-                                        <td className="py-3 pr-2 text-right">
-                                            <div className="text-sm font-black text-emerald-400">{player.elo}</div>
-                                            <div className={`text-[10px] font-bold ${player.trend.startsWith('+') ? 'text-emerald-500/70' : 'text-red-500/70'}`}>
-                                                {player.trend}
-                                            </div>
                                         </td>
                                     </tr>
                                 ))}

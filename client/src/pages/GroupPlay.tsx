@@ -2,15 +2,13 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Users, Search, MapPin, Calendar, Clock, Star,
-    Filter, Plus, Crown, Loader2, Zap, Target, Trophy, Leaf,
-    ChevronDown, X, Check, UserPlus,
-    Flame, Settings
+    Filter, Plus, Loader2, Zap, Target, Trophy, Leaf,
+    ChevronDown, X, Check, UserPlus, Flame, Settings
 } from 'lucide-react';
 import { theme as t, formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
 import { groupPlayApi } from '../api/groupPlay.api';
 import { bookingApi } from '../api/booking.api';
-import MatchLeaderboard from '../components/groups/MatchLeaderboard';
 import PriceConfigModal from '../components/groups/PriceConfigModal';
 
 // ═══ Types ═══
@@ -40,17 +38,14 @@ const SKILL_MAP: Record<string, { label: string; icon: React.ReactNode; color: s
     y: { label: 'Y', icon: <Leaf className="w-3 h-3" />, color: 'text-green-400 bg-green-500/10' },
     y_minus: { label: 'Y-', icon: <Leaf className="w-3 h-3" />, color: 'text-green-400 bg-green-500/10' },
     y_plus: { label: 'Y+', icon: <Leaf className="w-3 h-3" />, color: 'text-green-400 bg-green-500/10' },
-
     tby_minus: { label: 'TBY-', icon: <Target className="w-3 h-3" />, color: 'text-cyan-400 bg-cyan-500/10' },
     tby: { label: 'TBY', icon: <Target className="w-3 h-3" />, color: 'text-cyan-400 bg-cyan-500/10' },
     tby_plus: { label: 'TBY+', icon: <Target className="w-3 h-3" />, color: 'text-cyan-400 bg-cyan-500/10' },
-
     tb_minus: { label: 'TB-', icon: <Zap className="w-3 h-3" />, color: 'text-blue-400 bg-blue-500/10' },
     tb: { label: 'TB', icon: <Zap className="w-3 h-3" />, color: 'text-blue-400 bg-blue-500/10' },
     tb_plus: { label: 'TB+', icon: <Zap className="w-3 h-3" />, color: 'text-blue-400 bg-blue-500/10' },
     tb_plus_2: { label: 'TB++', icon: <Zap className="w-3 h-3" />, color: 'text-blue-400 bg-blue-500/10' },
     tb_plus_3: { label: 'TB+++', icon: <Zap className="w-3 h-3" />, color: 'text-blue-400 bg-blue-500/10' },
-
     tbk: { label: 'TBK', icon: <Flame className="w-3 h-3" />, color: 'text-orange-400 bg-orange-500/10' },
     bc: { label: 'BC', icon: <Trophy className="w-3 h-3" />, color: 'text-amber-400 bg-amber-500/10' },
     cn: { label: 'CN', icon: <Star className="w-3 h-3" />, color: 'text-purple-400 bg-purple-500/10' },
@@ -87,9 +82,8 @@ const SKILL_FILTERS = [
     { id: 'cn', label: 'CN (Chuyên nghiệp)' },
 ];
 
-// ═══ Component ═══
 export default function GroupPlayPage() {
-    const { user } = useAppStore();
+    const { user, setPage } = useAppStore();
     const [groups, setGroups] = useState<GroupPlay[]>([]);
     const [loading, setLoading] = useState(true);
     const [joining, setJoining] = useState<string | null>(null);
@@ -100,19 +94,16 @@ export default function GroupPlayPage() {
     const [showCreate, setShowCreate] = useState(false);
     const [expandedId, setExpandedId] = useState<string | null>(null);
 
-    // STATE QUẢN LÝ MODAL THU PHÍ
-    const [priceConfigGroup, setPriceConfigGroup] = useState<GroupPlay | null>(null);
+    // STATE CHO MODAL CẤU HÌNH GIÁ
+    const [showPriceModal, setShowPriceModal] = useState(false);
 
-    // Fetch
     const fetchGroups = async () => {
         setLoading(true);
         try {
             const params: any = { status: 'open' };
             if (sportFilter !== 'all') params.sportType = sportFilter;
             if (skillFilter !== 'all') params.skillLevel = skillFilter;
-
             const res = await groupPlayApi.searchGroupPlays(params);
-
             setGroups(res.data.data || []);
         } catch (err) {
             console.error('Lỗi fetch nhóm chơi:', err);
@@ -121,115 +112,90 @@ export default function GroupPlayPage() {
         }
     };
 
-    useEffect(() => {
-        const searchParams = new URLSearchParams(window.location.search);
-        if (searchParams.get('openCreate') === 'true') {
-            setShowCreate(true);
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
-    }, []);
-
     useEffect(() => { fetchGroups(); }, [sportFilter, skillFilter]);
 
-    // Search filter (client-side)
     const filtered = searchVal.trim()
         ? groups.filter(g => g.title.toLowerCase().includes(searchVal.toLowerCase()))
         : groups;
 
-    // Join group
     const handleJoin = async (groupId: string) => {
-        if (!user) {
-            alert('Vui lòng đăng nhập để tham gia nhóm chơi!');
-            return;
-        }
+        if (!user) { alert('Vui lòng đăng nhập!'); return; }
         setJoining(groupId);
         try {
             await groupPlayApi.joinGroupPlay(groupId);
-
-            alert('🎉 Tham gia nhóm thành công!');
+            alert('🎉 Tham gia thành công!');
             await fetchGroups();
         } catch (err: any) {
-            alert(err.response?.data?.message || 'Không thể tham gia nhóm này');
+            alert(err.response?.data?.message || 'Lỗi tham gia');
         } finally {
             setJoining(null);
         }
     };
 
-    // Helpers
     const formatDate = (d: string) => {
-        if (!d) return '--/--';
         const date = new Date(d);
         const today = new Date();
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-
         if (date.toDateString() === today.toDateString()) return 'Hôm nay';
-        if (date.toDateString() === tomorrow.toDateString()) return 'Ngày mai';
         return date.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' });
     };
 
-    const sportIcon = (s: string) => s === 'pickleball' ? '🏓' : '🏸';
-
-    const getOrganizerName = (g: GroupPlay) =>
-        g.organizerId && typeof g.organizerId === 'object' ? g.organizerId.displayName : 'Tổ chức viên';
-
-    const getCourtName = (g: GroupPlay) =>
-        g.courtId && typeof g.courtId === 'object' ? g.courtId.name : 'Sân (Đã xóa)';
-
-    const getCourtDistrict = (g: GroupPlay) =>
-        g.courtId && typeof g.courtId === 'object' ? g.courtId.address?.district || '' : '';
-
-    const getCourtPhoto = (g: GroupPlay) =>
-        g.courtId && typeof g.courtId === 'object' ? g.courtId.photos?.[0]?.url : null;
-
-    const isJoined = (g: GroupPlay) =>
-        user && (g.participants || []).some(p => p.userId === user._id);
-
-    const isOrganizer = (g: GroupPlay) => {
-        if (!user) return false;
-        return g.organizerId && typeof g.organizerId === 'object' ? g.organizerId._id === user._id : g.organizerId === user._id;
-    }
-
-    const spotsLeft = (g: GroupPlay) => (g.maxPlayers || 0) - (g.currentPlayers || 0);
-
     return (
-        <div className="max-w-3xl mx-auto px-4 pb-28 md:pb-8 pt-6">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h1 className={`text-2xl font-black ${t.text.primary} flex items-center gap-2`}>
-                        <Users className="w-6 h-6 text-emerald-400" /> Nhóm chơi
-                    </h1>
-                    <p className={`text-xs ${t.text.muted} mt-1`}>Tìm bạn chơi cùng trình độ gần bạn</p>
+        <div className="max-w-4xl mx-auto px-4 pb-28 md:pb-8 pt-6">
+            {/* Header MỚI CÓ 2 NÚT QUICK ACTION */}
+            <div className="mb-8">
+                <div className="flex items-center justify-between mb-4">
+                    <div>
+                        <h1 className={`text-2xl font-black ${t.text.primary} flex items-center gap-2`}>
+                            <Users className="w-6 h-6 text-emerald-400" /> Cộng đồng Nhóm chơi
+                        </h1>
+                        <p className={`text-xs ${t.text.muted} mt-1`}>Nơi những đường cầu kết nối đam mê</p>
+                    </div>
+                    <button onClick={() => setShowCreate(true)}
+                        className="px-5 py-2.5 rounded-xl bg-emerald-500 text-black text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 transition-all">
+                        <Plus className="w-4 h-4" /> Mở nhóm mới
+                    </button>
                 </div>
-                <button onClick={() => setShowCreate(true)}
-                    className="px-4 py-2.5 rounded-xl bg-emerald-500 text-black text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 active:scale-95 transition-all">
-                    <Plus className="w-3.5 h-3.5" /> Tạo nhóm
-                </button>
+
+                {/* KHU VỰC CÔNG CỤ NHANH */}
+                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+                    <button
+                        onClick={() => setPage('match-leaderboard')}
+                        className="flex-1 min-w-max px-4 py-2.5 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-yellow-500 hover:text-black transition-all"
+                    >
+                        <Trophy className="w-4 h-4" /> Ghi nhận Trận đấu
+                    </button>
+
+                    <button
+                        onClick={() => setShowPriceModal(true)}
+                        className="flex-1 min-w-max px-4 py-2.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-emerald-500 hover:text-black transition-all"
+                    >
+                        <Settings className="w-4 h-4" /> Cấu hình Giá & Thu tiền
+                    </button>
+                </div>
             </div>
 
-            {/* Search */}
-            <div className="relative mb-4">
-                <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${t.text.muted}`} />
-                <input
-                    type="text"
-                    placeholder="Tìm nhóm chơi..."
-                    value={searchVal}
-                    onChange={e => setSearchVal((e.target as HTMLInputElement).value)}
-                    className={`w-full h-11 pl-11 pr-12 rounded-xl ${t.bg.input} border ${t.border.subtle} ${t.text.primary} placeholder:text-[#555] text-sm outline-none focus:border-emerald-500/40 transition-colors`}
-                />
+            {/* Search & Filters */}
+            <div className="flex gap-2 mb-6">
+                <div className="relative flex-1">
+                    <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${t.text.muted}`} />
+                    <input
+                        type="text" placeholder="Tìm tên nhóm, sân..." value={searchVal}
+                        onChange={e => setSearchVal(e.target.value)}
+                        className={`w-full h-12 pl-11 pr-4 rounded-2xl ${t.bg.input} border ${t.border.subtle} ${t.text.primary} text-sm outline-none focus:border-emerald-500/40 transition-all`}
+                    />
+                </div>
                 <button onClick={() => setShowFilters(!showFilters)}
-                    className={`absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${showFilters ? 'bg-emerald-500/15 text-emerald-400' : `${t.bg.elevated} ${t.text.muted}`}`}>
-                    <Filter className="w-4 h-4" />
+                    className={`px-4 rounded-2xl border transition-all ${showFilters ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' : `${t.bg.elevated} ${t.border.subtle} ${t.text.muted}`}`}>
+                    <Filter className="w-5 h-5" />
                 </button>
             </div>
 
-            {/* Sport filter pills */}
-            <div className="flex gap-2 mb-3 overflow-x-auto scrollbar-none">
+            {/* Sport Pills */}
+            <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-none">
                 {SPORT_FILTERS.map(f => (
                     <button key={f.id} onClick={() => setSportFilter(f.id)}
-                        className={`shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${sportFilter === f.id
-                            ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400'
+                        className={`shrink-0 px-5 py-2 rounded-xl text-xs font-bold border transition-all ${sportFilter === f.id
+                            ? 'bg-emerald-500 text-black border-emerald-500'
                             : `${t.bg.elevated} ${t.border.subtle} ${t.text.secondary}`
                             }`}>
                         {f.icon} {f.label}
@@ -237,307 +203,123 @@ export default function GroupPlayPage() {
                 ))}
             </div>
 
-            {/* Extended filters */}
-            <AnimatePresence>
-                {showFilters && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden mb-4">
-                        <div className={`p-4 rounded-xl ${t.bg.elevated} border ${t.border.subtle} space-y-3`}>
-                            <div>
-                                <label className={`text-[10px] font-semibold ${t.text.muted} uppercase tracking-wider mb-2 block`}>Trình độ</label>
-                                <div className="flex flex-wrap gap-2">
-                                    {SKILL_FILTERS.map(f => (
-                                        <button key={f.id} onClick={() => setSkillFilter(f.id)}
-                                            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${skillFilter === f.id
-                                                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400'
-                                                : `${t.bg.card} ${t.border.subtle} ${t.text.muted}`
-                                                }`}>
-                                            {f.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Stats bar */}
-            {!loading && (
-                <p className={`text-xs ${t.text.muted} mb-4`}>
-                    {filtered.length === 0 ? 'Không tìm thấy nhóm phù hợp' : `${filtered.length} nhóm đang mở`}
-                </p>
-            )}
-
-            {/* Groups list */}
-            <div className="space-y-3">
+            {/* List */}
+            <div className="space-y-4">
                 {loading ? (
-                    Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className={`h-36 rounded-2xl ${t.bg.card} border ${t.border.subtle} animate-pulse`} />
-                    ))
-                ) : filtered.length === 0 ? (
-                    <div className="flex flex-col items-center py-20">
-                        <Users className={`w-14 h-14 ${t.text.muted} mb-4`} />
-                        <p className={`${t.text.secondary} font-bold mb-1`}>Chưa có nhóm chơi nào</p>
-                        <p className={`text-xs ${t.text.muted} text-center max-w-xs`}>
-                            Hãy tạo nhóm chơi đầu tiên hoặc thay đổi bộ lọc
-                        </p>
-                    </div>
-                ) : (
-                    filtered.map((g, idx) => {
-                        const skill = SKILL_MAP[g.skillLevel] || SKILL_MAP.beginner;
-                        const status = STATUS_MAP[g.status] || STATUS_MAP.open;
-                        const spots = spotsLeft(g);
-                        const joined = isJoined(g);
-                        const isOrg = isOrganizer(g);
-                        const isExpanded = expandedId === g._id;
-                        const courtPhoto = getCourtPhoto(g);
+                    <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-emerald-500 animate-spin" /></div>
+                ) : filtered.map((g) => {
+                    const skill = SKILL_MAP[g.skillLevel] || SKILL_MAP.tb;
+                    const status = STATUS_MAP[g.status] || STATUS_MAP.open;
+                    const isOrg = user && (typeof g.organizerId === 'object' ? g.organizerId._id === user._id : g.organizerId === user._id);
+                    const joined = user && g.participants.some(p => p.userId === user._id);
 
-                        return (
-                            <motion.div key={g._id}
-                                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: idx * 0.05 }}
-                                className={`${t.bg.card} rounded-2xl border ${t.border.subtle} overflow-hidden hover:border-emerald-500/15 transition-all`}
-                            >
-                                {/* Main content */}
-                                <button onClick={() => setExpandedId(isExpanded ? null : g._id)}
-                                    className="w-full p-4 text-left">
+                    return (
+                        <motion.div key={g._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                            className={`${t.bg.card} rounded-3xl border ${t.border.subtle} overflow-hidden hover:border-emerald-500/20 transition-all shadow-sm`}>
 
-                                    {/* Top row: sport icon + title + status */}
-                                    <div className="flex items-start gap-3 mb-3">
-                                        {courtPhoto ? (
-                                            <img src={courtPhoto} alt="" className="w-12 h-12 rounded-xl object-cover shrink-0" />
-                                        ) : (
-                                            <div className={`w-12 h-12 rounded-xl ${t.bg.elevated} flex items-center justify-center shrink-0 text-xl`}>
-                                                {sportIcon(g.sportType)}
-                                            </div>
-                                        )}
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <h3 className={`font-bold text-sm ${t.text.primary} truncate`}>{g.title}</h3>
-                                            </div>
-                                            <div className="flex items-center gap-2 flex-wrap">
-                                                <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${status.bg} ${status.color}`}>
-                                                    {status.label}
-                                                </span>
-                                                <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${skill.color} flex items-center gap-1`}>
-                                                    {skill.icon} {skill.label}
-                                                </span>
-                                                {isOrg && (
-                                                    <span className="px-2 py-0.5 rounded-md text-[10px] bg-amber-500/10 text-amber-400 font-bold flex items-center gap-1">
-                                                        <Crown className="w-2.5 h-2.5" /> Bạn tổ chức
-                                                    </span>
-                                                )}
-                                                {joined && !isOrg && (
-                                                    <span className="px-2 py-0.5 rounded-md text-[10px] bg-emerald-500/10 text-emerald-400 font-bold flex items-center gap-1">
-                                                        <Check className="w-2.5 h-2.5" /> Đã tham gia
-                                                    </span>
-                                                )}
+                            <button onClick={() => setExpandedId(expandedId === g._id ? null : g._id)} className="w-full p-5 text-left">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="flex gap-4">
+                                        <div className={`w-12 h-12 rounded-2xl ${t.bg.elevated} flex items-center justify-center text-2xl`}>
+                                            {g.sportType === 'pickleball' ? '🏓' : '🏸'}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-white text-base mb-1">{g.title}</h3>
+                                            <div className="flex gap-2">
+                                                <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold border ${status.bg} ${status.color}`}>{status.label}</span>
+                                                <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${skill.color}`}>{skill.label}</span>
                                             </div>
                                         </div>
                                     </div>
-
-                                    {/* Info row */}
-                                    <div className="flex items-center gap-3 flex-wrap text-xs mb-3">
-                                        <span className={`${t.text.muted} flex items-center gap-1`}>
-                                            <MapPin className="w-3 h-3" /> {getCourtName(g)}{getCourtDistrict(g) ? ` · ${getCourtDistrict(g)}` : ''}
-                                        </span>
-                                        <span className={`${t.text.muted} flex items-center gap-1`}>
-                                            <Calendar className="w-3 h-3" /> {formatDate(g.date)}
-                                        </span>
-                                        <span className={`${t.text.muted} flex items-center gap-1`}>
-                                            <Clock className="w-3 h-3" /> {g.startTime}–{g.endTime}
-                                        </span>
+                                    <div className="text-right">
+                                        <div className="text-emerald-400 font-black text-lg">{formatPrice(g.pricePerPlayer)}đ</div>
+                                        <div className={`text-[10px] ${t.text.muted} uppercase font-bold tracking-tighter`}>Mỗi người</div>
                                     </div>
+                                </div>
 
-                                    {/* Bottom row: players + price + action hint */}
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            {/* Player count */}
-                                            <div className="flex items-center gap-2">
-                                                <Users className={`w-3.5 h-3.5 ${t.text.muted}`} />
-                                                <span className={`text-xs ${t.text.secondary}`}>
-                                                    <span className={spots <= 2 && spots > 0 ? 'text-amber-400 font-bold' : ''}>
-                                                        {g.currentPlayers}
-                                                    </span>/{g.maxPlayers}
-                                                </span>
+                                <div className="grid grid-cols-2 gap-y-2 mb-4">
+                                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                                        <MapPin className="w-3.5 h-3.5 text-emerald-500" /> {typeof g.courtId === 'object' ? g.courtId.name : 'Sân cầu lông'}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                                        <Calendar className="w-3.5 h-3.5 text-emerald-500" /> {formatDate(g.date)}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                                        <Clock className="w-3.5 h-3.5 text-emerald-500" /> {g.startTime} - {g.endTime}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                                        <Users className="w-3.5 h-3.5 text-emerald-500" /> {g.currentPlayers}/{g.maxPlayers} Thành viên
+                                    </div>
+                                </div>
 
-                                                {/* Avatar stack */}
-                                                <div className="flex -space-x-1.5">
-                                                    {g.participants.slice(0, 4).map((p, i) => (
-                                                        <div key={i} className={`w-5 h-5 rounded-full ${t.bg.elevated} border border-[#151515] flex items-center justify-center text-[8px] font-bold ${t.text.muted}`}>
-                                                            {p.avatar ? <img src={p.avatar} className="w-full h-full rounded-full object-cover" /> : p.displayName.charAt(0)}
-                                                        </div>
-                                                    ))}
-                                                    {g.participants.length > 4 && (
-                                                        <div className={`w-5 h-5 rounded-full ${t.bg.elevated} border border-[#151515] flex items-center justify-center text-[7px] ${t.text.muted}`}>
-                                                            +{g.participants.length - 4}
-                                                        </div>
-                                                    )}
-                                                </div>
+                                <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                                    <div className="flex -space-x-2">
+                                        {g.participants.slice(0, 5).map((p, i) => (
+                                            <div key={i} className="w-7 h-7 rounded-full border-2 border-[#1a1b1e] bg-gray-800 flex items-center justify-center text-[10px] font-bold text-white overflow-hidden">
+                                                {p.avatar ? <img src={p.avatar} alt="avt" className="w-full h-full object-cover" /> : p.displayName.charAt(0)}
                                             </div>
+                                        ))}
+                                    </div>
+                                    <ChevronDown className={`w-5 h-5 text-gray-600 transition-transform ${expandedId === g._id ? 'rotate-180' : ''}`} />
+                                </div>
+                            </button>
 
-                                            {/* Spots warning */}
-                                            {spots > 0 && spots <= 3 && (
-                                                <span className="text-[10px] text-amber-400 font-bold flex items-center gap-1">
-                                                    <Zap className="w-2.5 h-2.5" /> Còn {spots} chỗ
-                                                </span>
+                            <AnimatePresence>
+                                {expandedId === g._id && (
+                                    <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden bg-white/2">
+                                        <div className="px-6 pb-6 space-y-4">
+                                            {g.description && <p className="text-xs text-gray-400 leading-relaxed italic">"{g.description}"</p>}
+                                            {g.requirements && (
+                                                <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/10 text-[11px] text-amber-200/70">
+                                                    <strong className="text-amber-500">Yêu cầu:</strong> {g.requirements}
+                                                </div>
+                                            )}
+                                            {!joined && !isOrg && g.status === 'open' && (
+                                                <button onClick={() => handleJoin(g._id)} disabled={joining === g._id}
+                                                    className="w-full py-3 rounded-2xl bg-emerald-500 text-black font-black text-sm flex items-center justify-center gap-2 hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20">
+                                                    {joining === g._id ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
+                                                    THAM GIA NGAY
+                                                </button>
+                                            )}
+                                            {joined && (
+                                                <div className="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-emerald-400 font-bold text-sm flex items-center justify-center gap-2">
+                                                    <Check className="w-4 h-4" /> BẠN ĐÃ TRONG NHÓM
+                                                </div>
                                             )}
                                         </div>
-
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-emerald-400 text-sm font-black">
-                                                {formatPrice(g.pricePerPlayer)}đ
-                                            </span>
-                                            <ChevronDown className={`w-4 h-4 ${t.text.muted} transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-                                        </div>
-                                    </div>
-                                </button>
-
-                                {/* Expanded detail */}
-                                <AnimatePresence>
-                                    {isExpanded && (
-                                        <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}
-                                            className="overflow-hidden">
-                                            <div className={`px-4 pb-4 border-t ${t.border.subtle} pt-3 space-y-3`}>
-                                                {/* Organizer */}
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-8 h-8 rounded-lg ${t.bg.elevated} flex items-center justify-center text-xs font-bold ${t.text.muted}`}>
-                                                        {g.organizerId && typeof g.organizerId === 'object' && g.organizerId.avatar
-                                                            ? <img src={g.organizerId.avatar} className="w-full h-full rounded-lg object-cover" />
-                                                            : getOrganizerName(g).charAt(0)
-                                                        }
-                                                    </div>
-                                                    <div>
-                                                        <span className={`text-xs font-semibold ${t.text.secondary}`}>{getOrganizerName(g)}</span>
-                                                        <span className={`text-[10px] ${t.text.muted} ml-2`}>Tổ chức viên</span>
-                                                    </div>
-                                                </div>
-
-                                                {/* Description */}
-                                                {g.description && (
-                                                    <p className={`text-xs ${t.text.muted} leading-relaxed`}>{g.description}</p>
-                                                )}
-
-                                                {/* Requirements */}
-                                                {g.requirements && (
-                                                    <div className={`px-3 py-2 rounded-lg ${t.bg.elevated} border ${t.border.subtle}`}>
-                                                        <span className={`text-[10px] font-semibold ${t.text.muted} uppercase`}>Yêu cầu: </span>
-                                                        <span className={`text-xs ${t.text.secondary}`}>{g.requirements}</span>
-                                                    </div>
-                                                )}
-
-                                                {/* Participants list */}
-                                                <div>
-                                                    <span className={`text-[10px] font-semibold ${t.text.muted} uppercase tracking-wider block mb-2`}>
-                                                        Thành viên ({g.currentPlayers}/{g.maxPlayers})
-                                                    </span>
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {g.participants.map((p, i) => (
-                                                            <div key={i} className={`flex items-center gap-1.5 px-2 py-1 rounded-lg ${t.bg.elevated} border ${t.border.subtle}`}>
-                                                                <div className={`w-5 h-5 rounded-full ${t.bg.card} flex items-center justify-center text-[8px] font-bold ${t.text.muted}`}>
-                                                                    {p.avatar ? <img src={p.avatar} className="w-full h-full rounded-full object-cover" /> : p.displayName.charAt(0)}
-                                                                </div>
-                                                                <span className={`text-[10px] ${t.text.secondary}`}>{p.displayName}</span>
-                                                                {p.role === 'organizer' && <Crown className="w-2.5 h-2.5 text-amber-400" />}
-                                                            </div>
-                                                        ))}
-                                                        {spots > 0 && Array.from({ length: Math.min(spots, 3) }).map((_, i) => (
-                                                            <div key={`empty-${i}`} className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border border-dashed ${t.border.subtle}`}>
-                                                                <div className={`w-5 h-5 rounded-full border border-dashed ${t.border.subtle} flex items-center justify-center`}>
-                                                                    <Plus className={`w-2.5 h-2.5 ${t.text.muted}`} />
-                                                                </div>
-                                                                <span className={`text-[10px] ${t.text.muted}`}>Trống</span>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-
-                                                {/* Action button */}
-                                                {!joined && !isOrg && g.status === 'open' && spots > 0 && (
-                                                    <button onClick={() => handleJoin(g._id)} disabled={joining === g._id}
-                                                        className="w-full py-2.5 rounded-xl bg-emerald-500 text-black text-xs font-bold flex items-center justify-center gap-2 hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-500/20">
-                                                        {joining === g._id
-                                                            ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                                            : <UserPlus className="w-3.5 h-3.5" />
-                                                        }
-                                                        Tham gia · {formatPrice(g.pricePerPlayer)}đ/người
-                                                    </button>
-                                                )}
-
-                                                {joined && !isOrg && (
-                                                    <div className={`w-full py-2.5 rounded-xl ${t.bg.elevated} border ${t.border.subtle} text-xs font-semibold flex items-center justify-center gap-2 ${t.text.secondary}`}>
-                                                        <Check className="w-3.5 h-3.5 text-emerald-400" /> Bạn đã tham gia nhóm này
-                                                    </div>
-                                                )}
-
-                                                {g.status === 'full' && !joined && (
-                                                    <div className={`w-full py-2.5 rounded-xl ${t.bg.elevated} border ${t.border.subtle} text-xs font-semibold flex items-center justify-center gap-2 text-amber-400`}>
-                                                        <Users className="w-3.5 h-3.5" /> Nhóm đã đủ người
-                                                    </div>
-                                                )}
-
-                                                {isOrg && (
-                                                    <div className={`mt-4 pt-4 border-t ${t.border.subtle}`}>
-                                                        <span className={`text-[10px] font-semibold text-amber-400 uppercase tracking-wider block mb-2 items-center gap-1.5`}>
-                                                            <Crown className="w-3 h-3" /> Công cụ Chủ xị
-                                                        </span>
-                                                        <button
-                                                            onClick={(e) => { e.stopPropagation(); setPriceConfigGroup(g); }}
-                                                            className="w-full py-2.5 rounded-xl bg-[#16181c] border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center gap-2 hover:bg-emerald-500/10 transition-colors"
-                                                        >
-                                                            <Settings className="w-3.5 h-3.5" /> Cấu hình Thu phí & Campuchia
-                                                        </button>
-                                                    </div>
-                                                )}
-                                        
-                                                <div className={`mt-6 pt-4 border-t ${t.border.subtle}`}>
-                                                    <MatchLeaderboard />
-                                                </div>
-
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </motion.div>
-                        );
-                    })
-                )}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </motion.div>
+                    );
+                })}
             </div>
 
-            {/* ═══ CREATE GROUP MODAL ═══ */}
+            {/* Create Modal */}
             <AnimatePresence>
-                {showCreate && (
-                    <CreateGroupModal onClose={() => setShowCreate(false)} onCreated={() => { setShowCreate(false); fetchGroups(); }} />
-                )}
+                {showCreate && <CreateGroupModal onClose={() => setShowCreate(false)} onCreated={() => { setShowCreate(false); fetchGroups(); }} />}
             </AnimatePresence>
 
-            {/* ═══ PRICE CONFIG MODAL (THÊM MỚI Ở ĐÂY) ═══ */}
+            {/* Price Config Modal */}
             <AnimatePresence>
-                {priceConfigGroup && (
+                {showPriceModal && (
                     <PriceConfigModal
-                        onClose={() => setPriceConfigGroup(null)}
+                        onClose={() => setShowPriceModal(false)}
                         onSave={(data) => {
-                            // Chỗ này gọi API lưu data xuống DB
-                            console.log('Đã lưu cấu hình giá cho nhóm:', priceConfigGroup._id, data);
-                            setPriceConfigGroup(null);
+                            console.log('Lưu cấu hình giá', data);
+                            setShowPriceModal(false);
                         }}
                     />
                 )}
             </AnimatePresence>
-
         </div>
     );
 }
 
-// ... (Phần code CreateGroupModal giữ nguyên y hệt như cũ của bạn, không đụng chạm một dòng nào) ...
-
-// ═══ CREATE GROUP MODAL (ĐÃ NÂNG CẤP BẮT BUỘC ĐẶT SÂN) ═══
+// ═══ CREATE GROUP MODAL ═══
 function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
-    const { setPage } = useAppStore(); // Để điều hướng đi đặt sân
+    const { setPage } = useAppStore();
     const [creating, setCreating] = useState(false);
-
-    // Quản lý Booking
     const [myBookings, setMyBookings] = useState<any[]>([]);
     const [fetchingBookings, setFetchingBookings] = useState(true);
     const [selectedBookingId, setSelectedBookingId] = useState('');
@@ -552,190 +334,95 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
         requirements: '',
     });
 
-    const set = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
-
-    // Tự động tải lịch sử đặt sân (Đã xác nhận) của User
     useEffect(() => {
-        document.body.style.overflow = 'hidden';
-
         const loadBookings = async () => {
             try {
-                // Gọi API lấy các đơn đã thanh toán/xác nhận
                 const res = await bookingApi.getMyBookings({ status: 'confirmed' });
                 setMyBookings(res.data?.data || []);
             } catch (err) {
-                console.error('Lỗi tải booking:', err);
+                console.error(err);
             } finally {
                 setFetchingBookings(false);
             }
         };
         loadBookings();
-
-        return () => { document.body.style.overflow = 'unset'; };
     }, []);
 
     const handleCreate = async () => {
-        if (!selectedBookingId) { alert('Vui lòng chọn một lịch bạn đã đặt!'); return; }
-        if (!form.title.trim()) { alert('Nhập tên nhóm'); return; }
-        if (form.maxPlayers > 20) { alert('Số người tối đa không được vượt quá 20'); return; }
-
-        const selectedBooking = myBookings.find(b => b._id === selectedBookingId);
-        if (!selectedBooking) return;
-
+        if (!selectedBookingId || !form.title.trim()) { alert('Vui lòng điền đủ thông tin'); return; }
         setCreating(true);
         try {
-            const courtIdString = typeof selectedBooking.courtId === 'object'
-                ? selectedBooking.courtId._id
-                : selectedBooking.courtId;
-
-            const d = new Date(selectedBooking.date);
-            const formattedDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-
+            const b = myBookings.find(x => x._id === selectedBookingId);
+            const d = new Date(b.date);
             await groupPlayApi.createGroupPlay({
                 ...form,
-                courtId: courtIdString,
-                subCourtId: selectedBooking.subCourtId,
-                bookingId: selectedBooking._id,
-                date: formattedDate,
-                startTime: selectedBooking.startTime,
-                endTime: selectedBooking.endTime,
+                courtId: typeof b.courtId === 'object' ? b.courtId._id : b.courtId,
+                subCourtId: b.subCourtId,
+                bookingId: b._id,
+                date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
+                startTime: b.startTime,
+                endTime: b.endTime,
                 isPublic: true,
             });
-
-            alert('Tạo nhóm chơi thành công!');
+            alert('Tạo nhóm thành công!');
             onCreated();
         } catch (err: any) {
-            console.error("Lỗi từ server:", err.response?.data?.errors);
-            alert(err.response?.data?.message || 'Tạo nhóm thất bại. Hãy kiểm tra Console.');
+            alert(err.response?.data?.message || 'Lỗi tạo nhóm');
         } finally {
             setCreating(false);
         }
     };
 
     return (
-        <motion.div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-            <motion.div className={`relative w-full sm:max-w-md max-h-[85vh] ${theme.bg.card} rounded-t-3xl sm:rounded-3xl border-t sm:border ${theme.border.subtle} overflow-hidden flex flex-col`}
-                initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}>
-
-                <div className={`px-5 py-3 border-b ${theme.border.subtle} flex items-center justify-between`}>
-                    <h2 className={`font-bold ${theme.text.primary}`}>Tạo nhóm chơi</h2>
-                    <button onClick={onClose} className={`w-8 h-8 rounded-lg ${theme.bg.elevated} flex items-center justify-center ${theme.text.muted} hover:bg-red-500/20 hover:text-red-400 transition-all`}>
-                        <X className="w-4 h-4" />
-                    </button>
+        <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
+            <motion.div className={`relative w-full max-w-lg bg-[#111113] rounded-4xl border border-white/10 overflow-hidden flex flex-col`} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}>
+                <div className="p-6 border-b border-white/5 flex justify-between items-center">
+                    <h2 className="text-xl font-black text-white italic">MỞ KÈO MỚI 🏸</h2>
+                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white transition-all"><X className="w-5 h-5" /></button>
                 </div>
 
-                {fetchingBookings ? (
-                    <div className="flex-1 flex flex-col items-center justify-center py-20">
-                        <Loader2 className="w-8 h-8 text-emerald-400 animate-spin mb-4" />
-                        <p className={`text-sm ${theme.text.muted}`}>Đang kiểm tra lịch đặt sân của bạn...</p>
-                    </div>
-                ) : myBookings.length === 0 ? (
-                    // CHẶN HOÀN TOÀN NẾU KHÔNG CÓ ĐƠN ĐẶT SÂN
-                    <div className="flex-1 flex flex-col items-center justify-center py-16 px-6 text-center">
-                        <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
-                            <Calendar className="w-8 h-8 text-red-400" />
+                <div className="p-6 space-y-5 overflow-y-auto max-h-[70vh] custom-scrollbar">
+                    {fetchingBookings ? (
+                        <div className="py-10 flex flex-col items-center gap-3"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /><p className="text-xs text-gray-500">Đang tìm lịch đặt sân...</p></div>
+                    ) : myBookings.length === 0 ? (
+                        <div className="text-center py-10 space-y-4">
+                            <p className="text-sm text-gray-400">Bạn cần đặt sân trước khi tạo nhóm!</p>
+                            <button onClick={() => { onClose(); setPage('search'); }} className="w-full py-3 rounded-2xl bg-emerald-500 text-black font-bold">Đi đặt sân ngay</button>
                         </div>
-                        <h3 className="font-bold text-white text-lg mb-2">Chưa có lịch đặt sân!</h3>
-                        <p className={`text-sm ${theme.text.muted} mb-8 leading-relaxed`}>
-                            Để tạo được nhóm chơi, bạn bắt buộc phải đặt sân và thanh toán thành công trước.
-                        </p>
-                        <button onClick={() => { onClose(); setPage('search'); }}
-                            className="w-full py-3.5 rounded-xl bg-emerald-500 text-black font-bold text-sm shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 transition-colors">
-                            Đi đặt sân ngay
-                        </button>
-                    </div>
-                ) : (
-                    // NẾU CÓ SÂN -> HIỂN THỊ FORM
-                    <>
-                        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-
-                            {/* ÉP CHỌN SÂN TỪ LỊCH SỬ BOOKING */}
-                            <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
-                                <label className={`text-[10px] font-semibold text-emerald-400 uppercase tracking-wider mb-2 block`}>
-                                    Chọn lịch sân đã đặt <span className="text-red-400">*</span>
-                                </label>
-                                <select value={selectedBookingId} onChange={e => setSelectedBookingId(e.target.value)}
-                                    className={`w-full h-11 px-3 rounded-lg ${theme.bg.elevated} border ${theme.border.subtle} text-emerald-400 font-bold text-xs outline-none cursor-pointer`}>
-                                    <option value="" disabled>-- Bấm để chọn sân của bạn --</option>
-                                    {myBookings.map(b => {
-                                        const cName = typeof b.court === 'object' ? b.court?.name : 'Sân của bạn';
-                                        const d = new Date(b.date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
-                                        return (
-                                            <option key={b._id} value={b._id}>
-                                                {cName} • {d} ({b.startTime} - {b.endTime})
-                                            </option>
-                                        );
-                                    })}
+                    ) : (
+                        <>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">1. Chọn lịch đã đặt</label>
+                                <select value={selectedBookingId} onChange={e => setSelectedBookingId(e.target.value)} className="w-full h-12 bg-white/5 border border-white/10 rounded-2xl px-4 text-sm text-white outline-none focus:border-emerald-500/50">
+                                    <option value="">-- Chọn sân của bạn --</option>
+                                    {myBookings.map(b => (
+                                        <option key={b._id} value={b._id}>{b.court?.name} - {new Date(b.date).toLocaleDateString('vi-VN')} ({b.startTime})</option>
+                                    ))}
                                 </select>
                             </div>
-
-                            <InputField label="Tên nhóm" placeholder="VD: Giao lưu sáng cuối tuần" value={form.title} onChange={v => set('title', v)} />
-                            <InputField label="Mô tả (tuỳ chọn)" placeholder="Nhóm đánh vui vẻ mồ hôi..." value={form.description} onChange={v => set('description', v)} />
-
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className={`text-[10px] font-semibold ${theme.text.muted} uppercase mb-1.5 block`}>Môn</label>
-                                    <div className="flex gap-2">
-                                        {['badminton', 'pickleball'].map(s => (
-                                            <button key={s} onClick={() => set('sportType', s)}
-                                                className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all ${form.sportType === s ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' : `${theme.bg.elevated} ${theme.border.subtle} ${theme.text.muted}`}`}>
-                                                {s === 'badminton' ? 'Cầu lông' : 'Pickleball'}
-                                            </button>
-                                        ))}
-                                    </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">2. Thông tin nhóm</label>
+                                <input type="text" placeholder="Tên nhóm chơi..." className="w-full h-12 bg-white/5 border border-white/10 rounded-2xl px-4 text-sm text-white" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
+                                <textarea placeholder="Mô tả ngắn gọn..." className="w-full h-24 bg-white/5 border border-white/10 rounded-2xl p-4 text-sm text-white resize-none" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-bold text-gray-500 uppercase">Sức chứa</label>
+                                    <input type="number" className="w-full h-12 bg-white/5 border border-white/10 rounded-2xl px-4 text-sm text-white" value={form.maxPlayers} onChange={e => setForm({ ...form, maxPlayers: parseInt(e.target.value) })} />
                                 </div>
-                                <div>
-                                    <label className={`text-[10px] font-semibold ${theme.text.muted} uppercase mb-1.5 block`}>Trình độ</label>
-                                    <select value={form.skillLevel} onChange={e => set('skillLevel', (e.target as HTMLSelectElement).value)}
-                                        className={`w-full h-9 px-3 rounded-lg ${theme.bg.elevated} border ${theme.border.subtle} ${theme.text.secondary} text-xs outline-none`}>
-                                        <option value="y">Y (Mới chơi)</option>
-                                        <option value="tb">TB (Trung bình)</option>
-                                        <option value="tbk">TBK+ (Khá/Giỏi)</option>
-                                    </select>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-bold text-gray-500 uppercase">Phí/Người</label>
+                                    <input type="number" className="w-full h-12 bg-white/5 border border-white/10 rounded-2xl px-4 text-sm text-white" value={form.pricePerPlayer} onChange={e => setForm({ ...form, pricePerPlayer: parseInt(e.target.value) })} />
                                 </div>
                             </div>
-
-                            <div className="grid grid-cols-2 gap-3">
-                                <InputField label="Tổng số người" type="number" value={String(form.maxPlayers)} onChange={v => set('maxPlayers', parseInt(v) || 4)} />
-                                <InputField label="Giá thu/người (vnd)" type="number" value={String(form.pricePerPlayer)} onChange={v => set('pricePerPlayer', parseInt(v) || 0)} />
-                            </div>
-
-                            <InputField label="Yêu cầu riêng (tuỳ chọn)" placeholder="VD: Mang vợt riêng, bao cầu..." value={form.requirements} onChange={v => set('requirements', v)} />
-                        </div>
-
-                        <div className={`px-5 py-4 border-t ${theme.border.subtle}`}>
-                            <button onClick={handleCreate} disabled={creating || !selectedBookingId || !form.title.trim()}
-                                className="w-full py-3.5 rounded-xl bg-emerald-500 text-black font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-40 hover:bg-emerald-400 active:scale-[0.98] transition-all shadow-lg shadow-emerald-500/20">
-                                {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                                Mở nhóm chơi
+                            <button onClick={handleCreate} disabled={creating} className="w-full py-4 mt-4 bg-emerald-500 text-black font-black rounded-2xl shadow-xl shadow-emerald-500/20 hover:bg-emerald-400 transition-all flex items-center justify-center gap-2">
+                                {creating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />} MỞ NHÓM NGAY
                             </button>
-                        </div>
-                    </>
-                )}
+                        </>
+                    )}
+                </div>
             </motion.div>
         </motion.div>
-    );
-}
-
-// Alias for modal
-const theme = {
-    bg: { card: 'bg-[#151515]', elevated: 'bg-[#1a1a1a]', input: 'bg-[#1a1a1a]' },
-    border: { subtle: 'border-[#1e1e1e]' },
-    text: { primary: 'text-[#eaeaea]', secondary: 'text-[#999]', muted: 'text-[#555]' },
-};
-
-function InputField({ label, placeholder, value, onChange, type = 'text' }: {
-    label: string; placeholder?: string; value: string; onChange: (v: string) => void; type?: string;
-}) {
-    return (
-        <div>
-            <label className={`text-[10px] font-semibold text-[#555] uppercase tracking-wider mb-1.5 block`}>{label}</label>
-            <input type={type} placeholder={placeholder} value={value}
-                onChange={e => onChange((e.target as HTMLInputElement).value)}
-                onWheel={e => (e.target as HTMLElement).blur()}
-                className="w-full h-10 px-3 rounded-lg bg-[#1a1a1a] border border-[#1e1e1e] text-[#eaeaea] placeholder:text-[#3a3d40] text-sm outline-none focus:border-emerald-500/40 transition-colors" />
-        </div>
     );
 }
