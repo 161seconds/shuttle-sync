@@ -59,6 +59,18 @@ export default function MapPage() {
 
     const VIETMAP_KEY = import.meta.env.VITE_VIETMAP_KEY;
 
+    // ═══ HÀM DỌN DẸP ĐƯỜNG ĐI ═══
+    const clearRoute = useCallback(() => {
+        if (!map.current) return;
+        try {
+            if (map.current.getLayer('route-line')) map.current.removeLayer('route-line');
+            if (map.current.getLayer('route-outline')) map.current.removeLayer('route-outline');
+            if (map.current.getSource('route')) map.current.removeSource('route');
+        } catch (err) {
+            // Bỏ qua lỗi nếu layer/source không tồn tại
+        }
+    }, []);
+
     // ═══ FETCH SÂN CÓ ĐIỀU KIỆN ═══
     const fetchCourts = useCallback(async (opts?: {
         lat?: number; lng?: number; q?: string;
@@ -96,6 +108,7 @@ export default function MapPage() {
         setSelected(null);
         setShowRoute(false);
         setRouteInfo(null);
+        clearRoute();
         map.current?.flyTo({ pitch: 0, duration: 1000 }); // Đóng popup thì trả về góc nhìn từ trên xuống
         switch (chipId) {
             case 'all': fetchCourts({ limit: 1000 }); break;
@@ -122,7 +135,9 @@ export default function MapPage() {
             map.current.on('click', () => {
                 setSelected(null);
                 setShowRoute(false);
-                map.current?.flyTo({ pitch: 0, duration: 1000 }); // Bấm ra ngoài thì ngóc cam lên
+                setRouteInfo(null);
+                clearRoute();
+                map.current?.flyTo({ pitch: 0, duration: 1000 });
             });
         }
     }, [VIETMAP_KEY]);
@@ -200,7 +215,7 @@ export default function MapPage() {
                 setSelected(court);
                 setShowRoute(false);
                 setRouteInfo(null);
-                // Bấm vào sân thì nghiêng cam xuống 60 độ cho ngầu
+                clearRoute();
                 map.current?.flyTo({ center: coords, zoom: 15.5, pitch: 60, duration: 1500 });
             });
 
@@ -294,8 +309,8 @@ export default function MapPage() {
 
                 setRouteInfo({ distance: `${distKm} km`, duration: `${durMin} phút` });
 
-                const routeCoords = route.geometry.coordinates; // Dữ liệu đường cong chuẩn
-
+                const routeCoords = route.geometry.coordinates; // Dữ liệu đường cong
+                clearRoute(); // Xóa đường cũ nếu có
                 try {
                     map.current.removeLayer('route-line');
                     map.current.removeLayer('route-outline');
@@ -412,6 +427,7 @@ export default function MapPage() {
                         setSelected(null);
                         setShowRoute(false);
                         setRouteInfo(null);
+                        clearRoute();
                         map.current?.flyTo({ pitch: 0, duration: 1000 }); // Đóng popup thì trả góc cam
                     }} className="absolute top-6 right-6 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 hover:text-white hover:bg-red-500 hover:border-red-500 hover:scale-110 transition-all z-10">
                         <X className="w-4 h-4 stroke-[2.5px]" />
