@@ -105,7 +105,7 @@ export default function RulesPage() {
 
     return (
         <div className="w-full h-[calc(100vh-76px)] overflow-y-auto custom-scrollbar bg-[#0f141a] p-6 pb-24 font-sans text-gray-300">
-            <div className="max-w-4xl mx-auto space-y-8">
+            <div className="max-w-350 mx-auto space-y-8">
 
                 {/* Header */}
                 <div>
