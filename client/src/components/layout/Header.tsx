@@ -1,4 +1,4 @@
-import { Calendar, Search, Bell, Menu } from 'lucide-react';
+import { Calendar, Search, Bell, Menu, Zap } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { theme as t } from '../../utils/theme';
 
@@ -17,20 +17,27 @@ export default function Header() {
                         onClick={toggleSidebar}
                         className={`p-2 rounded-xl transition-all ${isSideBarOpen ? 'bg-emerald-500/10 text-emerald-400' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
                     >
-                        {isSideBarOpen ? <Menu className="w-5 h-5 md:w-6 md:h-6" /> : <Menu className="w-5 h-5 md:w-6 md:h-6" />}
+                        <Menu className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
 
+                    {/* 🔥 KHU VỰC LOGO MỚI (LUCIDE SYSTEM) */}
                     <button
                         onClick={() => setPage('home')}
-                        className="flex items-center gap-3 group"
+                        className="flex items-center gap-2.5 group text-left"
                     >
-                        <div className="w-10 h-10 rounded-2xl bg-linear-to-br from-emerald-400 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-all">
-                            <span className="text-lg">🏸</span>
+                        <div className="relative flex items-center justify-center">
+                            {/* Khung chứa icon phát quang nhẹ */}
+                            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)] group-hover:scale-105 group-hover:border-emerald-500/40 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all duration-300">
+                                <Zap className="w-4 h-4 text-emerald-400 fill-emerald-400/10 group-hover:scale-110 transition-transform" />
+                            </div>
+                            {/* Chấm tròn hiệu ứng Pulse báo trạng thái đồng bộ real-time */}
+                            <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-emerald-400 rounded-full border border-[#0a0a0b] animate-pulse"></div>
                         </div>
 
-                        <span className="font-black text-xl hidden sm:block">
+                        {/* Tên thương hiệu phong cách gọn gàng */}
+                        <span className="font-black text-lg hidden sm:block tracking-tight group-hover:opacity-90 transition-opacity">
                             <span className={t.text.primary}>Shuttle</span>
-                            <span className={t.text.accent}>Sync</span>
+                            <span className="text-emerald-400">Sync</span>
                         </span>
                     </button>
                 </div>
