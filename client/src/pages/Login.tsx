@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, Mail, Lock, ChevronRight, User, TrendingUp, Users, Calendar, Star, Zap, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { Eye, Mail, Lock, ChevronRight, User, TrendingUp, Users, Calendar, Star, Zap, ArrowLeft } from 'lucide-react';
 import { theme as DS } from '../utils/theme';
 import { useAppStore } from '../store';
 import { authApi } from '../api/auth.api';
@@ -84,15 +84,12 @@ function FloatingCards() {
     );
 }
 
-// --- MAIN PAGE ---
 export default function Login() {
     const { setPage, setUser } = useAppStore();
     const [mode, setMode] = useState<'login' | 'register'>('login');
     const [showPw, setShowPw] = useState(false);
     const [loading, setLoading] = useState(false);
-
     const [rememberMe, setRememberMe] = useState(true);
-
     const [otpSent, setOtpSent] = useState(false);
     const [otpCode, setOtpCode] = useState('');
 
@@ -121,21 +118,21 @@ export default function Login() {
         return !Object.keys(e).length;
     };
 
-    const handleRequestOtp = async () => {
-        if (!form.email || !/\S+@\S+/.test(form.email)) {
-            setErrors({ email: 'Vui lòng nhập Email hợp lệ' });
-            return;
-        }
-        setLoading(true);
-        setApiError('');
-        try {
-            await authApi.requestOtp(form.email);
-            setOtpSent(true);
-            setApiSuccess('Đã gửi mã OTP vào Gmail của sếp!');
-        } catch (error: any) {
-            setApiError(error.response?.data?.message || 'Lỗi gửi mã OTP');
-        } finally { setLoading(false); }
-    };
+    // const handleRequestOtp = async () => {
+    //     if (!form.email || !/\S+@\S+/.test(form.email)) {
+    //         setErrors({ email: 'Vui lòng nhập Email hợp lệ' });
+    //         return;
+    //     }
+    //     setLoading(true);
+    //     setApiError('');
+    //     try {
+    //         await authApi.requestOtp(form.email);
+    //         setOtpSent(true);
+    //         setApiSuccess('Đã gửi mã OTP vào Gmail của sếp!');
+    //     } catch (error: any) {
+    //         setApiError(error.response?.data?.message || 'Lỗi gửi mã OTP');
+    //     } finally { setLoading(false); }
+    // };
 
     const submit = async () => {
         if (!validate()) return;
@@ -178,17 +175,29 @@ export default function Login() {
 
     return (
         <div className={`h-screen overflow-hidden ${DS.bg.base} flex`}>
+            {/* LEFT BRAND SECTION */}
             <div className="hidden lg:flex lg:w-[55%] relative items-center justify-center bg-[#0a0d0f] overflow-hidden">
                 <FloatingCards />
-                <div className="relative z-10 text-center px-12">
-                    <div className="w-20 h-20 rounded-3xl bg-linear-to-br from-emerald-400 via-green-500 to-emerald-600 flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-emerald-500/25">
-                        <span className="text-4xl">🏸</span>
+                <div className="relative z-10 text-center px-12 group">
+
+                    {/* 🔥 BIỂU TƯỢNG LOGO MỚI PHÁT QUANG ĐỒNG BỘ HEADER */}
+                    <div className="relative flex items-center justify-center w-20 h-20 mx-auto mb-6">
+                        <div className="w-20 h-20 rounded-3xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-[0_0_40px_rgba(16,185,129,0.2)] group-hover:scale-105 group-hover:border-emerald-500/40 group-hover:shadow-[0_0_50px_rgba(16,185,129,0.35)] transition-all duration-300">
+                            <Zap className="w-10 h-10 text-emerald-400 fill-emerald-400/10 group-hover:scale-110 transition-transform duration-300" />
+                        </div>
+                        <div className="absolute top-0 right-0 w-4 h-4 bg-emerald-400 rounded-full border-4 border-[#0a0d0f] animate-pulse"></div>
                     </div>
-                    <h2 className="text-3xl font-black text-white tracking-tight mb-3">Shuttle<span className="text-emerald-400">Sync</span></h2>
-                    <p className="text-[#5f656d] text-sm max-w-xs mx-auto leading-relaxed">Nền tảng đặt sân cầu lông & pickleball hàng đầu TPHCM. Real-time, không lo trùng lịch.</p>
+
+                    <h2 className="text-4xl font-black text-white tracking-tight mb-3">
+                        Shuttle<span className="text-emerald-400">Sync</span>
+                    </h2>
+                    <p className="text-[#5f656d] text-sm max-w-xs mx-auto leading-relaxed">
+                        Nền tảng đặt sân cầu lông & pickleball hàng đầu TPHCM. Real-time, không lo trùng lịch.
+                    </p>
                 </div>
             </div>
 
+            {/* RIGHT FORM SECTION */}
             <div className="flex-1 flex items-center justify-center px-6 py-12 relative overflow-y-auto">
                 <div className="absolute top-0 right-0 w-72 h-72 rounded-full blur-[100px] opacity-[0.06] bg-emerald-400 pointer-events-none" />
                 <div className="w-full max-w-sm relative z-10">
@@ -225,7 +234,6 @@ export default function Login() {
                                     <button onClick={() => setShowPw(!showPw)} type="button" className={`h-full px-4 flex items-center justify-center ${DS.text.muted} hover:text-emerald-400`}><Eye className="w-4 h-4" /></button>
                                 } />
 
-                                {/* TRẢ LẠI NÚT GHI NHỚ & QUÊN MẬT KHẨU NHƯ ẢNH HIỂN THỊ */}
                                 {mode === 'login' && (
                                     <div className="flex items-center justify-between mt-5 pb-2">
                                         <label className="flex items-center gap-2 cursor-pointer group">
@@ -257,20 +265,6 @@ export default function Login() {
                         <button type="submit" disabled={loading} className="w-full mt-6 py-3.5 rounded-xl bg-emerald-500 text-black font-bold text-sm flex items-center justify-center gap-2 shadow-lg hover:bg-emerald-400 active:scale-[0.98] transition-all disabled:opacity-50">
                             {loading ? <span className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : <>{otpSent ? 'Xác nhận OTP' : mode === 'login' ? 'Đăng nhập' : 'Đăng ký'} <ChevronRight className="w-4 h-4" /></>}
                         </button>
-
-                        {!otpSent && mode === 'login' && (
-                            <>
-                                <div className="flex items-center gap-3 my-4">
-                                    <div className="flex-1 h-px bg-[#1e2124]" />
-                                    <span className={`text-[10px] uppercase font-bold tracking-widest ${DS.text.muted}`}>Hoặc</span>
-                                    <div className="flex-1 h-px bg-[#1e2124]" />
-                                </div>
-                                <button type="button" onClick={handleRequestOtp} disabled={loading} className="w-full py-3 rounded-xl border border-white/10 bg-white/5 text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-white/10">
-                                    <ShieldCheck className="w-4 h-4 text-emerald-400" /> Đăng nhập bằng mã OTP (Gmail)
-                                </button>
-                            </>
-                        )}
-
                         {otpSent && <button type="button" onClick={() => { setOtpSent(false); setApiSuccess(''); }} className="w-full text-center flex justify-center items-center gap-2 text-xs text-gray-500 hover:text-white mt-2"><ArrowLeft className="w-3 h-3" /> Quay lại dùng mật khẩu</button>}
                     </form>
 
@@ -297,7 +291,6 @@ export default function Login() {
     );
 }
 
-// Fix lỗi implicit any
 interface FormFieldProps {
     icon: React.ReactNode;
     label: string;
