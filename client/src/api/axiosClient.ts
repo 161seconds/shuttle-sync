@@ -56,9 +56,7 @@ axiosClient.interceptors.response.use(
                 // Gọi lại API ban đầu bị xịt
                 return axiosClient(original);
             } catch (err) {
-                // Refresh Token cũng hết hạn hoặc lỗi -> Hết cứu -> ra màn hình Đăng nhập
                 processQueue(err);
-                window.location.href = '/';
                 return Promise.reject(err);
             } finally {
                 isRefreshing = false;
