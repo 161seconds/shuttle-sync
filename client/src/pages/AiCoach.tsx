@@ -2,19 +2,19 @@ import { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Stethoscope } from 'lucide-react';
 import { theme as t } from '../utils/theme';
 import axiosClient from '../api/axiosClient';
+import Markdown from 'react-markdown';
 
 interface Message {
     id: string;
     sender: 'user' | 'coach';
     text: string;
-    suggestions?: string[]; // Khai báo thêm mảng gợi ý
+    suggestions?: string[];
 }
 
 export default function AiCoach() {
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Thêm luôn 3 gợi ý mặc định cho tin nhắn chào mừng đầu tiên cho nó xịn
     const [messages, setMessages] = useState<Message[]>([
         {
             id: 'welcome',
@@ -37,7 +37,7 @@ export default function AiCoach() {
         if (!text.trim() || isLoading) return;
 
         const userMsg = text.trim();
-        setInput(''); // Xóa text trong ô input
+        setInput('');
         setMessages(prev => [...prev, { id: Date.now().toString(), sender: 'user', text: userMsg }]);
         setIsLoading(true);
 
@@ -48,7 +48,7 @@ export default function AiCoach() {
                 id: (Date.now() + 1).toString(),
                 sender: 'coach',
                 text: res.data.reply || 'Coach chưa hiểu ý bạn lắm.',
-                suggestions: res.data.suggestions || [] // Lấy mảng gợi ý từ Backend
+                suggestions: res.data.suggestions || []
             }]);
         } catch (error) {
             setMessages(prev => [...prev, {
@@ -83,11 +83,9 @@ export default function AiCoach() {
             <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar pb-10">
                 {messages.map((msg, index) => (
                     <div key={msg.id} className="flex flex-col">
-
                         {/* Bong bóng Chat */}
                         <div className={`flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto flex-row-reverse' : ''}`}>
-                            <div className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center ${msg.sender === 'user' ? 'bg-emerald-500 shadow-md' : 'bg-emerald-500/20 border border-emerald-500/30'
-                                }`}>
+                            <div className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center ${msg.sender === 'user' ? 'bg-emerald-500 shadow-md' : 'bg-emerald-500/20 border border-emerald-500/30'}`}>
                                 {msg.sender === 'user' ? <User className="w-5 h-5 text-black" /> : <Bot className="w-5 h-5 text-emerald-400" />}
                             </div>
 
@@ -95,7 +93,25 @@ export default function AiCoach() {
                                 ? 'bg-emerald-600 text-white rounded-tr-sm'
                                 : 'bg-[#1a1b1f] border border-[#2a2d35] text-gray-200 rounded-tl-sm'
                                 }`}>
-                                {msg.text}
+
+                                {/* 🔥 NHÁT BÚA Ở ĐÂY: Áp dụng Markdown cho tin nhắn của Coach */}
+                                {msg.sender === 'coach' ? (
+                                    <Markdown
+                                        components={{
+                                            // Chỉnh lại CSS cho các thẻ Markdown để nó không bị trần trụi
+                                            strong: ({ node, ...props }) => <strong className="font-bold text-emerald-400" {...props} />,
+                                            p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+                                            ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-2 space-y-1" {...props} />,
+                                            ol: ({ node, ...props }) => <ol className="list-decimal pl-4 mb-2 space-y-1" {...props} />,
+                                            li: ({ node, ...props }) => <li {...props} />
+                                        }}
+                                    >
+                                        {msg.text}
+                                    </Markdown>
+                                ) : (
+                                    msg.text
+                                )}
+
                             </div>
                         </div>
 
