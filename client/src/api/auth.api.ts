@@ -28,4 +28,10 @@ export const authApi = {
     changePassword(data: { currentPassword: string; newPassword: string }) {
         return axiosClient.put('/auth/change-password', data);
     },
+
+    requestOtp: (email: string) =>
+        axiosClient.post('/auth/request-otp', { email }),
+
+    verifyOtp: (email: string, otp: string) =>
+        axiosClient.post('/auth/verify-otp', { email, otp }),
 };
