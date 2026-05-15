@@ -17,6 +17,7 @@ export default function SettingsPage({ onBack }: Props) {
     const [changingPw, setChangingPw] = useState(false);
 
     const settings = user?.settings || { notifications: true, language: 'vi' as const, theme: 'dark' as const };
+
     const updateSetting = async (key: string, value: any) => {
         try {
             const newSettings = { ...settings, [key]: value };
@@ -50,6 +51,7 @@ export default function SettingsPage({ onBack }: Props) {
 
     return (
         <div className={`min-h-screen ${t.bg.base} pb-24`}>
+            {/* STICKY HEADER */}
             <div className={`sticky top-0 z-30 ${t.bg.base}/95 backdrop-blur-xl border-b ${t.border.subtle}`}>
                 <div className="flex items-center gap-3 px-4 h-14">
                     <button onClick={onBack} className={`w-9 h-9 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted}`}>
@@ -116,7 +118,7 @@ export default function SettingsPage({ onBack }: Props) {
                     <p className={`text-[10px] ${t.text.muted} mt-1 ml-1`}>Hành động này không thể hoàn tác</p>
                 </Section>
             </div>
-        </div>      
+        </div>
     );
 }
 
@@ -139,12 +141,10 @@ function ToggleRow({ icon, label, checked, onChange }: {
 
             <button
                 onClick={() => onChange(!checked)}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${checked ? 'bg-emerald-500' : 'bg-[#2a2a2a]'
-                    }`}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${checked ? 'bg-emerald-500' : 'bg-[#2a2a2a]'}`}
             >
                 <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${checked ? 'translate-x-5' : 'translate-x-0'
-                        }`}
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${checked ? 'translate-x-5' : 'translate-x-0'}`}
                 />
             </button>
         </div>
@@ -156,13 +156,30 @@ function SelectRow({ icon, label, value, options, onChange }: {
     options: { v: string; l: string }[]; onChange: (v: string) => void;
 }) {
     return (
-        <div className={`flex items-center gap-4 px-4 py-3 rounded-xl bg-[#1a1a1a] border border-[#1e1e1e]`}>
-            <span className="text-[#555]">{icon}</span>
-            <span className="flex-1 text-sm text-[#999]">{label}</span>
-            <select value={value} onChange={e => onChange((e.target as HTMLSelectElement).value)}
-                className="bg-transparent text-emerald-400 text-xs font-semibold outline-none cursor-pointer">
-                {options.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
-            </select>
+        <div className={`flex items-center justify-between gap-4 px-4 py-2.5 rounded-xl bg-[#1a1a1a] border border-[#1e1e1e]`}>
+            <div className="flex items-center gap-4">
+                <span className="text-[#555]">{icon}</span>
+                <span className="text-sm text-[#999]">{label}</span>
+            </div>
+
+            {/* Khung bọc ngoài dạng viên thuốc */}
+            <div className="flex p-0.5 rounded-xl bg-[#0a0a0b] border border-white/5">
+                {options.map((opt) => {
+                    const isSelected = value === opt.v;
+                    return (
+                        <button
+                            key={opt.v}
+                            onClick={() => onChange(opt.v)}
+                            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${isSelected
+                                    ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/10 scale-[1.02]'
+                                    : 'text-gray-500 hover:text-gray-300'
+                                }`}
+                        >
+                            {opt.l}
+                        </button>
+                    );
+                })}
+            </div>
         </div>
     );
 }
