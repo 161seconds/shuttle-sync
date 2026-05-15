@@ -29,5 +29,9 @@ export const authApi = {
         return axiosClient.put('/auth/change-password', data);
     },
 
-    googleLogin: (credential: string) => axiosClient.post('/auth/google', { credential }),
+    requestOtp: (email: string) =>
+        axiosClient.post('/auth/request-otp', { email }),
+
+    verifyOtp: (email: string, otp: string) =>
+        axiosClient.post('/auth/verify-otp', { email, otp }),
 };

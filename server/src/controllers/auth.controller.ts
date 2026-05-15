@@ -2,31 +2,26 @@ import { Request, Response, NextFunction } from 'express';
 import { authService } from '../services';
 import { AuthRequest } from '../middlewares';
 import { sendSuccess, sendCreated } from '../utils/response';
-import { User } from '@/models/User';
+import { User } from '../models'; // Sửa lại đường dẫn model cho chuẩn
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
-import { config } from '../config'; // Đảm bảo import config để lấy JWT Secret
+import { config } from '../config';
 
-// ═══ HÀM TIỆN ÍCH CẤP COOKIE ═══
+// ═══ HÀM TIỆN ÍCH CẤP COOKIE TỰ ĐỘNG NHẬN DIỆN MÔI TRƯỜNG ═══
 const setAuthCookies = (res: Response, accessToken: string, refreshToken: string) => {
-    const isProd = process.env.NODE_ENV === 'production';
     const cookieOpts = {
         httpOnly: true,
-        secure: isProd,
-        sameSite: isProd ? 'none' as const : 'lax' as const,
+        secure: false,
+        sameSite: 'lax' as const,
+        path: '/',
     };
-    res.cookie('accessToken', accessToken, { ...cookieOpts, maxAge: 15 * 60 * 1000 }); // 15 phút
-    res.cookie('refreshToken', refreshToken, { ...cookieOpts, maxAge: 7 * 24 * 60 * 60 * 1000 }); // 7 ngày
+    res.cookie('accessToken', accessToken, { ...cookieOpts, maxAge: 15 * 60 * 1000 });
+    res.cookie('refreshToken', refreshToken, { ...cookieOpts, maxAge: 7 * 24 * 60 * 60 * 1000 });
 };
 
 const clearAuthCookies = (res: Response) => {
-    const isProd = process.env.NODE_ENV === 'production';
-    const cookieOpts = {
-        httpOnly: true,
-        secure: isProd,
-        sameSite: isProd ? 'none' as const : 'lax' as const
-    };
+    const cookieOpts = { httpOnly: true, secure: false, sameSite: 'lax' as const, path: '/' };
     res.clearCookie('accessToken', cookieOpts);
     res.clearCookie('refreshToken', cookieOpts);
 };
@@ -61,7 +56,7 @@ class AuthController {
         }
     }
 
-    // ═══ 1. HÀM YÊU CẦU GỬI OTP ═══
+    // ═══ YÊU CẦU GỬI OTP ═══
     async requestOtp(req: Request, res: Response, next: NextFunction) {
         try {
             const { email } = req.body;
@@ -70,25 +65,21 @@ class AuthController {
                 return;
             }
 
-            // Tạo mã 6 số ngẫu nhiên
             const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-            const otpExpires = new Date(Date.now() + 5 * 60 * 1000); // Sống 5 phút
+            const otpExpires = new Date(Date.now() + 5 * 60 * 1000);
 
-            // Tìm user, nếu chưa có thì tạo tạm để lưu OTP (Auto Register)
             let user = await User.findOne({ email });
             if (!user) {
                 user = await User.create({
                     email,
                     displayName: email.split('@')[0],
-                    password: crypto.randomBytes(16).toString('hex'), // Pass rác vì đăng nhập bằng OTP
+                    password: crypto.randomBytes(16).toString('hex'),
                     role: 'USER',
                 });
             }
 
-            // Lưu OTP vào DB
             await User.findByIdAndUpdate(user._id, { otpCode, otpExpires });
 
-            // Bắn email
             await transporter.sendMail({
                 from: '"ShuttleSync System" <no-reply@shuttlesync.com>',
                 to: email,
@@ -110,7 +101,7 @@ class AuthController {
         }
     }
 
-    // ═══ 2. HÀM XÁC NHẬN OTP ĐỂ ĐĂNG NHẬP ═══
+    // ═══ XÁC NHẬN OTP ĐỂ ĐĂNG NHẬP ═══
     async verifyOtpLogin(req: Request, res: Response, next: NextFunction) {
         try {
             const { email, otp } = req.body;
@@ -135,10 +126,8 @@ class AuthController {
                 return;
             }
 
-            // Hợp lệ -> Xóa mã OTP đi cho an toàn
             await User.findByIdAndUpdate(user._id, { $unset: { otpCode: 1, otpExpires: 1 } });
 
-            // Cấp Cookie y như đăng nhập thường
             const accessToken = jwt.sign({ id: user._id, role: user.role }, config.jwt.accessSecret, { expiresIn: '15m' });
             const refreshToken = jwt.sign({ id: user._id }, config.jwt.refreshSecret, { expiresIn: '7d' });
 

@@ -11,37 +11,33 @@ export interface AuthRequest extends Request {
     userEmail?: string;
 }
 
-/**
- * Verify JWT access token and attach user info to request
- */
 export const authenticate = async (
     req: AuthRequest,
     _res: Response,
     next: NextFunction
 ): Promise<void> => {
     try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader?.startsWith('Bearer ')) {
-            throw ApiError.unauthorized('Token không hợp lệ');
+        let token = req.cookies?.accessToken;
+        if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+            token = req.headers.authorization.split(' ')[1];
         }
 
-        const token = authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, config.jwt.accessSecret) as {
-            userId: string;
-            role: UserRole;
-            email: string;
-        };
+        if (!token) {
+            throw ApiError.unauthorized('Token không hợp lệ hoặc không tồn tại');
+        }
 
-        // Check user still exists and is active
-        const user = await User.findById(decoded.userId).select('status role banInfo').lean();
+        const decoded = jwt.verify(token, config.jwt.accessSecret) as any;
+
+        const currentUserId = decoded.id || decoded.userId;
+        const user = await User.findById(currentUserId).select('status role banInfo').lean();
+
         if (!user) {
             throw ApiError.unauthorized('Tài khoản không tồn tại');
         }
 
         if (user.status === UserStatus.BANNED) {
-            // Check if ban has expired
             if (user.banInfo?.expiresAt && new Date(user.banInfo.expiresAt) < new Date()) {
-                await User.findByIdAndUpdate(decoded.userId, {
+                await User.findByIdAndUpdate(currentUserId, {
                     status: UserStatus.ACTIVE,
                     $unset: { banInfo: 1 },
                 });
@@ -52,7 +48,7 @@ export const authenticate = async (
             }
         }
 
-        req.userId = decoded.userId;
+        req.userId = currentUserId;
         req.userRole = user.role;
         req.userEmail = decoded.email;
         next();
@@ -67,40 +63,33 @@ export const authenticate = async (
     }
 };
 
-/**
- * Optional auth - doesn't fail if no token, but attaches user if present
- */
 export const optionalAuth = async (
     req: AuthRequest,
     _res: Response,
     next: NextFunction
 ): Promise<void> => {
     try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader?.startsWith('Bearer ')) {
+        let token = req.cookies?.accessToken;
+
+        if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+            token = req.headers.authorization.split(' ')[1];
+        }
+
+        if (!token) {
             return next();
         }
 
-        const token = authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, config.jwt.accessSecret) as {
-            userId: string;
-            role: UserRole;
-            email: string;
-        };
+        const decoded = jwt.verify(token, config.jwt.accessSecret) as any;
 
-        req.userId = decoded.userId;
+        req.userId = decoded.id || decoded.userId;
         req.userRole = decoded.role;
         req.userEmail = decoded.email;
         next();
     } catch {
-        // Token invalid/expired but that's OK for optional auth
         next();
     }
 };
 
-/**
- * Role-based authorization middleware factory
- */
 export const authorize = (...roles: UserRole[]) => {
     return (req: AuthRequest, _res: Response, next: NextFunction): void => {
         if (!req.userRole || !roles.includes(req.userRole)) {
@@ -111,12 +100,5 @@ export const authorize = (...roles: UserRole[]) => {
     };
 };
 
-/**
- * Require admin role
- */
 export const requireAdmin = authorize(UserRole.ADMIN);
-
-/**
- * Require court owner or admin
- */
 export const requireCourtOwner = authorize(UserRole.COURT_OWNER, UserRole.ADMIN);
