@@ -28,6 +28,4 @@ export const authApi = {
     changePassword(data: { currentPassword: string; newPassword: string }) {
         return axiosClient.put('/auth/change-password', data);
     },
-
-    googleLogin: (credential: string) => axiosClient.post('/auth/google', { credential }),
 };
