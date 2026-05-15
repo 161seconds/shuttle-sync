@@ -19,7 +19,7 @@ export default function AppSidebar() {
 
     return (
         <>
-            {/* LỚP BACKDROP (Màn mờ đen đằng sau khi mở Sidebar) */}
+            {/* LỚP BACKDROP */}
             <AnimatePresence>
                 {isSideBarOpen && (
                     <motion.div
@@ -34,8 +34,7 @@ export default function AppSidebar() {
 
             {/* SIDEBAR DẠNG DRAWER */}
             <aside
-                className={`fixed left-0 top-16 bottom-0 z-50 w-64 ${t.bg.base} border-r ${t.border.subtle} flex flex-col h-[calc(100vh-64px)] shadow-2xl transition-transform duration-300 ease-out ${isSideBarOpen ? 'translate-x-0' : '-translate-x-full'
-                    }`}
+                className={`fixed left-0 top-16 bottom-0 z-50 w-64 ${t.bg.base} border-r ${t.border.subtle} flex flex-col h-[calc(100vh-64px)] shadow-2xl transition-transform duration-300 ease-out ${isSideBarOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
                 {/* KHU VỰC 1: TÊN NGƯỜI DÙNG */}
                 <button
@@ -50,6 +49,7 @@ export default function AppSidebar() {
                                 <UserCircle className="w-7 h-7 text-emerald-500/60" />
                             </div>
                         )}
+                        {/* Huy hiệu tia chớp đồng bộ với logo trên Header */}
                         <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-[#0a0a0a] flex items-center justify-center">
                             <Zap className="w-2.5 h-2.5 text-black fill-black" />
                         </div>
