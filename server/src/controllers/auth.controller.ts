@@ -4,15 +4,48 @@ import { AuthRequest } from '../middlewares';
 import { sendSuccess, sendCreated } from '../utils/response';
 import { User } from '@/models/User';
 import jwt from 'jsonwebtoken';
-import { OAuth2Client } from 'google-auth-library';
+import nodemailer from 'nodemailer';
+import crypto from 'crypto';
+import { config } from '../config'; // Đảm bảo import config để lấy JWT Secret
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+// ═══ HÀM TIỆN ÍCH CẤP COOKIE ═══
+const setAuthCookies = (res: Response, accessToken: string, refreshToken: string) => {
+    const isProd = process.env.NODE_ENV === 'production';
+    const cookieOpts = {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'none' as const : 'lax' as const,
+    };
+    res.cookie('accessToken', accessToken, { ...cookieOpts, maxAge: 15 * 60 * 1000 }); // 15 phút
+    res.cookie('refreshToken', refreshToken, { ...cookieOpts, maxAge: 7 * 24 * 60 * 60 * 1000 }); // 7 ngày
+};
+
+const clearAuthCookies = (res: Response) => {
+    const isProd = process.env.NODE_ENV === 'production';
+    const cookieOpts = {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'none' as const : 'lax' as const
+    };
+    res.clearCookie('accessToken', cookieOpts);
+    res.clearCookie('refreshToken', cookieOpts);
+};
+
+// ═══ CẤU HÌNH GỬI MAIL ═══
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
 
 class AuthController {
     async register(req: Request, res: Response, next: NextFunction) {
         try {
             const { user, tokens } = await authService.register(req.body);
-            sendCreated(res, { user, ...tokens }, 'Đăng ký thành công');
+            setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
+            sendCreated(res, { user }, 'Đăng ký thành công');
         } catch (error) {
             next(error);
         }
@@ -21,84 +54,111 @@ class AuthController {
     async login(req: Request, res: Response, next: NextFunction) {
         try {
             const { user, tokens } = await authService.login(req.body.email, req.body.password);
-            sendSuccess(res, { user, ...tokens }, 'Đăng nhập thành công');
+            setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
+            sendSuccess(res, { user }, 'Đăng nhập thành công');
         } catch (error) {
             next(error);
         }
     }
 
-    // ═══ CHỨC NĂNG MỚI: ĐĂNG NHẬP BẰNG GOOGLE ═══
-    async googleLogin(req: Request, res: Response, next: NextFunction) {
+    // ═══ 1. HÀM YÊU CẦU GỬI OTP ═══
+    async requestOtp(req: Request, res: Response, next: NextFunction) {
         try {
-            const { credential } = req.body;
-            if (!credential) {
-                res.status(400).json({ success: false, message: 'Thiếu token xác thực từ Google' });
+            const { email } = req.body;
+            if (!email) {
+                res.status(400).json({ success: false, message: 'Vui lòng nhập email' });
                 return;
             }
 
-            // 1. Nhờ Google xác minh Token
-            const ticket = await googleClient.verifyIdToken({
-                idToken: credential,
-                audience: process.env.GOOGLE_CLIENT_ID,
-            });
+            // Tạo mã 6 số ngẫu nhiên
+            const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+            const otpExpires = new Date(Date.now() + 5 * 60 * 1000); // Sống 5 phút
 
-            const payload = ticket.getPayload();
-            if (!payload || !payload.email) {
-                res.status(400).json({ success: false, message: 'Token Google không hợp lệ' });
-                return;
-            }
-
-            const { email, name, picture } = payload;
-
-            // 2. Kiểm tra xem Email này đã tồn tại trong hệ thống chưa
+            // Tìm user, nếu chưa có thì tạo tạm để lưu OTP (Auto Register)
             let user = await User.findOne({ email });
-
-            // 3. Nếu chưa có tài khoản -> Tự động đăng ký mới luôn
             if (!user) {
                 user = await User.create({
                     email,
-                    displayName: name || 'Người dùng Google',
-                    avatar: picture,
-                    password: Math.random().toString(36).slice(-10), // Random mật khẩu vì login bằng GG
-                    isVerified: true, // Google đã xác thực email rồi
+                    displayName: email.split('@')[0],
+                    password: crypto.randomBytes(16).toString('hex'), // Pass rác vì đăng nhập bằng OTP
+                    role: 'USER',
                 });
             }
 
-            // 4. Tạo JWT Token của app ShuttleSync
-            const accessToken = jwt.sign(
-                { id: user._id, role: user.role },
-                process.env.JWT_SECRET as string,
-                { expiresIn: '1d' }
-            );
+            // Lưu OTP vào DB
+            await User.findByIdAndUpdate(user._id, { otpCode, otpExpires });
 
-            const refreshToken = jwt.sign(
-                { id: user._id },
-                process.env.JWT_REFRESH_SECRET as string,
-                { expiresIn: '7d' }
-            );
+            // Bắn email
+            await transporter.sendMail({
+                from: '"ShuttleSync System" <no-reply@shuttlesync.com>',
+                to: email,
+                subject: 'Mã xác thực đăng nhập ShuttleSync',
+                html: `
+                    <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #f4f4f5; border-radius: 10px;">
+                        <h2>Chào Vợt Thủ! 🏸</h2>
+                        <p>Mã xác thực (OTP) của bạn là:</p>
+                        <h1 style="color: #10b981; font-size: 32px; letter-spacing: 5px;">${otpCode}</h1>
+                        <p style="color: #ef4444; font-size: 12px;">*Mã này sẽ hết hạn trong 5 phút. Vui lòng không chia sẻ cho ai.</p>
+                    </div>
+                `
+            });
 
-            // 5. Trả kết quả về cho Frontend
-            sendSuccess(res, {
-                user,
-                accessToken,
-                refreshToken
-            }, 'Đăng nhập Google thành công');
-
+            sendSuccess(res, null, 'Đã gửi mã OTP đến email của bạn!');
         } catch (error) {
-            console.error('Lỗi Google Login Backend:', error);
+            console.error('Lỗi gửi mail OTP:', error);
+            next(error);
+        }
+    }
+
+    // ═══ 2. HÀM XÁC NHẬN OTP ĐỂ ĐĂNG NHẬP ═══
+    async verifyOtpLogin(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { email, otp } = req.body;
+            if (!email || !otp) {
+                res.status(400).json({ success: false, message: 'Thiếu email hoặc mã OTP' });
+                return;
+            }
+
+            const user = await User.findOne({ email });
+            if (!user) {
+                res.status(404).json({ success: false, message: 'Tài khoản không tồn tại' });
+                return;
+            }
+
+            const userAny = user as any;
+            if (userAny.otpCode !== otp) {
+                res.status(400).json({ success: false, message: 'Mã OTP không chính xác' });
+                return;
+            }
+            if (userAny.otpExpires < new Date()) {
+                res.status(400).json({ success: false, message: 'Mã OTP đã hết hạn' });
+                return;
+            }
+
+            // Hợp lệ -> Xóa mã OTP đi cho an toàn
+            await User.findByIdAndUpdate(user._id, { $unset: { otpCode: 1, otpExpires: 1 } });
+
+            // Cấp Cookie y như đăng nhập thường
+            const accessToken = jwt.sign({ id: user._id, role: user.role }, config.jwt.accessSecret, { expiresIn: '15m' });
+            const refreshToken = jwt.sign({ id: user._id }, config.jwt.refreshSecret, { expiresIn: '7d' });
+
+            setAuthCookies(res, accessToken, refreshToken);
+            sendSuccess(res, { user }, 'Đăng nhập thành công');
+        } catch (error) {
             next(error);
         }
     }
 
     async refreshToken(req: Request, res: Response, next: NextFunction) {
         try {
-            const { refreshToken } = req.body;
-            if (!refreshToken) {
-                res.status(400).json({ success: false, message: 'Refresh token là bắt buộc' });
+            const token = req.cookies.refreshToken || req.body.refreshToken;
+            if (!token) {
+                res.status(401).json({ success: false, message: 'Refresh token là bắt buộc' });
                 return;
             }
-            const tokens = await authService.refreshToken(refreshToken);
-            sendSuccess(res, tokens, 'Làm mới token thành công');
+            const tokens = await authService.refreshToken(token);
+            setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
+            sendSuccess(res, null, 'Làm mới token thành công');
         } catch (error) {
             next(error);
         }
@@ -107,19 +167,15 @@ class AuthController {
     async getProfile(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             const userId = req.userId;
-
             if (!userId) {
                 res.status(401).json({ success: false, message: 'Không tìm thấy ID người dùng' });
                 return;
             }
-
             const user = await User.findById(userId).select('-password');
-
             if (!user) {
                 res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
                 return;
             }
-
             sendSuccess(res, user, 'Lấy thông tin cá nhân thành công');
         } catch (error) {
             next(error);
@@ -128,7 +184,9 @@ class AuthController {
 
     async logout(req: AuthRequest, res: Response, next: NextFunction) {
         try {
-            await authService.logout(req.userId!, req.body.refreshToken);
+            const token = req.cookies.refreshToken || req.body.refreshToken;
+            if (token) await authService.logout(req.userId!, token);
+            clearAuthCookies(res);
             sendSuccess(res, null, 'Đăng xuất thành công');
         } catch (error) {
             next(error);

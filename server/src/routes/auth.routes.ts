@@ -11,6 +11,7 @@ router.post('/refresh-token', authController.refreshToken);
 router.get('/profile', authenticate, authController.getProfile);
 router.post('/logout', authenticate, authController.logout);
 router.put('/change-password', authenticate, validate(changePasswordSchema), authController.changePassword);
-router.post('/google', authController.googleLogin);
+router.post('/request-otp', authController.requestOtp);
+router.post('/verify-otp', authController.verifyOtpLogin);
 
 export default router;
