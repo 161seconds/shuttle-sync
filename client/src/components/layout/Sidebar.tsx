@@ -1,5 +1,5 @@
 import {
-    Bot, Settings,
+    Bot,
     UserCircle, BookOpen, Dumbbell,
     Zap, ChevronRight,
     BarChart2
@@ -102,14 +102,6 @@ export default function AppSidebar() {
                             <span className="text-sm tracking-tight">{item.label}</span>
                         </button>
                     ))}
-                </div>
-
-                {/* KHU VỰC 3: CÀI ĐẶT */}
-                <div className={`p-4 border-t ${t.border.subtle}`}>
-                    <button className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-white/5 hover:text-gray-200 transition-all font-bold text-xs`}>
-                        <Settings className="w-4 h-4 opacity-50" />
-                        <span>CÀI ĐẶT HỆ THỐNG</span>
-                    </button>
                 </div>
             </aside>
         </>

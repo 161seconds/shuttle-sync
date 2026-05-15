@@ -56,6 +56,33 @@ class AuthController {
         }
     }
 
+    async logout(req: Request, res: Response, next: NextFunction) {
+        try {
+            // Lấy refreshToken từ Cookie hoặc từ body (nếu có)
+            const token = req.cookies?.refreshToken || req.body?.refreshToken;
+
+            // Gọi sang authService để xóa token trong DB/Blacklist nếu có logic đó
+            if (token && authService.logout) {
+                await authService.logout((req as any).userId!, token);
+            }
+
+            // Xóa sạch Cookie ở trình duyệt của khách
+            const isProd = process.env.NODE_ENV === 'production';
+            const cookieOpts = {
+                httpOnly: true,
+                secure: isProd,
+                sameSite: isProd ? 'none' as const : 'lax' as const,
+                path: '/'
+            };
+            res.clearCookie('accessToken', cookieOpts);
+            res.clearCookie('refreshToken', cookieOpts);
+
+            sendSuccess(res, null, 'Đăng xuất thành công');
+        } catch (error) {
+            next(error);
+        }
+    }
+
     // ═══ YÊU CẦU GỬI OTP ═══
     async requestOtp(req: Request, res: Response, next: NextFunction) {
         try {
@@ -160,23 +187,65 @@ class AuthController {
                 res.status(401).json({ success: false, message: 'Không tìm thấy ID người dùng' });
                 return;
             }
+
+            // 1. Lấy thông tin user cơ bản (bỏ password)
             const user = await User.findById(userId).select('-password');
             if (!user) {
                 res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
                 return;
             }
-            sendSuccess(res, user, 'Lấy thông tin cá nhân thành công');
-        } catch (error) {
-            next(error);
-        }
-    }
 
-    async logout(req: AuthRequest, res: Response, next: NextFunction) {
-        try {
-            const token = req.cookies.refreshToken || req.body.refreshToken;
-            if (token) await authService.logout(req.userId!, token);
-            clearAuthCookies(res);
-            sendSuccess(res, null, 'Đăng xuất thành công');
+            // 2. Khởi tạo các chỉ số mặc định
+            let totalBookings = 0;
+            let totalGroupsCreated = 0;
+            let totalGroupsJoined = 0;
+            // Điểm đánh giá: lấy từ trường rating của User (nếu có), mặc định ban đầu là 5.0 tinh khôi
+            let rating = (user as any).rating || 5.0;
+
+            // 3. Tiến hành truy vấn đếm số lượng từ các Model khác
+            try {
+                const mongoose = require('mongoose');
+
+                // Lấy các Model đã đăng ký trong hệ thống một cách an toàn
+                const BookingModel = mongoose.models.Booking;
+                const GroupPlayModel = mongoose.models.GroupPlay;
+
+                if (BookingModel) {
+                    totalBookings = await BookingModel.countDocuments({ userId: userId });
+                }
+
+                if (GroupPlayModel) {
+                    totalGroupsCreated = await GroupPlayModel.countDocuments({ creatorId: userId });
+
+                    totalGroupsJoined = await GroupPlayModel.countDocuments({
+                        members: userId,
+                        creatorId: { $ne: userId }
+                    });
+                }
+            } catch (dbError) {
+                console.error("Lỗi khi đếm chỉ số thống kê:", dbError);
+            }
+
+            // 4. Chuyển đổi Document Mongoose thành Object thường để tùy biến thuộc tính
+            const userObj = user.toObject();
+
+            // Lấy các chỉ số cũ từ DB (nếu có) để không bị đè mất
+            const currentStats = userObj.stats || {};
+
+            userObj.stats = {
+                totalBookings: totalBookings,
+                totalGroupsCreated: totalGroupsCreated,
+                totalGroupsJoined: totalGroupsJoined,
+                // Bổ sung 4 trường còn thiếu để TS hết chửi:
+                totalTournaments: currentStats.totalTournaments || 0,
+                noShowCount: currentStats.noShowCount || 0,
+                rating: currentStats.rating || 5.0,
+                reviewCount: currentStats.reviewCount || 0,
+                eloScore: currentStats.eloScore || 1000 // Điểm Elo khởi đầu thường là 1000 hoặc 1200
+            };
+
+            // 5. Trả dữ liệu về cho Frontend hưởng lạc
+            sendSuccess(res, userObj, 'Lấy thông tin cá nhân thành công');
         } catch (error) {
             next(error);
         }

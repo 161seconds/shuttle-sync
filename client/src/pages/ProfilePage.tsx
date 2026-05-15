@@ -27,38 +27,33 @@ export default function ProfilePage() {
         const syncData = async () => {
             try {
                 setIsSyncing(true);
-                // Gọi API lấy thông tin mới nhất, Cookie sẽ tự động được gửi kèm
                 const res = await authApi.getMe();
-                // Tùy cấu hình response của sếp mà bốc data cho đúng
                 const userData = res.data?.data?.user || res.data?.data || res.data?.user || res.data;
                 setUser(userData);
             } catch (error) {
                 console.error("Lỗi đồng bộ dữ liệu Profile:", error);
-                // Nếu lỗi 401 thì axiosClient đã tự đẩy về login rồi, ở đây ko cần setUser(null) nữa
+                setUser(null);
             } finally {
                 setIsSyncing(false);
             }
         };
 
-        // CHỈ CẦN VÀO TRANG LÀ SYNC LUÔN, KHÔNG CHECK LOCALSTORAGE NỮA
         syncData();
-    }, []); // Chạy 1 lần duy nhất khi vào trang
+    }, []);
 
     const handleLogout = async () => {
         try {
-            await authApi.logout(); // Gọi API để Backend xóa Cookie
+            await authApi.logout();
         } catch (err) {
             console.log('Logout API Error:', err);
         }
-        // Xóa thông tin ở client
         setUser(null);
         setPage('login');
     };
 
-    // --- HIỂN THỊ KHI CHƯA CÓ USER (CHƯA ĐĂNG NHẬP) ---
     if (!user) {
         return (
-            <div className="w-full flex flex-col items-center justify-center min-h-[75vh] px-6 pt-20 pb-24 text-center">
+            <div className="w-full flex-1 flex flex-col items-center justify-center min-h-[75vh] px-6 pt-20 pb-24 text-center">
                 <div className="max-w-md w-full flex flex-col items-center">
                     <div className="relative w-28 h-28 bg-[#1e1e1e] rounded-full flex items-center justify-center mb-6 border border-white/10 shadow-[0_0_40px_rgba(16,185,129,0.15)]">
                         <div className="absolute inset-0 rounded-full border border-emerald-500/20 animate-ping" style={{ animationDuration: '3s' }}></div>
@@ -76,7 +71,7 @@ export default function ProfilePage() {
         );
     }
 
-    // --- ĐIỀU HƯỚNG TRANG CON ---
+    // Sub-page routing
     if (subPage === 'edit') return <EditProfile onBack={() => setSubPage(null)} />;
     if (subPage === 'favorites') return <FavoriteCourts onBack={() => setSubPage(null)} />;
     if (subPage === 'history') return <BookingHistory onBack={() => setSubPage(null)} />;
@@ -96,15 +91,20 @@ export default function ProfilePage() {
     ];
 
     return (
-        <div className="w-full flex flex-col items-center px-4 pb-36 md:pb-16 py-6">
+        // 🔥 Thêm w-full và flex flex-col items-center để khóa mục tiêu luôn nằm giữa màn hình
+        <div className="w-full flex-1 flex flex-col items-center pt-8 pb-36 md:pb-16 px-4 overflow-y-auto">
+
+            {/* 🔥 Ép về max-w-lg (khoảng 512px) để nó thon gọn như thiết kế cũ */}
             <div className="w-full max-w-lg">
+
                 {/* Profile card */}
                 <div className={`${t.bg.card} rounded-2xl border ${t.border.subtle} p-6 mb-6 text-center relative overflow-hidden`}>
                     {isSyncing && (
                         <div className="absolute top-3 right-3 w-3 h-3 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin" />
                     )}
+
                     <div className="relative inline-block mb-4">
-                        <div className="w-20 h-20 rounded-2xl bg-linear-to-br from-emerald-400 to-green-600 flex items-center justify-center text-3xl font-black text-black shadow-lg overflow-hidden">
+                        <div className="w-20 h-20 rounded-2xl bg-linear-to-br from-emerald-400 to-green-600 flex items-center justify-center text-3xl font-black text-black shadow-lg shadow-emerald-500/20 overflow-hidden">
                             {user.avatar ? (
                                 <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
                             ) : (
@@ -118,6 +118,7 @@ export default function ProfilePage() {
                     <h2 className={`text-lg font-bold ${t.text.primary}`}>{user.displayName || 'Vợt thủ'}</h2>
                     <p className={`text-xs ${t.text.muted} mt-0.5`}>{user.email}</p>
 
+                    {/* 🔥 Trả về 2 cột gọn gàng thay vì 4 cột */}
                     <div className="grid grid-cols-2 gap-3 mt-5">
                         {[
                             { label: 'Sân đã đặt', value: user.stats?.totalBookings || '0', color: 'text-emerald-400' },
@@ -133,7 +134,7 @@ export default function ProfilePage() {
                     </div>
                 </div>
 
-                {/* Menu items */}
+                {/* Menu items 🔥 Trả về 1 cột dọc */}
                 <div className="space-y-1">
                     {MENU.map((item) => (
                         <button key={item.label} onClick={() => setSubPage(item.action)}
@@ -154,8 +155,9 @@ export default function ProfilePage() {
                     ))}
                 </div>
 
+                {/* Logout */}
                 <button onClick={handleLogout}
-                    className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl mt-4 hover:bg-red-500/5 transition-colors">
+                    className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl mt-4 hover:bg-red-500/5 transition-colors active:scale-95">
                     <div className="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center text-red-400">
                         <LogOut className="w-4 h-4" />
                     </div>
