@@ -6,11 +6,23 @@ class BookingController {
     async createBooking(req: any, res: Response, next: NextFunction) {
         try {
             const userId = req.user?._id || req.user?.id || req.userId;
+
+            console.log('CREATE BOOKING BODY:', req.body);
+
             const booking = await bookingService.createBooking(userId, req.body);
-            res.status(201).json({ success: true, data: booking, message: 'Tạo đơn đặt sân thành công' });
-        } catch (error) {
+
+            res.status(201).json({
+                success: true,
+                data: booking,
+                message: 'Tạo đơn đặt sân thành công'
+            });
+        } catch (error: any) {
             console.log("❌ Lỗi Create Booking:", error);
-            res.status(500).json({ success: false, message: 'Lỗi server khi đặt sân' });
+
+            res.status(400).json({
+                success: false,
+                message: error.message || 'Tạo đơn đặt sân thất bại'
+            });
         }
     }
 
