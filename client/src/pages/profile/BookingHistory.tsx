@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-//import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Calendar, Clock, Loader2, Check, X, ChevronRight, Users } from 'lucide-react';
 import { theme as t } from '../../utils/theme';
 import axiosClient from '../../api/axiosClient';
@@ -28,7 +27,7 @@ export default function BookingHistory({ onBack }: Props) {
         setLoading(true);
         try {
             const params: any = {};
-            if (tab !== 'all') params.status = tab.toUpperCase();
+            if (tab !== 'all') params.status = tab;
 
             const res = await axiosClient.get('/bookings/my', { params });
             setBookings(res.data.data || []);
@@ -46,9 +45,10 @@ export default function BookingHistory({ onBack }: Props) {
         setCancelling(bookingId);
         try {
             await axiosClient.post(`/bookings/${bookingId}/cancel`, { reason: 'Người dùng hủy' });
-            await fetchBookings();
+            await fetchBookings(); // Tải lại danh sách sau khi hủy
         } catch (err) {
             console.error('Lỗi hủy:', err);
+            alert('Không thể hủy đơn này!');
         } finally {
             setCancelling(null);
         }
@@ -72,12 +72,14 @@ export default function BookingHistory({ onBack }: Props) {
                     </button>
                     <h1 className={`font-bold ${t.text.primary}`}>Lịch sử đặt sân</h1>
                 </div>
+
+                {/* THANH TABS */}
                 <div className="flex gap-1 px-4 pb-3 overflow-x-auto scrollbar-none">
                     {TABS.map(tb => (
                         <button key={tb.id} onClick={() => setTab(tb.id)}
                             className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === tb.id
-                                ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                                : `${t.bg.elevated} ${t.text.muted} border ${t.border.subtle}`}`}>
+                                ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]'
+                                : `${t.bg.elevated} ${t.text.muted} border ${t.border.subtle} hover:bg-white/5`}`}>
                             {tb.label}
                         </button>
                     ))}
@@ -92,21 +94,22 @@ export default function BookingHistory({ onBack }: Props) {
                 ) : bookings.length === 0 ? (
                     <div className="flex flex-col items-center py-20">
                         <Calendar className={`w-12 h-12 ${t.text.muted} mb-4`} />
-                        <p className={`${t.text.secondary} font-semibold mb-1`}>Chưa có đặt sân nào</p>
+                        <p className={`${t.text.secondary} font-semibold mb-1`}>Chưa có đơn đặt sân nào</p>
                     </div>
                 ) : (
                     bookings.map(b => {
-                        // FIX: Đảm bảo chuyển về chữ thường để lấy đúng màu sắc
                         const statusKey = b.status?.toLowerCase() || 'pending_payment';
                         const s = STATUS_MAP[statusKey] || STATUS_MAP.confirmed;
                         const isExpanded = expanded === b._id;
-                        const courtName = (b.court as any)?.name || 'Sân';
+
+                        const courtObj = (b as any).courtId || (b as any).court;
+                        const courtName = typeof courtObj === 'object' ? courtObj?.name : 'Sân (Không xác định)';
 
                         return (
-                            <div key={b._id} className={`${t.bg.card} rounded-2xl border ${t.border.subtle} overflow-hidden`}>
+                            <div key={b._id} className={`${t.bg.card} rounded-2xl border ${t.border.subtle} overflow-hidden hover:border-white/10 transition-colors`}>
                                 <button onClick={() => setExpanded(isExpanded ? null : b._id)}
                                     className="w-full p-4 flex items-start gap-3 text-left">
-                                    <div className={`w-10 h-10 rounded-xl ${s.bg} flex items-center justify-center shrink-0 mt-0.5`}>
+                                    <div className={`w-10 h-10 rounded-xl ${s.bg} flex items-center justify-center shrink-0 mt-0.5 border border-white/5`}>
                                         {statusKey === 'confirmed' ? <Check className={`w-4 h-4 ${s.color}`} /> :
                                             statusKey === 'cancelled' ? <X className={`w-4 h-4 ${s.color}`} /> :
                                                 statusKey === 'pending_payment' ? <Clock className={`w-4 h-4 ${s.color}`} /> :
@@ -115,26 +118,26 @@ export default function BookingHistory({ onBack }: Props) {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between mb-1">
                                             <h3 className={`font-bold text-sm ${t.text.primary} truncate`}>{courtName}</h3>
-                                            <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${s.bg} ${s.color} shrink-0 ml-2`}>{s.label}</span>
+                                            <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${s.bg} ${s.color} border border-white/5 shrink-0 ml-2`}>{s.label}</span>
                                         </div>
                                         <div className="flex items-center gap-3 flex-wrap">
                                             <span className={`text-xs ${t.text.muted} flex items-center gap-1`}>
-                                                <Calendar className="w-3 h-3" /> {formatDate(b.date)}
+                                                <Calendar className="w-3 h-3 text-emerald-500/70" /> {formatDate(b.date)}
                                             </span>
                                             <span className={`text-xs ${t.text.muted} flex items-center gap-1`}>
-                                                <Clock className="w-3 h-3" /> {b.startTime} - {b.endTime}
+                                                <Clock className="w-3 h-3 text-emerald-500/70" /> {b.startTime} - {b.endTime}
                                             </span>
                                         </div>
                                         <div className="flex items-center justify-between mt-2">
-                                            <span className={`text-xs font-mono ${t.text.muted}`}>#{b.bookingCode}</span>
+                                            <span className={`text-[11px] font-mono ${t.text.muted} bg-white/5 px-1.5 py-0.5 rounded`}>#{b.bookingCode}</span>
                                             <span className="text-emerald-400 text-sm font-black">{b.finalAmount?.toLocaleString()}đ</span>
                                         </div>
                                     </div>
-                                    <ChevronRight className={`w-4 h-4 ${t.text.muted} shrink-0 mt-3 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                                    <ChevronRight className={`w-4 h-4 ${t.text.muted} shrink-0 mt-3 transition-transform ${isExpanded ? 'rotate-90 text-emerald-400' : ''}`} />
                                 </button>
 
                                 {isExpanded && (
-                                    <div className={`px-4 pb-4 border-t ${t.border.subtle} pt-3 space-y-2`}>
+                                    <div className={`px-4 pb-4 border-t ${t.border.subtle} pt-3 space-y-2 bg-black/20`}>
                                         <DetailRow label="Thanh toán" value={b.payment?.method === 'qr_code' ? 'QR Code' : b.payment?.method || '—'} />
                                         <DetailRow label="Tạm tính" value={`${b.totalAmount?.toLocaleString()}đ`} />
 
@@ -142,17 +145,19 @@ export default function BookingHistory({ onBack }: Props) {
                                         {statusKey === 'confirmed' && (
                                             <button
                                                 onClick={() => {
+                                                    // Đổi qua tab group-play và mở popup
                                                     window.location.href = `/?tab=group-plays&openCreate=true`;
                                                 }}
-                                                className="w-full mt-4 py-2.5 rounded-xl bg-blue-500/10 text-blue-400 text-xs font-bold flex items-center justify-center gap-2 hover:bg-blue-500/20 transition-colors">
+                                                className="w-full mt-4 py-2.5 rounded-xl bg-blue-500/10 text-blue-400 text-xs font-bold flex items-center justify-center gap-2 hover:bg-blue-500/20 border border-blue-500/20 transition-colors">
                                                 <Users className="w-4 h-4" />
                                                 Mở trang Tạo nhóm chơi
                                             </button>
                                         )}
 
+                                        {/* NÚT HỦY SÂN */}
                                         {(statusKey === 'pending_payment' || statusKey === 'confirmed') && (
                                             <button onClick={() => handleCancel(b._id)} disabled={cancelling === b._id}
-                                                className="w-full mt-2 py-2.5 rounded-xl bg-red-500/10 text-red-400 text-xs font-bold flex items-center justify-center gap-2 hover:bg-red-500/15 transition-colors">
+                                                className="w-full mt-2 py-2.5 rounded-xl bg-red-500/10 text-red-400 text-xs font-bold flex items-center justify-center gap-2 hover:bg-red-500/15 border border-red-500/20 transition-colors">
                                                 {cancelling === b._id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <X className="w-3.5 h-3.5" />}
                                                 Hủy đặt sân
                                             </button>
@@ -170,9 +175,9 @@ export default function BookingHistory({ onBack }: Props) {
 
 function DetailRow({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
     return (
-        <div className="flex justify-between text-xs">
-            <span className="text-[#555]">{label}</span>
-            <span className={accent ? 'text-emerald-400' : 'text-[#999]'}>{value}</span>
+        <div className="flex justify-between text-xs items-center py-1">
+            <span className="text-[#666] font-medium">{label}</span>
+            <span className={`font-bold ${accent ? 'text-emerald-400' : 'text-[#eaeaea]'}`}>{value}</span>
         </div>
     );
 }
