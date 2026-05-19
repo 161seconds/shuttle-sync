@@ -105,9 +105,9 @@ export default function SupplementaryPage() {
                             <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
                                 <HeartPulse className="w-6 h-6 text-emerald-500" />
                             </div>
-                            <span className="px-3 py-1 bg-white/5 rounded-lg text-xs font-bold uppercase tracking-widest text-gray-400">Giáo án Thể lực Chuyên Sâu</span>
+                            <span className="px-3 py-1 bg-white/5 rounded-lg text-xs font-bold uppercase tracking-widest text-gray-400">Giáo án Thể lực</span>
                         </div>
-                        <h1 className="text-3xl md:text-4xl font-black text-white mb-4">Mồ Hôi Đổ, Đẳng Cấp Lên</h1>
+                        <h1 className="text-3xl md:text-4xl font-black text-white mb-4">Giáo án Thể lực</h1>
                         <p className="text-sm text-gray-400 max-w-2xl leading-relaxed mb-6">
                             Kỹ thuật tốt là chưa đủ. Hệ thống gồm 60 bài tập chuyên sâu từ Khởi động đến Phục hồi dưới đây sẽ giúp bạn trở thành "cỗ máy không phổi" trên sân đấu.
                         </p>
