@@ -25,12 +25,14 @@ const IDEAS = [
     {
         title: "Tạo chiến dịch Marketing cho sân",
         desc: "Đăng bài viết hoặc chương trình khuyến mãi giờ vàng để tăng tỷ lệ lấp đầy sân vào buổi sáng sớm.",
-        btn: "Xem chi tiết"
+        btn: "Xem chi tiết",
+        action: "MARKETING_CAMPAIGN"
     },
     {
         title: "Tối ưu hóa doanh thu Pickleball",
         desc: "Nhu cầu Pickleball đang tăng đột biến (+30%). Cân nhắc gửi đề xuất chuyển đổi sân cầu lông vắng khách sang Pickleball cho các chủ sân.",
-        btn: "Lên chiến dịch"
+        btn: "Lên chiến dịch",
+        action: "PICKLEBALL_OPTIMIZATION"
     }
 ];
 
@@ -40,6 +42,23 @@ export default function AdminDashboard() {
 
     const nextIdea = () => setCurrentIdea((prev) => (prev + 1) % IDEAS.length);
     const prevIdea = () => setCurrentIdea((prev) => (prev - 1 + IDEAS.length) % IDEAS.length);
+
+    // Xử lý các hành động
+    const handleActionIdea = () => {
+        alert(`Đang mở module: ${IDEAS[currentIdea].action}`);
+    };
+
+    const handleScrollToStats = () => {
+        document.getElementById('admin-stats-section')?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const handleViewOrder = (id: string) => {
+        alert(`Đang tải chi tiết đơn đặt sân: ${id}\n(Tính năng đang phát triển)`);
+    };
+
+    const handleManageCourt = (name: string) => {
+        alert(`Mở bảng quản lý chi tiết sân: ${name}`);
+    };
 
     return (
         <div className="w-full h-[calc(100vh-76px)] overflow-y-auto custom-scrollbar p-6 bg-[#0f141a] text-gray-300 font-sans">
@@ -56,20 +75,23 @@ export default function AdminDashboard() {
                         <p className="text-emerald-50 max-w-lg text-sm leading-relaxed mb-6 relative z-10">
                             Chào mừng đến với Bảng điều khiển ShuttleSync! Theo dõi doanh thu, quản lý sân và nắm bắt mọi thông tin chi tiết về hệ thống một cách trực quan.
                         </p>
-                        <button className="bg-[#0f141a] text-emerald-400 font-bold px-6 py-2.5 rounded-lg w-max hover:bg-black transition-colors shadow-sm relative z-10 border border-emerald-800">
+                        <button
+                            onClick={handleScrollToStats}
+                            className="bg-[#0f141a] text-emerald-400 font-bold px-6 py-2.5 rounded-lg w-max hover:bg-black transition-colors shadow-sm relative z-10 border border-emerald-800 active:scale-95"
+                        >
                             Khám phá ngay
                         </button>
                     </div>
 
-                    {/* Thẻ Ideas for You (Đã làm hoạt động nút bấm) */}
+                    {/* Thẻ Ideas for You */}
                     <div className="rounded-2xl p-6 bg-[#1a222c] border border-[#262f3d] flex flex-col justify-between shadow-sm">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-sm font-semibold text-gray-400">Gợi ý cho bạn ({currentIdea + 1}/{IDEAS.length})</h3>
                             <div className="flex gap-2">
-                                <button onClick={prevIdea} className="w-7 h-7 rounded bg-[#262f3d] text-gray-400 flex items-center justify-center hover:bg-[#323d4f] hover:text-white transition-colors">
+                                <button onClick={prevIdea} className="w-7 h-7 rounded bg-[#262f3d] text-gray-400 flex items-center justify-center hover:bg-[#323d4f] hover:text-white transition-colors active:scale-90">
                                     <ChevronLeft className="w-4 h-4" />
                                 </button>
-                                <button onClick={nextIdea} className="w-7 h-7 rounded bg-[#262f3d] text-gray-400 flex items-center justify-center hover:bg-[#323d4f] hover:text-white transition-colors">
+                                <button onClick={nextIdea} className="w-7 h-7 rounded bg-[#262f3d] text-gray-400 flex items-center justify-center hover:bg-[#323d4f] hover:text-white transition-colors active:scale-90">
                                     <ChevronRight className="w-4 h-4" />
                                 </button>
                             </div>
@@ -79,12 +101,18 @@ export default function AdminDashboard() {
                             <p className="text-sm text-gray-400 mb-5 line-clamp-3 leading-relaxed min-h-15">
                                 {IDEAS[currentIdea].desc}
                             </p>
-                            <button className="px-5 py-2 bg-transparent border border-[#323d4f] rounded-lg text-sm font-medium text-emerald-400 hover:bg-[#262f3d] transition-colors">
+                            <button
+                                onClick={handleActionIdea}
+                                className="px-5 py-2 bg-transparent border border-[#323d4f] rounded-lg text-sm font-medium text-emerald-400 hover:bg-[#262f3d] transition-colors active:scale-95"
+                            >
                                 {IDEAS[currentIdea].btn}
                             </button>
                         </div>
                     </div>
                 </div>
+
+                {/* Gắn ID để nút Khám phá ngay cuộn xuống đây */}
+                <div id="admin-stats-section"></div>
 
                 {/* ================= HÀNG 2: THỐNG KÊ (STATS) ================= */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -188,10 +216,13 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                {/* ================= HÀNG 4: BẢNG DỮ LIỆU VÀ SÂN HOT (GIỮ NGUYÊN) ================= */}
+                {/* ================= HÀNG 4: BẢNG DỮ LIỆU VÀ SÂN HOT ================= */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 rounded-2xl p-6 bg-[#1a222c] border border-[#262f3d] overflow-x-auto shadow-sm">
-                        <h3 className="text-base font-bold text-white mb-6">Đơn đặt gần đây</h3>
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-base font-bold text-white">Đơn đặt gần đây</h3>
+                            <button className="text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors">Xem toàn bộ</button>
+                        </div>
                         <table className="w-full text-left text-sm whitespace-nowrap">
                             <thead className="text-gray-400 border-b border-[#262f3d]">
                                 <tr>
@@ -204,10 +235,10 @@ export default function AdminDashboard() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[#262f3d]">
-                                <TableRow id="#DU005" amount="150,000đ" type="Cầu lông" date="20 Th01, 2026" status="Hoàn tất" color="blue" />
-                                <TableRow id="#DU004" amount="200,000đ" type="Pickleball" date="22 Th01, 2026" status="Chờ duyệt" color="orange" />
-                                <TableRow id="#DU003" amount="300,000đ" type="Cầu lông VIP" date="18 Th01, 2026" status="Hủy" color="red" />
-                                <TableRow id="#DU002" amount="560,000đ" type="Giải đấu Pickleball" date="13 Th01, 2026" status="Hoàn tất" color="emerald" />
+                                <TableRow id="#DU005" amount="150,000đ" type="Cầu lông" date="20 Th01, 2026" status="Hoàn tất" color="emerald" onView={() => handleViewOrder('#DU005')} />
+                                <TableRow id="#DU004" amount="200,000đ" type="Pickleball" date="22 Th01, 2026" status="Chờ duyệt" color="orange" onView={() => handleViewOrder('#DU004')} />
+                                <TableRow id="#DU003" amount="300,000đ" type="Cầu lông VIP" date="18 Th01, 2026" status="Hủy" color="red" onView={() => handleViewOrder('#DU003')} />
+                                <TableRow id="#DU002" amount="560,000đ" type="Giải đấu Pickleball" date="13 Th01, 2026" status="Hoàn tất" color="emerald" onView={() => handleViewOrder('#DU002')} />
                             </tbody>
                         </table>
                     </div>
@@ -215,9 +246,9 @@ export default function AdminDashboard() {
                     <div className="rounded-2xl p-6 bg-[#1a222c] border border-[#262f3d] shadow-sm">
                         <h3 className="text-base font-bold text-white mb-6">Sân Hot Nhất</h3>
                         <div className="space-y-5">
-                            <TopCourt name="Sân Nhật Thiện" bookings="454" revenue="50,000K" rating="5/5" status="Đang trống" statusColor="text-blue-400" />
-                            <TopCourt name="Pickleball Gò Vấp" bookings="320" revenue="42,000K" rating="4.8/5" status="Đang trống" statusColor="text-emerald-400" />
-                            <TopCourt name="Cầu lông VNU" bookings="124" revenue="30,000K" rating="4.5/5" status="Kín lịch" statusColor="text-orange-400" />
+                            <TopCourt name="Sân Nhật Thiện" bookings="454" revenue="50,000K" status="Đang trống" statusColor="text-emerald-400" onClick={() => handleManageCourt('Sân Nhật Thiện')} />
+                            <TopCourt name="Pickleball Gò Vấp" bookings="320" revenue="42,000K" status="Đang trống" statusColor="text-emerald-400" onClick={() => handleManageCourt('Pickleball Gò Vấp')} />
+                            <TopCourt name="Cầu lông VNU" bookings="124" revenue="30,000K" status="Kín lịch" statusColor="text-orange-400" onClick={() => handleManageCourt('Cầu lông VNU')} />
                         </div>
                     </div>
                 </div>
@@ -249,24 +280,24 @@ function StatCard({ title, value, trend, isPositive, icon, iconBg }: any) {
     )
 }
 
-function TableRow({ id, amount, type, date, status, color }: any) {
+function TableRow({ id, amount, type, date, status, color, onView }: any) {
     const bgMap: any = {
-        blue: 'bg-blue-500/10 text-blue-400',
-        orange: 'bg-orange-500/10 text-orange-400',
-        red: 'bg-red-500/10 text-red-400',
-        emerald: 'bg-emerald-500/10 text-emerald-400',
+        blue: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
+        orange: 'bg-orange-500/10 text-orange-400 border border-orange-500/20',
+        red: 'bg-red-500/10 text-red-400 border border-red-500/20',
+        emerald: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
     };
     return (
-        <tr className="hover:bg-white/2 transition-colors">
+        <tr className="hover:bg-white/5 transition-colors">
             <td className="py-4 text-gray-300 font-medium">{id}</td>
-            <td className="py-4 text-gray-300">{amount}</td>
+            <td className="py-4 text-emerald-400 font-bold">{amount}</td>
             <td className="py-4 text-gray-400">{type}</td>
             <td className="py-4 text-gray-400">{date}</td>
             <td className="py-4">
-                <span className={`px-2.5 py-1 rounded text-[11px] font-bold tracking-wide uppercase ${bgMap[color]}`}>{status}</span>
+                <span className={`px-2.5 py-1 rounded text-[10px] font-bold tracking-wide uppercase ${bgMap[color]}`}>{status}</span>
             </td>
             <td className="py-4 text-right">
-                <button className="px-3.5 py-1.5 rounded-lg bg-[#262f3d] text-gray-300 text-xs font-bold hover:bg-[#323d4f] hover:text-white transition-colors">
+                <button onClick={onView} className="px-3.5 py-1.5 rounded-lg bg-[#262f3d] text-gray-300 text-xs font-bold hover:bg-emerald-500/20 hover:text-emerald-400 transition-colors active:scale-95">
                     Xem
                 </button>
             </td>
@@ -274,19 +305,19 @@ function TableRow({ id, amount, type, date, status, color }: any) {
     )
 }
 
-function TopCourt({ name, bookings, revenue, status, statusColor }: any) {
+function TopCourt({ name, bookings, revenue, status, statusColor, onClick }: any) {
     return (
-        <div className="flex items-center justify-between group">
+        <div className="flex items-center justify-between group p-2 -m-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer" onClick={onClick}>
             <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-lg bg-[#262f3d] flex items-center justify-center text-xl shadow-sm border border-[#323d4f]">🏸</div>
+                <div className="w-11 h-11 rounded-lg bg-[#262f3d] flex items-center justify-center text-xl shadow-sm border border-[#323d4f] group-hover:border-emerald-500/30 transition-colors">🏸</div>
                 <div>
-                    <p className="text-sm font-bold text-gray-200 group-hover:text-emerald-400 transition-colors cursor-pointer">{name}</p>
+                    <p className="text-sm font-bold text-gray-200 group-hover:text-emerald-400 transition-colors">{name}</p>
                     <p className="text-xs text-gray-500 mt-0.5">{bookings} lượt đặt</p>
                 </div>
             </div>
             <div className="text-right">
-                <p className="text-sm font-bold text-gray-200">{revenue}</p>
-                <p className={`text-xs font-bold mt-0.5 ${statusColor}`}>{status}</p>
+                <p className="text-sm font-bold text-white">{revenue}</p>
+                <p className={`text-[11px] font-bold mt-0.5 uppercase tracking-wider ${statusColor}`}>{status}</p>
             </div>
         </div>
     )
