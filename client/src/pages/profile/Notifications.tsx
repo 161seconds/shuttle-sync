@@ -36,9 +36,6 @@ export default function Notifications({ onBack }: Props) {
             try {
                 const res = await axiosClient.get('/notifications');
 
-                // 1. In ra console để xem Backend thực sự trả về cái gì
-                console.log("Dữ liệu API thông báo trả về:", res.data);
-
                 // 2. Trích xuất đúng mảng dữ liệu (Phòng hờ các cấu trúc trả về khác nhau)
                 const dataList = res.data.data || res.data.notifications || res.data;
 
@@ -132,44 +129,44 @@ export default function Notifications({ onBack }: Props) {
                         <p className={t.text.muted}>Bạn chưa có thông báo nào.</p>
                     </div>
                 ) : Array.isArray(notifications) && notifications.map((noti) => (
-                        <div
-                            key={noti._id}
-                            className={`relative p-4 rounded-2xl border transition-all cursor-pointer group hover:bg-[#1a1b1f] overflow-hidden ${noti.isRead
-                                ? 'bg-[#121316] border-[#22242a] opacity-75 hover:opacity-100'
-                                : 'bg-[#16181c] border-[#2a2d35] shadow-lg'
-                                }`}
-                        >
-                            {/* Dải màu đánh dấu chưa đọc */}
-                            {!noti.isRead && (
-                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                            )}
+                    <div
+                        key={noti._id}
+                        className={`relative p-4 rounded-2xl border transition-all cursor-pointer group hover:bg-[#1a1b1f] overflow-hidden ${noti.isRead
+                            ? 'bg-[#121316] border-[#22242a] opacity-75 hover:opacity-100'
+                            : 'bg-[#16181c] border-[#2a2d35] shadow-lg'
+                            }`}
+                    >
+                        {/* Dải màu đánh dấu chưa đọc */}
+                        {!noti.isRead && (
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                        )}
 
-                            <div className="flex gap-4">
-                                {/* Icon */}
-                                <div className={`w-12 h-12 shrink-0 rounded-full border flex items-center justify-center ${getIconBackground(noti.type)}`}>
-                                    {getNotificationIcon(noti.type)}
+                        <div className="flex gap-4">
+                            {/* Icon */}
+                            <div className={`w-12 h-12 shrink-0 rounded-full border flex items-center justify-center ${getIconBackground(noti.type)}`}>
+                                {getNotificationIcon(noti.type)}
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2 mb-1">
+                                    <h3 className={`text-sm font-bold truncate ${noti.isRead ? 'text-white/80' : 'text-white'}`}>
+                                        {noti.title}
+                                    </h3>
+                                    {!noti.isRead && (
+                                        <Circle className="w-2.5 h-2.5 fill-emerald-500 text-emerald-500 shrink-0 mt-1" />
+                                    )}
                                 </div>
-
-                                {/* Content */}
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-start justify-between gap-2 mb-1">
-                                        <h3 className={`text-sm font-bold truncate ${noti.isRead ? 'text-white/80' : 'text-white'}`}>
-                                            {noti.title}
-                                        </h3>
-                                        {!noti.isRead && (
-                                            <Circle className="w-2.5 h-2.5 fill-emerald-500 text-emerald-500 shrink-0 mt-1" />
-                                        )}
-                                    </div>
-                                    <p className={`text-xs leading-relaxed ${noti.isRead ? 'text-white/40' : 'text-white/60'}`}>
-                                        {noti.message}
-                                    </p>
-                                    <div className="mt-2 text-[10px] font-medium text-white/30 uppercase tracking-wider">
-                                        {timeAgo(noti.createdAt)}
-                                    </div>
+                                <p className={`text-xs leading-relaxed ${noti.isRead ? 'text-white/40' : 'text-white/60'}`}>
+                                    {noti.message}
+                                </p>
+                                <div className="mt-2 text-[10px] font-medium text-white/30 uppercase tracking-wider">
+                                    {timeAgo(noti.createdAt)}
                                 </div>
                             </div>
                         </div>
-                    ))
+                    </div>
+                ))
                 }
             </div>
         </div>
