@@ -21,7 +21,7 @@ export default function AiCoach() {
             sender: 'coach',
             text: 'Chào bạn! Coach đây. Rất vui được gặp vợt thủ trên sân đấu ảo này. 🏸\n\nBạn cần Coach tư vấn gì về kỹ thuật, chọn vợt hay chiến thuật thi đấu hôm nay không?',
             suggestions: [
-                "Cách đập cầu cắm (smash) mạnh hơn",
+                "Cách đập cầu (smash) mạnh hơn",
                 "Tư vấn chọn vợt cho người mới",
                 "Luật thi đấu BWF mới nhất"
             ]
