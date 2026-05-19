@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeft, Camera, Check, Loader2 } from 'lucide-react';
+import { ChevronLeft, Check, Loader2 } from 'lucide-react';
 import { theme as t } from '../../utils/theme';
 import { useAppStore } from '../../store';
 import axiosClient from '../../api/axiosClient';
@@ -83,11 +83,7 @@ export default function EditProfile({ onBack }: Props) {
                                 : user?.displayName?.charAt(0).toUpperCase() || 'U'
                             }
                         </div>
-                        <button className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg border-2 border-[#0a0a0a]">
-                            <Camera className="w-3.5 h-3.5 text-black" />
-                        </button>
                     </div>
-                    <p className={`text-xs ${t.text.muted} mt-3`}>Nhấn để đổi ảnh đại diện</p>
                 </div>
 
                 {/* Tên hiển thị */}
