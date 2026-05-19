@@ -4,6 +4,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 // Khởi tạo Gemini bằng API Key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export const aiCoachController = {
     askCoach: async (req: Request, res: Response) => {
         try {
@@ -29,10 +31,35 @@ export const aiCoachController = {
                 Câu hỏi của vợt thủ: "${message}"
             `;
 
-            // Gọi AI xử lý
-            const result = await model.generateContent(prompt);
-            let responseText = result.response.text();
+            let result;
+            let retries = 3; // Cho phép tối đa 3 lần thử lại
 
+            // Vòng lặp chống kẹt 503
+            while (retries > 0) {
+                try {
+                    // Gọi AI xử lý
+                    result = await model.generateContent(prompt);
+                    break; // Thành công thì thoát vòng lặp ngay
+                } catch (apiError: any) {
+                    if (apiError.status === 503 || apiError.status === 429) {
+                        console.log(`Google API đang bận (Mã ${apiError.status}), thử lại lần ${4 - retries}...`);
+                        retries--;
+                        if (retries === 0) {
+                            throw new Error('Google API quá tải 3 lần liên tiếp.');
+                        }
+                        // Nghỉ ngơi 1.5 giây rồi mới gõ cửa lại
+                        await delay(1500);
+                    } else {
+                        // Lỗi khác (ví dụ sai API Key) thì văng luôn không chờ
+                        throw apiError;
+                    }
+                }
+            }
+
+            // Chắc chắn result có dữ liệu thì mới đi tiếp
+            let responseText = result!.response.text();
+
+            // Làm sạch JSON
             responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
 
             let responseData;
@@ -41,11 +68,12 @@ export const aiCoachController = {
             } catch (parseError) {
                 console.error('Lỗi parse JSON từ AI:', parseError, 'Raw text:', responseText);
                 responseData = {
-                    reply: responseText,
+                    reply: responseText, // Nếu AI lỡ trả text thường, vẫn lấy hiển thị
                     suggestions: []
                 };
             }
 
+            // Trả về Frontend như form cũ
             res.status(200).json({
                 reply: responseData.reply,
                 suggestions: responseData.suggestions || []
