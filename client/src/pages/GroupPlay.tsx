@@ -103,8 +103,24 @@ export default function GroupPlayPage() {
             const params: any = { status: 'open' };
             if (sportFilter !== 'all') params.sportType = sportFilter;
             if (skillFilter !== 'all') params.skillLevel = skillFilter;
+
             const res = await groupPlayApi.searchGroupPlays(params);
-            setGroups(res.data.data || []);
+            const allGroups = res.data.data || [];
+
+            const now = new Date();
+            const futureGroups = allGroups.filter((g: any) => {
+                if (!g.date || !g.startTime) return false;
+
+                // Tách giờ phút từ chuỗi startTime (vd: "14:30")
+                const [hours, minutes] = g.startTime.split(':').map(Number);
+                const groupDate = new Date(g.date);
+                groupDate.setHours(hours, minutes, 0, 0);
+
+                // Chỉ cho phép những kèo chưa tới giờ bắt đầu được hiển thị
+                return groupDate > now;
+            });
+
+            setGroups(futureGroups);
         } catch (err) {
             console.error('Lỗi fetch nhóm chơi:', err);
         } finally {
@@ -338,7 +354,22 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
         const loadBookings = async () => {
             try {
                 const res = await bookingApi.getMyBookings({ status: 'confirmed' });
-                setMyBookings(res.data?.data || []);
+                const allBookings = res.data?.data || [];
+
+                // LỌC BỎ SÂN TRONG QUÁ KHỨ
+                const now = new Date();
+                const futureBookings = allBookings.filter((b: any) => {
+                    if (!b.date || !b.startTime) return false;
+
+                    // Tách giờ phút từ chuỗi startTime (vd: "14:30")
+                    const [hours, minutes] = b.startTime.split(':').map(Number);
+                    const bookingDate = new Date(b.date);
+                    bookingDate.setHours(hours, minutes, 0, 0);
+
+                    return bookingDate > now;
+                });
+
+                setMyBookings(futureBookings);
             } catch (err) {
                 console.error(err);
             } finally {
@@ -387,18 +418,28 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                         <div className="py-10 flex flex-col items-center gap-3"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /><p className="text-xs text-gray-500">Đang tìm lịch đặt sân...</p></div>
                     ) : myBookings.length === 0 ? (
                         <div className="text-center py-10 space-y-4">
-                            <p className="text-sm text-gray-400">Bạn cần đặt sân trước khi tạo nhóm!</p>
+                            <p className="text-sm text-gray-400">Bạn chưa có lịch đặt sân nào sắp tới!</p>
                             <button onClick={() => { onClose(); setPage('search'); }} className="w-full py-3 rounded-2xl bg-emerald-500 text-black font-bold">Đi đặt sân ngay</button>
                         </div>
                     ) : (
                         <>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">1. Chọn lịch đã đặt</label>
+                                <label className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">1. Chọn lịch sắp tới</label>
                                 <select value={selectedBookingId} onChange={e => setSelectedBookingId(e.target.value)} className="w-full h-12 bg-white/5 border border-white/10 rounded-2xl px-4 text-sm text-white outline-none focus:border-emerald-500/50">
-                                    <option value="">-- Chọn sân của bạn --</option>
-                                    {myBookings.map(b => (
-                                        <option key={b._id} value={b._id}>{b.court?.name} - {new Date(b.date).toLocaleDateString('vi-VN')} ({b.startTime})</option>
-                                    ))}
+                                    <option value="" className="bg-gray-900">-- Chọn lịch sân của bạn --</option>
+
+                                    {/* RENDER TÊN SÂN VÀ GIỜ GIẤC ĐẸP MẮT HƠN */}
+                                    {myBookings.map(b => {
+                                        // Bắt đúng biến chứa tên sân (phòng hờ backend populate tên khác nhau)
+                                        const courtName = b.courtId?.name || b.court?.name || 'Sân chưa rõ tên';
+                                        const dateStr = new Date(b.date).toLocaleDateString('vi-VN');
+                                        return (
+                                            <option key={b._id} value={b._id} className="bg-gray-900">
+                                                {courtName} | {dateStr} ({b.startTime} - {b.endTime})
+                                            </option>
+                                        );
+                                    })}
+
                                 </select>
                             </div>
                             <div className="space-y-2">

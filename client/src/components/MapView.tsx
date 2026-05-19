@@ -3,7 +3,6 @@ import { formatPrice } from '../utils/theme';
 
 const vietmapgl = (window as any).vietmapgl;
 
-// ⚠️ ĐÃ NÂNG CẤP: HÀM AUTO-FIX LỖI NGƯỢC TỌA ĐỘ
 function getCoords(court: any): [number, number] | null {
     const loc = court.location;
     if (!loc) return null;
@@ -23,7 +22,6 @@ function getCoords(court: any): [number, number] | null {
 
     if (isNaN(lng) || isNaN(lat)) return null;
 
-    // 🔥 PHÉP THUẬT Ở ĐÂY: Fix lỗi "Latitude must be between -90 and 90"
     // Ở VN, Lng ~ 106, Lat ~ 10. Nếu Lat > 90 hoặc Lng < Lat => Chắc chắn data bị ngược!
     if (lat > 90 || lng < lat) {
         const temp = lng;

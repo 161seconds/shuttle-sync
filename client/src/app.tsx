@@ -24,37 +24,48 @@ import AdminDashboard from './features/admin/AdminDashboard';
 import MatchLeaderboard from './components/groups/MatchLeaderboard';
 import RulesPage from './pages/RulesPage';
 import SupplementaryPage from './pages/SupplementaryPage';
+import { Loader2 } from 'lucide-react';
 
 function Shell() {
   const { page, setPage, bookingCourt, setBookingCourt, user, setUser, isSideBarOpen } = useAppStore();
   const [detailCourt, setDetailCourt] = useState<Court | null>(null);
   const { showOnboarding, showTour, completeOnboarding, skipOnboarding, completeTour } = useOnboarding();
 
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('accessToken');
-      if (token && !user) {
-        try {
-          const res = await authApi.getMe();
-          const userData = res.data?.data?.user || res.data?.data || res.data?.user || res.data;
-          setUser(userData);
-        } catch (error) {
-          console.error("Phiên đăng nhập hết hạn:", error);
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          setUser(null);
-          setPage('login');
-        }
+      try {
+        const res = await authApi.getMe();
+        const userData = res.data?.data?.user || res.data?.data || res.data?.user || res.data;
+        setUser(userData);
+      } catch (error) {
+        console.log("Phiên đăng nhập không tồn tại hoặc Cookie hết hạn");
+        setUser(null);
+        // Lưu ý: Không tự động đá về 'login' ở đây để khách vẫn xem được trang chủ khi chưa đăng nhập
+      } finally {
+        setIsCheckingAuth(false);
       }
     };
     initAuth();
-  }, []);
+  }, [setUser]);
 
   useEffect(() => {
+    // Chỉ đá sang home nếu user ĐÃ đăng nhập mà lại rớt vào trang login
     if (user && page === 'login') {
       setPage('home');
     }
   }, [user, page, setPage]);
+
+  // MÀN HÌNH CHỜ TRONG LÚC APP KIỂM TRA COOKIE (Tránh nháy giao diện)
+  if (isCheckingAuth) {
+    return (
+      <div className="w-screen h-screen bg-[#0a0a0a] flex flex-col items-center justify-center">
+        <Loader2 className="w-10 h-10 text-emerald-500 animate-spin mb-4" />
+        <p className="text-emerald-400 font-medium text-sm">Đang tải dữ liệu ShuttleSync...</p>
+      </div>
+    );
+  }
 
   if (detailCourt) {
     return <CourtDetail court={detailCourt} onBack={() => setDetailCourt(null)} />;
@@ -63,30 +74,26 @@ function Shell() {
   return (
     <div className={`min-h-screen ${DS.bg.base} relative overflow-hidden`}>
 
-      {/* Chúng ta để pointer-events-none để nó không chặn cú click, và z-0 để nằm dưới cùng */}
+      {/* Background Particles */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
         <ParticleField />
       </div>
 
       <AnimatePresence>
-        {/* OnboardingModal bên trong đã có sẵn ParticleField riêng nên ko lo */}
         {showOnboarding && <OnboardingModal onComplete={completeOnboarding} onSkip={skipOnboarding} />}
       </AnimatePresence>
 
       {!showOnboarding && (
         <div className="relative z-10 flex flex-col min-h-screen">
 
-          {/* HIỂN THỊ HEADER KHI KHÔNG Ở TRANG LOGIN */}
           {page !== 'login' && <Header />}
-
-          {/* HIỂN THỊ SIDEBAR (ẨN Ở TRANG LOGIN VÀ TRANG MAP) */}
           {page !== 'login' && page !== 'map' && <AppSidebar />}
 
           <main
             className={`flex-1 transition-all duration-300 ease-in-out ${page !== 'login' ? 'pt-16' : ''} ${(isSideBarOpen && page !== 'login' && page !== 'map') ? 'md:pl-64 pl-0' : 'pl-0'
               } w-full min-h-screen`}
-          >            <AnimatePresence mode="wait">
-              {/* KHAI BÁO HIỂN THỊ CÁC TRANG CHÍNH */}
+          >
+            <AnimatePresence mode="wait">
               {page === 'login' && <motion.div key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Login /></motion.div>}
               {page === 'home' && <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Dashboard /></motion.div>}
               {page === 'map' && <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MapPage /></motion.div>}
@@ -102,7 +109,6 @@ function Shell() {
             </AnimatePresence>
           </main>
 
-          {/* ẨN BOTTOM NAV Ở TRANG LOGIN */}
           {['home', 'map', 'search', 'groupplay', 'profile'].includes(page) && (
             <BottomNav />
           )}
