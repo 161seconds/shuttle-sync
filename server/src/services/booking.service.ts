@@ -9,14 +9,28 @@ import {
 
 class BookingService {
     async createBooking(userId: string, data: any) {
+        if (!data.startTime || !data.endTime) {
+            throw new Error('Vui lòng chọn thời gian đặt sân');
+        }
+
         const bookingCode = 'BK' + Math.floor(100000 + Math.random() * 900000);
 
-        const sortedSlots = [...data.slotIds].sort();
-        const startTime = sortedSlots[0];
-        const endTime = `${parseInt(sortedSlots[sortedSlots.length - 1].split(':')[0]) + 1}:00`;
+        const startTime = data.startTime;
+        const endTime = data.endTime;
 
-        const finalAmount = sortedSlots.length * 150000;
-        const mockSlotObjectIds = sortedSlots.map(() => new mongoose.Types.ObjectId());
+        const start = new Date(`2000-01-01T${startTime}:00`);
+        const end = new Date(`2000-01-01T${endTime}:00`);
+
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            throw new Error('Định dạng thời gian không hợp lệ');
+        }
+
+        if (end <= start) {
+            throw new Error('Giờ kết thúc phải lớn hơn giờ bắt đầu');
+        }
+
+        const durationHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+        const finalAmount = durationHours * 150000;
 
         const expiresAt = new Date();
         expiresAt.setMinutes(expiresAt.getMinutes() + 15);
@@ -26,7 +40,11 @@ class BookingService {
             userId,
             courtId: data.courtId,
             subCourtId: data.subCourtId,
-            slotIds: mockSlotObjectIds,
+
+            slotIds: data.slotIds?.length
+                ? data.slotIds.map((id: string) => new mongoose.Types.ObjectId(id))
+                : [],
+
             date: new Date(data.date),
             startTime,
             endTime,
@@ -34,30 +52,13 @@ class BookingService {
             status: BookingStatus.PENDING_PAYMENT,
             totalAmount: finalAmount,
             discount: 0,
-            finalAmount: finalAmount,
+            finalAmount,
             payment: {
                 method: PaymentMethod.QR_CODE,
                 status: PaymentStatus.PENDING,
-                expiresAt: expiresAt
+                expiresAt
             }
         });
-
-        setTimeout(async () => {
-            try {
-                // Tìm lại đơn hàng xem có đúng là đang chờ thanh toán không
-                const b = await Booking.findById(booking._id);
-                if (b && b.status === BookingStatus.PENDING_PAYMENT) {
-                    b.status = BookingStatus.CONFIRMED;
-                    b.payment.status = PaymentStatus.PAID;
-                    b.payment.paidAt = new Date();
-                    b.confirmedAt = new Date();
-                    await b.save();
-                    console.log(`✅ [Auto-Bot] Đã tự động xác nhận đơn ${bookingCode} sau 10s`);
-                }
-            } catch (error) {
-                console.error("❌ Lỗi tự động xác nhận:", error);
-            }
-        }, 10000);
 
         return booking;
     }

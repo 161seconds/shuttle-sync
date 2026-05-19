@@ -6,6 +6,8 @@ export const bookingApi = {
         subCourtId: string;
         slotIds: string[];
         date: string;
+        startTime: string; // Thêm startTime
+        endTime: string;   // Thêm endTime
         type?: string;
         paymentMethod?: string;
         voucherCode?: string;
