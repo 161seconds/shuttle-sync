@@ -79,9 +79,12 @@ export const aiCoachController = {
                 suggestions: responseData.suggestions || []
             });
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Lỗi AI Coach:', error);
-            res.status(500).json({ error: 'Coach đang bận hướng dẫn học viên khác, bạn thử lại sau nhé!' });
+            res.status(500).json({ 
+                error: 'Coach đang bận hướng dẫn học viên khác, bạn thử lại sau nhé!',
+                details: error?.message || String(error)
+            });
         }
     }
 };
