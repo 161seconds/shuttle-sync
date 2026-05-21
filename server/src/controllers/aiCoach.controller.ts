@@ -12,7 +12,7 @@ export const aiCoachController = {
             const { message } = req.body;
             if (!message) return res.status(400).json({ error: 'Bạn chưa nhập câu hỏi!' });
 
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
             const prompt = `
                 Bạn là một Huấn luyện viên Cầu lông chuyên nghiệp mang tên "ShuttleSync Coach".
@@ -81,7 +81,7 @@ export const aiCoachController = {
 
         } catch (error: any) {
             console.error('Lỗi AI Coach:', error);
-            res.status(500).json({ 
+            res.status(500).json({
                 error: 'Coach đang bận hướng dẫn học viên khác, bạn thử lại sau nhé!',
                 details: error?.message || String(error)
             });
