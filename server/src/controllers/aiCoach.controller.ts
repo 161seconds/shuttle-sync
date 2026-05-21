@@ -12,7 +12,7 @@ export const aiCoachController = {
             const { message } = req.body;
             if (!message) return res.status(400).json({ error: 'Bạn chưa nhập câu hỏi!' });
 
-            const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
             const prompt = `
                 Bạn là một Huấn luyện viên Cầu lông chuyên nghiệp mang tên "ShuttleSync Coach".
