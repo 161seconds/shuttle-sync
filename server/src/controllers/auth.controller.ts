@@ -10,10 +10,11 @@ import { config } from '../config';
 
 // ═══ HÀM TIỆN ÍCH CẤP COOKIE TỰ ĐỘNG NHẬN DIỆN MÔI TRƯỜNG ═══
 const setAuthCookies = (res: Response, accessToken: string, refreshToken: string) => {
+    const isProd = process.env.NODE_ENV === 'production';
     const cookieOpts = {
         httpOnly: true,
-        secure: false,
-        sameSite: 'lax' as const,
+        secure: isProd,
+        sameSite: isProd ? 'none' as const : 'lax' as const,
         path: '/',
     };
     res.cookie('accessToken', accessToken, { ...cookieOpts, maxAge: 15 * 60 * 1000 });
@@ -21,7 +22,8 @@ const setAuthCookies = (res: Response, accessToken: string, refreshToken: string
 };
 
 const clearAuthCookies = (res: Response) => {
-    const cookieOpts = { httpOnly: true, secure: false, sameSite: 'lax' as const, path: '/' };
+    const isProd = process.env.NODE_ENV === 'production';
+    const cookieOpts = { httpOnly: true, secure: isProd, sameSite: isProd ? 'none' as const : 'lax' as const, path: '/' };
     res.clearCookie('accessToken', cookieOpts);
     res.clearCookie('refreshToken', cookieOpts);
 };
