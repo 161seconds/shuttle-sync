@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Stethoscope } from 'lucide-react';
-import { theme as t } from '../utils/theme';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { Send, Bot, Sparkles, Loader2, Activity } from 'lucide-react';
+//import { useNavigate } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
 import Markdown from 'react-markdown';
 
@@ -8,172 +8,266 @@ interface Message {
     id: string;
     sender: 'user' | 'coach';
     text: string;
+    displayText: string;
     suggestions?: string[];
+    timestamp: Date;
+    isStreaming: boolean;
 }
 
 export default function AiCoach() {
-    const [input, setInput] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    //const navigate = useNavigate();
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [inputValue, setInputValue] = useState('');
+    const [isTyping, setIsTyping] = useState(false);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const streamIntervals = useRef<Record<string, number>>({});
 
-    const [messages, setMessages] = useState<Message[]>([
-        {
-            id: 'welcome',
-            sender: 'coach',
-            text: 'Chào bạn! Coach đây. Rất vui được gặp vợt thủ trên sân đấu ảo này. 🏸\n\nBạn cần Coach tư vấn gì về kỹ thuật, chọn vợt hay chiến thuật thi đấu hôm nay không?',
-            suggestions: [
-                "Cách đập cầu (smash) mạnh hơn",
-                "Tư vấn chọn vợt cho người mới",
-                "Luật thi đấu BWF mới nhất"
-            ]
-        }
-    ]);
-    const endOfMessagesRef = useRef<HTMLDivElement>(null);
+    const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    useEffect(() => { scrollToBottom(); }, [messages, isTyping]);
+
+    const streamText = useCallback((msgId: string, fullText: string) => {
+        let charIndex = 0;
+        const speed = 15;
+
+        if (streamIntervals.current[msgId]) clearInterval(streamIntervals.current[msgId]);
+
+        streamIntervals.current[msgId] = window.setInterval(() => {
+            charIndex += 2 + Math.floor(Math.random() * 3);
+            if (charIndex >= fullText.length) {
+                charIndex = fullText.length;
+                clearInterval(streamIntervals.current[msgId]);
+                delete streamIntervals.current[msgId];
+                setMessages(prev => prev.map(m => m.id === msgId ? { ...m, displayText: fullText, isStreaming: false } : m));
+            } else {
+                setMessages(prev => prev.map(m => m.id === msgId ? { ...m, displayText: fullText.slice(0, charIndex) } : m));
+            }
+        }, speed);
+    }, []);
+
+    // Cleanup intervals on unmount
+    useEffect(() => {
+        return () => {
+            Object.values(streamIntervals.current).forEach(clearInterval);
+        };
+    }, []);
 
     useEffect(() => {
-        endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
+        if (messages.length === 0) {
+            setIsTyping(true);
+            const timer = setTimeout(() => {
+                const welcomeText = 'Chào bạn! Coach đây. Rất vui được gặp vợt thủ trên sân đấu ảo này. 🏸\n\nBạn cần Coach tư vấn gì về kỹ thuật, chọn vợt hay chiến thuật thi đấu hôm nay không?';
+                const msg: Message = {
+                    id: 'welcome-1', text: welcomeText, displayText: '',
+                    sender: 'coach', timestamp: new Date(), isStreaming: true,
+                    suggestions: [
+                        "Cách đập cầu (smash) mạnh hơn",
+                        "Tư vấn chọn vợt cho người mới",
+                        "Luật thi đấu BWF mới nhất"
+                    ]
+                };
+                setMessages([msg]);
+                setIsTyping(false);
+                streamText('welcome-1', welcomeText);
+            }, 800);
+            return () => clearTimeout(timer);
+        }
+    }, [messages.length, streamText]);
 
-    const sendMessage = async (text: string) => {
-        if (!text.trim() || isLoading) return;
+    const handleSendMessage = async (textToSubmit?: string) => {
+        const text = textToSubmit || inputValue;
+        if (!text.trim() || isTyping) return;
 
-        const userMsg = text.trim();
-        setInput('');
-        setMessages(prev => [...prev, { id: Date.now().toString(), sender: 'user', text: userMsg }]);
-        setIsLoading(true);
+        const userMsg: Message = {
+            id: Date.now().toString(), text: text, displayText: text,
+            sender: 'user', timestamp: new Date(), isStreaming: false
+        };
+        setMessages(prev => [...prev, userMsg]);
+        if (!textToSubmit) setInputValue('');
+        setIsTyping(true);
 
         try {
-            const res = await axiosClient.post('/ask-coach', { message: userMsg });
+            // Gọi API backend bảo mật (không gọi trực tiếp Gemini ở frontend)
+            const res = await axiosClient.post('/ask-coach', { message: text });
 
-            setMessages(prev => [...prev, {
-                id: (Date.now() + 1).toString(),
-                sender: 'coach',
-                text: res.data.reply || 'Coach chưa hiểu ý bạn lắm.',
+            const aiText = res.data.reply || 'Coach chưa hiểu ý bạn lắm.';
+            const aiMsgId = (Date.now() + 1).toString();
+            const aiMsg: Message = {
+                id: aiMsgId, text: aiText, displayText: '',
+                sender: 'coach', timestamp: new Date(), isStreaming: true,
                 suggestions: res.data.suggestions || []
-            }]);
-        } catch (error) {
+            };
+            setMessages(prev => [...prev, aiMsg]);
+            setIsTyping(false);
+            streamText(aiMsgId, aiText);
+        } catch (error: any) {
+            const errText = `Xin lỗi, Coach đang bị đứt lưới vợt (Lỗi kết nối). Bạn vui lòng thử lại sau nhé!`;
+            const errId = (Date.now() + 1).toString();
             setMessages(prev => [...prev, {
-                id: (Date.now() + 1).toString(),
-                sender: 'coach',
-                text: 'Xin lỗi, Coach đang bị đứt lưới vợt (Lỗi kết nối). Bạn vui lòng thử lại sau nhé!'
+                id: errId, text: errText, displayText: '',
+                sender: 'coach', timestamp: new Date(), isStreaming: true
             }]);
-        } finally {
-            setIsLoading(false);
+            setIsTyping(false);
+            streamText(errId, errText);
         }
     };
 
-    const handleFormSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        sendMessage(input);
-    };
+    const handleKeyDown = (e: React.KeyboardEvent) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } };
+    const formatTime = (d: Date) => d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
     return (
-        <div className={`flex flex-col h-[calc(100vh-76px)] ${t.bg.base}`}>
+        <div className="flex flex-col h-[calc(100vh-76px)] bg-[#060a08] relative overflow-hidden">
+            {/* Ambient bg - breathing orbs */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-[120px] transition-all duration-[3000ms] ${isTyping ? 'bg-emerald-500/15 scale-125' : 'bg-emerald-500/5 scale-100'}`} />
+                <div className={`absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-[100px] transition-all duration-[3000ms] ${isTyping ? 'bg-teal-500/10 scale-125' : 'bg-teal-500/5 scale-100'}`} />
+                {/* Subtle noise texture */}
+                <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+            </div>
+
             {/* Header */}
-            <div className={`p-5 border-b ${t.border.subtle} flex items-center gap-3 bg-[#121316]`}>
-                <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-                    <Bot className="w-6 h-6 text-emerald-400" />
+            <div className="relative z-20 flex items-center justify-between px-5 py-5.5 bg-[#0a100d]/80 backdrop-blur-xl border-b border-white/5 shadow-sm">
+                <div className="flex items-center gap-3">
+                    <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                        <Bot size={20} className="text-emerald-400" />
+                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-[#0a100d] rounded-full flex items-center justify-center">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
+                        </div>
+                    </div>
+                    <div className="flex flex-col">
+                        <h1 className="text-sm font-bold tracking-wider text-white uppercase font-display">ShuttleSync Coach</h1>
+                        <p className="text-[9px] tracking-[0.2em] uppercase text-emerald-500/70 mt-0.5 flex items-center gap-1">
+                            <Activity size={10} /> Online
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <h1 className="font-bold text-white text-lg">Huấn luyện viên AI </h1>
-                    <p className="text-xs text-emerald-400 font-medium">Nâng tầm kỹ năng của bạn</p>
+                <div className="flex items-center justify-center w-10 h-10 border rounded-xl bg-white/5 border-white/5">
+                    <Sparkles size={16} className="text-emerald-400/60" />
                 </div>
             </div>
 
-            {/* Chat Area */}
-            <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar pb-10">
-                {messages.map((msg, index) => (
-                    <div key={msg.id} className="flex flex-col">
-                        {/* Bong bóng Chat */}
-                        <div className={`flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto flex-row-reverse' : ''}`}>
-                            <div className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center ${msg.sender === 'user' ? 'bg-emerald-500 shadow-md' : 'bg-emerald-500/20 border border-emerald-500/30'}`}>
-                                {msg.sender === 'user' ? <User className="w-5 h-5 text-black" /> : <Bot className="w-5 h-5 text-emerald-400" />}
-                            </div>
+            {/* Messages */}
+            <div className="relative z-10 flex-1 px-4 pt-6 pb-4 overflow-y-auto custom-scrollbar">
+                <div className="max-w-4xl mx-auto space-y-6">
+                    {messages.map((msg, index) => {
+                        const isAI = msg.sender === 'coach';
+                        return (
+                            <div key={msg.id} className="flex flex-col animate-[fadeSlideIn_0.4s_ease-out]">
+                                <div className={`flex gap-3 w-full ${isAI ? 'justify-start' : 'justify-end'}`}>
+                                    {isAI && (
+                                        <div className="flex items-center justify-center w-8 h-8 mt-1 border rounded-full bg-emerald-500/10 text-emerald-400 shrink-0 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                                            <Bot size={16} />
+                                        </div>
+                                    )}
+                                    <div className={`relative max-w-[85%] p-4 rounded-2xl shadow-xl ${isAI
+                                        ? 'bg-[#0a100d]/80 backdrop-blur-xl border border-white/5 text-gray-200 rounded-tl-sm'
+                                        : 'bg-gradient-to-br from-emerald-600/30 via-emerald-600/20 to-emerald-600/10 backdrop-blur-xl border border-emerald-500/30 text-white rounded-tr-sm'
+                                        }`}>
+                                        <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                                            {isAI ? (
+                                                <Markdown
+                                                    components={{
+                                                        strong: ({ node, ...props }) => <strong className="font-bold text-emerald-400" {...props} />,
+                                                        p: ({ node, ...props }) => <p className="mb-2 last:mb-0 inline-block" {...props} />,
+                                                        ul: ({ node, ...props }) => <ul className="pl-4 mb-2 space-y-1 list-disc" {...props} />,
+                                                        ol: ({ node, ...props }) => <ol className="pl-4 mb-2 space-y-1 list-decimal" {...props} />,
+                                                        li: ({ node, ...props }) => <li {...props} />
+                                                    }}
+                                                >
+                                                    {msg.displayText}
+                                                </Markdown>
+                                            ) : (
+                                                msg.displayText
+                                            )}
+                                            {msg.isStreaming && (
+                                                <span className="inline-block w-1 h-4 ml-1 align-text-bottom rounded-full bg-emerald-400 animate-[blink_0.8s_infinite]" />
+                                            )}
+                                        </div>
+                                        {!msg.isStreaming && (
+                                            <span className="block text-[9px] mt-2 opacity-30 text-right uppercase tracking-wider">
+                                                {formatTime(msg.timestamp)}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
 
-                            <div className={`p-4 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap shadow-sm ${msg.sender === 'user'
-                                ? 'bg-emerald-600 text-white rounded-tr-sm'
-                                : 'bg-[#1a1b1f] border border-[#2a2d35] text-gray-200 rounded-tl-sm'
-                                }`}>
-
-                                {/* 🔥 NHÁT BÚA Ở ĐÂY: Áp dụng Markdown cho tin nhắn của Coach */}
-                                {msg.sender === 'coach' ? (
-                                    <Markdown
-                                        components={{
-                                            // Chỉnh lại CSS cho các thẻ Markdown để nó không bị trần trụi
-                                            strong: ({ node, ...props }) => <strong className="font-bold text-emerald-400" {...props} />,
-                                            p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
-                                            ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-2 space-y-1" {...props} />,
-                                            ol: ({ node, ...props }) => <ol className="list-decimal pl-4 mb-2 space-y-1" {...props} />,
-                                            li: ({ node, ...props }) => <li {...props} />
-                                        }}
-                                    >
-                                        {msg.text}
-                                    </Markdown>
-                                ) : (
-                                    msg.text
+                                {/* Suggestions */}
+                                {isAI && msg.suggestions && msg.suggestions.length > 0 && index === messages.length - 1 && !msg.isStreaming && (
+                                    <div className="ml-11 mt-3 flex flex-col gap-2 max-w-[80%] animate-[fadeSlideIn_0.5s_ease-out]">
+                                        <div className="flex flex-wrap gap-2">
+                                            {msg.suggestions.map((sug, i) => (
+                                                <button
+                                                    key={i}
+                                                    onClick={() => handleSendMessage(sug)}
+                                                    disabled={isTyping}
+                                                    className="px-4 py-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/40 hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
+                                                >
+                                                    {sug}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
                                 )}
-
                             </div>
-                        </div>
+                        );
+                    })}
 
-                        {/* UI CHO 3 NÚT GỢI Ý */}
-                        {msg.sender === 'coach' && msg.suggestions && msg.suggestions.length > 0 && index === messages.length - 1 && (
-                            <div className="ml-11 mt-3 flex flex-col gap-2 max-w-[80%] animate-in fade-in slide-in-from-bottom-2 duration-500">
-                                <div className="flex flex-wrap gap-2">
-                                    {msg.suggestions.map((sug, i) => (
-                                        <button
-                                            key={i}
-                                            onClick={() => sendMessage(sug)}
-                                            disabled={isLoading}
-                                            className="px-4 py-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-xs font-medium text-emerald-400 hover:bg-emerald-500/15 hover:border-emerald-500/40 transition-all text-left shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            {sug}
-                                        </button>
-                                    ))}
+                    {/* Typing indicator */}
+                    {isTyping && (
+                        <div className="flex justify-start w-full gap-3 animate-[fadeSlideIn_0.3s_ease-out]">
+                            <div className="flex items-center justify-center w-8 h-8 mt-1 border rounded-full bg-emerald-500/10 text-emerald-400 shrink-0 border-emerald-500/20">
+                                <Loader2 size={14} className="animate-spin" />
+                            </div>
+                            <div className="bg-[#0a100d]/70 backdrop-blur-xl px-5 py-3.5 rounded-2xl rounded-tl-sm border border-white/5 shadow-lg">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 bg-emerald-400/70 rounded-full animate-bounce" />
+                                    <div className="w-1.5 h-1.5 bg-emerald-400/70 rounded-full animate-bounce [animation-delay:150ms]" />
+                                    <div className="w-1.5 h-1.5 bg-emerald-400/70 rounded-full animate-bounce [animation-delay:300ms]" />
+                                    <span className="text-[10px] text-gray-400/60 ml-2 italic font-medium">Coach đang phân tích...</span>
                                 </div>
                             </div>
-                        )}
-                    </div>
-                ))}
-
-                {/* Animation Loading 3 dấu chấm */}
-                {isLoading && (
-                    <div className="flex gap-3 max-w-[85%]">
-                        <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
-                            <Bot className="w-5 h-5 text-emerald-400" />
                         </div>
-                        <div className="p-4 rounded-2xl bg-[#1a1b1f] border border-[#2a2d35] flex items-center gap-2 rounded-tl-sm h-13">
-                            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"></div>
-                            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce delay-100"></div>
-                            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce delay-200"></div>
-                        </div>
-                    </div>
-                )}
-                <div ref={endOfMessagesRef} />
+                    )}
+                    <div ref={messagesEndRef} />
+                </div>
             </div>
 
-            {/* Input Area */}
-            <div className="p-4 pb-6 relative z-10 bg-linear-to-t from-[#0a0a0b] via-[#0a0a0b] to-transparent pt-10 -mt-10">
-                <form onSubmit={handleFormSubmit} className="relative max-w-3xl mx-auto">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-emerald-500/10 rounded-full flex items-center justify-center">
-                        <Stethoscope className="w-4 h-4 text-emerald-500" />
+            {/* Input */}
+            <div className="relative z-20 shrink-0 w-full px-4 pt-4 pb-6 bg-gradient-to-t from-[#060a08] via-[#060a08]/95 to-transparent">
+                <div className="relative flex items-center max-w-4xl gap-3 mx-auto">
+                    <div className="relative flex-1 group">
+                        <input
+                            type="text"
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            placeholder="Nhập câu hỏi về cầu lông..."
+                            className="w-full bg-[#121614]/80 backdrop-blur-xl border border-white/10 rounded-2xl py-4 pl-5 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 focus:bg-[#121614] focus:shadow-[0_0_25px_rgba(16,185,129,0.15)] transition-all placeholder:text-gray-500 shadow-2xl"
+                        />
                     </div>
-                    <input
-                        type="text"
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        placeholder="Nhập câu hỏi của bạn..."
-                        className="w-full bg-[#1a1b1f] border border-[#2a2d35] rounded-full py-4 pl-14 pr-14 text-white text-sm focus:border-emerald-500 focus:outline-none transition-colors shadow-lg"
-                        disabled={isLoading}
-                    />
                     <button
-                        type="submit"
-                        disabled={!input.trim() || isLoading}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-emerald-500 hover:bg-emerald-400 text-black rounded-full flex items-center justify-center transition-all disabled:opacity-50 disabled:hover:bg-emerald-500 shadow-md"
+                        onClick={() => handleSendMessage()}
+                        disabled={!inputValue.trim() || isTyping}
+                        className="p-4 transition-all rounded-2xl bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed border border-emerald-500/30 hover:border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.1)] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)]"
                     >
-                        <Send className="w-4 h-4 ml-0.5" />
+                        <Send size={18} />
                     </button>
-                </form>
+                </div>
             </div>
+
+            <style>{`
+                @keyframes fadeSlideIn {
+                    0% { opacity: 0; transform: translateY(12px); }
+                    100% { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes blink {
+                    0%, 50% { opacity: 1; }
+                    51%, 100% { opacity: 0; }
+                }
+                .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+            `}</style>
         </div>
     );
 }
