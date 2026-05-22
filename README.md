@@ -1,48 +1,50 @@
-# 🏸 ShuttleSync - Real-time Badminton Court Booking System
+# 🏸 ShuttleSync - Real-time Badminton & Pickleball Court Booking System
 
 ![Tech Stack](https://img.shields.io/badge/Stack-MERN_|_TypeScript-blue?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
-![Status](https://img.shields.io/badge/Status-In_Development-orange?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Done-emerald?style=flat-square)
 
-ShuttleSync is a comprehensive online badminton court booking platform built with **Clean Architecture** and a **Monorepo** structure. The system ensures a seamless booking experience featuring real-time state synchronization to prevent double-booking conflicts.
-
----
-
-## Core Features
-
-- **Authentication & Authorization:** Secure JWT-based Login/Register with distinct roles (`user` and `admin`).
-- **Real-time Synchronization:** Powered by Socket.IO. When a user selects or books a time slot, it is instantly disabled for all other users currently viewing the same court.
-- **Mock Payment Gateway:** Simulates a checkout flow with QR code generation, transaction confirmation, and automated invoice status updates.
-- **Admin Dashboard:** Full CRUD management for courts, real-time booking oversight, and revenue analytics.
+ShuttleSync is a next-generation online court booking and club management platform tailored for both Badminton and Pickleball enthusiasts. Built on top of Clean Architecture principles and a unified Monorepo structure, the system guarantees an elite booking workflow with strict real-time state synchronization to completely eradicate double-booking conflict vulnerabilities.
 
 ---
 
-## Tech Stack
+## 🔥 Core Features Completed
+
+- **Flexible Time Picker:** Allows athletes to intuitively drag, expand, or adjust custom reservation durations with 30-minute step granularities rather than getting cornered into static, pre-configured timeslots.
+- **Real-time Conflict-Free Engine:** An advanced concurrency filtering engine implemented on both client and server layers using an interval intersection mathematical model ($Start_{1} < End_{2} \land End_{1} > Start_{2}$) to eliminate race conditions.
+- **AI Coach Chatbot Integration:** Seamlessly embedded Gemini Flash Latest through an auto-recovery retry mechanism that intercepts transient 503 errors, acting as an elite tactician for BWF rulesets and training advice.
+- **Secure Cookie Auth & Persistent Sessions:** Migrated standard volatile storage architectures completely over to HttpOnly cookies, combined with a smooth background re-authentication mechanism that securely rehydrates active user state upon page refreshes without any UI flickers.
+- **Matchmaking Hub & Dynamic Brackets:** Empowered users to spawn custom open matchmaking matches that dynamically hide or archive when reaching past schedule intervals. Includes fully automated, esports-ready knockout tournament bracket trees.
+- **Admin Insights Dashboard & Analytics:** Interactive visualizations integrated via Recharts, mapping out localized metrics including granular financial streams and comprehensive sport-type volumetric split analysis (Badminton vs. Pickleball distribution ratios).
+
+---
+
+## 💻 Tech Stack Overview
 
 **Frontend (Client):**
-- React.js + Vite (TypeScript)
-- Tailwind CSS + shadcn/ui (Modern UI components)
-- Zustand (Global state management)
-- React Query (Data fetching, caching, and synchronization)
-- React Hook Form + Zod (Form validation)
+- React.js + Vite (Fully typed with TypeScript for complete structural safety)
+- Tailwind CSS (Configured with deep immersive dark-mode sub-themes)
+- Zustand (Ultralightweight, predictable centralized state store)
+- Framer Motion (Fluid, hardware-accelerated motion choreography and esports transitions)
+- Lucide React (Consistent, clean vector iconography system replacing generic emojis)
 
-**Backend (Server):**
-- Node.js + Express (TypeScript)
-- MongoDB + Mongoose (Database & Modeling)
-- Socket.IO (Event-driven real-time engine)
-- JWT & bcryptjs (Security & Encryption)
+**Backend (Server)**
+- Node.js + Express (Strict Object-Oriented TypeScript structure relying on Clean Architecture layers)
+- MongoDB + Mongoose (Advanced aggregation, spatial indexing, and optimized document schema design)
+- Socket.IO (Bidirectional event-driven web-sockets layer managing instant broadcast propagation)
+- @google/generative-ai (Rigid, declarative system prompting to enforce dependable structured JSON formatting outputs)
 
 ---
 
-## Project Structure (Monorepo)
+## 📂 Project Structure (Monorepo Layout)
 
-The project utilizes a strict monorepo layout, allowing types and interfaces to be seamlessly shared between the client and server:
+The repository leverages an end-to-end type-safe Monorepo layout, isolating presentation structures and orchestration nodes while sharing foundational interfaces:
 
 ```text
 badminton-management/
-├── client/          # React Frontend application
-├── server/          # Express Backend API (Clean Architecture)
-└── shared/          # Shared TypeScript interfaces and types
+├── client/          # Vite + React Frontend Application (UI Layer)
+├── server/          # Node.js + Express RESTful & WebSocket Backend (Clean Architecture)
+└── shared/          # Centralized Shared Repository hosting data types, validation schemas & enums
 ```
 
 ---
@@ -50,8 +52,9 @@ badminton-management/
 ## Getting Started
 
 ### 1. Prerequisites
-- [Node.js](https://nodejs.org/) (v18 or higher)
-- [MongoDB Compass](https://www.mongodb.com/products/compass) (For local database hosting)
+Node.js (Runtime environment version v18.0.0 or higher required)
+
+MongoDB Compass (Local instances or accessible cloud cluster endpoint strings)
 
 ### 2. Installation
 
@@ -74,6 +77,7 @@ npm install
 PORT=5000
 MONGO_URI=mongodb://localhost:27017/badminton_db
 JWT_SECRET=shuttlesync_secret_key_2026
+GEMINI_API_KEY=your_secured_gemini_api_key_here
 ```
 
 **Create a `.env` file in the `client/` directory:**
