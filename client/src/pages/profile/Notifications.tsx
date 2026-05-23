@@ -37,7 +37,10 @@ export default function Notifications({ onBack }: Props) {
                 const res = await axiosClient.get('/notifications');
 
                 // 2. Trích xuất đúng mảng dữ liệu (Phòng hờ các cấu trúc trả về khác nhau)
-                const dataList = res.data.data || res.data.notifications || res.data;
+                let dataList = res.data.data || res.data.notifications || res.data;
+                if (dataList && !Array.isArray(dataList) && Array.isArray(dataList.notifications)) {
+                    dataList = dataList.notifications;
+                }
 
                 // 3. Ép kiểu an toàn: Nếu là mảng thì lấy, không thì lấy mảng rỗng
                 setNotifications(Array.isArray(dataList) ? dataList : []);

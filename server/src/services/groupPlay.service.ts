@@ -5,6 +5,7 @@ import { GroupPlay, IGroupPlayDocument, User } from '../models';
 import { ApiError } from '../utils/ApiError';
 import { calculatePagination } from '../utils/helpers';
 import { logger } from '../utils/logger';
+import { notificationService } from './other.service';
 
 class GroupPlayService {
     /**
@@ -36,6 +37,14 @@ class GroupPlayService {
         await User.findByIdAndUpdate(organizerId, {
             $inc: { 'stats.totalGroupPlays': 1 },
         });
+
+        // Add Notification
+        await notificationService.createNotification({
+            userId: organizerId,
+            title: '🏸 Tạo nhóm thành công',
+            message: `Bạn đã tạo thành công nhóm "${groupPlay.title}". Chúc bạn có một buổi giao lưu vui vẻ!`,
+            type: 'group_play'
+        }).catch(err => console.error(err));
 
         logger.info(`GroupPlay created: ${groupPlay.title} by ${organizer.displayName}`);
         return groupPlay;
@@ -95,6 +104,14 @@ class GroupPlayService {
             $inc: { 'stats.totalGroupPlays': 1 },
         });
 
+        // Add Notification for organizer
+        await notificationService.createNotification({
+            userId: groupPlay.organizerId.toString(),
+            title: '👋 Có thành viên mới!',
+            message: `${user.displayName} vừa tham gia nhóm "${groupPlay.title}" của bạn.`,
+            type: 'group_play'
+        }).catch(err => console.error(err));
+
         logger.info(`User ${user.displayName} joined group play: ${groupPlay.title}`);
         return groupPlay;
     }
@@ -130,6 +147,18 @@ class GroupPlayService {
         }
 
         await groupPlay.save();
+
+        const user = await User.findById(userId);
+        if (user) {
+            // Add Notification for organizer
+            await notificationService.createNotification({
+                userId: groupPlay.organizerId.toString(),
+                title: '😢 Thành viên rời nhóm',
+                message: `${user.displayName} đã rời khỏi nhóm "${groupPlay.title}".`,
+                type: 'group_play'
+            }).catch(err => console.error(err));
+        }
+
         return groupPlay;
     }
 
