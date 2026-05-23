@@ -8,7 +8,7 @@ import { OwnerApplication, Review, Report, Notification } from '../models/Others
 //import { createSlug } from '../utils/helpers';
 import { logger } from '../utils/logger';
 
-// ── Raw data shape ──
+// ΓöÇΓöÇ Raw data shape ΓöÇΓöÇ
 interface RawCourt {
     title: string;
     totalScore: number | null;
@@ -22,17 +22,17 @@ interface RawCourt {
     categories: string[];
     url: string;
     categoryName: string;
-    location?: { lat: number; lng: number }; // Có thể null trong JSON
+    location?: { lat: number; lng: number }; // C├│ thß╗â null trong JSON
 }
 
-// ── Sport detection ──
-const BAD_KW = ['cầu lông', 'badminton', 'câu lạc bộ cầu lông', 'khu phức hợp cầu lông', 'sân cầu lông'];
-const PB_KW = ['pickleball', 'sân pickleball'];
+// ΓöÇΓöÇ Sport detection ΓöÇΓöÇ
+const BAD_KW = ['cß║ºu l├┤ng', 'badminton', 'c├óu lß║íc bß╗Ö cß║ºu l├┤ng', 'khu phß╗⌐c hß╗úp cß║ºu l├┤ng', 's├ón cß║ºu l├┤ng'];
+const PB_KW = ['pickleball', 's├ón pickleball'];
 const SKIP_KW = [
-    'cửa hàng', 'shop', 'sân bóng đá', 'sân bóng rổ', 'quán cà phê',
-    'nhà hàng', 'dự án nhà', 'văn phòng', 'sơn epoxy', 'trường đại học',
-    'phòng khám', 'cửa hàng giày', 'cửa hàng quần áo', 'sân quần vợt',
-    'tennis', 'cửa hàng đồ thể thao', 'cửa hàng bán dụng cụ', 'cửa hàng sơn',
+    'cß╗¡a h├áng', 'shop', 's├ón b├│ng ─æ├í', 's├ón b├│ng rß╗ò', 'qu├ín c├á ph├¬',
+    'nh├á h├áng', 'dß╗▒ ├ín nh├á', 'v─ân ph├▓ng', 's╞ín epoxy', 'tr╞░ß╗¥ng ─æß║íi hß╗ìc',
+    'ph├▓ng kh├ím', 'cß╗¡a h├áng gi├áy', 'cß╗¡a h├áng quß║ºn ├ío', 's├ón quß║ºn vß╗út',
+    'tennis', 'cß╗¡a h├áng ─æß╗ô thß╗â thao', 'cß╗¡a h├áng b├ín dß╗Ñng cß╗Ñ', 'cß╗¡a h├áng s╞ín',
 ];
 
 function detectSport(raw: RawCourt): string[] | null {
@@ -41,48 +41,48 @@ function detectSport(raw: RawCourt): string[] | null {
     const b = BAD_KW.some(k => combo.includes(k));
     const p = PB_KW.some(k => combo.includes(k));
 
-    // Ép kiểu String thay vì Enum để khớp với Schema mới
+    // ├ëp kiß╗âu String thay v├¼ Enum ─æß╗â khß╗¢p vß╗¢i Schema mß╗¢i
     if (b && p) return ['BADMINTON', 'PICKLEBALL'];
     if (b) return ['BADMINTON'];
     if (p) return ['PICKLEBALL'];
-    if (combo.includes('câu lạc bộ thể thao') || combo.includes('tổ hợp thể thao'))
+    if (combo.includes('c├óu lß║íc bß╗Ö thß╗â thao') || combo.includes('tß╗ò hß╗úp thß╗â thao'))
         return ['BADMINTON', 'PICKLEBALL'];
     return null;
 }
 
-// ── Extract Google Place ID ──
+// ΓöÇΓöÇ Extract Google Place ID ΓöÇΓöÇ
 function placeId(url: string) {
     return url?.match(/query_place_id=([^&]+)/)?.[1] ?? null;
 }
 
-// ── Ward → District mapping (TPHCM) ──
+// ΓöÇΓöÇ Ward ΓåÆ District mapping (TPHCM) ΓöÇΓöÇ
 const W2D: Record<string, string> = {
-    'an khánh': 'Thủ Đức', 'bình trưng': 'Thủ Đức', 'bình trưng đông': 'Thủ Đức',
-    'bình trưng tây': 'Thủ Đức', 'hiệp bình': 'Thủ Đức', 'hiệp bình chánh': 'Thủ Đức',
-    'phước long': 'Thủ Đức', 'phước long a': 'Thủ Đức', 'phước long b': 'Thủ Đức',
-    'thủ đức': 'Thủ Đức', 'long bình': 'Thủ Đức', 'long trường': 'Thủ Đức',
-    'linh xuân': 'Thủ Đức', 'linh trung': 'Thủ Đức', 'linh đông': 'Thủ Đức',
-    'linh tây': 'Thủ Đức', 'linh chiểu': 'Thủ Đức',
-    'tăng nhơn phú': 'Thủ Đức', 'tăng nhơn phú a': 'Thủ Đức', 'tăng nhơn phú b': 'Thủ Đức',
-    'long thạnh mỹ': 'Thủ Đức', 'phú hữu': 'Thủ Đức', 'tam bình': 'Thủ Đức',
-    'tam phú': 'Thủ Đức', 'trường thọ': 'Thủ Đức', 'bình thọ': 'Thủ Đức',
-    'cát lái': 'Thủ Đức', 'thảo điền': 'Thủ Đức', 'an phú': 'Thủ Đức',
-    'bình trị đông': 'Bình Tân', 'bình trị đông a': 'Bình Tân', 'bình trị đông b': 'Bình Tân',
-    'an lạc': 'Bình Tân', 'an lạc a': 'Bình Tân', 'tân tạo': 'Bình Tân',
-    'tân tạo a': 'Bình Tân', 'bình hưng hòa': 'Bình Tân', 'bình hưng hòa a': 'Bình Tân',
-    'bình hưng hòa b': 'Bình Tân',
-    'đông hưng thuận': 'Quận 12', 'tân chánh hiệp': 'Quận 12', 'tân thới hiệp': 'Quận 12',
-    'an phú đông': 'Quận 12', 'thạnh lộc': 'Quận 12', 'thạnh xuân': 'Quận 12',
-    'hiệp thành': 'Quận 12', 'tân thới nhất': 'Quận 12', 'trung mỹ tây': 'Quận 12',
-    'an hội tây': 'Quận 8', 'bình đông': 'Quận 8', 'hưng phú': 'Quận 8',
-    'phú thuận': 'Quận 7', 'phú mỹ': 'Quận 7', 'tân phú': 'Quận 7',
-    'tân phong': 'Quận 7', 'tân kiểng': 'Quận 7', 'tân hưng': 'Quận 7',
-    'nhà bè': 'Nhà Bè', 'phú xuân': 'Nhà Bè', 'phước kiển': 'Nhà Bè',
-    'đông hòa': 'Dĩ An', 'bình an': 'Dĩ An',
-    'đức nhuận': 'Tân Phú', 'sơn kỳ': 'Tân Phú', 'tân sơn nhì': 'Tân Phú',
-    'tây thạnh': 'Tân Phú', 'phú thạnh': 'Tân Phú', 'phú trung': 'Tân Phú',
-    'tân quý': 'Tân Phú', 'hiệp tân': 'Tân Phú', 'hòa thạnh': 'Tân Phú',
-    'phú thọ hòa': 'Tân Phú', 'tân thành': 'Tân Phú',
+    'an kh├ính': 'Thß╗º ─Éß╗⌐c', 'b├¼nh tr╞░ng': 'Thß╗º ─Éß╗⌐c', 'b├¼nh tr╞░ng ─æ├┤ng': 'Thß╗º ─Éß╗⌐c',
+    'b├¼nh tr╞░ng t├óy': 'Thß╗º ─Éß╗⌐c', 'hiß╗çp b├¼nh': 'Thß╗º ─Éß╗⌐c', 'hiß╗çp b├¼nh ch├ính': 'Thß╗º ─Éß╗⌐c',
+    'ph╞░ß╗¢c long': 'Thß╗º ─Éß╗⌐c', 'ph╞░ß╗¢c long a': 'Thß╗º ─Éß╗⌐c', 'ph╞░ß╗¢c long b': 'Thß╗º ─Éß╗⌐c',
+    'thß╗º ─æß╗⌐c': 'Thß╗º ─Éß╗⌐c', 'long b├¼nh': 'Thß╗º ─Éß╗⌐c', 'long tr╞░ß╗¥ng': 'Thß╗º ─Éß╗⌐c',
+    'linh xu├ón': 'Thß╗º ─Éß╗⌐c', 'linh trung': 'Thß╗º ─Éß╗⌐c', 'linh ─æ├┤ng': 'Thß╗º ─Éß╗⌐c',
+    'linh t├óy': 'Thß╗º ─Éß╗⌐c', 'linh chiß╗âu': 'Thß╗º ─Éß╗⌐c',
+    't─âng nh╞ín ph├║': 'Thß╗º ─Éß╗⌐c', 't─âng nh╞ín ph├║ a': 'Thß╗º ─Éß╗⌐c', 't─âng nh╞ín ph├║ b': 'Thß╗º ─Éß╗⌐c',
+    'long thß║ính mß╗╣': 'Thß╗º ─Éß╗⌐c', 'ph├║ hß╗»u': 'Thß╗º ─Éß╗⌐c', 'tam b├¼nh': 'Thß╗º ─Éß╗⌐c',
+    'tam ph├║': 'Thß╗º ─Éß╗⌐c', 'tr╞░ß╗¥ng thß╗ì': 'Thß╗º ─Éß╗⌐c', 'b├¼nh thß╗ì': 'Thß╗º ─Éß╗⌐c',
+    'c├ít l├íi': 'Thß╗º ─Éß╗⌐c', 'thß║úo ─æiß╗ün': 'Thß╗º ─Éß╗⌐c', 'an ph├║': 'Thß╗º ─Éß╗⌐c',
+    'b├¼nh trß╗ï ─æ├┤ng': 'B├¼nh T├ón', 'b├¼nh trß╗ï ─æ├┤ng a': 'B├¼nh T├ón', 'b├¼nh trß╗ï ─æ├┤ng b': 'B├¼nh T├ón',
+    'an lß║íc': 'B├¼nh T├ón', 'an lß║íc a': 'B├¼nh T├ón', 't├ón tß║ío': 'B├¼nh T├ón',
+    't├ón tß║ío a': 'B├¼nh T├ón', 'b├¼nh h╞░ng h├▓a': 'B├¼nh T├ón', 'b├¼nh h╞░ng h├▓a a': 'B├¼nh T├ón',
+    'b├¼nh h╞░ng h├▓a b': 'B├¼nh T├ón',
+    '─æ├┤ng h╞░ng thuß║¡n': 'Quß║¡n 12', 't├ón ch├ính hiß╗çp': 'Quß║¡n 12', 't├ón thß╗¢i hiß╗çp': 'Quß║¡n 12',
+    'an ph├║ ─æ├┤ng': 'Quß║¡n 12', 'thß║ính lß╗Öc': 'Quß║¡n 12', 'thß║ính xu├ón': 'Quß║¡n 12',
+    'hiß╗çp th├ánh': 'Quß║¡n 12', 't├ón thß╗¢i nhß║Ñt': 'Quß║¡n 12', 'trung mß╗╣ t├óy': 'Quß║¡n 12',
+    'an hß╗Öi t├óy': 'Quß║¡n 8', 'b├¼nh ─æ├┤ng': 'Quß║¡n 8', 'h╞░ng ph├║': 'Quß║¡n 8',
+    'ph├║ thuß║¡n': 'Quß║¡n 7', 'ph├║ mß╗╣': 'Quß║¡n 7', 't├ón ph├║': 'Quß║¡n 7',
+    't├ón phong': 'Quß║¡n 7', 't├ón kiß╗âng': 'Quß║¡n 7', 't├ón h╞░ng': 'Quß║¡n 7',
+    'nh├á b├¿': 'Nh├á B├¿', 'ph├║ xu├ón': 'Nh├á B├¿', 'ph╞░ß╗¢c kiß╗ân': 'Nh├á B├¿',
+    '─æ├┤ng h├▓a': 'D─⌐ An', 'b├¼nh an': 'D─⌐ An',
+    '─æß╗⌐c nhuß║¡n': 'T├ón Ph├║', 's╞ín kß╗│': 'T├ón Ph├║', 't├ón s╞ín nh├¼': 'T├ón Ph├║',
+    't├óy thß║ính': 'T├ón Ph├║', 'ph├║ thß║ính': 'T├ón Ph├║', 'ph├║ trung': 'T├ón Ph├║',
+    't├ón qu├╜': 'T├ón Ph├║', 'hiß╗çp t├ón': 'T├ón Ph├║', 'h├▓a thß║ính': 'T├ón Ph├║',
+    'ph├║ thß╗ì h├▓a': 'T├ón Ph├║', 't├ón th├ánh': 'T├ón Ph├║',
 };
 
 function parseAddr(state: string): { ward: string; district: string } {
@@ -91,17 +91,17 @@ function parseAddr(state: string): { ward: string; district: string } {
     return { ward, district: W2D[ward.toLowerCase()] || ward };
 }
 
-// ═══════════════════════════════════════
+// ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
 // MAIN SEED FUNCTION
-// ═══════════════════════════════════════
+// ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
 async function seed() {
-    await connectDB(); // Gọi hàm kết nối 
+    await connectDB(); // Gß╗ìi h├ám kß║┐t nß╗æi 
 
-    logger.info('🗑️  Wiping ALL collections...');
-    // Cập nhật xóa thêm Venue
+    logger.info('≡ƒùæ∩╕Å  Wiping ALL collections...');
+    // Cß║¡p nhß║¡t x├│a th├¬m Venue
     await Promise.all([
         User.deleteMany({}),
-        Venue.deleteMany({}), // Collection Cơ sở
+        Venue.deleteMany({}), // Collection C╞í sß╗ƒ
         Court.collection.drop().catch(() => { }),
         Booking.deleteMany({}),
         GroupPlay.deleteMany({}),
@@ -113,9 +113,9 @@ async function seed() {
         Report.deleteMany({}),
         Notification.deleteMany({}),
     ]);
-    logger.info('✅ Database cleared');
+    logger.info('Γ£à Database cleared');
 
-    // Tạo Admin
+    // Tß║ío Admin
     const admin = await User.create({
         email: 'admin@shuttlesync.vn',
         password: 'Admin@123',
@@ -133,7 +133,7 @@ async function seed() {
     const bmData = JSON.parse(fs.readFileSync(bmPath, 'utf-8'));
 
     const raw: RawCourt[] = [...pbData, ...bmData];
-    logger.info(`📦 Loaded ${raw.length} raw records from both files`);
+    logger.info(`≡ƒôª Loaded ${raw.length} raw records from both files`);
 
     const seen = new Set<string>();
     const uniq: RawCourt[] = [];
@@ -143,7 +143,7 @@ async function seed() {
         seen.add(pid);
         uniq.push(r);
     }
-    logger.info(`🔄 ${uniq.length} unique places`);
+    logger.info(`≡ƒöä ${uniq.length} unique places`);
 
     let ok = 0, skip = 0;
 
@@ -157,7 +157,7 @@ async function seed() {
         const { ward, district } = parseAddr(r.state);
         const phone = (r.phone || '').replace(/\s+/g, '').trim();
 
-        // 1. TÍNH TOÁN TỌA ĐỘ Ở NGOÀI OBJECT
+        // 1. T├ìNH TO├üN Tß╗îA ─Éß╗ÿ ß╗₧ NGO├ÇI OBJECT
         let coords = null;
         const data = r as any;
         if (r.location && r.location.lng && r.location.lat) {
@@ -168,7 +168,7 @@ async function seed() {
             coords = [data.longitude, data.latitude];
         }
 
-        // 2. LẮP VÀO OBJECT VÀ PUSH
+        // 2. Lß║«P V├ÇO OBJECT V├Ç PUSH
         venuesToInsert.push({
             name: r.title.trim(),
             ownerId: admin._id,
@@ -176,15 +176,15 @@ async function seed() {
             location: {
                 type: 'Point',
                 coordinates: coords ? coords : [
-                    // Fallback ngẫu nhiên nếu thực sự có sân bị thiếu tọa độ
+                    // Fallback ngß║½u nhi├¬n nß║┐u thß╗▒c sß╗▒ c├│ s├ón bß╗ï thiß║┐u tß╗ìa ─æß╗Ö
                     106.6297 + (Math.random() - 0.5) * 0.2,
                     10.8231 + (Math.random() - 0.5) * 0.2
                 ]
             },
             address: {
                 street: r.street || '',
-                state: ward, // Phường/Xã
-                city: district, // Quận/Huyện
+                state: ward, // Ph╞░ß╗¥ng/X├ú
+                city: district, // Quß║¡n/Huyß╗çn
                 countryCode: r.countryCode || 'VN'
             },
             contact: {
@@ -201,20 +201,20 @@ async function seed() {
         ok++;
     }
 
-    // Insert tất cả Venues vào DB
+    // Insert tß║Ñt cß║ú Venues v├áo DB
     const insertedVenues = await Venue.insertMany(venuesToInsert);
-    logger.info(`🏛️ Đã tạo thành công ${insertedVenues.length} Cơ sở (Venues)`);
+    logger.info(`≡ƒÅ¢∩╕Å ─É├ú tß║ío th├ánh c├┤ng ${insertedVenues.length} C╞í sß╗ƒ (Venues)`);
 
-    logger.info(`Đang tự động xây dựng các sân lẻ bên trong Cơ sở...`);
+    logger.info(`─Éang tß╗▒ ─æß╗Öng x├óy dß╗▒ng c├íc s├ón lß║╗ b├¬n trong C╞í sß╗ƒ...`);
     const courtsToInsert = [];
 
     for (const venue of insertedVenues) {
-        // Mỗi cơ sở cho đại 2 sân để test
-        const sportType = venue.sports[0]; // Lấy môn thể thao đầu tiên của cơ sở đó
+        // Mß╗ùi c╞í sß╗ƒ cho ─æß║íi 2 s├ón ─æß╗â test
+        const sportType = venue.sports[0]; // Lß║Ñy m├┤n thß╗â thao ─æß║ºu ti├¬n cß╗ºa c╞í sß╗ƒ ─æ├│
 
         courtsToInsert.push({
             venueId: venue._id,
-            name: "Sân 1",
+            name: "S├ón 1",
             sportType: sportType,
             surfaceType: sportType === 'PICKLEBALL' ? 'SYNTHETIC' : 'WOOD',
             pricePerHour: sportType === 'PICKLEBALL' ? 120000 : 80000,
@@ -223,7 +223,7 @@ async function seed() {
 
         courtsToInsert.push({
             venueId: venue._id,
-            name: "Sân 2 (VIP)",
+            name: "S├ón 2 (VIP)",
             sportType: sportType,
             surfaceType: 'SYNTHETIC',
             pricePerHour: sportType === 'PICKLEBALL' ? 150000 : 100000,
@@ -232,16 +232,16 @@ async function seed() {
     }
 
     await Court.insertMany(courtsToInsert);
-    logger.info(`🏸 Đã tạo thành công ${courtsToInsert.length} Sân lẻ (Courts)`);
+    logger.info(`≡ƒÅ╕ ─É├ú tß║ío th├ánh c├┤ng ${courtsToInsert.length} S├ón lß║╗ (Courts)`);
 
-    logger.info(`Đang tạo dữ liệu Tìm nhóm (GroupPlay)...`);
+    logger.info(`─Éang tß║ío dß╗» liß╗çu T├¼m nh├│m (GroupPlay)...`);
     const allCourts = await Court.find({}).limit(10);
 
-    // Tạo thêm 1 User thường để làm Host
+    // Tß║ío th├¬m 1 User th╞░ß╗¥ng ─æß╗â l├ám Host
     const hostUser = await User.create({
         email: 'host@shuttlesync.vn',
         password: 'Password@123',
-        displayName: 'Chủ Xới Trùm Khu',
+        displayName: 'Chß╗º Xß╗¢i Tr├╣m Khu',
         role: UserRole.USER,
         status: UserStatus.ACTIVE,
         authProvider: AuthProvider.LOCAL,
@@ -251,28 +251,30 @@ async function seed() {
 
     for (let i = 0; i < allCourts.length; i++) {
         const court = allCourts[i];
-        const isBadminton = court.sportType === SportType.BADMINTON;
+        const isBadminton = court.sportType.toUpperCase() === 'BADMINTON';
 
         groupPlaysToInsert.push({
             title: isBadminton ? 'Kèo giao lưu mồ hôi là chính' : 'Pickleball dưỡng sinh cuối tuần',
             description: 'Nhóm vui vẻ, thiện lành, không quạu. Cần tuyển thêm người gánh tạ. Yêu cầu biết đếm điểm.',
-            hostId: hostUser._id,
-            venueId: court.venueId,
+            organizerId: hostUser._id,
             courtId: court._id,
-            sportType: court.sportType,
-            level: SkillLevel.TB, // Dùng đúng Enum 
+            subCourtId: new mongoose.Types.ObjectId(),
+            bookingId: new mongoose.Types.ObjectId(),
+            sportType: isBadminton ? SportType.BADMINTON : SportType.PICKLEBALL,
+            skillLevel: SkillLevel.TB,
             date: new Date(Date.now() + 86400000 * (Math.floor(Math.random() * 7) + 1)),
             startTime: '18:00',
             endTime: '20:00',
             maxPlayers: isBadminton ? 6 : 4,
             currentPlayers: 2,
-            costPerPlayer: isBadminton ? 50000 : 70000,
-            status: GroupPlayStatus.OPEN // Dùng đúng Enum 
+            pricePerPlayer: isBadminton ? 50000 : 70000,
+            status: GroupPlayStatus.OPEN,
+            isPublic: true
         });
     }
 
     await GroupPlay.insertMany(groupPlaysToInsert);
-    logger.info(`🔥 Đã tạo thành công ${groupPlaysToInsert.length} nhóm giao lưu!`);
+    logger.info(`≡ƒöÑ ─É├ú tß║ío th├ánh c├┤ng ${groupPlaysToInsert.length} nh├│m giao l╞░u!`);
 
     // Stats
     const bCount = await Venue.countDocuments({ sports: 'BADMINTON' });
@@ -285,28 +287,29 @@ async function seed() {
     ]);
 
     console.log(`
-══════════════════════════════════════
-  🚀 SHUTTLE-SYNC MARKETPLACE SEED 
-══════════════════════════════════════
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+  ≡ƒÜÇ SHUTTLE-SYNC MARKETPLACE SEED 
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
 
-  📊 Raw records:    ${raw.length}
-  🏛️  Venues:         ${ok} (Cơ sở kinh doanh)
-  ⏭️  Skipped:        ${skip}
-  🏸  Total courts:  ${courtsToInsert.length} (Sân thực tế)
+  ≡ƒôè Raw records:    ${raw.length}
+  ≡ƒÅ¢∩╕Å  Venues:         ${ok} (C╞í sß╗ƒ kinh doanh)
+  ΓÅ¡∩╕Å  Skipped:        ${skip}
+  ≡ƒÅ╕  Total courts:  ${courtsToInsert.length} (S├ón thß╗▒c tß║┐)
 
-  🏸 Venues Badminton:    ${bCount}
-  🏓 Venues Pickleball:   ${pCount}
+  ≡ƒÅ╕ Venues Badminton:    ${bCount}
+  ≡ƒÅô Venues Pickleball:   ${pCount}
 
-  📍 Top districts:
-${districts.map((d: any) => `     ${(d._id || 'Unknown').padEnd(20)} ${d.count} cơ sở`).join('\n')}
+  ≡ƒôì Top districts:
+${districts.map((d: any) => `     ${(d._id || 'Unknown').padEnd(20)} ${d.count} c╞í sß╗ƒ`).join('\n')}
 
-  👤 Admin: admin@shuttlesync.vn / Admin@123
-  🏪 Owner (Test): owner@shuttlesync.vn / Owner@123
+  ≡ƒæñ Admin: admin@shuttlesync.vn / Admin@123
+  ≡ƒÅ¬ Owner (Test): owner@shuttlesync.vn / Owner@123
 
-══════════════════════════════════════
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
 `);
 
     await mongoose.disconnect();
+
     process.exit(0);
 }
 
