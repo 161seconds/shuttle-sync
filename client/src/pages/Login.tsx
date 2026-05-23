@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, Mail, Lock, ChevronRight, User, TrendingUp, Users, Calendar, Star, Zap, ArrowLeft } from 'lucide-react';
+import { Eye, Mail, Lock, ChevronRight, User, TrendingUp, Users, Calendar, Star, Zap, ArrowLeft, Phone } from 'lucide-react';
 import { theme as DS } from '../utils/theme';
 import { useAppStore } from '../store';
 import { authApi } from '../api/auth.api';
@@ -113,7 +113,11 @@ export default function Login() {
             if (!form.password) e.password = 'Nhập mật khẩu';
             else if (form.password.length < 6) e.password = 'Tối thiểu 6 ký tự';
         }
-        if (mode === 'register' && !form.displayName) e.displayName = 'Nhập tên hiển thị';
+        if (mode === 'register') {
+            if (!form.displayName) e.displayName = 'Nhập tên hiển thị';
+            if (!form.phone) e.phone = 'Nhập số điện thoại';
+            else if (!/^[0-9]{10,11}$/.test(form.phone)) e.phone = 'Số điện thoại không hợp lệ';
+        }
         setErrors(e);
         return !Object.keys(e).length;
     };
@@ -225,7 +229,10 @@ export default function Login() {
                                 )}
 
                                 {mode === 'register' && (
-                                    <FormField icon={<User className="w-4 h-4" />} label="Tên hiển thị" placeholder="Nguyễn Văn A" value={form.displayName} onChange={(v: string) => set('displayName', v)} error={errors.displayName} />
+                                    <>
+                                        <FormField icon={<User className="w-4 h-4" />} label="Tên hiển thị" placeholder="Nguyễn Văn A" value={form.displayName} onChange={(v: string) => set('displayName', v)} error={errors.displayName} />
+                                        <FormField icon={<Phone className="w-4 h-4" />} label="Số điện thoại" placeholder="0901234567" type="tel" value={form.phone} onChange={(v: string) => set('phone', v)} error={errors.phone} />
+                                    </>
                                 )}
 
                                 <FormField icon={<Mail className="w-4 h-4" />} label="Email" placeholder="you@example.com" type="email" value={form.email} onChange={(v: string) => set('email', v)} error={errors.email} />

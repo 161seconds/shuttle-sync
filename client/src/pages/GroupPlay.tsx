@@ -255,7 +255,7 @@ export default function GroupPlayPage() {
 
                                 <div className="grid grid-cols-2 gap-y-2 mb-4">
                                     <div className="flex items-center gap-2 text-xs text-gray-400">
-                                        <MapPin className="w-3.5 h-3.5 text-emerald-500" /> {typeof g.courtId === 'object' ? g.courtId.name : 'Sân cầu lông'}
+                                        <MapPin className="w-3.5 h-3.5 text-emerald-500" /> {typeof g.courtId === 'object' && g.courtId ? g.courtId.name : 'Sân cầu lông'}
                                     </div>
                                     <div className="flex items-center gap-2 text-xs text-gray-400">
                                         <Calendar className="w-3.5 h-3.5 text-emerald-500" /> {formatDate(g.date)}
@@ -387,7 +387,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
             const d = new Date(b.date);
             await groupPlayApi.createGroupPlay({
                 ...form,
-                courtId: typeof b.courtId === 'object' ? b.courtId._id : b.courtId,
+                courtId: typeof b.courtId === 'object' && b.courtId ? b.courtId._id : b.courtId,
                 subCourtId: b.subCourtId,
                 bookingId: b._id,
                 date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
