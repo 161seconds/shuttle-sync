@@ -250,7 +250,7 @@ export default function MapPage() {
     };
 
     const handleLocateMe = () => {
-        if (!navigator.geolocation) { alert("Trình duyệt không hỗ trợ!"); return; }
+        if (!navigator.geolocation) { useAlertStore.getState().showAlert("Trình duyệt không hỗ trợ!", 'Thông báo', 'error'); return; }
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 const lat = pos.coords.latitude; const lng = pos.coords.longitude;
@@ -271,7 +271,7 @@ export default function MapPage() {
                     fetchCourts({ lat, lng, sortBy: 'distance' });
                 }
             },
-            (err) => { console.warn(err); alert("Bật GPS để tìm sân gần bạn!"); },
+            (err) => { console.warn(err); useAlertStore.getState().showAlert("Bật GPS để tìm sân gần bạn!", 'Thông báo', 'info'); },
             { enableHighAccuracy: true, timeout: 5000 }
         );
     };
@@ -282,7 +282,7 @@ export default function MapPage() {
             if (!userLoc) {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => { setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude }); setTimeout(() => handleGetDirections(), 100); },
-                    () => alert('Cần bật GPS để tìm đường'), { enableHighAccuracy: true }
+                    () => useAlertStore.getState().showAlert('Cần bật GPS để tìm đường', 'Thông báo', 'info'), { enableHighAccuracy: true }
                 );
             }
             return;

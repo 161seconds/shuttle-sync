@@ -36,7 +36,7 @@ export default function SearchPage() {
                         currentLng = pos.coords.longitude;
                     } catch (geoErr) {
                         console.warn("Bị chặn quyền vị trí.");
-                        alert("Bạn chưa cấp quyền vị trí! Hệ thống sẽ tạm chuyển sang sắp xếp theo Đánh giá.");
+                        useAlertStore.getState().showAlert("Bạn chưa cấp quyền vị trí! Hệ thống sẽ tạm chuyển sang sắp xếp theo Đánh giá.", 'Thông báo', 'info');
                         setFilters({ sortBy: 'rating' });
                         return;
                     }

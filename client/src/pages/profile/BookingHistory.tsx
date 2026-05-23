@@ -3,6 +3,7 @@ import { ChevronLeft, Calendar, Clock, Loader2, Check, X, ChevronRight, Users } 
 import { theme as t } from '../../utils/theme';
 import axiosClient from '../../api/axiosClient';
 import type { Booking } from '../../types';
+import { useAlertStore } from '../../stores/useAlertStore';
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
     pending_payment: { label: 'Chờ thanh toán', color: 'text-amber-400', bg: 'bg-amber-500/10' },
@@ -40,18 +41,23 @@ export default function BookingHistory({ onBack }: Props) {
 
     useEffect(() => { fetchBookings(); }, [tab]);
 
-    const handleCancel = async (bookingId: string) => {
-        if (!confirm('Bạn chắc chắn muốn hủy đặt sân này?')) return;
-        setCancelling(bookingId);
-        try {
-            await axiosClient.post(`/bookings/${bookingId}/cancel`, { reason: 'Người dùng hủy' });
-            await fetchBookings(); // Tải lại danh sách sau khi hủy
-        } catch (err) {
-            console.error('Lỗi hủy:', err);
-            alert('Không thể hủy đơn này!');
-        } finally {
-            setCancelling(null);
-        }
+    const { showConfirm, showAlert } = useAlertStore();
+
+    const handleCancel = (bookingId: string) => {
+        showConfirm('Bạn chắc chắn muốn hủy đặt sân này?', async () => {
+            setCancelling(bookingId);
+            try {
+                await axiosClient.post(`/bookings/${bookingId}/cancel`, { reason: 'Người dùng hủy' });
+                await fetchBookings(); // Tải lại danh sách sau khi hủy
+                setTab('cancelled'); // Chuyển sang tab Đã hủy
+                showAlert('Hủy đặt sân thành công!', 'Thành công', 'success');
+            } catch (err) {
+                console.error('Lỗi hủy:', err);
+                showAlert('Không thể hủy đơn này!', 'Thông báo', 'error');
+            } finally {
+                setCancelling(null);
+            }
+        });
     };
 
     const formatDate = (d: string) => new Date(d).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });

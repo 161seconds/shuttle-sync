@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+
+import { useAlertStore } from '../../stores/useAlertStore';
 import { ChevronLeft, Trophy, Loader2, Crown, X } from 'lucide-react';
 import { theme as t } from '../../utils/theme';
 import axiosClient from '../../api/axiosClient';
@@ -39,7 +41,7 @@ export default function MyTournaments({ onBack }: Props) {
             await fetchTournaments();
         } catch (error) {
             console.error("Lỗi cập nhật trận đấu:", error);
-            alert("Có lỗi xảy ra khi cập nhật!");
+            useAlertStore.getState().showAlert("Có lỗi xảy ra khi cập nhật!", 'Thông báo', 'error');
         } finally {
             setLoading(false);
             setSelectedMatch(null);

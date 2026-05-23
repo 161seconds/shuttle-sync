@@ -128,7 +128,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
 
     const handleConfirm = async () => {
         if (!user) {
-            alert('Bạn cần đăng nhập để có thể đặt sân nhé!');
+            useAlertStore.getState().showAlert('Bạn cần đăng nhập để có thể đặt sân nhé!', 'Thông báo', 'info');
             onClose();
             setPage('login');
             return;
@@ -148,7 +148,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
             setBookingData(res.data.data || res.data);
             setStep(3);
         } catch (err: any) {
-            alert(err.response?.data?.message || 'Có lỗi xảy ra khi đặt sân!');
+            useAlertStore.getState().showAlert(err.response?.data?.message || 'Có lỗi xảy ra khi đặt sân!', 'Thông báo', 'error');
         } finally {
             setIsBooking(false);
         }

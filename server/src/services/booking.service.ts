@@ -143,7 +143,15 @@ class BookingService {
     }
 
     async cancelBooking(id: string, data?: any) {
-        return null;
+        const booking = await Booking.findById(id);
+        if (!booking) {
+            throw new Error('Không tìm thấy đơn đặt sân');
+        }
+        
+        booking.status = BookingStatus.CANCELLED;
+        await booking.save();
+        
+        return booking;
     }
 }
 

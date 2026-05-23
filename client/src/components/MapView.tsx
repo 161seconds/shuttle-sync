@@ -288,7 +288,7 @@ const MapView: React.FC<MapViewProps> = ({
 
     const handleLocateMe = () => {
         if (!navigator.geolocation) {
-            alert('Trình duyệt không hỗ trợ định vị');
+            useAlertStore.getState().showAlert('Trình duyệt không hỗ trợ định vị', 'Thông báo', 'error');
             return;
         }
 

@@ -21,7 +21,7 @@ export default function MatchLeaderboard({ onBack }: Props) {
         e.preventDefault();
         if (!quickInput.trim()) return;
 
-        alert(`Gửi API: ${quickInput}\n(Hệ thống sẽ tự bóc tách Team A, Team B và Tỉ số)`);
+        useAlertStore.getState().showAlert(`Gửi API: ${quickInput}\n(Hệ thống sẽ tự bóc tách Team A, Team B và Tỉ số, 'Thông báo', 'info')`);
         setQuickInput('');
     };
 
