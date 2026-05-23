@@ -1,25 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     ShoppingCart, DollarSign, Activity,
-    ArrowUpRight, ArrowDownRight, ChevronLeft, ChevronRight
+    ArrowUpRight, ArrowDownRight, ChevronLeft, ChevronRight, Loader2
 } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-
-const REVENUE_DATA = [
-    { name: 'T1', income: 30000, expense: 20000 },
-    { name: 'T2', income: 40000, expense: 25000 },
-    { name: 'T3', income: 28000, expense: 22000 },
-    { name: 'T4', income: 50000, expense: 30000 },
-    { name: 'T5', income: 42000, expense: 28000 },
-    { name: 'T6', income: 100000, expense: 40000 },
-    { name: 'T7', income: 120000, expense: 19821 },
-];
-
-const BOOKING_RATIO = [
-    { name: 'Cầu lông', value: 22120, color: '#10b981' },
-    { name: 'Pickleball', value: 4510, color: '#f97316' },
-];
+import { adminApi } from '../../api/admin.api';
+import dayjs from 'dayjs';
 
 const IDEAS = [
     {
@@ -39,6 +26,21 @@ const IDEAS = [
 export default function AdminDashboard() {
     const { user } = useAppStore();
     const [currentIdea, setCurrentIdea] = useState(0);
+    const [stats, setStats] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        adminApi.getDashboardStats()
+            .then(res => {
+                setStats(res.data?.data || res.data);
+            })
+            .catch(err => {
+                console.error("Failed to load dashboard stats", err);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    }, []);
 
     const nextIdea = () => setCurrentIdea((prev) => (prev + 1) % IDEAS.length);
     const prevIdea = () => setCurrentIdea((prev) => (prev - 1 + IDEAS.length) % IDEAS.length);
@@ -59,6 +61,33 @@ export default function AdminDashboard() {
     const handleManageCourt = (name: string) => {
         alert(`Mở bảng quản lý chi tiết sân: ${name}`);
     };
+
+    if (loading) {
+        return (
+            <div className="w-full h-[calc(100vh-76px)] flex items-center justify-center bg-[#0f141a]">
+                <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+            </div>
+        );
+    }
+
+    const {
+        totalUsers, totalCourts, totalBookings, totalRevenue,
+        bookingTrend, topCourts, recentBookings, bookingRatio
+    } = stats || {};
+
+    const chartData = (bookingTrend || []).map((item: any) => ({
+        name: dayjs(item.date).format('DD/MM'),
+        income: item.revenue,
+        expense: item.revenue * 0.2 // Mock expense as 20%
+    }));
+
+    const COLORS = ['#10b981', '#f97316', '#3b82f6'];
+    const pieData = (bookingRatio || []).map((item: any, i: number) => ({
+        name: item.name === 'BADMINTON' ? 'Cầu lông' : (item.name === 'PICKLEBALL' ? 'Pickleball' : 'Tennis'),
+        value: item.value,
+        color: COLORS[i % COLORS.length]
+    }));
+    const totalPieValue = pieData.reduce((acc: number, cur: any) => acc + cur.value, 0);
 
     return (
         <div className="w-full h-[calc(100vh-76px)] overflow-y-auto custom-scrollbar p-6 bg-[#0f141a] text-gray-300 font-sans">
@@ -116,9 +145,9 @@ export default function AdminDashboard() {
 
                 {/* ================= HÀNG 2: THỐNG KÊ (STATS) ================= */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <StatCard title="Lượt đặt sân" value="5,312" trend="+2.29%" isPositive={true} icon={<ShoppingCart className="w-5 h-5 text-orange-500" />} iconBg="bg-orange-500/10" />
-                    <StatCard title="Doanh thu" value="120,000K" trend="+2.19%" isPositive={true} icon={<DollarSign className="w-5 h-5 text-emerald-500" />} iconBg="bg-emerald-500/10" />
-                    <StatCard title="Tỉ lệ chuyển đổi" value="3.5%" trend="-3.18%" isPositive={false} icon={<Activity className="w-5 h-5 text-blue-500" />} iconBg="bg-blue-500/10" />
+                    <StatCard title="Lượt đặt sân" value={totalBookings?.toLocaleString() || '0'} trend="+2.29%" isPositive={true} icon={<ShoppingCart className="w-5 h-5 text-orange-500" />} iconBg="bg-orange-500/10" />
+                    <StatCard title="Doanh thu" value={(totalRevenue / 1000)?.toLocaleString() + 'K' || '0K'} trend="+2.19%" isPositive={true} icon={<DollarSign className="w-5 h-5 text-emerald-500" />} iconBg="bg-emerald-500/10" />
+                    <StatCard title="Tổng số Sân / Người dùng" value={`${totalCourts} / ${totalUsers}`} trend="+3.18%" isPositive={true} icon={<Activity className="w-5 h-5 text-blue-500" />} iconBg="bg-blue-500/10" />
                 </div>
 
                 {/* ================= HÀNG 3: BIỂU ĐỒ SỐNG (CHARTS) ================= */}
@@ -133,21 +162,21 @@ export default function AdminDashboard() {
                                     <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
                                     <span className="text-xs font-semibold text-gray-400">Tổng thu nhập</span>
                                 </div>
-                                <p className="text-2xl font-bold text-white">120,000K</p>
+                                <p className="text-2xl font-bold text-white">{(totalRevenue / 1000)?.toLocaleString() || '0'}K</p>
                             </div>
                             <div className="p-4 rounded-xl bg-[#141b22] border border-[#262f3d] flex-1">
                                 <div className="flex items-center gap-2 mb-1">
                                     <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                                    <span className="text-xs font-semibold text-gray-400">Tổng chi phí</span>
+                                    <span className="text-xs font-semibold text-gray-400">Tổng chi phí (Ước tính)</span>
                                 </div>
-                                <p className="text-2xl font-bold text-white">19,821K</p>
+                                <p className="text-2xl font-bold text-white">{((totalRevenue * 0.2) / 1000)?.toLocaleString() || '0'}K</p>
                             </div>
                         </div>
 
                         {/* CHART HOẠT ĐỘNG THỰC SỰ */}
                         <div className="w-full flex-1 min-h-62.5">
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={REVENUE_DATA} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                                <AreaChart data={chartData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
@@ -156,7 +185,7 @@ export default function AdminDashboard() {
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#262f3d" vertical={false} />
                                     <XAxis dataKey="name" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                                    <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `${val / 1000}M`} />
+                                    <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `${val / 1000}K`} />
                                     <RechartsTooltip
                                         contentStyle={{ backgroundColor: '#141b22', borderColor: '#262f3d', borderRadius: '8px', color: '#fff' }}
                                         itemStyle={{ color: '#fff' }}
@@ -175,7 +204,7 @@ export default function AdminDashboard() {
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
-                                        data={BOOKING_RATIO}
+                                        data={pieData}
                                         cx="50%"
                                         cy="50%"
                                         innerRadius={70}
@@ -184,32 +213,32 @@ export default function AdminDashboard() {
                                         dataKey="value"
                                         stroke="none"
                                     >
-                                        {BOOKING_RATIO.map((entry, index) => (
+                                        {pieData.map((entry: any, index: number) => (
                                             <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
                                     </Pie>
                                     <RechartsTooltip
                                         contentStyle={{ backgroundColor: '#141b22', borderColor: '#262f3d', borderRadius: '8px', color: '#fff' }}
                                         itemStyle={{ color: '#fff' }}
-                                        formatter={(value: any) => [`${value?.toLocaleString()} VND`, 'Số tiền']} />
+                                        formatter={(value: any) => [value, 'Số lượng']} />
                                 </PieChart>
                             </ResponsiveContainer>
                             {/* Chữ hiển thị ở giữa Donut */}
                             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                 <span className="text-gray-400 text-xs">Tổng số</span>
-                                <span className="text-2xl font-bold text-white">26,630</span>
+                                <span className="text-2xl font-bold text-white">{totalPieValue}</span>
                             </div>
                         </div>
 
                         {/* Chú thích (Legend) */}
                         <div className="space-y-4 mt-4">
-                            {BOOKING_RATIO.map((item, index) => (
+                            {pieData.map((item: any, index: number) => (
                                 <div key={index} className="flex justify-between items-center text-sm">
                                     <div className="flex items-center gap-3">
                                         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
                                         <span className="text-gray-400 font-medium">{item.name}</span>
                                     </div>
-                                    <span className="text-white font-bold">{item.value.toLocaleString()} <span className="text-gray-500 text-xs font-normal ml-1">{((item.value / 26630) * 100).toFixed(1)}%</span></span>
+                                    <span className="text-white font-bold">{item.value.toLocaleString()} <span className="text-gray-500 text-xs font-normal ml-1">{((item.value / (totalPieValue || 1)) * 100).toFixed(1)}%</span></span>
                                 </div>
                             ))}
                         </div>
@@ -235,10 +264,23 @@ export default function AdminDashboard() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[#262f3d]">
-                                <TableRow id="#DU005" amount="150,000đ" type="Cầu lông" date="20 Th01, 2026" status="Hoàn tất" color="emerald" onView={() => handleViewOrder('#DU005')} />
-                                <TableRow id="#DU004" amount="200,000đ" type="Pickleball" date="22 Th01, 2026" status="Chờ duyệt" color="orange" onView={() => handleViewOrder('#DU004')} />
-                                <TableRow id="#DU003" amount="300,000đ" type="Cầu lông VIP" date="18 Th01, 2026" status="Hủy" color="red" onView={() => handleViewOrder('#DU003')} />
-                                <TableRow id="#DU002" amount="560,000đ" type="Giải đấu Pickleball" date="13 Th01, 2026" status="Hoàn tất" color="emerald" onView={() => handleViewOrder('#DU002')} />
+                                {recentBookings?.map((booking: any) => (
+                                    <TableRow
+                                        key={booking._id}
+                                        id={`#${booking.bookingCode}`}
+                                        amount={`${booking.finalAmount.toLocaleString()}đ`}
+                                        type={booking.courtId?.name || 'Sân'}
+                                        date={dayjs(booking.date).format('DD ThMM, YYYY')}
+                                        status={booking.status === 'CONFIRMED' ? 'Hoàn tất' : booking.status === 'CANCELLED' ? 'Hủy' : 'Chờ duyệt'}
+                                        color={booking.status === 'CONFIRMED' ? 'emerald' : booking.status === 'CANCELLED' ? 'red' : 'orange'}
+                                        onView={() => handleViewOrder(booking.bookingCode)}
+                                    />
+                                ))}
+                                {(!recentBookings || recentBookings.length === 0) && (
+                                    <tr>
+                                        <td colSpan={6} className="py-4 text-center text-gray-400">Chưa có đơn đặt sân nào</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -246,9 +288,20 @@ export default function AdminDashboard() {
                     <div className="rounded-2xl p-6 bg-[#1a222c] border border-[#262f3d] shadow-sm">
                         <h3 className="text-base font-bold text-white mb-6">Sân Hot Nhất</h3>
                         <div className="space-y-5">
-                            <TopCourt name="Sân Nhật Thiện" bookings="454" revenue="50,000K" status="Đang trống" statusColor="text-emerald-400" onClick={() => handleManageCourt('Sân Nhật Thiện')} />
-                            <TopCourt name="Pickleball Gò Vấp" bookings="320" revenue="42,000K" status="Đang trống" statusColor="text-emerald-400" onClick={() => handleManageCourt('Pickleball Gò Vấp')} />
-                            <TopCourt name="Cầu lông VNU" bookings="124" revenue="30,000K" status="Kín lịch" statusColor="text-orange-400" onClick={() => handleManageCourt('Cầu lông VNU')} />
+                            {topCourts?.map((court: any) => (
+                                <TopCourt
+                                    key={court.courtId}
+                                    name={court.name}
+                                    bookings={court.bookings}
+                                    revenue={`${(court.revenue / 1000).toLocaleString()}K`}
+                                    status="Đang hoạt động"
+                                    statusColor="text-emerald-400"
+                                    onClick={() => handleManageCourt(court.name)}
+                                />
+                            ))}
+                            {(!topCourts || topCourts.length === 0) && (
+                                <p className="text-gray-400 text-center text-sm py-4">Chưa có dữ liệu sân hot</p>
+                            )}
                         </div>
                     </div>
                 </div>

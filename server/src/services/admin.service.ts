@@ -102,6 +102,38 @@ class AdminService {
             },
         ]);
 
+        // Recent bookings
+        const recentBookings = await Booking.find()
+            .sort({ createdAt: -1 })
+            .limit(10)
+            .populate('courtId', 'name sportType')
+            .lean();
+
+        // Booking ratio by sport
+        const bookingRatioAgg = await Booking.aggregate([
+            { $match: { status: BookingStatus.CONFIRMED } },
+            {
+                $lookup: {
+                    from: 'courts',
+                    localField: 'courtId',
+                    foreignField: '_id',
+                    as: 'court'
+                }
+            },
+            { $unwind: '$court' },
+            {
+                $group: {
+                    _id: '$court.sportType',
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+        
+        const bookingRatio = bookingRatioAgg.map(item => ({
+            name: item._id,
+            value: item.count
+        }));
+
         return {
             totalUsers,
             totalCourts,
@@ -113,6 +145,8 @@ class AdminService {
             userGrowth,
             bookingTrend,
             topCourts,
+            recentBookings,
+            bookingRatio,
         };
     }
 
