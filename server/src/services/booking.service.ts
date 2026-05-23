@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { Booking } from '../models/Booking';
+import { notificationService } from './other.service';
 import {
     BookingStatus,
     PaymentStatus,
@@ -76,7 +77,7 @@ class BookingService {
     }
 
     async confirmPayment(bookingCode: string, userId: string) {
-        const booking = await Booking.findOne({ bookingCode, userId });
+        const booking = await Booking.findOne({ bookingCode, userId }).populate({ path: 'courtId', model: 'Venue', select: 'name' });
         if (!booking) throw new Error('Không tìm thấy đơn đặt sân');
 
         booking.status = BookingStatus.CONFIRMED;
@@ -85,6 +86,16 @@ class BookingService {
         booking.confirmedAt = new Date();
 
         await booking.save();
+
+        // Gửi thông báo
+        const courtName = (booking.courtId as any)?.name || 'Sân cầu lông';
+        await notificationService.createNotification({
+            userId,
+            title: '🎉 Thanh toán thành công!',
+            message: `Bạn đã thanh toán thành công đơn đặt ${courtName} lúc ${booking.startTime} ngày ${booking.date.toLocaleDateString('vi-VN')}.`,
+            type: 'booking'
+        }).catch(err => console.error("Lỗi tạo thông báo:", err));
+
         return booking;
     }
 
