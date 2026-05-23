@@ -2,6 +2,15 @@ import { Response, NextFunction } from 'express';
 import { tournamentService } from '../services/tournament.service';
 
 class TournamentController {
+    async getMyTournaments(req: any, res: Response, next: NextFunction) {
+        try {
+            const userId = req.user?._id || req.user?.id || req.userId;
+            const tours = await tournamentService.getMyTournaments(userId);
+            res.status(200).json({ success: true, data: tours });
+        } catch (error: any) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
 
     async getTournament(req: any, res: Response, next: NextFunction) {
         try {

@@ -11,6 +11,18 @@ export class TournamentService {
         return tour;
     }
 
+    // 1.5. LẤY DANH SÁCH GIẢI ĐẤU CỦA TÔI
+    async getMyTournaments(userId: string) {
+        // Lấy các giải đấu mà user là organizer hoặc có tham gia
+        const tours = await Tournament.find({
+            $or: [
+                { organizerId: userId },
+                { 'teams.members': userId }
+            ]
+        }).sort({ createdAt: -1 }).lean();
+        return tours;
+    }
+
     // 2. TẠO NHANH GIẢI ĐẤU (QUICK CREATE) MẪU ĐỂ TEST
     async createQuickTournament(title: string) {
         // Tự động tạo 5 đội bóng
