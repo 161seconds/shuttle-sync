@@ -135,14 +135,14 @@ export default function GroupPlayPage() {
         : groups;
 
     const handleJoin = async (groupId: string) => {
-        if (!user) { alert('Vui lòng đăng nhập!'); return; }
+        if (!user) { useAlertStore.getState().showAlert('Vui lòng đăng nhập!', 'Thông báo', 'info'); return; }
         setJoining(groupId);
         try {
             await groupPlayApi.joinGroupPlay(groupId);
-            alert('🎉 Tham gia thành công!');
+            useAlertStore.getState().showAlert('🎉 Tham gia thành công!', 'Thông báo', 'success');
             await fetchGroups();
         } catch (err: any) {
-            alert(err.response?.data?.message || 'Lỗi tham gia');
+            useAlertStore.getState().showAlert(err.response?.data?.message || 'Lỗi tham gia', 'Thông báo', 'error');
         } finally {
             setJoining(null);
         }
@@ -380,7 +380,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
     }, []);
 
     const handleCreate = async () => {
-        if (!selectedBookingId || !form.title.trim()) { alert('Vui lòng điền đủ thông tin'); return; }
+        if (!selectedBookingId || !form.title.trim()) { useAlertStore.getState().showAlert('Vui lòng điền đủ thông tin', 'Thông báo', 'info'); return; }
         setCreating(true);
         try {
             const b = myBookings.find(x => x._id === selectedBookingId);
@@ -395,10 +395,10 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                 endTime: b.endTime,
                 isPublic: true,
             });
-            alert('Tạo nhóm thành công!');
+            useAlertStore.getState().showAlert('Tạo nhóm thành công!', 'Thông báo', 'success');
             onCreated();
         } catch (err: any) {
-            alert(err.response?.data?.message || 'Lỗi tạo nhóm');
+            useAlertStore.getState().showAlert(err.response?.data?.message || 'Lỗi tạo nhóm', 'Thông báo', 'error');
         } finally {
             setCreating(false);
         }

@@ -39,7 +39,7 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
             setTimeout(onComplete, 2000);
         } catch (err) {
             console.error(err);
-            alert("Lỗi xác nhận thanh toán!");
+            useAlertStore.getState().showAlert("Lỗi xác nhận thanh toán!", 'Thông báo', 'error');
             setStatus('pending');
         }
     };

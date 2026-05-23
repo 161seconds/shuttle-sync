@@ -67,7 +67,7 @@ export default function MyGroupPlays({ onBack }: Props) {
             await axiosClient.post(`/group-plays/${id}/leave`);
             setGroups(prev => prev.filter(g => g._id !== id));
         } catch (err: any) {
-            alert(err.response?.data?.message || 'Không thể rời nhóm');
+            useAlertStore.getState().showAlert(err.response?.data?.message || 'Không thể rời nhóm', 'Thông báo', 'error');
         } finally {
             setLeaving(null);
         }

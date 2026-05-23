@@ -47,7 +47,7 @@ export default function AdminDashboard() {
 
     // Xử lý các hành động
     const handleActionIdea = () => {
-        alert(`Đang mở module: ${IDEAS[currentIdea].action}`);
+        useAlertStore.getState().showAlert(`Đang mở module: ${IDEAS[currentIdea].action}`, 'Thông báo', 'info');
     };
 
     const handleScrollToStats = () => {
@@ -55,11 +55,11 @@ export default function AdminDashboard() {
     };
 
     const handleViewOrder = (id: string) => {
-        alert(`Đang tải chi tiết đơn đặt sân: ${id}\n(Tính năng đang phát triển)`);
+        useAlertStore.getState().showAlert(`Đang tải chi tiết đơn đặt sân: ${id}\n(Tính năng đang phát triển, 'Thông báo', 'info')`);
     };
 
     const handleManageCourt = (name: string) => {
-        alert(`Mở bảng quản lý chi tiết sân: ${name}`);
+        useAlertStore.getState().showAlert(`Mở bảng quản lý chi tiết sân: ${name}`, 'Thông báo', 'info');
     };
 
     if (loading) {

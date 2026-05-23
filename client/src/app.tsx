@@ -25,6 +25,7 @@ import MatchLeaderboard from './components/groups/MatchLeaderboard';
 import RulesPage from './pages/RulesPage';
 import SupplementaryPage from './pages/SupplementaryPage';
 import { Loader2 } from 'lucide-react';
+import GlobalAlert from './components/GlobalAlert';
 
 function Shell() {
   const { page, setPage, bookingCourt, setBookingCourt, user, setUser, isSideBarOpen } = useAppStore();
@@ -130,6 +131,7 @@ export default function App() {
   return (
     <AppProvider>
       <Shell />
+      <GlobalAlert />
     </AppProvider>
   );
 }
