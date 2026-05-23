@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ChevronLeft, Trophy, Loader2, Play, Crown } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ChevronLeft, Trophy, Loader2, Crown } from 'lucide-react';
 import { theme as t } from '../../utils/theme';
 import axiosClient from '../../api/axiosClient';
 
@@ -11,20 +11,23 @@ export default function MyTournaments({ onBack }: Props) {
     const [loading, setLoading] = useState(false);
     const [tournament, setTournament] = useState<any>(null);
 
-    const handleQuickCreate = async () => {
-        setLoading(true);
-        try {
-            const res = await axiosClient.post('/tournaments/quick', {
-                title: 'Giải ShuttleSync Siêu Cấp 2026'
-            });
-            setTournament(res.data.data);
-        } catch (error) {
-            console.error("Lỗi tạo giải:", error);
-            alert("Có lỗi khi tạo giải đấu!");
-        } finally {
-            setLoading(false);
-        }
-    };
+    useEffect(() => {
+        const fetchTournaments = async () => {
+            try {
+                setLoading(true);
+                const res = await axiosClient.get('/tournaments/my');
+                const list = res.data.data;
+                if (list && list.length > 0) {
+                    setTournament(list[0]);
+                }
+            } catch (error) {
+                console.error("Lỗi lấy giải đấu:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchTournaments();
+    }, []);
 
     // Hàm lấy tên đội
     const getTeamName = (teamId: string | null | undefined) => {
@@ -34,12 +37,20 @@ export default function MyTournaments({ onBack }: Props) {
     };
 
     // --- MÀN HÌNH CHƯA CÓ GIẢI ĐẤU ---
+    if (loading) {
+        return (
+            <div className={`min-h-screen ${t.bg.base} pb-24 flex items-center justify-center`}>
+                <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+            </div>
+        );
+    }
+
     if (!tournament) {
         return (
             <div className={`min-h-screen ${t.bg.base} pb-24`}>
                 <div className={`sticky top-0 z-30 ${t.bg.base}/95 backdrop-blur-xl border-b ${t.border.subtle}`}>
                     <div className="flex items-center gap-3 px-4 h-14">
-                        <button onClick={onBack} className={`w-9 h-9 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted}`}>
+                        <button onClick={onBack} className={`w-9 h-9 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-white transition-colors`}>
                             <ChevronLeft className="w-5 h-5" />
                         </button>
                         <h1 className={`font-bold ${t.text.primary}`}>Quản lý Giải đấu</h1>
@@ -47,19 +58,11 @@ export default function MyTournaments({ onBack }: Props) {
                 </div>
 
                 <div className="max-w-lg mx-auto px-4 flex flex-col items-center justify-center py-24">
-                    <div className="w-24 h-24 rounded-full bg-emerald-500/10 flex items-center justify-center mb-6 border-2 border-emerald-500/20 shadow-[0_0_30px_rgba(16,185,129,0.15)]">
-                        <Trophy className="w-10 h-10 text-emerald-400" />
+                    <div className="w-24 h-24 rounded-full bg-[#16171a] flex items-center justify-center mb-6 border border-[#2c2e33]">
+                        <Trophy className="w-10 h-10 text-white/20" />
                     </div>
-                    <h2 className={`text-xl font-black ${t.text.primary} mb-3`}>Chưa có giải đấu nào</h2>
-
-                    <button
-                        onClick={handleQuickCreate}
-                        disabled={loading}
-                        className="px-8 py-3 rounded-xl bg-linear-to-r from-emerald-500 to-emerald-400 text-black font-bold flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-emerald-500/20"
-                    >
-                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5 fill-black" />}
-                        Tạo nhanh Giải đấu Test
-                    </button>
+                    <h2 className={`text-xl font-black ${t.text.primary} mb-2`}>Chưa có giải đấu nào</h2>
+                    <p className="text-white/40 text-center text-sm">Bạn chưa tham gia hoặc tổ chức giải đấu nào trên hệ thống.</p>
                 </div>
             </div>
         );
@@ -74,17 +77,21 @@ export default function MyTournaments({ onBack }: Props) {
         const isEmpty = !teamName;
 
         return (
-            <div className={`flex justify-between items-center px-4 py-3 transition-colors ${isWinner ? 'bg-emerald-500/10' : ''}`}>
-                <div className="flex items-center gap-2">
-                    {isWinner && <Crown className="w-3.5 h-3.5 text-emerald-400" />}
-                    <span className={`text-sm ${isWinner ? 'text-emerald-400 font-bold' :
-                        isEmpty ? 'text-white/20 italic text-xs' : 'text-white/80 font-medium'
+            <div className={`flex justify-between items-center px-5 py-3.5 transition-all duration-300 ${isWinner ? 'bg-gradient-to-r from-emerald-500/20 to-transparent' : 'hover:bg-white/5'}`}>
+                <div className="flex items-center gap-3">
+                    {isWinner ? (
+                        <Crown className="w-4 h-4 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                    ) : (
+                        <div className="w-4 h-4 rounded-full border border-white/10 bg-black/30 shadow-inner" />
+                    )}
+                    <span className={`text-sm ${isWinner ? 'text-emerald-400 font-bold drop-shadow-md' :
+                        isEmpty ? 'text-white/30 italic text-xs' : 'text-white/90 font-medium'
                         }`}>
-                        {teamName || 'Trống'}
+                        {teamName || 'TBD'}
                     </span>
                 </div>
-                <span className={`font-mono text-sm font-black ${isWinner ? 'text-emerald-400' :
-                    isTBD || isEmpty ? 'text-white/20' : 'text-white/60'
+                <span className={`font-mono text-base font-black ${isWinner ? 'text-emerald-400 drop-shadow-md' :
+                    isTBD || isEmpty ? 'text-white/20' : 'text-white/70'
                     }`}>
                     {score ?? '-'}
                 </span>
@@ -113,7 +120,7 @@ export default function MyTournaments({ onBack }: Props) {
 
             {/* SƠ ĐỒ NHÁNH (BRACKET) - Giao diện chuẩn eSports */}
             <div className="p-8 overflow-x-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                <div className="flex gap-0 min-w-max min-h-125">
+                <div className="flex gap-0 min-w-max min-h-[600px]">
 
                     {rounds.map((round: any, rIndex: number) => {
                         const matchesInRound = tournament.matches
@@ -125,8 +132,7 @@ export default function MyTournaments({ onBack }: Props) {
 
                         return (
                             <div key={round} className="flex flex-col w-72">
-                                {/* Tiêu đề vòng */}
-                                <div className="h-10 text-center font-black text-white/20 tracking-[0.2em] uppercase text-xs">
+                                <div className="h-14 text-center font-black text-white/30 tracking-[0.25em] uppercase text-xs flex items-center justify-center bg-gradient-to-b from-[#1a1b1e] to-transparent rounded-t-2xl mb-4">
                                     {isLastRound ? 'Chung Kết' : `Vòng ${round}`}
                                 </div>
 
@@ -139,16 +145,16 @@ export default function MyTournaments({ onBack }: Props) {
 
                                         return (
                                             // Bí quyết căn dòng hoàn hảo nằm ở class flex-1 và justify-center này
-                                            <div key={match._id} className="relative flex-1 flex flex-col justify-center px-6">
+                                            <div key={match._id} className="relative flex-1 flex flex-col justify-center px-6 py-3">
 
                                                 {/* ĐƯỜNG KẺ BÊN TRÁI (Dẫn VÀO trận đấu) */}
                                                 {!isFirstRound && (
-                                                    <div className="absolute left-0 top-1/2 w-6 border-t-2 border-[#2a2a2a] -translate-y-1/2" />
+                                                    <div className="absolute left-0 top-1/2 w-6 border-t-2 border-[#3a3a3a] -translate-y-1/2" />
                                                 )}
 
                                                 {/* ĐƯỜNG KẺ BÊN PHẢI (Dẫn RA khỏi trận đấu) */}
                                                 {!isLastRound && (
-                                                    <div className={`absolute right-0 w-6 border-r-2 border-[#2a2a2a]
+                                                    <div className={`absolute right-0 w-6 border-r-2 ${match.winnerId ? 'border-emerald-500/50 shadow-[0_0_10px_rgba(52,211,153,0.3)]' : 'border-[#3a3a3a]'}
                                                         ${index % 2 === 0
                                                             ? 'top-1/2 bottom-0 border-t-2 rounded-tr-xl' // Kẻ từ giữa xuống dưới (Trận trên)
                                                             : 'top-0 bottom-1/2 border-b-2 rounded-br-xl' // Kẻ từ trên xuống giữa (Trận dưới)
@@ -157,15 +163,15 @@ export default function MyTournaments({ onBack }: Props) {
                                                 )}
 
                                                 {/* THẺ TRẬN ĐẤU (MATCH CARD) */}
-                                                <div className="relative z-10 bg-[#121316] border border-[#22242a] rounded-xl overflow-hidden shadow-2xl hover:border-[#333640] transition-colors group cursor-pointer">
+                                                <div className={`relative z-10 bg-[#16171a] border ${match.winnerId ? 'border-emerald-500/40 shadow-[0_0_20px_rgba(52,211,153,0.15)]' : 'border-[#2c2e33]'} rounded-xl overflow-hidden hover:border-emerald-500/60 hover:shadow-[0_0_25px_rgba(52,211,153,0.2)] transition-all duration-300 group cursor-pointer backdrop-blur-md`}>
 
                                                     {/* Nhãn số trận nhỏ góc trên cùng */}
-                                                    <div className="absolute top-0 right-0 bg-[#22242a] text-[9px] font-mono text-white/30 px-2 py-0.5 rounded-bl-lg">
+                                                    <div className="absolute top-0 right-0 bg-[#2c2e33] text-[10px] font-mono text-white/40 px-2.5 py-0.5 rounded-bl-lg font-bold group-hover:bg-emerald-500/20 group-hover:text-emerald-400 transition-colors z-20">
                                                         M{match.matchNumber}
                                                     </div>
 
                                                     <TeamRow teamId={match.team1Id} score={match.score1} isWinner={isT1Win} isTBD={isMatchTBD} />
-                                                    <div className="h-px bg-[#22242a] w-[90%] mx-auto" />
+                                                    <div className="h-px bg-gradient-to-r from-transparent via-[#2c2e33] to-transparent w-full" />
                                                     <TeamRow teamId={match.team2Id} score={match.score2} isWinner={isT2Win} isTBD={isMatchTBD} />
 
                                                 </div>
