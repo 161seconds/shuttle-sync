@@ -173,6 +173,39 @@ export class TournamentService {
         const firstMatchOfRound = matches.find(m => m.round === round);
         return firstMatchOfRound ? firstMatchOfRound.matchNumber : 1;
     }
+
+    // 6. CẬP NHẬT TRẬN ĐẤU (NHẬP ĐIỂM, ĐỔI ĐỘI BẰNG KÉO THẢ)
+    async updateMatch(tournamentId: string, matchId: string, updateData: any) {
+        const tournament = await Tournament.findById(tournamentId);
+        if (!tournament) throw new Error('Không tìm thấy giải đấu');
+
+        const match = tournament.matches.find(m => m._id.toString() === matchId);
+        if (!match) throw new Error('Không tìm thấy trận đấu');
+
+        // Nếu kéo thả Đội vào trận này (Overwrite)
+        if (updateData.slot !== undefined && updateData.teamId !== undefined) {
+            if (updateData.slot === 1) {
+                match.team1Id = updateData.teamId ? new Types.ObjectId(updateData.teamId) : undefined;
+            } else if (updateData.slot === 2) {
+                match.team2Id = updateData.teamId ? new Types.ObjectId(updateData.teamId) : undefined;
+            }
+        }
+
+        // Cập nhật điểm số và người thắng
+        if (updateData.score1 !== undefined) match.score1 = updateData.score1;
+        if (updateData.score2 !== undefined) match.score2 = updateData.score2;
+        if (updateData.winnerId !== undefined) {
+            match.winnerId = updateData.winnerId ? new Types.ObjectId(updateData.winnerId) : undefined;
+            
+            // Tự động đẩy người thắng lên trận tiếp theo
+            if (match.winnerId) {
+                this.advanceAutoWinners(tournament);
+            }
+        }
+
+        await tournament.save();
+        return tournament;
+    }
 }
 
 export const tournamentService = new TournamentService();
