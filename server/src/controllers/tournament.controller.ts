@@ -43,6 +43,17 @@ class TournamentController {
             res.status(400).json({ success: false, message: error.message });
         }
     }
+
+    async updateMatch(req: any, res: Response, next: NextFunction) {
+        try {
+            const { id, matchId } = req.params;
+            const updatedTour = await tournamentService.updateMatch(id, matchId, req.body);
+            res.status(200).json({ success: true, message: 'Cập nhật trận đấu thành công!', data: updatedTour });
+        } catch (error: any) {
+            console.error("Lỗi cập nhật trận đấu:", error);
+            res.status(400).json({ success: false, message: error.message });
+        }
+    }
 }
 
 export const tournamentController = new TournamentController();
