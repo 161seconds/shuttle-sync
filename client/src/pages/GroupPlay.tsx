@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { theme as t, formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
+import { useAlertStore } from '../stores/useAlertStore';
 import { groupPlayApi } from '../api/groupPlay.api';
 import { bookingApi } from '../api/booking.api';
 import PriceConfigModal from '../components/groups/PriceConfigModal';
