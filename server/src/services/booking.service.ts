@@ -61,6 +61,16 @@ class BookingService {
             }
         });
 
+        // Tạm thời thêm hàm xử lý xác nhận đặt sân, tự động đổi thành CONFIRMED sau 5 giây
+        setTimeout(async () => {
+            try {
+                await this.confirmPayment(bookingCode, userId);
+                console.log(`[Auto-Confirm] Đã tự động xác nhận thanh toán đơn ${bookingCode} sau 5 giây`);
+            } catch (error) {
+                console.error(`[Auto-Confirm] Lỗi khi xác nhận đơn ${bookingCode}:`, error);
+            }
+        }, 5000);
+
         return booking;
     }
 
