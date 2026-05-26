@@ -31,16 +31,24 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        adminApi.getDashboardStats()
-            .then(res => {
-                setStats(res.data?.data || res.data);
-            })
-            .catch(err => {
-                console.error("Failed to load dashboard stats", err);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
+        const loadStats = () => {
+            adminApi.getDashboardStats()
+                .then(res => {
+                    setStats(res.data?.data || res.data);
+                })
+                .catch(err => {
+                    console.error("Failed to load dashboard stats", err);
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        };
+
+        loadStats(); // Tải lần đầu
+        
+        // Polling mỗi 10 giây để dashboard luôn được cập nhật khi có dữ liệu mới
+        const interval = setInterval(loadStats, 10000);
+        return () => clearInterval(interval);
     }, []);
 
     const nextIdea = () => setCurrentIdea((prev) => (prev + 1) % IDEAS.length);
