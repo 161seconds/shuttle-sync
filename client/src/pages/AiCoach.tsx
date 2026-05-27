@@ -238,11 +238,15 @@ export default function AiCoach() {
                         <input
                             type="text"
                             value={inputValue}
+                            maxLength={100}
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyDown={handleKeyDown}
                             placeholder="Nhập câu hỏi về cầu lông..."
-                            className="w-full bg-[#121614]/80 backdrop-blur-xl border border-white/10 rounded-2xl py-4 pl-5 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 focus:bg-[#121614] focus:shadow-[0_0_25px_rgba(16,185,129,0.15)] transition-all placeholder:text-gray-500 shadow-2xl"
+                            className="w-full bg-[#121614]/80 backdrop-blur-xl border border-white/10 rounded-2xl py-4 pl-5 pr-14 text-sm text-white focus:outline-none focus:border-emerald-500/50 focus:bg-[#121614] focus:shadow-[0_0_25px_rgba(16,185,129,0.15)] transition-all placeholder:text-gray-500 shadow-2xl"
                         />
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 pointer-events-none">
+                            {inputValue.length}/100
+                        </div>
                     </div>
                     <button
                         onClick={() => handleSendMessage()}
