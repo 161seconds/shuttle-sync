@@ -6,6 +6,7 @@ import { courtApi } from '../api/court.api';
 import CourtFilter from '../components/court/CourtFilter';
 import { ListCardSkeleton } from '../components/ui/Skeleton';
 import type { Court } from '../types';
+import { useAlertStore } from '../stores/useAlertStore';
 
 export default function SearchPage() {
     const { filters, setFilters, setBookingCourt } = useAppStore();

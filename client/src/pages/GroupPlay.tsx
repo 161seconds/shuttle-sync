@@ -11,6 +11,7 @@ import { useAlertStore } from '../stores/useAlertStore';
 import { groupPlayApi } from '../api/groupPlay.api';
 import { bookingApi } from '../api/booking.api';
 import PriceConfigModal from '../components/groups/PriceConfigModal';
+import { EmojiIcon } from '../components/EmojiIcon';
 
 // ═══ Types ═══
 interface GroupPlay {
@@ -61,27 +62,10 @@ const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> =
 };
 
 const SPORT_FILTERS = [
-    { id: 'all', label: 'Tất cả', icon: '⚡' },
-    { id: 'badminton', label: 'Cầu lông', icon: '🏸' },
-    { id: 'pickleball', label: 'Pickleball', icon: '🏓' },
+    { id: 'all', label: 'Tất cả', icon: <EmojiIcon name="zap" className="w-4 h-4 inline-block align-text-bottom" /> },
+    { id: 'badminton', label: 'Cầu lông', icon: <EmojiIcon name="badminton" className="w-4 h-4 inline-block align-text-bottom" /> },
+    { id: 'pickleball', label: 'Pickleball', icon: <EmojiIcon name="pickleball" className="w-4 h-4 inline-block align-text-bottom" /> },
 ];
-
-// const SKILL_FILTERS = [
-//     { id: 'y', label: 'Y' },
-//     { id: 'y_minus', label: 'Y-' },
-//     { id: 'y_plus', label: 'Y+' },
-//     { id: 'tby_minus', label: 'TBY-' },
-//     { id: 'tby', label: 'TBY' },
-//     { id: 'tby_plus', label: 'TBY+' },
-//     { id: 'tb_minus', label: 'TB-' },
-//     { id: 'tb', label: 'TB' },
-//     { id: 'tb_plus', label: 'TB+' },
-//     { id: 'tb_plus_2', label: 'TB++' },
-//     { id: 'tb_plus_3', label: 'TB+++' },
-//     { id: 'tbk', label: 'TBK' },
-//     { id: 'bc', label: 'BC (Bán chuyên)' },
-//     { id: 'cn', label: 'CN (Chuyên nghiệp)' },
-// ];
 
 export default function GroupPlayPage() {
     const { user, setPage } = useAppStore();
@@ -410,7 +394,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
             <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
             <motion.div className={`relative w-full max-w-lg bg-[#111113] rounded-4xl border border-white/10 overflow-hidden flex flex-col`} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}>
                 <div className="p-6 border-b border-white/5 flex justify-between items-center">
-                    <h2 className="text-xl font-black text-white italic">MỞ KÈO MỚI 🏸</h2>
+                    <h2 className="text-xl font-black text-white italic">MỞ KÈO MỚI <EmojiIcon name="badminton" className="w-6 h-6 inline-block ml-2 text-emerald-400" /></h2>
                     <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white transition-all"><X className="w-5 h-5" /></button>
                 </div>
 

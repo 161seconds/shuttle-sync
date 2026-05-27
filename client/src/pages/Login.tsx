@@ -3,6 +3,8 @@ import { Eye, Mail, Lock, ChevronRight, User, TrendingUp, Users, Calendar, Star,
 import { theme as DS } from '../utils/theme';
 import { useAppStore } from '../store';
 import { authApi } from '../api/auth.api';
+import { EmojiIcon } from '../components/EmojiIcon';
+
 
 function FloatingCards() {
     return (
@@ -208,7 +210,7 @@ export default function Login() {
                     <div className="mb-8">
                         <h1 className="text-2xl font-black text-white tracking-tight">
                             {otpSent ? 'Xác thực Gmail' : mode === 'login' ? 'Welcome back!' : 'Create new account'}
-                            <span className="inline-block animate-[wave_1.8s_ease-in-out_infinite]">👋</span>
+                            <span className="inline-block animate-[wave_1.8s_ease-in-out_infinite]"><EmojiIcon name="badminton" /></span>
                         </h1>
                         <p className={`text-sm ${DS.text.muted} mt-2 leading-relaxed`}>
                             {otpSent ? `Nhập mã đã gửi tới ${form.email}` : 'Đăng nhập để tiếp tục đặt sân và tìm bạn chơi'}
@@ -223,7 +225,7 @@ export default function Login() {
                             <>
                                 {mode === 'register' && (
                                     <div className="flex gap-1.5 p-1 bg-white/5 rounded-xl border border-white/5 mb-2">
-                                        <button type="button" onClick={() => set('role', 'USER')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${form.role === 'USER' ? 'bg-emerald-500 text-black shadow-md' : 'text-white/50 hover:text-white'}`}>🏸 Người chơi</button>
+                                        <button type="button" onClick={() => set('role', 'USER')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${form.role === 'USER' ? 'bg-emerald-500 text-black shadow-md' : 'text-white/50 hover:text-white'}`}><EmojiIcon name="badminton" className="w-4 h-4 inline-block mr-1" /> Người chơi</button>
                                         <button type="button" onClick={() => set('role', 'OWNER')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${form.role === 'OWNER' ? 'bg-emerald-500 text-black shadow-md' : 'text-white/50 hover:text-white'}`}>🏪 Chủ sân</button>
                                     </div>
                                 )}

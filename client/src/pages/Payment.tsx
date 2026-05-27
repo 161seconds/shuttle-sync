@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Check, Clock, Copy, ChevronLeft, AlertCircle, QrCode, ShieldCheck, Loader2 } from 'lucide-react';
 import { theme as DS } from '../utils/theme';
 import { motion } from 'framer-motion';
+import { useAlertStore } from '../stores/useAlertStore';
 //import { bookingApi } from '../api/booking.api'; 
 
 interface Props {

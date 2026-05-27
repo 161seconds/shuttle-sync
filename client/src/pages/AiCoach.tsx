@@ -55,7 +55,7 @@ export default function AiCoach() {
         if (messages.length === 0) {
             setIsTyping(true);
             const timer = setTimeout(() => {
-                const welcomeText = 'Chào bạn! Coach đây. Rất vui được gặp vợt thủ trên sân đấu ảo này. 🏸\n\nBạn cần Coach tư vấn gì về kỹ thuật, chọn vợt hay chiến thuật thi đấu hôm nay không?';
+                const welcomeText = 'Chào bạn! Coach đây. Rất vui được gặp vợt thủ trên sân đấu ảo này.\n\nBạn cần Coach tư vấn gì về kỹ thuật, chọn vợt hay chiến thuật thi đấu hôm nay không?';
                 const msg: Message = {
                     id: 'welcome-1', text: welcomeText, displayText: '',
                     sender: 'coach', timestamp: new Date(), isStreaming: true,

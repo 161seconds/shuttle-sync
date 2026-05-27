@@ -166,7 +166,7 @@ const MapView: React.FC<MapViewProps> = ({
                                 <div style="font-size:11px;color:#6B7280;margin:2px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${address}</div>
                                 <div style="display:flex;justify-content:space-between;align-items:center;">
                                     <span style="color:#059669;font-weight:900;font-size:13px;">${formatPrice(price)}/h</span>
-                                    <span style="font-size:11px;font-weight:700;background:#FEF3C7;color:#B45309;padding:1px 6px;border-radius:4px;">⭐ ${rating}</span>
+                                    <span style="font-size:11px;font-weight:700;background:#FEF3C7;color:#B45309;padding:1px 6px;border-radius:4px;">★ ${rating}</span>
                                 </div>
                             </div>
                         </div>

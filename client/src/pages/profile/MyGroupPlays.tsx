@@ -3,6 +3,8 @@ import { ChevronLeft, Users, Calendar, Clock, MapPin, Loader2, LogOut, Crown } f
 import { theme as t } from '../../utils/theme';
 import { useAppStore } from '../../store';
 import axiosClient from '../../api/axiosClient';
+import { EmojiIcon } from '../../components/EmojiIcon';
+
 
 interface GroupPlay {
     _id: string;
@@ -78,7 +80,7 @@ export default function MyGroupPlays({ onBack }: Props) {
         return new Date(d).toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' });
     };
 
-    const sportIcon = (s: string) => s === 'pickleball' ? '🏓' : '🏸';
+    const sportIcon = (s: string) => s === 'pickleball' ? (<EmojiIcon name="pickleball" />) : (<EmojiIcon name="badminton" />);
 
     return (
         <div className={`min-h-screen ${t.bg.base} pb-24`}>

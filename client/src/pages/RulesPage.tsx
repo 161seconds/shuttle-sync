@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { BookOpen, AlertTriangle, CheckCircle2, Info, Swords, ShieldBan, Zap, Target } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { EmojiIcon } from '../components/EmojiIcon';
+
 
 // ═══ DỮ LIỆU LUẬT & KỸ THUẬT CHO CẢ 2 MÔN ═══
 const KNOWLEDGE_BASE = {
@@ -121,13 +123,13 @@ export default function RulesPage() {
                         onClick={() => setActiveTab('badminton')}
                         className={`pb-3 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === 'badminton' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-gray-500 hover:text-gray-300'}`}
                     >
-                        <span className="text-lg">🏸</span> Cầu lông
+                        <EmojiIcon name="badminton" className="w-5 h-5 inline-block text-emerald-400" /> Cầu lông
                     </button>
                     <button
                         onClick={() => setActiveTab('pickleball')}
                         className={`pb-3 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === 'pickleball' ? 'border-orange-500 text-orange-400' : 'border-transparent text-gray-500 hover:text-gray-300'}`}
                     >
-                        <span className="text-lg">🏓</span> Pickleball
+                        <EmojiIcon name="pickleball" className="w-5 h-5 inline-block text-orange-400" /> Pickleball
                     </button>
                 </div>
 
