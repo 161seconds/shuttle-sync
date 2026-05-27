@@ -8,6 +8,8 @@ import { useAlertStore } from '../../stores/useAlertStore';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { adminApi } from '../../api/admin.api';
 import dayjs from 'dayjs';
+import { EmojiIcon } from '../../components/EmojiIcon';
+
 
 const IDEAS = [
     {
@@ -371,7 +373,7 @@ function TopCourt({ name, bookings, revenue, status, statusColor, onClick }: any
     return (
         <div className="flex items-center justify-between group p-2 -m-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer" onClick={onClick}>
             <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-lg bg-[#262f3d] flex items-center justify-center text-xl shadow-sm border border-[#323d4f] group-hover:border-emerald-500/30 transition-colors">🏸</div>
+                <div className="w-11 h-11 rounded-lg bg-[#262f3d] flex items-center justify-center text-xl shadow-sm border border-[#323d4f] group-hover:border-emerald-500/30 transition-colors"><EmojiIcon name="badminton" className="w-6 h-6 text-emerald-400" /></div>
                 <div>
                     <p className="text-sm font-bold text-gray-200 group-hover:text-emerald-400 transition-colors">{name}</p>
                     <p className="text-xs text-gray-500 mt-0.5">{bookings} lượt đặt</p>

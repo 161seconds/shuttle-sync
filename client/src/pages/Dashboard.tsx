@@ -5,6 +5,8 @@ import { theme as t, formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
 import { courtApi } from '../api/court.api';
 import type { Court } from '../types';
+import { EmojiIcon } from '../components/EmojiIcon';
+
 
 export default function Dashboard() {
     const { user, setPage, setFilters, setBookingCourt } = useAppStore();
@@ -54,7 +56,7 @@ export default function Dashboard() {
                 <div>
                     <p className={`text-sm ${t.text.muted}`}>Chào buổi sáng,</p>
                     <h1 className={`text-2xl font-bold ${t.text.primary}`}>
-                        {user?.name || 'Vợt thủ'} 👋
+                        {user?.name || 'Vợt thủ'} <EmojiIcon name="badminton" />
                     </h1>
                 </div>
                 <div
@@ -87,11 +89,11 @@ export default function Dashboard() {
                 className="grid grid-cols-2 gap-3"
             >
                 <button onClick={() => handleQuickFilter('badminton')} className={`p-4 rounded-2xl ${t.bg.card} border ${t.border.subtle} hover:border-emerald-500/30 flex flex-col items-center gap-2 transition-all`}>
-                    <span className="text-3xl">🏸</span>
+                    <EmojiIcon name="badminton" className="w-8 h-8 text-emerald-400" />
                     <span className={`text-xs font-semibold ${t.text.primary}`}>Cầu lông</span>
                 </button>
                 <button onClick={() => handleQuickFilter('pickleball')} className={`p-4 rounded-2xl ${t.bg.card} border ${t.border.subtle} hover:border-lime-500/30 flex flex-col items-center gap-2 transition-all`}>
-                    <span className="text-3xl">🏓</span>
+                    <EmojiIcon name="pickleball" className="w-8 h-8 text-emerald-400" />
                     <span className={`text-xs font-semibold ${t.text.primary}`}>Pickleball</span>
                 </button>
             </motion.div>

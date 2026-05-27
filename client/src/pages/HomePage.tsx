@@ -5,6 +5,8 @@ import { theme as DS } from '../utils/theme';
 import CourtFilter from '../components/court/CourtFilter';
 import CourtList from '../components/court/CourtList';
 import type { Court, CourtFilters } from '../types';
+import { EmojiIcon } from '../components/EmojiIcon';
+
 
 export default function Home() {
     const [courts, setCourts] = useState<Court[]>([]);
@@ -86,7 +88,7 @@ export default function Home() {
                 {/* Header Text */}
                 <div>
                     <h1 className={`text-2xl font-black ${DS.text.primary} mb-1`}>
-                        Khám phá sân gần bạn 🏸
+                        Khám phá sân gần bạn <EmojiIcon name="badminton" className="w-5 h-5 inline-block ml-1 text-emerald-400" />
                     </h1>
                     <p className={`text-sm ${DS.text.muted}`}>
                         Hơn 800 sân cầu lông và pickleball đang chờ bạn

@@ -4,6 +4,8 @@ import { formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
 import { courtApi } from '../api/court.api';
 import type { Court } from '../types';
+import { EmojiIcon } from '../components/EmojiIcon';
+
 
 const vietmapgl = (window as any).vietmapgl;
 
@@ -183,7 +185,7 @@ export default function MapPage() {
                 glowEffect = '0 0 20px rgba(255, 255, 255, 0.8)';
             }
 
-            const emoji = court.sportTypes?.includes('pickleball') ? '🏓' : '🏸';
+            const emoji = court.sportTypes?.includes('pickleball') ? (<EmojiIcon name="pickleball" />) : (<EmojiIcon name="badminton" />);
 
             const el = document.createElement('div');
             el.innerHTML = `

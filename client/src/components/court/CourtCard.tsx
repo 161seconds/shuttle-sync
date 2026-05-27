@@ -3,6 +3,8 @@ import { MapPin, Star, Heart, Zap } from 'lucide-react';
 import { theme as t, formatPrice, AMENITY_MAP } from '../../utils/theme';
 import { useAppStore } from '../../store';
 import type { Court } from '../../types';
+import { EmojiIcon } from '../../components/EmojiIcon';
+
 
 interface CourtCardProps {
     court: Court;
@@ -21,7 +23,7 @@ export default function CourtCard({ court, index = 0 }: CourtCardProps) {
         || court.photos[0]?.url
         || `https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&h=250&fit=crop`;
 
-    const sportIcon = court.sportTypes.includes('pickleball') ? '🏓' : '🏸';
+    const sportIcon = court.sportTypes.includes('pickleball') ? (<EmojiIcon name="pickleball" />) : (<EmojiIcon name="badminton" />);
 
     return (
         <div

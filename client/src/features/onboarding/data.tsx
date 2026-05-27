@@ -1,8 +1,10 @@
 import type { OnboardingSport, SkillLevel, TourStep } from '../../types';
+import { EmojiIcon } from '../../components/EmojiIcon';
 
-export const SPORTS: { id: OnboardingSport; label: string; icon: string; color: string }[] = [
-    { id: 'badminton', label: 'Cầu lông', icon: '🏸', color: 'from-emerald-400 to-green-600' },
-    { id: 'pickleball', label: 'Pickleball', icon: '🏓', color: 'from-lime-400 to-emerald-500' },
+
+export const SPORTS: { id: OnboardingSport; label: string; icon: React.ReactNode; color: string }[] = [
+    { id: 'badminton', label: 'Cầu lông', icon: <EmojiIcon name="badminton" className="w-4 h-4 inline-block align-text-bottom" />, color: 'from-emerald-400 to-green-600' },
+    { id: 'pickleball', label: 'Pickleball', icon: <EmojiIcon name="pickleball" className="w-4 h-4 inline-block align-text-bottom" />, color: 'from-lime-400 to-emerald-500' },
 ];
 
 export const SKILLS: { id: SkillLevel; label: string; desc: string; iconName: string }[] = [

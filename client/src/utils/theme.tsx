@@ -1,3 +1,6 @@
+import type { ReactNode } from 'react';
+import { EmojiIcon } from '../components/EmojiIcon';
+
 /** ShuttleSync Design Tokens — FULL DARK THEME */
 export const theme = {
     bg: {
@@ -37,10 +40,10 @@ export const DISTRICTS = [
 ];
 
 export const SPORT_FILTERS = [
-    { id: 'all', label: 'Tất cả', icon: '⚡' },
-    { id: 'badminton', label: 'Cầu lông', icon: '🏸' },
-    { id: 'pickleball', label: 'Pickleball', icon: '🏓' },
-] as const;
+    { id: 'all', label: 'Tất cả', icon: <EmojiIcon name="zap" className="w-4 h-4 inline-block align-text-bottom" /> },
+    { id: 'badminton', label: 'Cầu lông', icon: <EmojiIcon name="badminton" className="w-4 h-4 inline-block align-text-bottom" /> },
+    { id: 'pickleball', label: 'Pickleball', icon: <EmojiIcon name="pickleball" className="w-4 h-4 inline-block align-text-bottom" /> },
+];
 
 export const SORT_OPTIONS = [
     { id: 'distance', label: 'Gần nhất' },
@@ -49,9 +52,15 @@ export const SORT_OPTIONS = [
     { id: 'price_desc', label: 'Giá cao → thấp' },
 ] as const;
 
-export const AMENITY_MAP: Record<string, string> = {
-    wifi: '📶', parking: '🅿️', shower: '🚿', ac: '❄️',
-    water: '💧', shop: '🛒', coach: '👨‍🏫', rental: '🎒',
+export const AMENITY_MAP: Record<string, ReactNode> = {
+    wifi: <><EmojiIcon name="wifi" className="w-4 h-4 inline-block mr-1 align-text-bottom"/> Wifi</>,
+    parking: <><EmojiIcon name="parking" className="w-4 h-4 inline-block mr-1 align-text-bottom"/> Bãi xe</>,
+    shower: <><EmojiIcon name="shower" className="w-4 h-4 inline-block mr-1 align-text-bottom"/> Tắm rửa</>,
+    ac: <><EmojiIcon name="ac" className="w-4 h-4 inline-block mr-1 align-text-bottom"/> Máy lạnh</>,
+    water: <><EmojiIcon name="water" className="w-4 h-4 inline-block mr-1 align-text-bottom"/> Nước uống</>,
+    shop: <><EmojiIcon name="shop" className="w-4 h-4 inline-block mr-1 align-text-bottom"/> Shop</>,
+    coach: <><EmojiIcon name="coach" className="w-4 h-4 inline-block mr-1 align-text-bottom"/> HLV</>,
+    rental: <><EmojiIcon name="rental" className="w-4 h-4 inline-block mr-1 align-text-bottom"/> Cho thuê</>,
 };
 
 export const formatPrice = (n: number) => {

@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
+import { EmojiIcon } from '../../components/EmojiIcon';
+
 
 export default function StepWelcome({ onNext, onSkip }: { onNext: () => void; onSkip: () => void }) {
     return (
@@ -14,7 +16,7 @@ export default function StepWelcome({ onNext, onSkip }: { onNext: () => void; on
                 transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
             >
                 <div className="w-28 h-28 rounded-3xl bg-linear-to-br from-emerald-400 via-green-500 to-emerald-600 flex items-center justify-center shadow-2xl shadow-emerald-500/30 relative">
-                    <span className="text-5xl">🏸</span>
+                    <EmojiIcon name="badminton" className="w-12 h-12 text-emerald-400" />
                     <motion.div
                         className="absolute inset-0 rounded-3xl border-2 border-emerald-300/40"
                         animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0, 0.5] }}

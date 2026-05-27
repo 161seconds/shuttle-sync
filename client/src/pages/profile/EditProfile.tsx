@@ -5,10 +5,12 @@ import { useAppStore } from '../../store';
 import axiosClient from '../../api/axiosClient';
 import type { SportType } from '../../types';
 import { SKILLS } from '../../features/onboarding/data';
+import { EmojiIcon } from '../../components/EmojiIcon';
+
 
 const SPORT_OPTIONS: { id: SportType; label: string; icon: string }[] = [
-    { id: 'badminton', label: 'Cầu lông', icon: '🏸' },
-    { id: 'pickleball', label: 'Pickleball', icon: '🏓' },
+    { id: 'badminton', label: 'Cầu lông', icon: <EmojiIcon name="badminton" className="w-4 h-4 inline-block align-text-bottom" /> },
+    { id: 'pickleball', label: 'Pickleball', icon: <EmojiIcon name="pickleball" className="w-4 h-4 inline-block align-text-bottom" /> },
 ];
 
 interface Props {

@@ -69,7 +69,7 @@ export default function CourtFilter({ filters, onChange, showSearch = true }: Co
                     >
                         {/* Đã thêm kiểu dữ liệu string cho 'd' */}
                         {DISTRICTS.map((d: string) => (
-                            <option key={d} value={d}>{d === 'Tất cả' ? '📍 Khu vực' : `📍 ${d}`}</option>
+                            <option key={d} value={d}>{d === 'Tất cả' ? 'Khu vực' : `${d}`}</option>
                         ))}
                     </select>
                     <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 ${t.text.muted} pointer-events-none`} />
