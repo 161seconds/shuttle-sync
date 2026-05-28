@@ -5,7 +5,8 @@ import { useAppStore } from '../store';
 import { courtApi } from '../api/court.api';
 import type { Court } from '../types';
 import { EmojiIcon } from '../components/EmojiIcon';
-
+import { renderToString } from 'react-dom/server';
+import { useAlertStore } from '../stores/useAlertStore';
 
 const vietmapgl = (window as any).vietmapgl;
 
@@ -185,7 +186,7 @@ export default function MapPage() {
                 glowEffect = '0 0 20px rgba(255, 255, 255, 0.8)';
             }
 
-            const emoji = court.sportTypes?.includes('pickleball') ? (<EmojiIcon name="pickleball" />) : (<EmojiIcon name="badminton" />);
+            const emojiStr = renderToString(court.sportTypes?.includes('pickleball') ? <EmojiIcon name="pickleball" /> : <EmojiIcon name="badminton" />);
 
             const el = document.createElement('div');
             el.innerHTML = `
@@ -199,7 +200,7 @@ export default function MapPage() {
                         font-size: 16px;
                         box-shadow: ${glowEffect};
                     ">
-                        ${emoji}
+                        ${emojiStr}
                     </div>
                     <div style="
                         width: 0; height: 0; 
