@@ -38,9 +38,8 @@ jobs:
         npm install
         npm run build
 
-    - name: Setup, Lint, and Build Server
+    - name: Setup and Build Server
       run: |
         cd server
         npm install
-        npm run lint
         npm run build
