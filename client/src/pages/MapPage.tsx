@@ -163,52 +163,55 @@ export default function MapPage() {
             const isActive = selected?._id === court._id;
             const rating = court.averageRating || 0;
 
-            let markerColor = '#1e293b';
-            let glowEffect = 'none';
-            let iconSize = 'scale(0.85)';
-            let zIndex = 1;
-
-            if (rating >= 4.5) {
-                markerColor = '#f59e0b';
-                glowEffect = '0 0 15px rgba(245, 158, 11, 0.6)';
-                iconSize = 'scale(1.15)';
-                zIndex = 5;
-            } else if (rating >= 3.8) {
-                markerColor = '#10b981';
-                glowEffect = '0 0 10px rgba(16, 185, 129, 0.4)';
-                iconSize = 'scale(1)';
-                zIndex = 3;
-            }
-
-            if (isActive) {
-                iconSize = 'scale(1.3)';
-                zIndex = 10;
-                glowEffect = '0 0 20px rgba(255, 255, 255, 0.8)';
-            }
-
             const emojiStr = renderToString(court.sportTypes?.includes('pickleball') ? <EmojiIcon name="pickleball" /> : <EmojiIcon name="badminton" />);
-
             const el = document.createElement('div');
+            
+            // Màu sắc dựa trên rating
+            const ratingColor = rating >= 4.5 ? '#fbbf24' : rating >= 3.8 ? '#34d399' : '#94a3b8';
+            const displayRating = rating ? rating.toFixed(1) : 'Mới';
+            
             el.innerHTML = `
-                <div style="cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: ${iconSize}; z-index: ${zIndex};">
+                <div style="cursor: pointer; display: flex; flex-direction: column; align-items: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: ${isActive ? 'scale(1.15)' : 'scale(1)'}; z-index: ${isActive ? 10 : 2};">
                     <div style="
-                        width: 36px; height: 36px; 
-                        background: ${isActive ? '#fff' : '#1e1e1e'}; 
-                        border: 2px solid ${markerColor}; 
-                        border-radius: 50%; 
-                        display: flex; align-items: center; justify-content: center;
-                        font-size: 16px;
-                        box-shadow: ${glowEffect};
+                        display: flex; 
+                        align-items: center; 
+                        gap: 6px;
+                        background: ${isActive ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(25, 25, 25, 0.9)'};
+                        backdrop-filter: blur(12px);
+                        -webkit-backdrop-filter: blur(12px);
+                        border: 1px solid ${isActive ? '#34d399' : 'rgba(255,255,255,0.1)'};
+                        padding: 4px 10px 4px 4px;
+                        border-radius: 30px;
+                        box-shadow: ${isActive ? '0 8px 25px rgba(16,185,129,0.5)' : '0 4px 15px rgba(0,0,0,0.5)'};
+                        color: ${isActive ? '#fff' : '#e2e8f0'};
+                        font-family: 'Inter', sans-serif;
+                        font-weight: 700;
+                        font-size: 13px;
                     ">
-                        ${emojiStr}
+                        <div style="
+                            display: flex; align-items: center; justify-content: center; 
+                            width: 26px; height: 26px; 
+                            background: ${isActive ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.05)'}; 
+                            border-radius: 50%; 
+                            font-size: 14px;
+                        ">
+                            ${emojiStr}
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 3px;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="${isActive ? '#fff' : ratingColor}" stroke="none">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            <span style="color: ${isActive ? '#fff' : ratingColor}; margin-top: 1px;">
+                                ${displayRating}
+                            </span>
+                        </div>
                     </div>
                     <div style="
                         width: 0; height: 0; 
                         border-left: 6px solid transparent; 
                         border-right: 6px solid transparent; 
-                        border-top: 8px solid ${markerColor}; 
+                        border-top: 8px solid ${isActive ? '#059669' : 'rgba(25, 25, 25, 0.9)'}; 
                         margin: 0 auto; 
-                        transform: translateY(-2px);
                     "></div>
                 </div>
             `;
