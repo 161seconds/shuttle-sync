@@ -6,12 +6,11 @@ import {
 import { theme as DS, formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
 import type { Court } from '../types';
-import { EmojiIcon } from '../components/EmojiIcon';
-
+//import { EmojiIcon } from '../components/EmojiIcon';
 
 const AMENITY_LABELS: Record<string, string> = {
-    wifi: <><EmojiIcon name="wifi" className="w-4 h-4 inline-block mr-1"/> Wifi</>, parking: <><EmojiIcon name="parking" className="w-4 h-4 inline-block mr-1"/> Bãi xe</>, shower: <><EmojiIcon name="shower" className="w-4 h-4 inline-block mr-1"/> Tắm rửa</>, ac: <><EmojiIcon name="ac" className="w-4 h-4 inline-block mr-1"/> Máy lạnh</>,
-    water: <><EmojiIcon name="water" className="w-4 h-4 inline-block mr-1"/> Nước uống</>, shop: <><EmojiIcon name="shop" className="w-4 h-4 inline-block mr-1"/> Shop</>, coach: <><EmojiIcon name="coach" className="w-4 h-4 inline-block mr-1"/> HLV</>, rental: <><EmojiIcon name="rental" className="w-4 h-4 inline-block mr-1"/> Cho thuê</>,
+    wifi: 'Wifi', parking: 'Bãi xe', shower: 'Tắm rửa', ac: 'Máy lạnh',
+    water: 'Nước uống', shop: 'Shop', coach: 'HLV', rental: 'Cho thuê',
 };
 
 interface Props {
