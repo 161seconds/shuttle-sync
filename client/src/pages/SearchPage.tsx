@@ -114,7 +114,7 @@ export default function SearchPage() {
             <div className="w-full flex flex-col pb-15">
                 <CourtFilter filters={filters} onChange={handleFilterChange} />
 
-                {/* Khung lọc giá */}
+                {/* Khung lọc giá
                 <div className="mt-4 space-y-3">
                     <div className={`p-4 rounded-xl ${t.bg.elevated} border ${t.border.subtle} max-w-md`}>
                         <div className="flex items-center justify-between mb-3">
@@ -132,7 +132,7 @@ export default function SearchPage() {
                             className="w-full accent-emerald-500 h-1 cursor-pointer"
                         />
                     </div>
-                </div>
+                </div> */}
 
                 {/* 1. Smart Sort Tags */}
                 <div className="flex items-center gap-2 mt-4 overflow-x-auto custom-scrollbar pb-2">
@@ -183,47 +183,46 @@ export default function SearchPage() {
                                 <div
                                     key={court._id}
                                     onClick={() => setBookingCourt(court)}
-                                    // 👈 Chuyển sang flex-col để thẻ đứng dọc
-                                    className={`flex flex-col gap-3 p-3.5 rounded-2xl ${t.bg.card} border ${t.border.subtle} hover:border-emerald-500/50 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all cursor-pointer group`}
+                                    className={`flex flex-col gap-2.5 p-2.5 rounded-[20px] ${t.bg.card} border ${t.border.subtle} hover:border-emerald-500/50 hover:shadow-[0_0_30px_rgba(16,185,129,0.1)] transition-all cursor-pointer group`}
                                 >
-                                    {/* Ảnh nằm trên, tỷ lệ 4/3 */}
-                                    <div className="relative w-full aspect-4/3 shrink-0 overflow-hidden rounded-xl bg-[#1e1e1e]">
+                                    {/* Ảnh nằm trên, tỷ lệ 16/9 cho gọn hơn */}
+                                    <div className="relative w-full aspect-video shrink-0 overflow-hidden rounded-2xl bg-[#1e1e1e]">
                                         <img
                                             src={mainPhoto(court)}
                                             alt={court.name}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                             loading="lazy"
                                         />
-                                        {/* Khoảng cách (nếu có) đè lên góc ảnh */}
+                                        {/* Khoảng cách */}
                                         {court.distance !== undefined && (
-                                            <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-emerald-400 text-[11px] font-bold px-2 py-1 rounded-lg border border-white/10">
-                                                Cách {(court.distance).toFixed(1)} km
+                                            <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-semibold px-2 py-1 rounded-lg border border-white/10">
+                                                {court.distance < 1 ? `${(court.distance * 1000).toFixed(0)}m` : `${court.distance.toFixed(1)}km`}
                                             </div>
                                         )}
                                         {/* 3. Availability Badge */}
-                                        <div className="absolute bottom-2 left-2 bg-emerald-500/90 text-black text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1.5 backdrop-blur-md shadow-lg">
+                                        <div className="absolute bottom-2 left-2 bg-emerald-500/90 text-black text-[9px] font-bold px-2 py-1 rounded-md flex items-center gap-1.5 backdrop-blur-md shadow-lg">
                                             <div className="w-1.5 h-1.5 bg-black rounded-full animate-pulse"></div>
-                                            Còn slot hôm nay
+                                            Có slot
                                         </div>
                                     </div>
 
                                     {/* Thông tin nằm dưới */}
-                                    <div className="flex-1 flex flex-col justify-between pt-1">
+                                    <div className="flex-1 flex flex-col justify-between px-1 pb-1">
                                         <div>
-                                            <h3 className={`font-bold text-base ${t.text.primary} truncate group-hover:text-emerald-400 transition-colors`}>{court.name}</h3>
-                                            <p className={`text-[13px] ${t.text.muted} flex items-center gap-1.5 mt-1 truncate`}>
-                                                <MapPin className="w-3.5 h-3.5 shrink-0" />
+                                            <h3 className={`font-bold text-sm ${t.text.primary} truncate group-hover:text-emerald-400 transition-colors`}>{court.name}</h3>
+                                            <p className={`text-[11px] ${t.text.muted} flex items-center gap-1 mt-1 truncate`}>
+                                                <MapPin className="w-3 h-3 shrink-0" />
                                                 <span className="truncate">{court.address.fullAddress || court.address.district}</span>
                                             </p>
                                         </div>
-                                        <div className="flex items-center justify-between mt-4">
-                                            <span className="flex items-center gap-1.5 text-xs bg-[#1a1a1a] px-2 py-1.5 rounded-md border border-[#333]">
-                                                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                                                <span className={`${t.text.primary} font-semibold`}>{court.averageRating?.toFixed(1) || '5.0'}</span>
+                                        <div className="flex items-center justify-between mt-3">
+                                            <span className="flex items-center gap-1 text-[11px] bg-white/5 px-2 py-1 rounded-md border border-white/5">
+                                                <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                                                <span className={`${t.text.primary} font-bold`}>{court.averageRating?.toFixed(1) || '5.0'}</span>
                                                 <span className={t.text.muted}>({court.reviewCount || 0})</span>
                                             </span>
-                                            <span className="text-emerald-400 text-[13px] font-black bg-emerald-500/10 px-2.5 py-1.5 rounded-md">
-                                                {formatPrice(court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0)}/h
+                                            <span className="text-emerald-400 text-xs font-black bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20">
+                                                {formatPrice(court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0)}
                                             </span>
                                         </div>
                                     </div>
@@ -246,7 +245,7 @@ export default function SearchPage() {
                                 Tải thêm sân
                             </button>
                         )}
-                        
+
                         {/* Go To Page Input */}
                         {!loading && totalPages > 1 && (
                             <div className="flex flex-wrap items-center gap-4">
@@ -267,7 +266,7 @@ export default function SearchPage() {
                                         Đi
                                     </button>
                                 </div>
-                                
+
                                 <div className="flex items-center gap-1">
                                     <button
                                         onClick={() => handlePageChange(1)} disabled={page === 1}
@@ -275,25 +274,25 @@ export default function SearchPage() {
                                     >
                                         <ChevronsLeft className="w-5 h-5" />
                                     </button>
-    
+
                                     <button
                                         onClick={() => handlePageChange(page - 1)} disabled={page === 1}
                                         className={`w-9 h-9 flex items-center justify-center rounded-lg transition-colors ${page === 1 ? 'opacity-30 cursor-not-allowed' : `hover:${t.bg.hover} hover:text-emerald-400`} ${t.text.muted}`}
                                     >
                                         <ChevronLeft className="w-5 h-5" />
                                     </button>
-    
+
                                     <div className={`min-w-12.5 px-2 h-9 flex items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30 text-sm`}>
                                         {page} <span className="text-[10px] text-emerald-400/50 ml-1">/ {totalPages}</span>
                                     </div>
-    
+
                                     <button
                                         onClick={() => handlePageChange(page + 1)} disabled={page === totalPages}
                                         className={`w-9 h-9 flex items-center justify-center rounded-lg transition-colors ${page === totalPages ? 'opacity-30 cursor-not-allowed' : `hover:${t.bg.hover} hover:text-emerald-400`} ${t.text.muted}`}
                                     >
                                         <ChevronRight className="w-5 h-5" />
                                     </button>
-    
+
                                     <button
                                         onClick={() => handlePageChange(totalPages)} disabled={page === totalPages}
                                         className={`w-9 h-9 flex items-center justify-center rounded-lg transition-colors ${page === totalPages ? 'opacity-30 cursor-not-allowed' : `hover:${t.bg.hover} hover:text-emerald-400`} ${t.text.muted}`}
