@@ -29,7 +29,7 @@ export default function ChatRoomItem({ room, isActive, onClick }: ChatRoomItemPr
             
             <div className="flex-1 min-w-0 overflow-hidden">
                 <div className="flex items-center justify-between mb-1">
-                    <h3 className={`font-bold truncate text-sm ${isActive ? 'text-emerald-400' : 'text-white'}`}>
+                    <h3 className="font-bold truncate text-sm text-white">
                         {room.name}
                     </h3>
                     {room.lastMessageTime && (

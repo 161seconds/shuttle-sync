@@ -1,64 +1,134 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
-//import ChatHeader from './ChatHeader';
 import ChatSidebar from './ChatSidebar';
 import ChatWindow from './ChatWindow';
 import UserProfileModal from './UserProfileModal';
-import {
-    mockRooms,
-    mockMessages,
-    mockUsers,
-    currentUser
-} from './mockData';
-import type {
-    ChatRoom,
-    ChatMessage,
-    ChatUser
-} from './mockData';
+import { useAppStore } from '../../store';
+import { groupPlayApi } from '../../api/groupPlay.api';
+import { chatApi, type ChatMessage } from '../../api/chat.api';
+import { socketService } from '../../utils/socket';
+import type { ChatRoom, ChatUser } from './mockData';
 
 export default function ChatPage() {
-    const [rooms, setRooms] = useState<ChatRoom[]>(mockRooms);
+    const { user } = useAppStore();
+    const [rooms, setRooms] = useState<ChatRoom[]>([]);
     const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
-    const [messagesDict, setMessagesDict] = useState<Record<string, ChatMessage[]>>(mockMessages);
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null);
+    const [loadingRooms, setLoadingRooms] = useState(true);
 
     const activeRoom = rooms.find(r => r.id === activeRoomId) || null;
-    const activeMessages = activeRoomId ? (messagesDict[activeRoomId] || []) : [];
 
-    const handleSendMessage = (text: string) => {
-        if (!activeRoomId) return;
-
-        const newMessage: ChatMessage = {
-            id: `new_${Date.now()}`,
-            roomId: activeRoomId,
-            senderId: currentUser.id,
-            content: text,
-            timestamp: new Date().toISOString()
+    // Fetch user's group plays as chat rooms
+    useEffect(() => {
+        const fetchRooms = async () => {
+            try {
+                const res = await groupPlayApi.getMyGroupPlays();
+                const groupPlays = res.data?.data || res.data?.groupPlays || []; 
+                
+                const mappedRooms: ChatRoom[] = groupPlays.map((gp: any) => ({
+                    id: gp._id,
+                    name: gp.title,
+                    avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(gp.title)}`,
+                    statusText: `${gp.currentPlayers}/${gp.maxPlayers} thành viên`,
+                    unreadCount: 0,
+                    lastMessage: gp.description || 'Tham gia trò chuyện ngay',
+                }));
+                setRooms(mappedRooms);
+            } catch (error) {
+                console.error('Failed to fetch rooms', error);
+            } finally {
+                setLoadingRooms(false);
+            }
         };
 
-        // Update messages
-        setMessagesDict(prev => ({
-            ...prev,
-            [activeRoomId]: [...(prev[activeRoomId] || []), newMessage]
-        }));
+        if (user) {
+            fetchRooms();
+        }
+    }, [user]);
 
-        // Update room's last message
-        setRooms(prev => prev.map(room => {
-            if (room.id === activeRoomId) {
-                return {
-                    ...room,
-                    lastMessage: text,
-                    lastMessageTime: 'Vừa xong'
-                };
+    // Fetch messages and connect socket when room is selected
+    useEffect(() => {
+        if (!activeRoomId) return;
+
+        const fetchHistory = async () => {
+            try {
+                const res = await chatApi.getHistory(activeRoomId);
+                setMessages(res.data.data || []);
+            } catch (error) {
+                console.error('Error fetching chat history:', error);
             }
-            return room;
-        }));
+        };
+
+        fetchHistory();
+
+        // Connect socket if not connected
+        socketService.connect(''); 
+        const socket = socketService.getSocket();
+
+        if (socket) {
+            socket.emit('group_play:join', activeRoomId);
+
+            socket.on('chat:message', (message: ChatMessage) => {
+                if (message.groupPlayId === activeRoomId) {
+                    setMessages((prev) => {
+                        // Prevent duplicates
+                        if (prev.some(m => m._id === message._id)) return prev;
+                        return [...prev, message];
+                    });
+                    
+                    // Update room last message conceptually
+                    setRooms(prevRooms => prevRooms.map(room => {
+                        if (room.id === activeRoomId) {
+                            return {
+                                ...room,
+                                lastMessage: message.content,
+                                lastMessageTime: 'Vừa xong'
+                            };
+                        }
+                        return room;
+                    }));
+                } else {
+                    // Message for a different room, increment unread count
+                    setRooms(prevRooms => prevRooms.map(room => {
+                        if (room.id === message.groupPlayId) {
+                            return {
+                                ...room,
+                                lastMessage: message.content,
+                                lastMessageTime: 'Vừa xong',
+                                unreadCount: (room.unreadCount || 0) + 1
+                            };
+                        }
+                        return room;
+                    }));
+                }
+            });
+        }
+
+        return () => {
+            if (socket) {
+                socket.emit('group_play:leave', activeRoomId);
+                socket.off('chat:message');
+            }
+        };
+    }, [activeRoomId]);
+
+    const handleSendMessage = (text: string) => {
+        if (!activeRoomId || !user) return;
+
+        const socket = socketService.getSocket();
+        if (socket) {
+            socket.emit('chat:send', {
+                groupPlayId: activeRoomId,
+                content: text,
+                senderName: user.displayName || user.name || 'Người dùng',
+                senderAvatar: user.avatar,
+            });
+        }
     };
 
     const handleSelectRoom = (roomId: string) => {
         setActiveRoomId(roomId);
-
-        // Mark as read
         setRooms(prev => prev.map(room => {
             if (room.id === roomId) {
                 return { ...room, unreadCount: 0 };
@@ -67,25 +137,46 @@ export default function ChatPage() {
         }));
     };
 
-    const getUser = (userId: string) => {
-        return mockUsers[userId] || mockUsers['user_1']; // Fallback
+    const handleAvatarClick = (userId: string) => {
+        // Tạm thời vô hiệu hóa việc mở profile chi tiết do API chat trả về không đủ info
+        // Có thể gọi API fetch user info ở đây trong tương lai
+        console.log("Avatar clicked for userId:", userId);
+    };
+
+    // Map Auth user to ChatUser format required by ChatWindow
+    const chatCurrentUser: ChatUser = user ? {
+        id: user._id || (user as any).id || '',
+        name: user.displayName || user.name || 'Bạn',
+        avatar: user.avatar || '',
+        skillLevel: '',
+        status: 'active',
+        matchesPlayed: 0,
+        favoriteCourt: '',
+        joinedDate: ''
+    } : {
+        id: '', name: '', avatar: '', skillLevel: '', status: 'active', matchesPlayed: 0, favoriteCourt: '', joinedDate: ''
     };
 
     return (
         <div className="flex flex-col h-[calc(100vh-64px)] bg-[#0b0c0d] text-white overflow-hidden">
-
             <div className="flex flex-1 overflow-hidden">
-                {/* Sidebar - ẩn trên mobile nếu đang ở trong phòng chat */}
+                {/* Sidebar */}
                 <div className={`
                     w-full md:w-[320px] lg:w-[360px] h-full flex-shrink-0
                     ${activeRoomId ? 'hidden md:block' : 'block'}
                 `}>
-                    <ChatSidebar
-                        rooms={rooms}
-                        activeRoomId={activeRoomId}
-                        onSelectRoom={handleSelectRoom}
-                        className="h-full"
-                    />
+                    {loadingRooms ? (
+                        <div className="flex items-center justify-center h-full">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+                        </div>
+                    ) : (
+                        <ChatSidebar
+                            rooms={rooms}
+                            activeRoomId={activeRoomId}
+                            onSelectRoom={handleSelectRoom}
+                            className="h-full"
+                        />
+                    )}
                 </div>
 
                 {/* Main Chat Area */}
@@ -96,12 +187,11 @@ export default function ChatPage() {
                     {activeRoom ? (
                         <ChatWindow
                             room={activeRoom}
-                            messages={activeMessages}
-                            currentUser={currentUser}
-                            getUser={getUser}
+                            messages={messages}
+                            currentUser={chatCurrentUser}
                             onBack={() => setActiveRoomId(null)}
                             onSendMessage={handleSendMessage}
-                            onAvatarClick={(user) => setSelectedUser(user)}
+                            onAvatarClick={handleAvatarClick}
                         />
                     ) : (
                         <div className="text-center text-gray-500 m-auto">
