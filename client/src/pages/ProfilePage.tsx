@@ -6,6 +6,7 @@ import {
 import { theme as t } from '../utils/theme';
 import { useAppStore } from '../store';
 import { authApi } from '../api/auth.api';
+import { socketService } from '../utils/socket';
 
 // Sub-pages
 import EditProfile from './profile/EditProfile';
@@ -47,6 +48,7 @@ export default function ProfilePage() {
         } catch (err) {
             console.log('Logout API Error:', err);
         }
+        socketService.disconnect();
         setUser(null);
         setPage('login');
     };

@@ -3,12 +3,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Image as ImageIcon, Smile, Paperclip, X } from 'lucide-react';
 import { useAlertStore } from '../../stores/useAlertStore';
 
+import { type ChatMessage } from '../../api/chat.api';
+
 interface MessageInputProps {
     onSend: (text: string) => void;
     disabled?: boolean;
+    replyingTo?: ChatMessage | null;
+    onCancelReply?: () => void;
 }
 
-export default function MessageInput({ onSend, disabled }: MessageInputProps) {
+export default function MessageInput({ onSend, disabled, replyingTo, onCancelReply }: MessageInputProps) {
     const [text, setText] = useState('');
     const [showQuick, setShowQuick] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -86,7 +90,22 @@ export default function MessageInput({ onSend, disabled }: MessageInputProps) {
 
     return (
         <div className="p-4 bg-[#141617] border-t border-[#2a2d30]">
-            <form onSubmit={handleSubmit} className="flex items-end gap-3 w-full">
+            {replyingTo && (
+                <div className="flex items-center justify-between bg-[#1e2023] p-2 px-4 rounded-t-2xl border-t border-l border-r border-[#33363a] mb-0 relative">
+                    <div className="flex flex-col flex-1 min-w-0 pr-2 border-l-2 border-emerald-500 pl-2">
+                        <span className="text-xs font-bold text-emerald-400 mb-0.5">Trả lời {replyingTo.senderName}</span>
+                        <span className="text-sm text-gray-300 truncate">{replyingTo.content}</span>
+                    </div>
+                    <button 
+                        type="button" 
+                        onClick={onCancelReply}
+                        className="p-1 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-colors flex-shrink-0"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                </div>
+            )}
+            <form onSubmit={handleSubmit} className={`flex items-end gap-3 w-full ${replyingTo ? 'mt-0 border-t border-[#33363a]' : ''}`}>
                 {/* Hidden File Inputs */}
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
                 <input type="file" accept="image/*" ref={imageInputRef} onChange={handleFileChange} className="hidden" />

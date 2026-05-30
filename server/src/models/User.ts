@@ -146,6 +146,8 @@ userSchema.methods.toPublicProfile = function () {
         displayName: this.displayName,
         avatar: this.avatar,
         skillLevel: this.skillLevel,
+        status: this.status,
+        joinedDate: this.createdAt,
         stats: {
             rating: this.stats.rating,
             reviewCount: this.stats.reviewCount,
