@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, Users, Calendar, Clock, MapPin, Loader2, LogOut, Crown } from 'lucide-react';
+import { ChevronLeft, Users, Calendar, Clock, MapPin, Loader2, LogOut, Crown, MessageSquare } from 'lucide-react';
 import { theme as t } from '../../utils/theme';
 import { useAppStore } from '../../store';
+import { useAlertStore } from '../../stores/useAlertStore';
 import axiosClient from '../../api/axiosClient';
 import { EmojiIcon } from '../../components/EmojiIcon';
+import GroupChat from '../../components/groups/GroupChat';
+import { AnimatePresence } from 'framer-motion';
 
 
 interface GroupPlay {
@@ -47,6 +50,7 @@ export default function MyGroupPlays({ onBack }: Props) {
     const [groups, setGroups] = useState<GroupPlay[]>([]);
     const [loading, setLoading] = useState(true);
     const [leaving, setLeaving] = useState<string | null>(null);
+    const [activeChat, setActiveChat] = useState<string | null>(null);
 
     useEffect(() => {
         const fetch = async () => {
@@ -206,13 +210,21 @@ export default function MyGroupPlays({ onBack }: Props) {
                                         <span className="text-emerald-400 text-[15px] font-black">
                                             {(g.pricePerPlayer || 0).toLocaleString()}đ
                                         </span>
-                                        {!isOrganizer && (displayStatus === 'open' || displayStatus === 'full') && (
-                                            <button onClick={() => handleLeave(g._id)} disabled={leaving === g._id}
-                                                className="px-3.5 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold flex items-center gap-1.5 hover:bg-red-500/20 transition-colors active:scale-95">
-                                                {leaving === g._id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <LogOut className="w-3.5 h-3.5" />}
-                                                Rời
+                                        <div className="flex gap-2">
+                                            <button 
+                                                onClick={() => setActiveChat(g._id)}
+                                                className="px-3.5 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold flex items-center gap-1.5 hover:bg-blue-500/20 transition-colors active:scale-95"
+                                            >
+                                                <MessageSquare className="w-3.5 h-3.5" /> Chat
                                             </button>
-                                        )}
+                                            {!isOrganizer && (displayStatus === 'open' || displayStatus === 'full') && (
+                                                <button onClick={() => handleLeave(g._id)} disabled={leaving === g._id}
+                                                    className="px-3.5 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold flex items-center gap-1.5 hover:bg-red-500/20 transition-colors active:scale-95">
+                                                    {leaving === g._id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <LogOut className="w-3.5 h-3.5" />}
+                                                    Rời
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -220,6 +232,16 @@ export default function MyGroupPlays({ onBack }: Props) {
                     })
                 )}
             </div>
+
+            {/* Chat Modal/Sidebar */}
+            <AnimatePresence>
+                {activeChat && (
+                    <GroupChat 
+                        groupPlayId={activeChat} 
+                        onClose={() => setActiveChat(null)} 
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 }
