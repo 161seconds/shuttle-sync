@@ -1,17 +1,17 @@
-import type { ChatMessage, ChatUser } from './mockData';
+import { type ChatMessage } from '../../api/chat.api';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 
 interface MessageBubbleProps {
     message: ChatMessage;
     isMine: boolean;
-    sender: ChatUser;
     showAvatar: boolean;
-    onAvatarClick: (user: ChatUser) => void;
+    onAvatarClick?: (userId: string) => void;
 }
 
-export default function MessageBubble({ message, isMine, sender, showAvatar, onAvatarClick }: MessageBubbleProps) {
-    const timeString = dayjs(message.timestamp).format('HH:mm');
+export default function MessageBubble({ message, isMine, showAvatar, onAvatarClick }: MessageBubbleProps) {
+    const timeString = dayjs(message.createdAt).format('HH:mm');
+    const avatarUrl = message.senderAvatar || `https://api.dicebear.com/7.x/initials/svg?seed=${message.senderName}`;
 
     return (
         <motion.div 
@@ -23,10 +23,10 @@ export default function MessageBubble({ message, isMine, sender, showAvatar, onA
                 <div className="w-10 mr-3 flex-shrink-0 flex flex-col justify-end">
                     {showAvatar && (
                         <button 
-                            onClick={() => onAvatarClick(sender)}
-                            className="w-10 h-10 rounded-full overflow-hidden border border-gray-700 bg-gray-800 hover:border-emerald-500 transition-colors focus:outline-none shadow-sm"
+                            onClick={() => onAvatarClick && onAvatarClick(message.senderId)}
+                            className="w-10 h-10 rounded-full overflow-hidden border border-gray-700 bg-gray-800 hover:border-emerald-500 transition-colors focus:outline-none shadow-sm flex items-center justify-center font-bold text-xs"
                         >
-                            <img src={sender.avatar} alt={sender.name} className="w-full h-full object-cover" />
+                            <img src={avatarUrl} alt={message.senderName} className="w-full h-full object-cover" />
                         </button>
                     )}
                 </div>
@@ -34,8 +34,11 @@ export default function MessageBubble({ message, isMine, sender, showAvatar, onA
 
             <div className={`max-w-[70%] flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
                 {!isMine && showAvatar && (
-                    <span className="text-xs text-gray-400 font-medium mb-1 ml-1 cursor-pointer hover:text-white transition-colors" onClick={() => onAvatarClick(sender)}>
-                        {sender.name}
+                    <span 
+                        className="text-xs text-gray-400 font-medium mb-1 ml-1 cursor-pointer hover:text-white transition-colors" 
+                        onClick={() => onAvatarClick && onAvatarClick(message.senderId)}
+                    >
+                        {message.senderName}
                     </span>
                 )}
                 
