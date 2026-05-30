@@ -10,6 +10,7 @@ class SocketService {
             this.socket = io(API_URL, {
                 auth: { token },
                 withCredentials: true,
+                forceNew: true,
             });
 
             this.socket.on('connect', () => {

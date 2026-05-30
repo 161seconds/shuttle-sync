@@ -11,7 +11,7 @@ interface ChatWindowProps {
     currentUser: ChatUser;
     onBack: () => void;
     onSendMessage: (text: string, replyTo?: ChatMessage['replyTo']) => void;
-    onAvatarClick?: (userId: string) => void;
+    onAvatarClick?: (userId: string, fallbackName?: string, fallbackAvatar?: string) => void;
 }
 
 export default function ChatWindow({
@@ -99,7 +99,7 @@ export default function ChatWindow({
                                     message={msg}
                                     isMine={isMine}
                                     showAvatar={showAvatar}
-                                    onAvatarClick={onAvatarClick}
+                                    onAvatarClick={(id) => onAvatarClick?.(id, msg.senderName, msg.senderAvatar)}
                                     onReply={(message) => setReplyingTo(message)}
                                 />
                             );
