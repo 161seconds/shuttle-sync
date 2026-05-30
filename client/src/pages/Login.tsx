@@ -1,21 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, Mail, Lock, ChevronRight, User, TrendingUp, Users, Calendar, Star, Zap, ArrowLeft, Phone } from 'lucide-react';
 import { theme as DS } from '../utils/theme';
 import { useAppStore } from '../store';
 import { authApi } from '../api/auth.api';
 import { EmojiIcon } from '../components/EmojiIcon';
-
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 function FloatingCards() {
-    return (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute w-125 h-125 rounded-full blur-[120px] opacity-20 bg-emerald-500 -top-20 -left-20 animate-[drift_20s_ease-in-out_infinite]" />
-            <div className="absolute w-100 h-100 rounded-full blur-[100px] opacity-10 bg-green-400 bottom-10 right-10 animate-[drift_15s_ease-in-out_infinite_reverse]" />
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
 
-            <div className="absolute top-[12%] left-[8%] animate-[float_6s_ease-in-out_infinite]">
-                <div className="bg-[#141617]/80 backdrop-blur-xl border border-emerald-500/15 rounded-2xl px-5 py-4 shadow-2xl shadow-black/40 w-48">
+    const springConfig = { damping: 50, stiffness: 400 };
+    const xSpring = useSpring(mouseX, springConfig);
+    const ySpring = useSpring(mouseY, springConfig);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            // Chia nhỏ giá trị để tạo hiệu ứng dịch chuyển nhẹ (parallax) thay vì bay theo chuột
+            mouseX.set((e.clientX - window.innerWidth / 2) * 0.03);
+            mouseY.set((e.clientY - window.innerHeight / 2) * 0.03);
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, [mouseX, mouseY]);
+
+    return (
+        <div className="absolute inset-0 overflow-hidden pointer-events-auto">
+            {/* Premium Grid Background */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+            
+            {/* Radial Glows for depth */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-500/10 blur-[120px]" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-500/10 blur-[120px]" />
+
+            {/* Background elements with parallax */}
+            <motion.div 
+                style={{ x: xSpring, y: ySpring }}
+                className="absolute w-125 h-125 rounded-full blur-[100px] opacity-[0.15] bg-gradient-to-br from-emerald-500 to-green-300 -top-20 -left-20 animate-[drift_20s_ease-in-out_infinite]" 
+            />
+            <motion.div 
+                style={{ x: xSpring, y: ySpring }}
+                className="absolute w-100 h-100 rounded-full blur-[90px] opacity-[0.12] bg-gradient-to-tl from-emerald-600 to-teal-400 bottom-10 right-10 animate-[drift_15s_ease-in-out_infinite_reverse]" 
+            />
+
+            <motion.div 
+                style={{ x: xSpring, y: ySpring }}
+                className="absolute top-[12%] left-[8%] animate-[float_6s_ease-in-out_infinite]"
+            >
+                <motion.div 
+                    whileHover={{ scale: 1.08, rotate: -2, y: -5, boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.15)" }}
+                    className="bg-[#141617]/70 backdrop-blur-xl border border-white/5 rounded-2xl px-5 py-4 shadow-2xl shadow-black/50 w-48 cursor-pointer transition-colors hover:border-emerald-500/30 hover:bg-[#141617]/90"
+                >
                     <div className="flex items-center justify-between mb-2">
-                        <div className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center border border-emerald-500/10">
                             <Calendar className="w-4 h-4 text-emerald-400" />
                         </div>
                         <span className="text-emerald-400 text-xs font-bold flex items-center gap-0.5">
@@ -24,16 +61,22 @@ function FloatingCards() {
                     </div>
                     <p className="text-white font-black text-xl tracking-tight">1,247</p>
                     <p className="text-[#5f656d] text-[11px] mt-0.5">Lượt đặt sân</p>
-                    <div className="mt-2">
-                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold">Tháng này</span>
+                    <div className="mt-3 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 w-[70%]" />
                     </div>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
-            <div className="absolute top-[6%] right-[12%] animate-[float_7s_ease-in-out_infinite_0.5s]">
-                <div className="bg-[#141617]/80 backdrop-blur-xl border border-white/5 rounded-2xl px-5 py-4 shadow-2xl shadow-black/40 w-44">
+            <motion.div 
+                style={{ x: xSpring, y: ySpring }}
+                className="absolute top-[6%] right-[12%] animate-[float_7s_ease-in-out_infinite_0.5s]"
+            >
+                <motion.div 
+                    whileHover={{ scale: 1.08, rotate: 2, y: -5, boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.15)" }}
+                    className="bg-[#141617]/70 backdrop-blur-xl border border-white/5 rounded-2xl px-5 py-4 shadow-2xl shadow-black/50 w-44 cursor-pointer transition-colors hover:border-blue-500/30 hover:bg-[#141617]/90"
+                >
                     <div className="flex items-center justify-between mb-2">
-                        <div className="w-9 h-9 rounded-xl bg-blue-500/15 flex items-center justify-center">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center border border-blue-500/10">
                             <Users className="w-4 h-4 text-blue-400" />
                         </div>
                         <span className="text-red-400 text-xs font-bold flex items-center gap-0.5">
@@ -42,11 +85,17 @@ function FloatingCards() {
                     </div>
                     <p className="text-white font-black text-xl tracking-tight">856</p>
                     <p className="text-[#5f656d] text-[11px] mt-0.5">Người chơi online</p>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
-            <div className="absolute bottom-[18%] right-[8%] animate-[float_8s_ease-in-out_infinite_1s]">
-                <div className="bg-[#141617]/80 backdrop-blur-xl border border-white/5 rounded-2xl px-5 py-4 shadow-2xl shadow-black/40 w-52">
+            <motion.div 
+                style={{ x: xSpring, y: ySpring }}
+                className="absolute bottom-[18%] right-[8%] animate-[float_8s_ease-in-out_infinite_1s]"
+            >
+                <motion.div 
+                    whileHover={{ scale: 1.05, y: -5, boxShadow: "0 25px 50px -12px rgba(251, 191, 36, 0.15)" }}
+                    className="bg-[#141617]/70 backdrop-blur-xl border border-white/5 rounded-2xl px-5 py-4 shadow-2xl shadow-black/50 w-52 cursor-pointer transition-colors hover:border-amber-400/20 hover:bg-[#141617]/90"
+                >
                     <div className="flex items-center gap-2 mb-1">
                         <p className="text-white font-black text-lg tracking-tight">4.8</p>
                         <span className="text-amber-400 text-xs font-bold flex items-center gap-0.5">
@@ -61,27 +110,97 @@ function FloatingCards() {
                         />
                         <defs>
                             <linearGradient id="sparkGrad" x1="0" y1="0" x2="160" y2="0">
-                                <stop offset="0%" stopColor="#34d399" stopOpacity="0.4" />
+                                <stop offset="0%" stopColor="#34d399" stopOpacity="0.1" />
+                                <stop offset="50%" stopColor="#34d399" stopOpacity="0.6" />
                                 <stop offset="100%" stopColor="#10b981" />
                             </linearGradient>
                         </defs>
-                        <circle cx="160" cy="4" r="3" fill="#10b981" />
+                        <circle cx="160" cy="4" r="4" fill="#10b981" className="shadow-[0_0_10px_#10b981]" />
                     </svg>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
-            <div className="absolute bottom-[32%] left-[15%] animate-[float_5s_ease-in-out_infinite_1.5s]">
-                <div className="bg-[#141617]/80 backdrop-blur-xl border border-emerald-500/10 rounded-2xl px-5 py-4 shadow-2xl shadow-black/40 w-40">
-                    <div className="w-9 h-9 rounded-xl bg-purple-500/15 flex items-center justify-center mb-2">
+            <motion.div 
+                style={{ x: xSpring, y: ySpring }}
+                className="absolute bottom-[32%] left-[15%] animate-[float_5s_ease-in-out_infinite_1.5s]"
+            >
+                <motion.div 
+                    whileHover={{ scale: 1.1, rotate: -3, y: -5, boxShadow: "0 25px 50px -12px rgba(168, 85, 247, 0.15)" }}
+                    className="bg-[#141617]/70 backdrop-blur-xl border border-white/5 rounded-2xl px-5 py-4 shadow-2xl shadow-black/50 w-40 cursor-pointer transition-colors hover:border-purple-500/30 hover:bg-[#141617]/90"
+                >
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 flex items-center justify-center border border-purple-500/10 mb-2">
                         <Zap className="w-4 h-4 text-purple-400" />
                     </div>
                     <p className="text-white font-black text-xl tracking-tight">98%</p>
                     <p className="text-[#5f656d] text-[11px] mt-0.5">Tỉ lệ hài lòng</p>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
-            <div className="absolute bottom-[8%] left-[35%] w-24 h-24 rounded-full border border-emerald-500/10 animate-[spin_30s_linear_infinite]" />
-            <div className="absolute top-[40%] left-[45%] w-16 h-16 rounded-full bg-emerald-500/5 animate-[float_9s_ease-in-out_infinite_2s]" />
+            {/* NEW CARD 1: Top Right - User Joined */}
+            <motion.div 
+                style={{ x: xSpring, y: ySpring }}
+                className="absolute top-[25%] right-[25%] animate-[float_4s_ease-in-out_infinite_2.5s]"
+            >
+                <motion.div 
+                    whileHover={{ scale: 1.1, rotate: 3, y: -5, boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.15)" }}
+                    className="bg-[#141617]/70 backdrop-blur-xl border border-white/5 rounded-full px-4 py-2 shadow-2xl shadow-black/50 cursor-pointer transition-colors hover:border-emerald-500/30 hover:bg-[#141617]/90 flex items-center gap-3"
+                >
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center p-0.5 shadow-inner">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" className="w-full h-full rounded-full bg-black/20" />
+                    </div>
+                    <div>
+                        <p className="text-white text-xs font-bold">Thành viên mới</p>
+                        <p className="text-emerald-400 text-[10px]">Vừa tham gia</p>
+                    </div>
+                </motion.div>
+            </motion.div>
+
+            {/* NEW CARD 2: Middle Left - Live Matches */}
+            <motion.div 
+                style={{ x: xSpring, y: ySpring }}
+                className="absolute top-[45%] left-[22%] animate-[float_5s_ease-in-out_infinite_0.8s]"
+            >
+                <motion.div 
+                    whileHover={{ scale: 1.1, rotate: -4, y: -5, boxShadow: "0 25px 50px -12px rgba(239, 68, 68, 0.15)" }}
+                    className="bg-[#141617]/70 backdrop-blur-xl border border-white/5 rounded-2xl px-4 py-3 shadow-2xl shadow-black/50 cursor-pointer transition-colors hover:border-red-500/30 hover:bg-[#141617]/90 flex items-center gap-3"
+                >
+                    <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-red-500/10 border border-red-500/20">
+                        <div className="absolute w-2 h-2 bg-red-500 rounded-full animate-ping" />
+                        <div className="w-2 h-2 bg-red-500 rounded-full" />
+                    </div>
+                    <div>
+                        <p className="text-white text-sm font-black tracking-tight">42 Trận</p>
+                        <p className="text-[#5f656d] text-[10px]">Đang diễn ra (Live)</p>
+                    </div>
+                </motion.div>
+            </motion.div>
+
+            {/* NEW CARD 3: Bottom Center - Secure */}
+            <motion.div 
+                style={{ x: xSpring, y: ySpring }}
+                className="absolute bottom-[10%] left-[50%] -translate-x-1/2 animate-[float_6s_ease-in-out_infinite_3s]"
+            >
+                <motion.div 
+                    whileHover={{ scale: 1.05, y: -5, boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.15)" }}
+                    className="bg-[#141617]/70 backdrop-blur-xl border border-white/5 rounded-full px-4 py-2 shadow-2xl shadow-black/50 cursor-pointer transition-colors hover:border-blue-500/30 hover:bg-[#141617]/90 flex items-center gap-2"
+                >
+                    <Lock className="w-3.5 h-3.5 text-blue-400" />
+                    <span className="text-[#5f656d] text-[11px] font-medium">Bảo mật thông tin 100%</span>
+                </motion.div>
+            </motion.div>
+
+            <motion.div 
+                style={{ x: xSpring, y: ySpring }}
+                className="absolute bottom-[8%] left-[35%] w-32 h-32 rounded-full border border-emerald-500/5 animate-[spin_30s_linear_infinite]" 
+            >
+                <div className="absolute top-0 right-1/4 w-1 h-1 bg-emerald-500/50 rounded-full blur-[1px]"></div>
+            </motion.div>
+            <motion.div 
+                style={{ x: xSpring, y: ySpring }}
+                className="absolute top-[40%] left-[45%] w-24 h-24 rounded-full border border-blue-500/5 animate-[spin_20s_linear_infinite_reverse]" 
+            >
+                <div className="absolute bottom-0 left-1/4 w-1.5 h-1.5 bg-blue-500/40 rounded-full blur-[1px]"></div>
+            </motion.div>
         </div>
     );
 }
@@ -123,22 +242,6 @@ export default function Login() {
         setErrors(e);
         return !Object.keys(e).length;
     };
-
-    // const handleRequestOtp = async () => {
-    //     if (!form.email || !/\S+@\S+/.test(form.email)) {
-    //         setErrors({ email: 'Vui lòng nhập Email hợp lệ' });
-    //         return;
-    //     }
-    //     setLoading(true);
-    //     setApiError('');
-    //     try {
-    //         await authApi.requestOtp(form.email);
-    //         setOtpSent(true);
-    //         setApiSuccess('Đã gửi mã OTP vào Gmail của sếp!');
-    //     } catch (error: any) {
-    //         setApiError(error.response?.data?.message || 'Lỗi gửi mã OTP');
-    //     } finally { setLoading(false); }
-    // };
 
     const submit = async () => {
         if (!validate()) return;
@@ -317,11 +420,11 @@ function FormField({ icon, label, placeholder, type = 'text', value, onChange, e
 
     return (
         <div className="relative pt-2">
-            <div className="relative">
-                <label className={`absolute left-10 transition-all duration-200 pointer-events-none z-10 ${isActive ? '-top-2 text-[11px] px-1 bg-[#0a0d0f]' : 'top-3.5 text-sm'} ${error ? 'text-red-400' : focused ? 'text-emerald-400' : 'text-[#5f656d]'}`}>{label}</label>
-                <span className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${error ? 'text-red-400' : focused ? 'text-emerald-400' : 'text-[#5f656d]'}`}>{icon}</span>
+            <div className="relative group">
+                <label className={`absolute left-10 transition-all duration-200 pointer-events-none z-10 ${isActive ? '-top-2 text-[11px] px-1 bg-[#0a0d0f]' : 'top-3.5 text-sm'} ${error ? 'text-red-400' : focused ? 'text-emerald-400' : 'text-[#5f656d] group-hover:text-white/70'}`}>{label}</label>
+                <span className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200 ${error ? 'text-red-400' : focused ? 'text-emerald-400' : 'text-[#5f656d] group-hover:text-emerald-400/50'}`}>{icon}</span>
                 <input type={type} placeholder={isActive ? placeholder : ''} value={value} onChange={e => onChange(e.target.value)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
-                    className={`w-full h-12 pl-11 ${rightElement ? 'pr-12' : 'pr-4'} rounded-xl bg-transparent border-2 text-white text-sm outline-none transition-colors ${error ? 'border-red-500/50 focus:border-red-400/70' : focused ? 'border-emerald-500/50' : 'border-[#1e2124] hover:border-[#2a2d30]'}`} />
+                    className={`w-full h-12 pl-11 ${rightElement ? 'pr-12' : 'pr-4'} rounded-xl bg-transparent border-2 text-white text-sm outline-none transition-all duration-300 ${error ? 'border-red-500/50 focus:border-red-400/70 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : focused ? 'border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.15)]' : 'border-[#1e2124] hover:border-[#2a2d30] hover:bg-white/[0.02]'}`} />
                 {rightElement && <div className="absolute right-0 top-1/2 -translate-y-1/2 h-full flex items-center">{rightElement}</div>}
             </div>
             {error && <p className="text-red-400 text-[10px] mt-1 ml-1">{error}</p>}
