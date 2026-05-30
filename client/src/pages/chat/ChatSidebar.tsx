@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react';
+import { Search, ChevronLeft } from 'lucide-react';
 import ChatRoomItem from './ChatRoomItem';
 import type { ChatRoom } from './mockData';
 
@@ -6,14 +6,21 @@ interface ChatSidebarProps {
     rooms: ChatRoom[];
     activeRoomId: string | null;
     onSelectRoom: (roomId: string) => void;
+    onBack: () => void;
     className?: string;
 }
 
-export default function ChatSidebar({ rooms, activeRoomId, onSelectRoom, className = '' }: ChatSidebarProps) {
+export default function ChatSidebar({ rooms, activeRoomId, onSelectRoom, onBack, className = '' }: ChatSidebarProps) {
     return (
         <div className={`flex flex-col bg-[#0a0a0a]/30 backdrop-blur-md border-r border-white/5 ${className}`}>
             {/* Sidebar Header */}
-            <div className="h-[85px] shrink-0 px-4 flex items-center border-b border-[#2a2d30]">
+            <div className="h-[85px] shrink-0 px-4 flex items-center gap-3 border-b border-[#2a2d30]">
+                <button 
+                    onClick={onBack}
+                    className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all shrink-0"
+                >
+                    <ChevronLeft className="w-6 h-6" />
+                </button>
                 <h2 className="text-2xl font-black text-white">Shuttle Chat</h2>
             </div>
 
