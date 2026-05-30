@@ -47,7 +47,7 @@ export default function AdminDashboard() {
         };
 
         loadStats(); // Tải lần đầu
-        
+
         // Polling mỗi 10 giây để dashboard luôn được cập nhật khi có dữ liệu mới
         const interval = setInterval(loadStats, 10000);
         return () => clearInterval(interval);
@@ -101,7 +101,7 @@ export default function AdminDashboard() {
     const totalPieValue = pieData.reduce((acc: number, cur: any) => acc + cur.value, 0);
 
     return (
-        <div className="w-full h-[calc(100vh-76px)] overflow-y-auto custom-scrollbar p-6 bg-[#0f141a] text-gray-300 font-sans">
+        <div className="w-full h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar p-6 bg-[#0f141a] text-gray-300 font-sans">
             <div className="max-w-400 mx-auto space-y-6 pb-12">
 
                 {/* ================= HÀNG 1: WELCOME & IDEAS ================= */}
