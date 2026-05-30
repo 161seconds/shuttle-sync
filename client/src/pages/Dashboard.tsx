@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Star, Flame, ChevronRight, Search, Users, Zap } from 'lucide-react';
+import { MapPin, Star, Flame, ChevronRight, Search, Users, Zap, Clock } from 'lucide-react';
 import { theme as t, formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
 import { courtApi } from '../api/court.api';
@@ -68,21 +68,49 @@ export default function Dashboard() {
                 </div>
             </motion.div>
 
-            {/* 2. Thanh tìm kiếm nhanh */}
+            {/* 2. Widget: Trận đấu sắp tới */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+                className="w-full rounded-2xl bg-gradient-to-br from-emerald-900/30 to-[#0a0d0f] border border-emerald-500/20 p-4 relative overflow-hidden shadow-lg shadow-emerald-500/5"
+            >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-2xl rounded-full"></div>
+                <div className="relative z-10 flex justify-between items-center mb-3">
+                    <h3 className="text-emerald-400 font-bold flex items-center gap-2 text-sm">
+                        <Clock className="w-4 h-4" /> Trận đấu sắp diễn ra
+                    </h3>
+                    <span className="text-xs font-semibold px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg">
+                        Hôm nay
+                    </span>
+                </div>
+                <div className="relative z-10 bg-[#060809]/60 rounded-xl p-3 border border-white/5 flex gap-3 items-center backdrop-blur-sm">
+                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-white/5">
+                        <EmojiIcon name="badminton" className="w-6 h-6 text-emerald-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-white text-sm truncate">SÂN CẦU LÔNG LÊ ĐỨC SPORT</h4>
+                        <p className="text-xs text-gray-400 truncate mt-0.5">Sân số 3 • 20:00 - 22:00</p>
+                    </div>
+                    <button onClick={() => setPage('map')} className="px-3 py-1.5 bg-emerald-500 text-black text-xs font-bold rounded-lg shrink-0 hover:bg-emerald-400 active:scale-95 transition-all shadow-md shadow-emerald-500/20">
+                        Bản đồ
+                    </button>
+                </div>
+            </motion.div>
+
+            {/* 3. Thanh tìm kiếm nhanh */}
             <motion.div
                 id="tour-search"
-                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
+                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }}
                 onClick={() => setPage('search')}
-                className={`relative flex items-center w-full p-4 rounded-2xl ${t.bg.elevated} border ${t.border.subtle} cursor-text shadow-lg`}
+                className={`relative flex items-center w-full p-4 rounded-2xl ${t.bg.elevated} border ${t.border.subtle} cursor-text shadow-lg hover:border-emerald-500/30 transition-colors`}
             >
                 <Search className={`w-5 h-5 ${t.text.muted} mr-3`} />
                 <span className={`text-sm ${t.text.muted}`}>Tìm kiếm sân cầu lông, pickleball...</span>
-                <div className="absolute right-2 px-3 py-1.5 rounded-lg bg-emerald-500 text-black text-xs font-bold">
+                <div className="absolute right-2 px-3 py-1.5 rounded-lg bg-[#1e2023] text-emerald-400 border border-emerald-500/20 text-xs font-bold hover:bg-emerald-500/10 transition-colors">
                     Tìm ngay
                 </div>
             </motion.div>
 
-            {/* 3. Truy cập nhanh (Quick Categories) */}
+            {/* 4. Truy cập nhanh (Quick Categories) */}
             <motion.div
                 id="tour-booking"
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
@@ -96,6 +124,32 @@ export default function Dashboard() {
                     <EmojiIcon name="pickleball" className="w-8 h-8 text-emerald-400" />
                     <span className={`text-xs font-semibold ${t.text.primary}`}>Pickleball</span>
                 </button>
+            </motion.div>
+
+            {/* 5. Kèo đang chờ (Matchmaking Teaser) */}
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className={`text-lg font-bold ${t.text.primary} flex items-center gap-2`}>
+                        <Users className="w-5 h-5 text-blue-400" /> Kèo đang thiếu người
+                    </h2>
+                    <button onClick={() => setPage('groupplay')} className={`text-xs font-semibold text-emerald-400 flex items-center hover:underline`}>
+                        Xem tất cả <ChevronRight className="w-4 h-4" />
+                    </button>
+                </div>
+                <div className={`p-3 rounded-2xl ${t.bg.card} border ${t.border.subtle} hover:border-emerald-500/20 transition-all flex items-center justify-between cursor-pointer`} onClick={() => setPage('groupplay')}>
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                            <span className="text-lg">🏸</span>
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-sm text-white">Giao lưu trình độ TB</h4>
+                            <p className="text-xs text-gray-400 mt-0.5">Tối nay 19:30 • Còn 1 slot</p>
+                        </div>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors text-white">
+                        <ChevronRight className="w-4 h-4" />
+                    </div>
+                </div>
             </motion.div>
 
             {/* 4. Sân nổi bật (Horizontal Scroll) */}
