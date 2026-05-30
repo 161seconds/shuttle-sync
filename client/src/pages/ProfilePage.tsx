@@ -171,7 +171,7 @@ export default function ProfilePage() {
 
                 {/* Logout */}
                 <button onClick={handleLogout}
-                    className="w-full flex items-center gap-4 px-5 py-4 rounded-[20px] mt-6 bg-red-500/5 border border-red-500/10 hover:bg-red-500/10 hover:border-red-500/30 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)] transition-all duration-300 group active:scale-[0.98]">
+                    className="w-full flex items-center gap-4 px-5 py-4 rounded-[20px] mt-6 mb-8 bg-red-500/5 border border-red-500/10 hover:bg-red-500/10 hover:border-red-500/30 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)] transition-all duration-300 group active:scale-[0.98]">
                     <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform duration-300">
                         <LogOut className="w-5 h-5" />
                     </div>
