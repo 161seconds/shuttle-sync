@@ -5,6 +5,7 @@ export { TimeSlot, ITimeSlotDocument } from './TimeSlot';
 export { Booking, IBookingDocument } from './Booking';
 export { GroupPlay, IGroupPlayDocument } from './GroupPlay';
 export { Tournament, ITournamentDocument } from './Tournament';
+export { ChatMessage, IChatMessageDocument } from './ChatMessage';
 export {
     OwnerApplication, IOwnerApplicationDocument,
     Event, IEventDocument,
