@@ -11,7 +11,7 @@ interface ChatSidebarProps {
 
 export default function ChatSidebar({ rooms, activeRoomId, onSelectRoom, className = '' }: ChatSidebarProps) {
     return (
-        <div className={`flex flex-col bg-[#141617] border-r border-[#2a2d30] ${className}`}>
+        <div className={`flex flex-col bg-[#0a0a0a]/30 backdrop-blur-md border-r border-white/5 ${className}`}>
             {/* Sidebar Header */}
             <div className="h-[85px] shrink-0 px-4 flex items-center border-b border-[#2a2d30]">
                 <h2 className="text-2xl font-black text-white">Shuttle Chat</h2>

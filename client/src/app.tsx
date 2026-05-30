@@ -1,5 +1,5 @@
 import './app.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AppProvider, useAppStore } from './store';
 import Header from './components/layout/Header';
@@ -27,6 +27,50 @@ import SupplementaryPage from './pages/SupplementaryPage';
 import ChatPage from './pages/chat/ChatPage';
 import { Loader2 } from 'lucide-react';
 import GlobalAlert from './components/GlobalAlert';
+
+function PremiumBackground() {
+  const lightRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    let rafId: number;
+    const handleMouseMove = (e: MouseEvent) => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        if (lightRef.current) {
+          // Di chuyển đốm sáng đi theo chuột (trừ đi một nửa kích thước để căn giữa)
+          lightRef.current.style.transform = `translate(${e.clientX - 400}px, ${e.clientY - 400}px)`;
+        }
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#060809]">
+      {/* 1. Aurora Gradient Glows (Góc trái trên và góc phải dưới) */}
+      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-emerald-500/10 blur-[150px]" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-500/10 blur-[150px]" />
+      
+      {/* 2. Micro-dot pattern cực mờ tạo cảm giác tinh tế */}
+      <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] bg-[size:32px_32px] opacity-15" />
+
+      {/* 3. Mouse Follower Glow (Ánh sáng mềm mại đi theo chuột) */}
+      <div 
+        ref={lightRef}
+        className="absolute top-0 left-0 w-[800px] h-[800px] bg-emerald-400/5 rounded-full blur-[100px] will-change-transform"
+      />
+      
+      {/* 4. Particle Field cũ được làm mờ bớt để không rối mắt */}
+      <div className="opacity-20 mix-blend-screen">
+        <ParticleField />
+      </div>
+    </div>
+  );
+}
 
 function Shell() {
   const { page, setPage, bookingCourt, setBookingCourt, user, setUser, isSideBarOpen } = useAppStore();
@@ -76,10 +120,7 @@ function Shell() {
   return (
     <div className={`min-h-screen ${DS.bg.base} relative overflow-hidden`}>
 
-      {/* Background Particles */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
-        <ParticleField />
-      </div>
+      <PremiumBackground />
 
       <AnimatePresence>
         {showOnboarding && <OnboardingModal onComplete={completeOnboarding} onSkip={skipOnboarding} />}

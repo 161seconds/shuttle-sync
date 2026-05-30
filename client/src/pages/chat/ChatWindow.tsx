@@ -45,9 +45,9 @@ export default function ChatWindow({
     }, [messages]);
 
     return (
-        <div className="flex flex-col h-full bg-[#111214]">
+        <div className="flex flex-col h-full bg-transparent">
             {/* Header */}
-            <div className="h-[85px] shrink-0 px-4 flex items-center justify-between border-b border-[#2a2d30] bg-[#141617]">
+            <div className="h-[85px] shrink-0 px-4 flex items-center justify-between border-b border-white/5 bg-black/20 backdrop-blur-sm">
                 <div className="flex items-center gap-3">
                     <button
                         onClick={onBack}

@@ -177,7 +177,7 @@ export default function ChatPage() {
     };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-64px)] bg-[#0b0c0d] text-white overflow-hidden">
+        <div className="flex flex-col h-[calc(100vh-64px)] bg-transparent text-white overflow-hidden">
             <div className="flex flex-1 overflow-hidden">
                 {/* Sidebar */}
                 <div className={`
@@ -201,7 +201,7 @@ export default function ChatPage() {
                 {/* Main Chat Area */}
                 <div className={`
                     flex-1 h-full min-w-0
-                    ${!activeRoomId ? 'hidden md:flex flex-col bg-[#0b0c0d]' : 'flex flex-col'}
+                    ${!activeRoomId ? 'hidden md:flex flex-col' : 'flex flex-col'}
                 `}>
                     {activeRoom ? (
                         <ChatWindow
