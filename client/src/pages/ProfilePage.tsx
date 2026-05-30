@@ -99,71 +99,83 @@ export default function ProfilePage() {
             {/* 🔥 Ép về max-w-lg (khoảng 512px) để nó thon gọn như thiết kế cũ */}
             <div className="w-full max-w-lg">
 
-                {/* Profile card */}
-                <div className={`${t.bg.card} rounded-2xl border ${t.border.subtle} p-6 mb-6 text-center relative overflow-hidden`}>
-                    {isSyncing && (
-                        <div className="absolute top-3 right-3 w-3 h-3 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin" />
-                    )}
+                {/* Aurora Glow Profile Card */}
+                <div className="relative rounded-[32px] overflow-hidden mb-6 group">
+                    {/* Aurora Background Layers */}
+                    <div className="absolute inset-0 bg-linear-to-b from-emerald-500/20 to-transparent z-0 opacity-50 group-hover:opacity-80 transition-opacity duration-700"></div>
+                    <div className="absolute top-[-50%] left-[-20%] w-[150%] h-[150%] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/15 via-transparent to-transparent blur-2xl z-0 animate-pulse-slow"></div>
+                    <div className="absolute bottom-[-50%] right-[-20%] w-[150%] h-[150%] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-teal-500/10 via-transparent to-transparent blur-3xl z-0"></div>
 
-                    <div className="relative inline-block mb-4">
-                        <div className="w-20 h-20 rounded-2xl bg-linear-to-br from-emerald-400 to-green-600 flex items-center justify-center text-3xl font-black text-black shadow-lg shadow-emerald-500/20 overflow-hidden">
-                            {user.avatar ? (
-                                <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
-                            ) : (
-                                user.displayName?.charAt(0).toUpperCase() || 'U'
-                            )}
-                        </div>
-                        <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-emerald-500 flex items-center justify-center border-2 border-[#151515]">
-                            <Check className="w-3 h-3 text-black" strokeWidth={3} />
-                        </div>
-                    </div>
-                    <h2 className={`text-lg font-bold ${t.text.primary}`}>{user.displayName || 'Vợt thủ'}</h2>
-                    <p className={`text-xs ${t.text.muted} mt-0.5`}>{user.email}</p>
+                    {/* Glassmorphism Content */}
+                    <div className={`relative z-10 ${t.bg.card} bg-opacity-60 backdrop-blur-xl border border-white/10 p-8 text-center`}>
+                        {isSyncing && (
+                            <div className="absolute top-4 right-4 w-4 h-4 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin" />
+                        )}
 
-                    {/* 🔥 Trả về 2 cột gọn gàng thay vì 4 cột */}
-                    <div className="grid grid-cols-2 gap-3 mt-5">
-                        {[
-                            { label: 'Sân đã đặt', value: user.stats?.totalBookings || '0', color: 'text-emerald-400' },
-                            { label: 'Nhóm đã tạo', value: user.stats?.totalGroupsCreated || '0', color: 'text-amber-400' },
-                            { label: 'Nhóm tham gia', value: user.stats?.totalGroupsJoined || '0', color: 'text-blue-400' },
-                            { label: 'Điểm đánh giá', value: user.stats?.rating?.toFixed(1) || '0.0', color: 'text-purple-400' },
-                        ].map(s => (
-                            <div key={s.label} className={`py-3 rounded-xl ${t.bg.elevated} flex flex-col items-center justify-center border border-white/5`}>
-                                <div className={`text-xl font-black ${s.color}`}>{s.value}</div>
-                                <div className={`text-xs ${t.text.muted} mt-1 font-medium`}>{s.label}</div>
+                        {/* Avatar */}
+                        <div className="relative inline-block mb-5 group-hover:scale-105 transition-transform duration-500">
+                            <div className="absolute inset-0 bg-emerald-500/40 rounded-[28px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                            <div className="relative w-24 h-24 rounded-[28px] bg-linear-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-4xl font-black text-black shadow-[0_0_40px_rgba(16,185,129,0.3)] overflow-hidden border border-white/20">
+                                {user.avatar ? (
+                                    <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                    user.displayName?.charAt(0).toUpperCase() || 'U'
+                                )}
                             </div>
-                        ))}
+                            <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl bg-linear-to-br from-emerald-400 to-emerald-500 flex items-center justify-center border-2 border-[#151515] shadow-lg shadow-emerald-500/50">
+                                <Check className="w-4 h-4 text-black" strokeWidth={4} />
+                            </div>
+                        </div>
+
+                        {/* User Info */}
+                        <h2 className={`text-2xl font-black text-white tracking-tight`}>{user.displayName || 'Vợt thủ'}</h2>
+                        <p className={`text-sm ${t.text.muted} mt-1 font-medium`}>{user.email}</p>
+
+                        {/* Floating Stats */}
+                        <div className="grid grid-cols-2 gap-4 mt-8">
+                            {[
+                                { label: 'Sân đã đặt', value: user.stats?.totalBookings || '0', color: 'text-emerald-400', bg: 'bg-emerald-500/5' },
+                                { label: 'Nhóm đã tạo', value: user.stats?.totalGroupsCreated || '0', color: 'text-amber-400', bg: 'bg-amber-500/5' },
+                                { label: 'Nhóm tham gia', value: user.stats?.totalGroupsJoined || '0', color: 'text-blue-400', bg: 'bg-blue-500/5' },
+                                { label: 'Điểm đánh giá', value: user.stats?.rating?.toFixed(1) || '0.0', color: 'text-purple-400', bg: 'bg-purple-500/5' },
+                            ].map(s => (
+                                <div key={s.label} className={`py-4 rounded-2xl ${s.bg} bg-opacity-50 backdrop-blur-md border border-white/5 flex flex-col items-center justify-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300`}>
+                                    <div className={`text-2xl font-black ${s.color} drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]`}>{s.value}</div>
+                                    <div className={`text-[11px] ${t.text.muted} mt-1 font-bold uppercase tracking-wider`}>{s.label}</div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
-                {/* Menu items 🔥 Trả về 1 cột dọc */}
-                <div className="space-y-1">
+                {/* Menu items */}
+                <div className="space-y-2.5">
                     {MENU.map((item) => (
                         <button key={item.label} onClick={() => setSubPage(item.action)}
-                            className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl ${t.bg.hover} transition-colors group`}>
-                            <div className={`w-9 h-9 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted} group-hover:text-emerald-400 transition-colors`}>
+                            className={`w-full flex items-center gap-4 px-5 py-4 rounded-[20px] bg-white/5 border border-white/5 hover:bg-white/10 hover:border-emerald-500/30 hover:shadow-[0_0_20px_rgba(16,185,129,0.1)] transition-all duration-300 group`}>
+                            <div className={`w-10 h-10 rounded-xl bg-black/30 flex items-center justify-center ${t.text.muted} group-hover:text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/10 transition-all duration-300`}>
                                 {item.icon}
                             </div>
-                            <span className={`flex-1 text-left text-sm font-medium ${t.text.secondary}`}>
+                            <span className={`flex-1 text-left text-[15px] font-bold text-gray-300 group-hover:text-white transition-colors duration-300`}>
                                 {item.label}
                             </span>
                             {item.badge != null && item.badge > 0 && (
-                                <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 text-[10px] font-bold">
+                                <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 text-[11px] font-black border border-emerald-500/20">
                                     {item.badge}
                                 </span>
                             )}
-                            <ChevronRight className={`w-4 h-4 ${t.text.muted}`} />
+                            <ChevronRight className={`w-5 h-5 text-gray-600 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all duration-300`} />
                         </button>
                     ))}
                 </div>
 
                 {/* Logout */}
                 <button onClick={handleLogout}
-                    className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl mt-4 hover:bg-red-500/5 transition-colors active:scale-95">
-                    <div className="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center text-red-400">
-                        <LogOut className="w-4 h-4" />
+                    className="w-full flex items-center gap-4 px-5 py-4 rounded-[20px] mt-6 bg-red-500/5 border border-red-500/10 hover:bg-red-500/10 hover:border-red-500/30 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)] transition-all duration-300 group active:scale-[0.98]">
+                    <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform duration-300">
+                        <LogOut className="w-5 h-5" />
                     </div>
-                    <span className="text-sm font-medium text-red-400">Đăng xuất</span>
+                    <span className="text-[15px] font-bold text-red-400 group-hover:text-red-300 transition-colors">Đăng xuất tài khoản</span>
                 </button>
             </div>
         </div>

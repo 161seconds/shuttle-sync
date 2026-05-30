@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
     ChevronLeft, Bell, CheckCheck, Rocket,
     Trophy, Users, CalendarClock, CreditCard,
-    ShieldAlert, Info, Circle, Loader2
+    ShieldAlert, Info, Loader2, Clock
 } from 'lucide-react';
 import { theme as t } from '../../utils/theme';
 import axiosClient from '../../api/axiosClient';
@@ -97,73 +97,81 @@ export default function Notifications({ onBack }: Props) {
     return (
         <div className={`min-h-screen ${t.bg.base} pb-24`}>
             {/* Header */}
-            <div className={`sticky top-0 z-30 ${t.bg.base}/95 backdrop-blur-xl border-b ${t.border.subtle}`}>
-                <div className="flex items-center justify-between px-4 h-14">
+            <div className={`sticky top-0 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-white/5`}>
+                <div className="flex items-center justify-between px-4 h-16">
                     <div className="flex items-center gap-3">
-                        <button onClick={onBack} className={`w-9 h-9 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-white transition-colors`}>
-                            <ChevronLeft className="w-5 h-5" />
+                        <button onClick={onBack} className={`w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center ${t.text.muted} hover:text-white transition-all`}>
+                            <ChevronLeft className="w-6 h-6" />
                         </button>
-                        <h1 className={`font-bold ${t.text.primary}`}>Thông báo</h1>
+                        <h1 className={`font-black text-lg text-white tracking-wide`}>Thông báo</h1>
                     </div>
 
                     <button
                         onClick={handleMarkAllRead}
                         disabled={loading || notifications.length === 0}
-                        className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg flex items-center gap-1.5 hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
+                        className="text-[11px] font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-2 rounded-full flex items-center gap-1.5 hover:bg-emerald-500/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 uppercase tracking-wider"
                     >
-                        <CheckCheck className="w-3.5 h-3.5" />
+                        <CheckCheck className="w-4 h-4" />
                         Đã đọc tất cả
                     </button>
                 </div>
             </div>
 
             {/* Danh sách thông báo */}
-            <div className="max-w-lg mx-auto p-4 space-y-3">
+            <div className="max-w-lg mx-auto p-5 space-y-4">
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center py-20 text-center">
-                        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-4" />
-                        <p className={t.text.muted}>Đang tải thông báo...</p>
+                    <div className="flex flex-col items-center justify-center py-24 text-center">
+                        <Loader2 className="w-10 h-10 text-emerald-500 animate-spin mb-5 drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                        <p className="text-gray-400 font-bold">Đang tải thông báo...</p>
                     </div>
                 ) : notifications.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 text-center">
-                        <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                            <Bell className="w-8 h-8 text-white/20" />
+                    <div className="flex flex-col items-center justify-center py-24 text-center">
+                        <div className="relative mb-6 group">
+                            <div className="absolute inset-0 bg-white/5 blur-2xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-700"></div>
+                            <div className="relative w-24 h-24 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform duration-500 backdrop-blur-md">
+                                <Bell className="w-10 h-10 text-gray-500 group-hover:text-white transition-colors" />
+                            </div>
                         </div>
-                        <p className={t.text.muted}>Bạn chưa có thông báo nào.</p>
+                        <p className={`text-white font-black text-xl mb-2`}>Không có thông báo nào</p>
+                        <p className={`text-[15px] text-gray-400`}>Bạn đã đọc hết tất cả thông báo.</p>
                     </div>
                 ) : Array.isArray(notifications) && notifications.map((noti) => (
                     <div
                         key={noti._id}
-                        className={`relative p-4 rounded-2xl border transition-all cursor-pointer group hover:bg-[#1a1b1f] overflow-hidden ${noti.isRead
-                            ? 'bg-[#121316] border-[#22242a] opacity-75 hover:opacity-100'
-                            : 'bg-[#16181c] border-[#2a2d35] shadow-lg'
+                        className={`relative p-5 rounded-3xl border transition-all duration-300 cursor-pointer group hover:shadow-[0_0_20px_rgba(255,255,255,0.05)] overflow-hidden backdrop-blur-md ${noti.isRead
+                            ? 'bg-white/5 border-white/5 opacity-70 hover:opacity-100 hover:bg-white/10'
+                            : 'bg-white/10 border-white/10 hover:border-emerald-500/30 hover:bg-white/15'
                             }`}
                     >
                         {/* Dải màu đánh dấu chưa đọc */}
                         {!noti.isRead && (
-                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                            <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.8)]" />
                         )}
 
                         <div className="flex gap-4">
                             {/* Icon */}
-                            <div className={`w-12 h-12 shrink-0 rounded-full border flex items-center justify-center ${getIconBackground(noti.type)}`}>
+                            <div className={`w-14 h-14 shrink-0 rounded-[1rem] border flex items-center justify-center ${getIconBackground(noti.type)} shadow-inner`}>
                                 {getNotificationIcon(noti.type)}
                             </div>
 
                             {/* Content */}
                             <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between gap-2 mb-1">
-                                    <h3 className={`text-sm font-bold truncate ${noti.isRead ? 'text-white/80' : 'text-white'}`}>
+                                <div className="flex items-start justify-between gap-3 mb-1.5">
+                                    <h3 className={`text-[15px] font-black truncate ${noti.isRead ? 'text-gray-300 group-hover:text-white transition-colors' : 'text-white'}`}>
                                         {noti.title}
                                     </h3>
                                     {!noti.isRead && (
-                                        <Circle className="w-2.5 h-2.5 fill-emerald-500 text-emerald-500 shrink-0 mt-1" />
+                                        <div className="relative flex h-3 w-3 shrink-0 mt-1">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                                        </div>
                                     )}
                                 </div>
-                                <p className={`text-xs leading-relaxed ${noti.isRead ? 'text-white/40' : 'text-white/60'}`}>
+                                <p className={`text-[13px] leading-relaxed font-medium ${noti.isRead ? 'text-gray-400 group-hover:text-gray-300 transition-colors' : 'text-gray-300'}`}>
                                     {noti.message}
                                 </p>
-                                <div className="mt-2 text-[10px] font-medium text-white/30 uppercase tracking-wider">
+                                <div className="mt-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
+                                    <Clock className="w-3.5 h-3.5" />
                                     {timeAgo(noti.createdAt)}
                                 </div>
                             </div>

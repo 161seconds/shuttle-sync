@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Trophy, Swords, Send, Info, ArrowLeft } from 'lucide-react';
 import { theme as t } from '../../utils/theme';
-
+import { useAlertStore } from '../../stores/useAlertStore';
 interface Props {
     onBack?: () => void;
 }

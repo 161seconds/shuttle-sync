@@ -85,21 +85,26 @@ export default function MyTournaments({ onBack }: Props) {
     if (!tournament) {
         return (
             <div className={`min-h-screen ${t.bg.base} pb-24`}>
-                <div className={`sticky top-0 z-30 ${t.bg.base}/95 backdrop-blur-xl border-b ${t.border.subtle}`}>
-                    <div className="flex items-center gap-3 px-4 h-14">
-                        <button onClick={onBack} className={`w-9 h-9 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-white transition-colors`}>
-                            <ChevronLeft className="w-5 h-5" />
+                <div className={`sticky top-0 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-white/5`}>
+                    <div className="flex items-center gap-3 px-4 h-16">
+                        <button onClick={onBack} className={`w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center ${t.text.muted} hover:text-white transition-all`}>
+                            <ChevronLeft className="w-6 h-6" />
                         </button>
-                        <h1 className={`font-bold ${t.text.primary}`}>Quản lý Giải đấu</h1>
+                        <h1 className={`font-black text-lg text-white tracking-wide`}>Quản lý Giải đấu</h1>
                     </div>
                 </div>
 
-                <div className="max-w-lg mx-auto px-4 flex flex-col items-center justify-center py-24">
-                    <div className="w-24 h-24 rounded-full bg-[#16171a] flex items-center justify-center mb-6 border border-[#2c2e33]">
-                        <Trophy className="w-10 h-10 text-white/20" />
+                <div className="max-w-lg mx-auto px-5 py-24 flex flex-col items-center justify-center">
+                    <div className="relative mb-8 group">
+                        <div className="absolute inset-0 bg-yellow-500/20 blur-3xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-700"></div>
+                        <div className="relative w-32 h-32 rounded-[2rem] bg-linear-to-br from-yellow-400/20 to-amber-600/20 border border-yellow-500/20 flex items-center justify-center backdrop-blur-md shadow-[0_0_30px_rgba(234,179,8,0.15)] group-hover:scale-105 transition-transform duration-500">
+                            <Trophy className="w-14 h-14 text-yellow-500 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]" />
+                        </div>
                     </div>
-                    <h2 className={`text-xl font-black ${t.text.primary} mb-2`}>Chưa có giải đấu nào</h2>
-                    <p className="text-white/40 text-center text-sm">Bạn chưa tham gia hoặc tổ chức giải đấu nào trên hệ thống.</p>
+                    <h2 className={`text-2xl font-black text-white mb-3 text-center`}>Chưa tham gia giải đấu</h2>
+                    <p className="text-gray-400 text-center text-[15px] max-w-xs leading-relaxed">
+                        Bạn chưa tham gia hoặc tổ chức giải đấu nào trên hệ thống.
+                    </p>
                 </div>
             </div>
         );
@@ -146,18 +151,21 @@ export default function MyTournaments({ onBack }: Props) {
 
     // --- MÀN HÌNH ĐÃ CÓ GIẢI ĐẤU ---
     return (
-        <div className="min-h-screen bg-[#0a0a0a] pb-24 overflow-x-hidden relative">
+        <div className={`min-h-screen ${t.bg.base} pb-24 overflow-x-hidden relative`}>
             {/* Header */}
-            <div className="sticky top-0 z-30 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/5">
-                <div className="flex items-center gap-3 px-4 h-14">
-                    <button onClick={onBack} className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-white/50 hover:text-white transition-colors">
-                        <ChevronLeft className="w-5 h-5" />
+            <div className={`sticky top-0 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-white/5`}>
+                <div className="flex items-center gap-3 px-4 h-16">
+                    <button onClick={onBack} className={`w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center ${t.text.muted} hover:text-white transition-all`}>
+                        <ChevronLeft className="w-6 h-6" />
                     </button>
                     <div>
-                        <h1 className="font-bold text-white text-sm">{tournament.title}</h1>
-                        <div className="flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            <p className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold">Đang diễn ra</p>
+                        <h1 className="font-black text-lg text-white tracking-wide">{tournament.title}</h1>
+                        <div className="flex items-center gap-2 mt-0.5">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <p className="text-[11px] text-emerald-400 uppercase tracking-widest font-bold">Đang diễn ra</p>
                         </div>
                     </div>
                 </div>
@@ -238,7 +246,7 @@ export default function MyTournaments({ onBack }: Props) {
                 <ScoreModal 
                     match={selectedMatch} 
                     onClose={() => setSelectedMatch(null)} 
-                    onSave={(data) => handleUpdateMatch(selectedMatch._id, data)}
+                    onSave={(data: any) => handleUpdateMatch(selectedMatch._id, data)}
                     getTeamName={getTeamName}
                 />
             )}
