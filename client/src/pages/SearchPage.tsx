@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { MapPin, Star, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { theme as t, formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
@@ -19,7 +19,9 @@ export default function SearchPage() {
     // Phân trang
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [totalRecords, setTotalRecords] = useState(0);
     const [inputPage, setInputPage] = useState('');
+    const isAppending = useRef(false);
 
     useEffect(() => {
         const fetchCourts = async () => {
@@ -56,10 +58,16 @@ export default function SearchPage() {
                 });
 
                 if (response.data && response.data.data) {
-                    setCourts(response.data.data);
+                    if (isAppending.current) {
+                        setCourts(prev => [...prev, ...response.data.data]);
+                    } else {
+                        setCourts(response.data.data);
+                    }
                     if (response.data.pagination) {
                         setTotalPages(response.data.pagination.totalPages);
+                        setTotalRecords(response.data.pagination.totalRecords);
                     }
+                    isAppending.current = false;
                 }
             } catch (error) {
                 console.error('Lỗi khi lấy dữ liệu tìm kiếm:', error);
@@ -74,6 +82,7 @@ export default function SearchPage() {
 
     const handleFilterChange = (partial: any) => {
         setFilters(partial);
+        isAppending.current = false;
         setPage(1);
     };
 
@@ -82,12 +91,14 @@ export default function SearchPage() {
         if (isNaN(p)) return;
         if (p < 1) p = 1;
         if (p > totalPages) p = totalPages;
+        isAppending.current = false;
         setPage(p);
         setInputPage('');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handlePageChange = (newPage: number) => {
+        isAppending.current = false;
         setPage(newPage);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -123,17 +134,50 @@ export default function SearchPage() {
                     </div>
                 </div>
 
+                {/* 1. Smart Sort Tags */}
+                <div className="flex items-center gap-2 mt-4 overflow-x-auto custom-scrollbar pb-2">
+                    <button onClick={() => handleFilterChange({ sortBy: 'distance' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'distance' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}>
+                        📍 Gần tôi nhất
+                    </button>
+                    <button onClick={() => handleFilterChange({ sortBy: 'price_asc' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'price_asc' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}>
+                        💰 Giá rẻ nhất
+                    </button>
+                    <button onClick={() => handleFilterChange({ sortBy: 'rating' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'rating' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}>
+                        ⭐ Đánh giá cao
+                    </button>
+                </div>
+
                 {/* Kết quả danh sách sân - Chia Grid 4 cột */}
                 <div className="mt-6">
-                    {!loading && (
+                    {(!loading || page > 1) && (
                         <p className={`text-sm mb-4 font-medium ${t.text.muted}`}>
-                            {courts.length === 0 ? 'Không tìm thấy sân nào phù hợp' : `Hiển thị ${courts.length} kết quả ở trang ${page}`}
+                            {totalRecords === 0 ? 'Không tìm thấy sân nào phù hợp' : `Tìm thấy ${totalRecords} sân cầu lông`}
                         </p>
                     )}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
                         {loading ? (
                             Array.from({ length: 24 }).map((_, i) => <ListCardSkeleton key={i} />)
+                        ) : courts.length === 0 ? (
+                            /* 2. Beautiful Empty State */
+                            <div className="col-span-full flex flex-col items-center justify-center py-20 px-4 text-center">
+                                <div className="w-24 h-24 mb-6 relative">
+                                    <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl animate-pulse"></div>
+                                    <div className="relative w-full h-full bg-[#1e1e1e] border border-white/10 rounded-full flex items-center justify-center shadow-lg">
+                                        <span className="text-4xl">🏸</span>
+                                    </div>
+                                </div>
+                                <h3 className="text-xl font-bold text-white mb-2">Không tìm thấy sân nào</h3>
+                                <p className="text-sm text-gray-400 mb-6 max-w-sm">
+                                    Thử điều chỉnh lại bộ lọc hoặc nới lỏng khoảng giá để tìm được sân phù hợp nhé!
+                                </p>
+                                <button
+                                    onClick={() => { setFilters({ sport: 'all', district: 'Tất cả', sortBy: 'rating', keyword: '' }); setPriceMax(200000); }}
+                                    className="px-6 py-2.5 bg-white text-emerald-600 font-bold rounded-xl hover:scale-105 active:scale-95 transition-transform"
+                                >
+                                    Xóa bộ lọc
+                                </button>
+                            </div>
                         ) : (
                             courts.map((court) => (
                                 <div
@@ -156,6 +200,11 @@ export default function SearchPage() {
                                                 Cách {(court.distance).toFixed(1)} km
                                             </div>
                                         )}
+                                        {/* 3. Availability Badge */}
+                                        <div className="absolute bottom-2 left-2 bg-emerald-500/90 text-black text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1.5 backdrop-blur-md shadow-lg">
+                                            <div className="w-1.5 h-1.5 bg-black rounded-full animate-pulse"></div>
+                                            Còn slot hôm nay
+                                        </div>
                                     </div>
 
                                     {/* Thông tin nằm dưới */}
@@ -183,62 +232,78 @@ export default function SearchPage() {
                         )}
                     </div>
 
-                    {/* THANH PHÂN TRANG */}
-                    {!loading && totalPages > 1 && (
-                        <div className="flex flex-wrap items-center justify-center sm:justify-end gap-4 sm:gap-6 pt-6 border-t border-[#1e1e1e] mt-8">
-                            <div className="flex items-center gap-2 text-sm sm:flex">
-                                <span className={`${t.text.muted}`}>Đến trang:</span>
-                                <input
-                                    type="number"
-                                    min={1} max={totalPages}
-                                    value={inputPage}
-                                    onChange={(e) => setInputPage((e.target as HTMLInputElement).value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleGoToPage()}
-                                    className={`w-14 h-9 rounded-lg ${t.bg.input} border ${t.border.subtle} text-center outline-none text-[#eaeaea] focus:border-emerald-500/40 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
-                                />
-                                <button
-                                    onClick={handleGoToPage}
-                                    className={`px-3 h-9 rounded-lg ${t.bg.elevated} border ${t.border.subtle} text-[#999] hover:text-emerald-400 transition-colors`}
-                                >
-                                    Đi
-                                </button>
-                            </div>
-
-                            <div className="flex items-center gap-1">
-                                <button
-                                    onClick={() => handlePageChange(1)} disabled={page === 1}
-                                    className={`w-9 h-9 flex items-center justify-center rounded-lg transition-colors ${page === 1 ? 'opacity-30 cursor-not-allowed' : `hover:${t.bg.hover} hover:text-emerald-400`} ${t.text.muted}`}
-                                >
-                                    <ChevronsLeft className="w-5 h-5" />
-                                </button>
-
-                                <button
-                                    onClick={() => handlePageChange(page - 1)} disabled={page === 1}
-                                    className={`w-9 h-9 flex items-center justify-center rounded-lg transition-colors ${page === 1 ? 'opacity-30 cursor-not-allowed' : `hover:${t.bg.hover} hover:text-emerald-400`} ${t.text.muted}`}
-                                >
-                                    <ChevronLeft className="w-5 h-5" />
-                                </button>
-
-                                <div className={`min-w-12.5 px-2 h-9 flex items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30 text-sm`}>
-                                    {page} <span className="text-[10px] text-emerald-400/50 ml-1">/ {totalPages}</span>
+                    {/* Actions Container */}
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-10">
+                        {/* Load More Button */}
+                        {!loading && page < totalPages && courts.length > 0 && (
+                            <button
+                                onClick={() => {
+                                    isAppending.current = true;
+                                    setPage(p => p + 1);
+                                }}
+                                className={`px-6 py-2.5 rounded-full font-bold bg-white/10 text-white hover:bg-emerald-500 hover:text-black transition-all border border-emerald-500/30 hover:border-emerald-500`}
+                            >
+                                Tải thêm sân
+                            </button>
+                        )}
+                        
+                        {/* Go To Page Input */}
+                        {!loading && totalPages > 1 && (
+                            <div className="flex flex-wrap items-center gap-4">
+                                <div className="flex items-center gap-2 text-sm">
+                                    <span className={`${t.text.muted}`}>Đến trang:</span>
+                                    <input
+                                        type="number"
+                                        min={1} max={totalPages}
+                                        value={inputPage}
+                                        onChange={(e) => setInputPage(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleGoToPage()}
+                                        className={`w-14 h-9 rounded-lg ${t.bg.input} border ${t.border.subtle} text-center outline-none text-[#eaeaea] focus:border-emerald-500/40 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
+                                    />
+                                    <button
+                                        onClick={handleGoToPage}
+                                        className={`px-3 h-9 rounded-lg ${t.bg.elevated} border ${t.border.subtle} text-[#999] hover:text-emerald-400 transition-colors`}
+                                    >
+                                        Đi
+                                    </button>
                                 </div>
-
-                                <button
-                                    onClick={() => handlePageChange(page + 1)} disabled={page === totalPages}
-                                    className={`w-9 h-9 flex items-center justify-center rounded-lg transition-colors ${page === totalPages ? 'opacity-30 cursor-not-allowed' : `hover:${t.bg.hover} hover:text-emerald-400`} ${t.text.muted}`}
-                                >
-                                    <ChevronRight className="w-5 h-5" />
-                                </button>
-
-                                <button
-                                    onClick={() => handlePageChange(totalPages)} disabled={page === totalPages}
-                                    className={`w-9 h-9 flex items-center justify-center rounded-lg transition-colors ${page === totalPages ? 'opacity-30 cursor-not-allowed' : `hover:${t.bg.hover} hover:text-emerald-400`} ${t.text.muted}`}
-                                >
-                                    <ChevronsRight className="w-5 h-5" />
-                                </button>
+                                
+                                <div className="flex items-center gap-1">
+                                    <button
+                                        onClick={() => handlePageChange(1)} disabled={page === 1}
+                                        className={`w-9 h-9 flex items-center justify-center rounded-lg transition-colors ${page === 1 ? 'opacity-30 cursor-not-allowed' : `hover:${t.bg.hover} hover:text-emerald-400`} ${t.text.muted}`}
+                                    >
+                                        <ChevronsLeft className="w-5 h-5" />
+                                    </button>
+    
+                                    <button
+                                        onClick={() => handlePageChange(page - 1)} disabled={page === 1}
+                                        className={`w-9 h-9 flex items-center justify-center rounded-lg transition-colors ${page === 1 ? 'opacity-30 cursor-not-allowed' : `hover:${t.bg.hover} hover:text-emerald-400`} ${t.text.muted}`}
+                                    >
+                                        <ChevronLeft className="w-5 h-5" />
+                                    </button>
+    
+                                    <div className={`min-w-12.5 px-2 h-9 flex items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30 text-sm`}>
+                                        {page} <span className="text-[10px] text-emerald-400/50 ml-1">/ {totalPages}</span>
+                                    </div>
+    
+                                    <button
+                                        onClick={() => handlePageChange(page + 1)} disabled={page === totalPages}
+                                        className={`w-9 h-9 flex items-center justify-center rounded-lg transition-colors ${page === totalPages ? 'opacity-30 cursor-not-allowed' : `hover:${t.bg.hover} hover:text-emerald-400`} ${t.text.muted}`}
+                                    >
+                                        <ChevronRight className="w-5 h-5" />
+                                    </button>
+    
+                                    <button
+                                        onClick={() => handlePageChange(totalPages)} disabled={page === totalPages}
+                                        className={`w-9 h-9 flex items-center justify-center rounded-lg transition-colors ${page === totalPages ? 'opacity-30 cursor-not-allowed' : `hover:${t.bg.hover} hover:text-emerald-400`} ${t.text.muted}`}
+                                    >
+                                        <ChevronsRight className="w-5 h-5" />
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

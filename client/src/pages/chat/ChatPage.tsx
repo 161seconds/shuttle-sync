@@ -139,7 +139,7 @@ export default function ChatPage() {
         }));
     };
 
-    const handleAvatarClick = async (userId: string) => {
+    const handleAvatarClick = async (userId: string, fallbackName?: string, fallbackAvatar?: string) => {
         try {
             const res = await userApi.getPublicProfile(userId);
             const publicUser = res.data?.data || res.data;
@@ -159,6 +159,17 @@ export default function ChatPage() {
             }
         } catch (error) {
             console.error("Lỗi khi tải profile người dùng:", error);
+            // Fallback: Show a generic profile for deleted or mock users
+            setSelectedUser({
+                id: userId,
+                name: fallbackName || 'Người dùng ẩn danh',
+                avatar: fallbackAvatar || `https://api.dicebear.com/7.x/initials/svg?seed=${fallbackName || 'U'}`,
+                skillLevel: 'Chưa cập nhật',
+                status: 'active',
+                matchesPlayed: 0,
+                favoriteCourt: 'Chưa cập nhật',
+                joinedDate: new Date().toISOString(),
+            });
         }
     };
 
