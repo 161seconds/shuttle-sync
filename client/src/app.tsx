@@ -24,6 +24,7 @@ import AdminDashboard from './features/admin/AdminDashboard';
 import MatchLeaderboard from './components/groups/MatchLeaderboard';
 import RulesPage from './pages/RulesPage';
 import SupplementaryPage from './pages/SupplementaryPage';
+import ChatPage from './pages/chat/ChatPage';
 import { Loader2 } from 'lucide-react';
 import GlobalAlert from './components/GlobalAlert';
 
@@ -107,10 +108,11 @@ function Shell() {
               {page === 'match-leaderboard' && <motion.div key="leaderboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MatchLeaderboard onBack={() => setPage('groupplay')} /></motion.div>}
               {page === 'rules' && <motion.div key="rules" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><RulesPage /></motion.div>}
               {page === 'supplementary' && <motion.div key="supplementary" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SupplementaryPage /></motion.div>}
+              {page === 'chat' && <motion.div key="chat" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ChatPage /></motion.div>}
             </AnimatePresence>
           </main>
 
-          {['home', 'map', 'search', 'groupplay', 'profile'].includes(page) && (
+          {['home', 'map', 'search', 'groupplay', 'profile', 'chat'].includes(page) && (
             <BottomNav />
           )}
 
