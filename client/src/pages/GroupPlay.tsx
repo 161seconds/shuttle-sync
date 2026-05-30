@@ -12,7 +12,7 @@ import { useAlertStore } from '../stores/useAlertStore';
 import { groupPlayApi } from '../api/groupPlay.api';
 import { bookingApi } from '../api/booking.api';
 import PriceConfigModal from '../components/groups/PriceConfigModal';
-import GroupChat from '../components/groups/GroupChat';
+//import GroupChat from '../components/groups/GroupChat';
 import { EmojiIcon } from '../components/EmojiIcon';
 
 // ═══ Types ═══
@@ -80,7 +80,6 @@ export default function GroupPlayPage() {
     const [showFilters, setShowFilters] = useState(false);
     const [showCreate, setShowCreate] = useState(false);
     const [expandedId, setExpandedId] = useState<string | null>(null);
-    const [activeChat, setActiveChat] = useState<string | null>(null);
 
     // STATE CHO MODAL CẤU HÌNH GIÁ
     const [showPriceModal, setShowPriceModal] = useState(false);
@@ -291,7 +290,7 @@ export default function GroupPlayPage() {
                                                         <Check className="w-4 h-4" /> ĐÃ THAM GIA
                                                     </div>
                                                     <button 
-                                                        onClick={(e) => { e.stopPropagation(); setActiveChat(g._id); }}
+                                                        onClick={(e) => { e.stopPropagation(); setPage('chat'); }}
                                                         className="px-6 py-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 font-bold text-sm flex items-center justify-center gap-2 hover:bg-blue-500/20 transition-all"
                                                     >
                                                         <MessageSquare className="w-4 h-4" /> CHAT
@@ -325,15 +324,6 @@ export default function GroupPlayPage() {
                 )}
             </AnimatePresence>
 
-            {/* Chat Modal/Sidebar */}
-            <AnimatePresence>
-                {activeChat && (
-                    <GroupChat 
-                        groupPlayId={activeChat} 
-                        onClose={() => setActiveChat(null)} 
-                    />
-                )}
-            </AnimatePresence>
         </div>
     );
 }

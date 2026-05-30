@@ -5,8 +5,8 @@ import { useAppStore } from '../../store';
 import { useAlertStore } from '../../stores/useAlertStore';
 import axiosClient from '../../api/axiosClient';
 import { EmojiIcon } from '../../components/EmojiIcon';
-import GroupChat from '../../components/groups/GroupChat';
-import { AnimatePresence } from 'framer-motion';
+//import GroupChat from '../../components/groups/GroupChat';
+//import { AnimatePresence } from 'framer-motion';
 
 
 interface GroupPlay {
@@ -46,11 +46,10 @@ interface Props {
 }
 
 export default function MyGroupPlays({ onBack }: Props) {
-    const { user } = useAppStore();
+    const { user, setPage } = useAppStore();
     const [groups, setGroups] = useState<GroupPlay[]>([]);
     const [loading, setLoading] = useState(true);
     const [leaving, setLeaving] = useState<string | null>(null);
-    const [activeChat, setActiveChat] = useState<string | null>(null);
 
     useEffect(() => {
         const fetch = async () => {
@@ -145,6 +144,8 @@ export default function MyGroupPlays({ onBack }: Props) {
                         const isOrganizer = orgObj
                             ? orgObj._id === user?._id
                             : g.organizerId === user?._id;
+                        
+                        const isParticipant = (g.participants || []).some(p => p.userId === user?._id);
 
                         // Các nhóm đã hoàn thành hoặc hủy cho mờ đi một chút để dễ nhìn
                         const opacityClass = (displayStatus === 'completed' || displayStatus === 'cancelled') ? 'opacity-60 hover:opacity-100 transition-opacity' : '';
@@ -211,12 +212,15 @@ export default function MyGroupPlays({ onBack }: Props) {
                                             {(g.pricePerPlayer || 0).toLocaleString()}đ
                                         </span>
                                         <div className="flex gap-2">
-                                            <button 
-                                                onClick={() => setActiveChat(g._id)}
-                                                className="px-3.5 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold flex items-center gap-1.5 hover:bg-blue-500/20 transition-colors active:scale-95"
-                                            >
-                                                <MessageSquare className="w-3.5 h-3.5" /> Chat
-                                            </button>
+                                            {isParticipant && (
+                                                <button
+                                                    onClick={() => setPage('chat')}
+                                                    className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center hover:bg-blue-500/20 transition-colors"
+                                                    title="Chat nhóm"
+                                                >
+                                                    <MessageSquare className="w-5 h-5" />
+                                                </button>
+                                            )}
                                             {!isOrganizer && (displayStatus === 'open' || displayStatus === 'full') && (
                                                 <button onClick={() => handleLeave(g._id)} disabled={leaving === g._id}
                                                     className="px-3.5 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold flex items-center gap-1.5 hover:bg-red-500/20 transition-colors active:scale-95">
@@ -232,16 +236,6 @@ export default function MyGroupPlays({ onBack }: Props) {
                     })
                 )}
             </div>
-
-            {/* Chat Modal/Sidebar */}
-            <AnimatePresence>
-                {activeChat && (
-                    <GroupChat 
-                        groupPlayId={activeChat} 
-                        onClose={() => setActiveChat(null)} 
-                    />
-                )}
-            </AnimatePresence>
         </div>
     );
 }

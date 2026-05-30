@@ -13,7 +13,7 @@ export default function ChatSidebar({ rooms, activeRoomId, onSelectRoom, classNa
     return (
         <div className={`flex flex-col bg-[#141617] border-r border-[#2a2d30] ${className}`}>
             {/* Sidebar Header */}
-            <div className="h-[72px] shrink-0 px-4 flex items-center border-b border-[#2a2d30]">
+            <div className="h-[85px] shrink-0 px-4 flex items-center border-b border-[#2a2d30]">
                 <h2 className="text-xl font-black text-white">Trò chuyện</h2>
             </div>
             

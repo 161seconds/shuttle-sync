@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { ChevronLeft, Info, MoreVertical } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
@@ -36,7 +36,7 @@ export default function ChatWindow({
     return (
         <div className="flex flex-col h-full bg-[#111214]">
             {/* Header */}
-            <div className="h-[72px] shrink-0 px-4 flex items-center justify-between border-b border-[#2a2d30] bg-[#141617]">
+            <div className="h-[85px] shrink-0 px-4 flex items-center justify-between border-b border-[#2a2d30] bg-[#141617]">
                 <div className="flex items-center gap-3">
                     <button 
                         onClick={onBack}
