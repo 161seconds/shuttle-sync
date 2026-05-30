@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { ChevronLeft, Info, MoreVertical } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
@@ -10,7 +10,7 @@ interface ChatWindowProps {
     messages: ChatMessage[];
     currentUser: ChatUser;
     onBack: () => void;
-    onSendMessage: (text: string) => void;
+    onSendMessage: (text: string, replyTo?: ChatMessage['replyTo']) => void;
     onAvatarClick?: (userId: string) => void;
 }
 
@@ -23,6 +23,18 @@ export default function ChatWindow({
     onAvatarClick
 }: ChatWindowProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
+
+    const handleSend = (text: string) => {
+        const replyData = replyingTo ? {
+            messageId: replyingTo._id,
+            senderName: replyingTo.senderName,
+            content: replyingTo.content,
+        } : undefined;
+        
+        onSendMessage(text, replyData);
+        setReplyingTo(null);
+    };
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -88,6 +100,7 @@ export default function ChatWindow({
                                     isMine={isMine}
                                     showAvatar={showAvatar}
                                     onAvatarClick={onAvatarClick}
+                                    onReply={(message) => setReplyingTo(message)}
                                 />
                             );
                         })}
@@ -97,7 +110,11 @@ export default function ChatWindow({
             </div>
 
             {/* Input */}
-            <MessageInput onSend={onSendMessage} />
+            <MessageInput 
+                onSend={handleSend} 
+                replyingTo={replyingTo}
+                onCancelReply={() => setReplyingTo(null)}
+            />
         </div>
     );
 }

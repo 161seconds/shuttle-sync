@@ -7,6 +7,11 @@ export interface ChatMessage {
     senderName: string;
     senderAvatar?: string;
     content: string;
+    replyTo?: {
+        messageId: string;
+        senderName: string;
+        content: string;
+    };
     createdAt: string;
 }
 

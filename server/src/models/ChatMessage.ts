@@ -6,6 +6,11 @@ export interface IChatMessageDocument extends Document {
     senderName: string;
     senderAvatar?: string;
     content: string;
+    replyTo?: {
+        messageId: mongoose.Types.ObjectId;
+        senderName: string;
+        content: string;
+    };
     createdAt: Date;
     updatedAt: Date;
 }
@@ -17,6 +22,11 @@ const chatMessageSchema = new Schema<IChatMessageDocument>(
         senderName: { type: String, required: true },
         senderAvatar: { type: String },
         content: { type: String, required: true, maxlength: 1000 },
+        replyTo: {
+            messageId: { type: Schema.Types.ObjectId, ref: 'ChatMessage' },
+            senderName: String,
+            content: String,
+        },
     },
     { timestamps: true },
 );

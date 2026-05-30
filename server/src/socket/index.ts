@@ -219,6 +219,11 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
             content: string;
             senderName: string;
             senderAvatar?: string;
+            replyTo?: {
+                messageId: string;
+                senderName: string;
+                content: string;
+            };
         }) => {
             if (!socket.userId) return;
 
@@ -232,6 +237,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
                     senderName: data.senderName,
                     senderAvatar: data.senderAvatar,
                     content: data.content,
+                    replyTo: data.replyTo,
                 });
 
                 await newMessage.save();

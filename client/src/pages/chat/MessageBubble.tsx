@@ -1,15 +1,17 @@
 import { type ChatMessage } from '../../api/chat.api';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
+import { Reply } from 'lucide-react';
 
 interface MessageBubbleProps {
     message: ChatMessage;
     isMine: boolean;
     showAvatar: boolean;
     onAvatarClick?: (userId: string) => void;
+    onReply?: (message: ChatMessage) => void;
 }
 
-export default function MessageBubble({ message, isMine, showAvatar, onAvatarClick }: MessageBubbleProps) {
+export default function MessageBubble({ message, isMine, showAvatar, onAvatarClick, onReply }: MessageBubbleProps) {
     const timeString = dayjs(message.createdAt).format('HH:mm');
     const avatarUrl = message.senderAvatar || `https://api.dicebear.com/7.x/initials/svg?seed=${message.senderName}`;
 
@@ -17,7 +19,7 @@ export default function MessageBubble({ message, isMine, showAvatar, onAvatarCli
         <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`flex w-full mb-4 ${isMine ? 'justify-end' : 'justify-start'}`}
+            className={`flex w-full mb-4 group ${isMine ? 'justify-end' : 'justify-start'}`}
         >
             {!isMine && (
                 <div className="w-10 mr-3 flex-shrink-0 flex flex-col justify-end">
@@ -32,7 +34,7 @@ export default function MessageBubble({ message, isMine, showAvatar, onAvatarCli
                 </div>
             )}
 
-            <div className={`max-w-[70%] flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
+            <div className={`max-w-[70%] flex flex-col ${isMine ? 'items-end' : 'items-start'} relative`}>
                 {!isMine && showAvatar && (
                     <span 
                         className="text-xs text-gray-400 font-medium mb-1 ml-1 cursor-pointer hover:text-white transition-colors" 
@@ -42,15 +44,45 @@ export default function MessageBubble({ message, isMine, showAvatar, onAvatarCli
                     </span>
                 )}
                 
-                <div
-                    className={`px-4 py-2.5 rounded-2xl text-[15px] leading-relaxed shadow-sm ${
-                        isMine
-                            ? 'bg-emerald-500 text-black rounded-tr-sm'
-                            : 'bg-[#222428] text-white rounded-tl-sm border border-white/5'
-                    }`}
-                    style={{ wordBreak: 'break-word' }}
-                >
-                    {message.content}
+                <div className="relative flex items-center gap-2">
+                    {isMine && onReply && (
+                        <button 
+                            onClick={() => onReply(message)}
+                            className="p-1.5 text-gray-500 hover:text-white hover:bg-white/10 rounded-full transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
+                            title="Trả lời"
+                        >
+                            <Reply className="w-4 h-4" />
+                        </button>
+                    )}
+                    
+                    <div className="flex flex-col">
+                        {message.replyTo && (
+                            <div className={`mb-1 p-2 rounded-lg text-xs border-l-2 ${isMine ? 'bg-black/20 border-emerald-300 text-emerald-100/80' : 'bg-black/20 border-emerald-500 text-gray-300'} cursor-pointer hover:opacity-80 transition-opacity`}>
+                                <div className="font-bold mb-0.5 opacity-90">{message.replyTo.senderName}</div>
+                                <div className="truncate max-w-[200px] sm:max-w-[300px] opacity-75">{message.replyTo.content}</div>
+                            </div>
+                        )}
+                        <div
+                            className={`px-4 py-2.5 rounded-2xl text-[15px] leading-relaxed shadow-sm ${
+                                isMine
+                                    ? 'bg-emerald-500 text-black rounded-tr-sm'
+                                    : 'bg-[#222428] text-white rounded-tl-sm border border-white/5'
+                            }`}
+                            style={{ wordBreak: 'break-word' }}
+                        >
+                            {message.content}
+                        </div>
+                    </div>
+
+                    {!isMine && onReply && (
+                        <button 
+                            onClick={() => onReply(message)}
+                            className="p-1.5 text-gray-500 hover:text-white hover:bg-white/10 rounded-full transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
+                            title="Trả lời"
+                        >
+                            <Reply className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
                 
                 <span className={`text-[10px] text-gray-500 mt-1 flex items-center gap-1 ${isMine ? 'mr-1' : 'ml-1'}`}>

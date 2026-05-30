@@ -5,6 +5,7 @@ import ChatWindow from './ChatWindow';
 import UserProfileModal from './UserProfileModal';
 import { useAppStore } from '../../store';
 import { groupPlayApi } from '../../api/groupPlay.api';
+import { userApi } from '../../api/user.api';
 import { chatApi, type ChatMessage } from '../../api/chat.api';
 import { socketService } from '../../utils/socket';
 import type { ChatRoom, ChatUser } from './mockData';
@@ -113,7 +114,7 @@ export default function ChatPage() {
         };
     }, [activeRoomId]);
 
-    const handleSendMessage = (text: string) => {
+    const handleSendMessage = (text: string, replyTo?: ChatMessage['replyTo']) => {
         if (!activeRoomId || !user) return;
 
         const socket = socketService.getSocket();
@@ -123,6 +124,7 @@ export default function ChatPage() {
                 content: text,
                 senderName: user.displayName || user.name || 'Người dùng',
                 senderAvatar: user.avatar,
+                replyTo,
             });
         }
     };
@@ -137,10 +139,27 @@ export default function ChatPage() {
         }));
     };
 
-    const handleAvatarClick = (userId: string) => {
-        // Tạm thời vô hiệu hóa việc mở profile chi tiết do API chat trả về không đủ info
-        // Có thể gọi API fetch user info ở đây trong tương lai
-        console.log("Avatar clicked for userId:", userId);
+    const handleAvatarClick = async (userId: string) => {
+        try {
+            const res = await userApi.getPublicProfile(userId);
+            const publicUser = res.data?.data || res.data;
+            
+            if (publicUser) {
+                const mappedUser: ChatUser = {
+                    id: publicUser._id,
+                    name: publicUser.displayName,
+                    avatar: publicUser.avatar || '',
+                    skillLevel: publicUser.skillLevel || 'Chưa cập nhật',
+                    status: publicUser.status === 'banned' ? 'banned' : 'active',
+                    matchesPlayed: (publicUser.stats?.totalGroupsJoined || 0) + (publicUser.stats?.totalGroupsCreated || 0),
+                    favoriteCourt: 'Chưa cập nhật',
+                    joinedDate: publicUser.joinedDate || new Date().toISOString(),
+                };
+                setSelectedUser(mappedUser);
+            }
+        } catch (error) {
+            console.error("Lỗi khi tải profile người dùng:", error);
+        }
     };
 
     // Map Auth user to ChatUser format required by ChatWindow
