@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Image, Smile, Paperclip } from 'lucide-react';
 
 interface MessageInputProps {
@@ -8,18 +9,51 @@ interface MessageInputProps {
 
 export default function MessageInput({ onSend, disabled }: MessageInputProps) {
     const [text, setText] = useState('');
+    const [showQuick, setShowQuick] = useState(false);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const quickRef = useRef<HTMLDivElement>(null);
+
+    const QUICK_EMOJIS = ['👍', '🏸', '🏓', '🔥', '😂', '❤️'];
+    const QUICK_MESSAGES = [
+        'Chào mọi người! 👋',
+        'Sân số mấy vậy ạ?',
+        'Cho mình tham gia với nhé!',
+        'Đến nơi rồi nha',
+    ];
+
+    // Đóng popup khi click ra ngoài
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (quickRef.current && !quickRef.current.contains(event.target as Node)) {
+                setShowQuick(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setText(e.target.value);
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (text.trim() && !disabled) {
             onSend(text.trim());
             setText('');
+            if (textareaRef.current) {
+                textareaRef.current.style.height = 'auto';
+            }
         }
     };
 
     return (
         <div className="p-4 bg-[#141617] border-t border-[#2a2d30]">
-            <form onSubmit={handleSubmit} className="flex items-end gap-3 max-w-4xl mx-auto">
+            <form onSubmit={handleSubmit} className="flex items-end gap-3 w-full">
                 <div className="flex gap-2 mb-1">
                     <button type="button" className="p-2 text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-full transition-colors" disabled={disabled}>
                         <Paperclip className="w-5 h-5" />
@@ -28,15 +62,17 @@ export default function MessageInput({ onSend, disabled }: MessageInputProps) {
                         <Image className="w-5 h-5" />
                     </button>
                 </div>
-                
-                <div className="flex-1 bg-[#1e2023] border border-[#33363a] rounded-3xl flex items-end overflow-hidden focus-within:border-emerald-500/50 focus-within:ring-1 focus-within:ring-emerald-500/50 transition-all">
+
+                <div className="flex-1 bg-[#1e2023] border border-[#33363a] rounded-3xl flex items-center overflow-hidden focus-within:border-emerald-500/50 focus-within:ring-1 focus-within:ring-emerald-500/50 transition-all relative">
                     <textarea
+                        ref={textareaRef}
                         value={text}
-                        onChange={(e) => setText(e.target.value)}
+                        onChange={handleInput}
                         placeholder="Nhập tin nhắn..."
                         disabled={disabled}
-                        className="w-full max-h-32 min-h-[44px] py-3 px-4 bg-transparent text-sm text-white resize-none focus:outline-none custom-scrollbar"
+                        className="w-full max-h-32 min-h-[44px] py-3 px-4 bg-transparent text-sm text-white resize-none focus:outline-none custom-scrollbar my-auto"
                         rows={1}
+                        maxLength={500}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault();
@@ -44,9 +80,63 @@ export default function MessageInput({ onSend, disabled }: MessageInputProps) {
                             }
                         }}
                     />
-                    <button type="button" className="p-3 text-gray-400 hover:text-emerald-400 transition-colors" disabled={disabled}>
-                        <Smile className="w-5 h-5" />
-                    </button>
+                    <div className="flex items-center gap-1 pr-2 relative" ref={quickRef}>
+                        {text.length > 0 && (
+                            <span className={`text-[10px] ${text.length >= 450 ? 'text-red-400 font-bold' : 'text-gray-500'} transition-colors`}>
+                                {text.length}/500
+                            </span>
+                        )}
+                        <button 
+                            type="button" 
+                            onClick={() => setShowQuick(!showQuick)}
+                            className={`p-2 rounded-full transition-colors ${showQuick ? 'bg-emerald-500/10 text-emerald-400' : 'text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10'}`}
+                            disabled={disabled}
+                        >
+                            <Smile className="w-5 h-5" />
+                        </button>
+
+                        {/* Quick Actions Popup */}
+                        <AnimatePresence>
+                            {showQuick && (
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    transition={{ duration: 0.15 }}
+                                    className="absolute bottom-full right-0 mb-3 w-64 bg-[#1a1c1e] border border-[#2a2d30] rounded-2xl shadow-xl overflow-hidden z-50"
+                                >
+                                    <div className="p-3 border-b border-[#2a2d30]">
+                                        <div className="text-[10px] font-bold text-gray-500 uppercase mb-2">Emoji nhanh</div>
+                                        <div className="flex justify-between">
+                                            {QUICK_EMOJIS.map(emoji => (
+                                                <button
+                                                    key={emoji}
+                                                    type="button"
+                                                    onClick={() => { setText(prev => prev + emoji); setShowQuick(false); textareaRef.current?.focus(); }}
+                                                    className="w-8 h-8 flex items-center justify-center hover:bg-white/5 rounded-lg text-lg transition-colors"
+                                                >
+                                                    {emoji}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="p-2 max-h-40 overflow-y-auto custom-scrollbar">
+                                        <div className="text-[10px] font-bold text-gray-500 uppercase mb-1 px-1 mt-1">Tin nhắn mẫu</div>
+                                        {QUICK_MESSAGES.map(msg => (
+                                            <button
+                                                key={msg}
+                                                type="button"
+                                                onClick={() => { setText(prev => (prev ? prev + ' ' : '') + msg); setShowQuick(false); textareaRef.current?.focus(); }}
+                                                className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+                                            >
+                                                {msg}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
                 </div>
 
                 <button

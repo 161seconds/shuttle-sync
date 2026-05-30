@@ -72,7 +72,7 @@ export default function ChatPage() {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-[#0b0c0d] text-white overflow-hidden pb-16 md:pb-0">
+        <div className="flex flex-col h-[calc(100vh-64px)] bg-[#0b0c0d] text-white overflow-hidden">
 
             <div className="flex flex-1 overflow-hidden">
                 {/* Sidebar - ẩn trên mobile nếu đang ở trong phòng chat */}
@@ -91,7 +91,7 @@ export default function ChatPage() {
                 {/* Main Chat Area */}
                 <div className={`
                     flex-1 h-full min-w-0
-                    ${!activeRoomId ? 'hidden md:flex flex-col items-center justify-center bg-[#0b0c0d]' : 'flex flex-col'}
+                    ${!activeRoomId ? 'hidden md:flex flex-col bg-[#0b0c0d]' : 'flex flex-col'}
                 `}>
                     {activeRoom ? (
                         <ChatWindow
@@ -104,12 +104,12 @@ export default function ChatPage() {
                             onAvatarClick={(user) => setSelectedUser(user)}
                         />
                     ) : (
-                        <div className="text-center text-gray-500">
+                        <div className="text-center text-gray-500 m-auto">
                             <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6 shadow-inner">
                                 <span className="text-4xl">💬</span>
                             </div>
-                            <h2 className="text-xl font-bold text-white mb-2">Court Chat</h2>
-                            <p className="text-sm">Chọn một nhóm chat ở bên trái để bắt đầu trò chuyện</p>
+                            <h2 className="text-xl font-bold text-white mb-2">Shuttle Chat</h2>
+                            <p className="text-sm">Chọn một nhóm chat ở bên trái để bắt đầu trò chuyện nhé</p>
                         </div>
                     )}
                 </div>
