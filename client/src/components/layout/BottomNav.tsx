@@ -1,4 +1,4 @@
-import { Home, Search, MapPin, User } from 'lucide-react';
+import { Home, Search, MapPin, User, MessageCircle } from 'lucide-react';
 import { useAppStore } from '../../store';
 
 export default function BottomNav() {
@@ -8,6 +8,7 @@ export default function BottomNav() {
         { id: 'home', icon: <Home className="w-4.5 h-4.5" />, label: 'Trang chủ' },
         { id: 'search', icon: <Search className="w-4.5 h-4.5" />, label: 'Tìm sân' },
         { id: 'map', icon: <MapPin className="w-4.5 h-4.5" />, label: 'Bản đồ' },
+        { id: 'chat', icon: <MessageCircle className="w-4.5 h-4.5" />, label: 'Chat' },
         { id: 'profile', icon: <User className="w-4.5 h-4.5" />, label: 'Hồ sơ' },
     ];
 
