@@ -11,7 +11,7 @@ import { socketService } from '../../utils/socket';
 import type { ChatRoom, ChatUser } from './mockData';
 
 export default function ChatPage() {
-    const { user } = useAppStore();
+    const { user, setPage } = useAppStore();
     const [rooms, setRooms] = useState<ChatRoom[]>([]);
     const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -204,6 +204,7 @@ export default function ChatPage() {
                             rooms={rooms}
                             activeRoomId={activeRoomId}
                             onSelectRoom={handleSelectRoom}
+                            onBack={() => setPage('home')}
                             className="h-full"
                         />
                     )}
