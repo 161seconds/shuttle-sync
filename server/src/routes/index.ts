@@ -36,6 +36,7 @@ router.use('/owner-applications', ownerApplicationRoutes);
 router.use('/reports', reportRoutes);
 router.use('/admin', adminRoutes);
 router.use('/tournaments', require('./tournament.routes').default);
+router.use('/chat', require('./chat.routes').default);
 router.post('/ask-coach', aiCoachController.askCoach);
 
 export default router;

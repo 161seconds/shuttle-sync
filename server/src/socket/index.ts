@@ -29,7 +29,20 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
 
     // Authentication middleware
     io.use((socket: AuthSocket, next) => {
-        const token = socket.handshake.auth.token;
+        let token = socket.handshake.auth.token;
+
+        // Try to get token from cookies if not in auth
+        if (!token && socket.request.headers.cookie) {
+            const cookies = socket.request.headers.cookie.split(';');
+            for (const cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'accessToken') {
+                    token = value;
+                    break;
+                }
+            }
+        }
+
         if (!token) {
             // Allow unauthenticated users to view slots (read-only)
             return next();
@@ -37,10 +50,11 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
 
         try {
             const decoded = jwt.verify(token, config.jwt.accessSecret) as {
-                userId: string;
+                id?: string;
+                userId?: string;
                 role: UserRole;
             };
-            socket.userId = decoded.userId;
+            socket.userId = decoded.userId || decoded.id;
             socket.userRole = decoded.role;
             next();
         } catch {
@@ -190,7 +204,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
         });
 
         // ============================
-        // GROUP PLAY ROOM
+        // GROUP PLAY ROOM & CHAT
         // ============================
         socket.on('group_play:join', (groupPlayId: string) => {
             socket.join(`group_play:${groupPlayId}`);
@@ -198,6 +212,35 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
 
         socket.on('group_play:leave', (groupPlayId: string) => {
             socket.leave(`group_play:${groupPlayId}`);
+        });
+
+        socket.on('chat:send', async (data: {
+            groupPlayId: string;
+            content: string;
+            senderName: string;
+            senderAvatar?: string;
+        }) => {
+            if (!socket.userId) return;
+
+            try {
+                // We use dynamic import for ChatMessage to avoid circular dependencies if any
+                const { ChatMessage } = await import('../models/ChatMessage');
+                
+                const newMessage = new ChatMessage({
+                    groupPlayId: data.groupPlayId,
+                    senderId: socket.userId,
+                    senderName: data.senderName,
+                    senderAvatar: data.senderAvatar,
+                    content: data.content,
+                });
+
+                await newMessage.save();
+
+                // Broadcast to everyone in the room (including sender)
+                io.to(`group_play:${data.groupPlayId}`).emit('chat:message', newMessage);
+            } catch (error) {
+                logger.error('Chat send error:', error);
+            }
         });
 
         // ============================
