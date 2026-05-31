@@ -110,7 +110,7 @@ export default function NewsPage() {
 
     return (
         <div className="w-full h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-[#090b10] relative font-sans text-gray-300">
-            
+
             {/* Animated Ambient Background */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[50%] rounded-full bg-blue-600/10 blur-[120px] mix-blend-screen animate-pulse" style={{ animationDuration: '8s' }} />
@@ -134,7 +134,7 @@ export default function NewsPage() {
                             Tin Tức & Giải Đấu
                         </h1>
                         <p className="text-gray-400 text-lg font-medium max-w-xl">
-                            Cập nhật 24/7 mọi thông tin nóng hổi nhất từ các giải đấu cầu lông và pickleball hàng đầu.
+                            Cập nhật 24/7 mọi thông tin nóng hổi nhất từ các giải đấu hàng đầu.
                         </p>
                     </div>
 
@@ -154,11 +154,10 @@ export default function NewsPage() {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id as NewsCategory)}
-                                className={`px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${
-                                    activeTab === tab.id 
-                                    ? 'bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-[0_0_20px_rgba(59,130,246,0.4)]' 
-                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
-                                }`}
+                                className={`px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${activeTab === tab.id
+                                        ? 'bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-[0_0_20px_rgba(59,130,246,0.4)]'
+                                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                    }`}
                             >
                                 {tab.icon && <EmojiIcon name={tab.icon as any} className={`w-4 h-4 ${activeTab === tab.id ? 'text-white' : 'opacity-70'}`} />}
                                 {tab.label}
@@ -185,7 +184,7 @@ export default function NewsPage() {
                     >
                         {/* Premium Bento Box Hero Section */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-[250px] md:auto-rows-[300px]">
-                            
+
                             {/* Item 1: Giant Featured (2x2) */}
                             {filteredNews[0] && (
                                 <motion.div
@@ -195,11 +194,11 @@ export default function NewsPage() {
                                 >
                                     {/* Glass Frame */}
                                     <div className="absolute inset-0 bg-white/5 border border-white/10 rounded-[2rem] z-20 pointer-events-none group-hover:border-blue-500/50 transition-colors duration-500"></div>
-                                    
+
                                     <img src={filteredNews[0].imageUrl} alt={filteredNews[0].title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.5s] ease-out" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10" />
                                     <div className="absolute inset-0 bg-blue-900/20 mix-blend-multiply group-hover:opacity-0 transition-opacity duration-500 z-10" />
-                                    
+
                                     <div className="absolute top-6 left-6 z-30 flex gap-2">
                                         <div className="bg-red-500 text-white text-xs font-black uppercase px-4 py-2 rounded-full shadow-[0_0_20px_rgba(239,68,68,0.6)] flex items-center gap-1.5 backdrop-blur-md">
                                             <TrendingUp className="w-4 h-4" /> Top 1
@@ -233,10 +232,10 @@ export default function NewsPage() {
                                     onClick={() => { if (filteredNews[1].link) window.open(filteredNews[1].link, '_blank'); }}
                                 >
                                     <div className="absolute inset-0 bg-white/5 border border-white/10 rounded-[2rem] z-20 pointer-events-none group-hover:border-purple-500/50 transition-colors duration-500"></div>
-                                    
+
                                     <img src={filteredNews[1].imageUrl} alt={filteredNews[1].title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent z-10" />
-                                    
+
                                     <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 z-30 transform group-hover:-translate-y-2 transition-transform duration-500">
                                         <div className="flex items-center gap-3 text-xs font-black text-purple-400 mb-3 uppercase tracking-widest">
                                             <span>{filteredNews[1].category}</span>
@@ -260,7 +259,7 @@ export default function NewsPage() {
                                     <div className="w-full h-full relative rounded-3xl overflow-hidden">
                                         <img src={filteredNews[2].imageUrl} alt={filteredNews[2].title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
-                                        
+
                                         <div className="absolute bottom-0 left-0 right-0 p-5 z-20">
                                             <div className="text-[10px] font-black text-emerald-400 mb-2 uppercase tracking-widest">{filteredNews[2].category}</div>
                                             <h3 className="text-lg font-bold text-white line-clamp-2 leading-snug group-hover:text-emerald-300 transition-colors">{filteredNews[2].title}</h3>
@@ -279,7 +278,7 @@ export default function NewsPage() {
                                     <div className="w-full h-full relative rounded-3xl overflow-hidden">
                                         <img src={filteredNews[3].imageUrl} alt={filteredNews[3].title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
-                                        
+
                                         <div className="absolute bottom-0 left-0 right-0 p-5 z-20">
                                             <div className="text-[10px] font-black text-orange-400 mb-2 uppercase tracking-widest">{filteredNews[3].category}</div>
                                             <h3 className="text-lg font-bold text-white line-clamp-2 leading-snug group-hover:text-orange-300 transition-colors">{filteredNews[3].title}</h3>
