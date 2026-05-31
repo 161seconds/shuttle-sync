@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
-import { X, ChevronLeft, ChevronRight, CreditCard, Check, Loader2, Clock, AlertTriangle } from 'lucide-react';
-import { theme as t } from '../../utils/theme';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
+import { X, ChevronLeft, Check, Loader2, Calendar as MapPin, AlertTriangle, Fingerprint, Zap } from 'lucide-react';
+import { formatPrice } from '../../utils/theme';
 import type { Court } from '../../types';
 import { bookingApi } from '../../api/booking.api';
 import axiosClient from '../../api/axiosClient';
@@ -13,7 +14,6 @@ interface BookingSheetProps {
     onClose: () => void;
 }
 
-// HÀM TẠO DANH SÁCH GIỜ (Bước nhảy 30 phút, từ 06:00 đến 22:00)
 const generateTimeOptions = () => {
     const times = [];
     for (let h = 6; h <= 22; h++) {
@@ -22,26 +22,45 @@ const generateTimeOptions = () => {
     }
     return times;
 };
-const TIME_OPTIONS = generateTimeOptions();
+const ALL_TIME_OPTIONS = generateTimeOptions();
+const SLOTS = ALL_TIME_OPTIONS.slice(0, -1);
 
-// HÀM ĐỔI GIỜ RA PHÚT ĐỂ SO SÁNH (VD: "01:30" -> 90)
 const timeToMins = (timeStr: string) => {
+    if (!timeStr) return 0;
     const [h, m] = timeStr.split(':').map(Number);
     return h * 60 + m;
+};
+
+const minsToTime = (mins: number) => {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+};
+
+const sheetVariants: Variants = {
+    hidden: { scale: 0.95, opacity: 0, y: 20 },
+    visible: { scale: 1, opacity: 1, y: 0, transition: { type: "spring", damping: 25, stiffness: 200 } },
+    exit: { scale: 0.95, opacity: 0, y: 20, transition: { ease: "easeInOut", duration: 0.2 } }
+};
+
+const stepVariants: Variants = {
+    enter: (direction: number) => ({ x: direction > 0 ? 30 : -30, opacity: 0, scale: 0.98 }),
+    center: { x: 0, opacity: 1, scale: 1, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
+    exit: (direction: number) => ({ x: direction < 0 ? 30 : -30, opacity: 0, scale: 0.98, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } })
 };
 
 export default function BookingSheet({ court, onClose }: BookingSheetProps) {
     const { user, setPage, setProfileSubPage } = useAppStore();
     const [step, setStep] = useState(1);
+    const [direction, setDirection] = useState(1);
     const [selectedDate, setSelectedDate] = useState(0);
 
-    const [startTime, setStartTime] = useState('17:00');
-    const [endTime, setEndTime] = useState('19:00');
+    const [rangeStart, setRangeStart] = useState<string | null>(null);
+    const [rangeEnd, setRangeEnd] = useState<string | null>(null);
 
     const [isBooking, setIsBooking] = useState(false);
     const [bookingData, setBookingData] = useState<any>(null);
 
-    // Lưu các dải giờ đã bị đặt từ Server: [{ start: 1020, end: 1140 }, ...]
     const [bookedRanges, setBookedRanges] = useState<{ start: number; end: number }[]>([]);
     const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
@@ -61,7 +80,6 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
         };
     });
 
-    // Tải danh sách các giờ đã bị đặt của sân trong ngày
     useEffect(() => {
         const fetchBookedSlots = async () => {
             setIsLoadingSlots(true);
@@ -71,7 +89,6 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
 
                 const ranges: { start: number; end: number }[] = [];
                 (res.data.data || []).forEach((b: any) => {
-                    // Tránh các đơn đã Hủy/Từ chối
                     if (b.startTime && b.endTime && b.status !== 'CANCELLED' && b.status !== 'REJECTED') {
                         ranges.push({
                             start: timeToMins(b.startTime),
@@ -86,46 +103,84 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
             } finally {
                 setIsLoadingSlots(false);
             }
+            setRangeStart(null);
+            setRangeEnd(null);
         };
 
         fetchBookedSlots();
     }, [selectedDate, court._id]);
 
-    // TÍNH TOÁN & KIỂM TRA TÍNH HỢP LỆ CỦA GIỜ
+    const isSlotBooked = (slot: string) => {
+        const startMins = timeToMins(slot);
+        const endMins = startMins + 30;
+        if (selectedDate === 0) {
+            const currentMins = new Date().getHours() * 60 + new Date().getMinutes();
+            if (startMins <= currentMins) return true;
+        }
+        return bookedRanges.some(r => startMins < r.end && endMins > r.start);
+    };
+
+    const hasBookedSlotsBetween = (startSlot: string, endSlot: string) => {
+        const startMins = timeToMins(startSlot);
+        const endMins = timeToMins(endSlot);
+        return SLOTS.some(slot => {
+            const m = timeToMins(slot);
+            if (m > startMins && m < endMins) return isSlotBooked(slot);
+            return false;
+        });
+    };
+
+    const handleSlotClick = (slot: string) => {
+        if (isSlotBooked(slot)) return;
+
+        if (!rangeStart || (rangeStart && rangeEnd)) {
+            setRangeStart(slot);
+            setRangeEnd(null);
+        } else {
+            const startMins = timeToMins(rangeStart);
+            const clickMins = timeToMins(slot);
+            
+            if (startMins === clickMins) {
+                setRangeStart(null);
+            } else {
+                const minTime = startMins < clickMins ? rangeStart : slot;
+                const maxTime = startMins < clickMins ? slot : rangeStart;
+                
+                if (hasBookedSlotsBetween(minTime, maxTime)) {
+                    setRangeStart(slot);
+                    setRangeEnd(null);
+                } else {
+                    setRangeStart(minTime);
+                    setRangeEnd(maxTime);
+                }
+            }
+        }
+    };
+
+    const finalStartTime = rangeStart;
+    const finalEndTime = rangeEnd 
+        ? minsToTime(timeToMins(rangeEnd) + 30) 
+        : (rangeStart ? minsToTime(timeToMins(rangeStart) + 30) : null);
+
     const validation = useMemo(() => {
-        const startMins = timeToMins(startTime);
-        const endMins = timeToMins(endTime);
+        if (!finalStartTime || !finalEndTime) {
+            return { error: 'Vui lòng chọn khung giờ trên bảng!', durationHours: 0, total: 0 };
+        }
+
+        const startMins = timeToMins(finalStartTime);
+        const endMins = timeToMins(finalEndTime);
         const durationHours = (endMins - startMins) / 60;
 
         let error = '';
-        if (startMins >= endMins) {
-            error = 'Giờ kết thúc phải sau giờ bắt đầu!';
-        } else if (durationHours < 1) {
-            error = 'Thời gian thuê sân tối thiểu là 1 giờ!';
-        } else {
-            // Kiểm tra chống trùng lịch (Overlap Check)
-            const isOverlap = bookedRanges.some(range =>
-                // Hai đoạn thời gian giao nhau khi: Start này < End kia VÀ End này > Start kia
-                startMins < range.end && endMins > range.start
-            );
-
-            // Kiểm tra quá khứ (nếu là hôm nay)
-            const isToday = selectedDate === 0;
-            const currentMins = new Date().getHours() * 60 + new Date().getMinutes();
-            if (isToday && startMins <= currentMins) {
-                error = 'Không thể đặt sân trong quá khứ!';
-            } else if (isOverlap) {
-                error = 'Khung giờ này đã có người đặt, vui lòng chọn giờ khác!';
-            }
+        if (durationHours < 1) {
+            error = 'Thời gian thuê sân tối thiểu là 1 giờ (2 block)!';
         }
 
-        // Tính tiền: Lấy giá cơ bản * số giờ
         const basePrice = court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 100000;
         const total = error === '' ? basePrice * durationHours : 0;
 
         return { error, durationHours, total };
-    }, [startTime, endTime, bookedRanges, selectedDate, court]);
-
+    }, [finalStartTime, finalEndTime, court]);
 
     const handleConfirm = async () => {
         if (!user) {
@@ -136,18 +191,17 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
         }
         setIsBooking(true);
         try {
-            // Gửi startTime, endTime (Bỏ mảng slotIds cứng nhắc đi)
             const res = await bookingApi.createBooking({
                 courtId: court._id,
                 subCourtId: court.courts?.[0]?._id || '663344556677889900112288',
-                slotIds: [], // Để mảng rỗng để không bị lỗi Type nếu backend vẫn đang bắt
+                slotIds: [], 
                 date: dates[selectedDate].fullDate,
-                startTime: startTime,
-                endTime: endTime,
+                startTime: finalStartTime!,
+                endTime: finalEndTime!,
                 type: 'casual'
             });
             setBookingData(res.data.data || res.data);
-            setStep(3);
+            changeStep(3);
         } catch (err: any) {
             useAlertStore.getState().showAlert(err.response?.data?.message || 'Có lỗi xảy ra khi đặt sân!', 'Thông báo', 'error');
         } finally {
@@ -155,203 +209,328 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
         }
     };
 
-    const mainPhoto = court.photos.find(p => p.isMain)?.url
-        || court.photos[0]?.url
-        || 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&fit=crop';
+    const changeStep = (newStep: number) => {
+        setDirection(newStep > step ? 1 : -1);
+        setStep(newStep);
+    };
+
+    const mainPhoto = court.photos?.find(p => p.isMain)?.url || court.photos?.[0]?.url || 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&fit=crop';
 
     if (step === 3 && bookingData) {
         return (
-            <div className="fixed inset-0 z-9999 bg-[#0a0a0a] overflow-y-auto">
+            <div className="fixed inset-0 z-[9999] bg-[#06080a] overflow-y-auto">
                 <Payment
                     bookingCode={bookingData.bookingCode}
                     amount={bookingData.finalAmount || validation.total}
                     courtName={court.name}
                     date={`${dates[selectedDate].date}/${dates[selectedDate].month}`}
-                    slots={[`${startTime} - ${endTime}`]}
+                    slots={[`${finalStartTime} - ${finalEndTime}`]}
                     onComplete={() => {
                         onClose();
                         setPage('profile');
                         setProfileSubPage('history');
                     }}
-                    onBack={() => setStep(2)}
+                    onBack={() => changeStep(2)}
                 />
             </div>
         );
     }
 
     return (
-        <div className="fixed inset-0 z-100 flex items-end sm:items-center justify-center">
-            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* FULLSCREEN BLURRED BACKGROUND */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 overflow-hidden" onClick={onClose}>
+                <div className="absolute inset-[-10%] bg-cover bg-center bg-no-repeat blur-[40px] opacity-30" style={{ backgroundImage: `url(${mainPhoto})` }} />
+                <div className="absolute inset-0 bg-[#06080a]/80 backdrop-blur-2xl" />
+            </motion.div>
 
-            <div className={`relative w-full sm:max-w-lg max-h-[90vh] ${t.bg.card} rounded-t-3xl sm:rounded-3xl border-t sm:border ${t.border.subtle} overflow-hidden flex flex-col`}>
-                <div className="flex justify-center pt-3 pb-2 sm:hidden">
-                    <div className="w-10 h-1 rounded-full bg-white/10" />
-                </div>
+            {/* MAIN HUD CONTAINER */}
+            <motion.div 
+                variants={sheetVariants} initial="hidden" animate="visible" exit="exit"
+                className="relative w-full max-w-2xl bg-[#0a0c10]/70 rounded-[32px] border border-white/5 shadow-[0_0_100px_-20px_rgba(16,185,129,0.3)] overflow-hidden flex flex-col backdrop-blur-3xl"
+                style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%)" }} // Cắt góc dưới phải cho ngầu
+            >
+                {/* HUD Decorative Lines */}
+                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent opacity-50" />
+                <div className="absolute bottom-0 right-0 w-32 h-[2px] bg-emerald-500 shadow-[0_0_10px_#10b981]" />
 
-                <div className={`px-5 pb-4 pt-2 border-b ${t.border.subtle} flex items-center justify-between`}>
-                    <div className="flex items-center gap-3">
+                {/* Header HUD */}
+                <div className="px-6 py-5 flex items-center justify-between relative z-10 border-b border-white/5">
+                    <div className="flex items-center gap-4">
                         {step === 2 && (
-                            <button onClick={() => setStep(1)} className={`w-8 h-8 rounded-lg ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-white`}>
-                                <ChevronLeft className="w-4 h-4" />
+                            <button onClick={() => changeStep(1)} className="w-10 h-10 rounded-full border border-white/10 bg-black/40 flex items-center justify-center text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/50 hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all">
+                                <ChevronLeft className="w-5 h-5" />
                             </button>
                         )}
                         <div>
-                            <h2 className={`font-bold text-base ${t.text.primary}`}>
-                                {step === 1 ? 'Tùy chọn giờ chơi' : 'Xác nhận đặt sân'}
+                            <div className="flex items-center gap-2 mb-1">
+                                <Zap className="w-4 h-4 text-emerald-500 animate-pulse" />
+                                <h2 className="font-black text-xl text-white tracking-widest uppercase">
+                                {step === 1 ? 'LỊCH & GIỜ CHƠI' : 'XÁC NHẬN & THANH TOÁN'}
                             </h2>
-                            <p className={`text-xs ${t.text.muted}`}>{court.name}</p>
+                            </div>
+                            <p className="text-xs text-emerald-400/80 font-mono tracking-widest">{court.name.toUpperCase()}</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className={`w-8 h-8 rounded-lg ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:bg-red-500/20 hover:text-red-400 transition-colors`}>
-                        <X className="w-4 h-4" />
+                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 transition-all">
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-5 py-4 space-y-6">
-                    {step === 1 ? (
-                        <>
-                            {/* Chọn Ngày */}
-                            <div>
-                                <label className={`text-xs font-mono uppercase tracking-widest ${t.text.muted} mb-3 block`}>1. Chọn ngày chơi</label>
-                                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-                                    {dates.map((d, i) => (
-                                        <button
-                                            key={i}
-                                            onClick={() => setSelectedDate(i)}
-                                            className={`shrink-0 w-14 py-3 rounded-xl flex flex-col items-center gap-1 border-2 transition-all ${selectedDate === i
-                                                ? `border-emerald-400 bg-emerald-500/10 ${t.glow.sm}`
-                                                : `${t.border.subtle} ${t.bg.elevated}`
-                                                }`}
-                                        >
-                                            <span className={`text-[10px] font-medium ${selectedDate === i ? 'text-emerald-400' : t.text.muted}`}>{d.day}</span>
-                                            <span className={`text-lg font-black ${selectedDate === i ? t.text.primary : t.text.secondary}`}>{d.date}</span>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Chọn Giờ (Flexible Pickers) */}
-                            <div className="relative">
-                                {isLoadingSlots && (
-                                    <div className="absolute inset-0 z-10 bg-black/50 backdrop-blur-[2px] rounded-xl flex items-center justify-center">
-                                        <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />
+                <div className="flex-1 overflow-x-hidden overflow-y-auto px-6 py-6 relative z-10 scrollbar-thin scrollbar-thumb-white/10">
+                    <AnimatePresence mode="wait" custom={direction}>
+                        {step === 1 ? (
+                            <motion.div key="step1" custom={direction} variants={stepVariants} initial="enter" animate="center" exit="exit" className="space-y-8">
+                                
+                                {/* HUD DATE PICKER */}
+                                <div>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <label className="text-[10px] font-black font-mono uppercase tracking-[0.2em] text-emerald-500/80 flex items-center gap-2">
+                                            CHỌN NGÀY
+                                        </label>
+                                        <div className="font-mono text-xs text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded border border-emerald-500/20">
+                                            THÁNG_{String(dates[selectedDate].month).padStart(2, '0')}
+                                        </div>
                                     </div>
-                                )}
+                                    
+                                    <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory mask-fade-edges">
+                                        {dates.map((d, i) => {
+                                            const isActive = selectedDate === i;
+                                            return (
+                                                <button
+                                                    key={i}
+                                                    onClick={() => setSelectedDate(i)}
+                                                    className={`relative shrink-0 w-[5rem] py-4 rounded-xl flex flex-col items-center justify-center gap-2 snap-center transition-all duration-300 bg-black/40 border ${isActive ? 'border-emerald-500/50' : 'border-white/5 hover:border-white/20'}`}
+                                                >
+                                                    {isActive && (
+                                                        <motion.div
+                                                            layoutId="hud-date"
+                                                            className="absolute inset-0 bg-emerald-500/10 border border-emerald-400 shadow-[inset_0_0_20px_rgba(16,185,129,0.2)] rounded-xl"
+                                                            initial={false}
+                                                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                                        />
+                                                    )}
+                                                    <span className={`relative z-10 text-[10px] font-black tracking-widest uppercase font-mono ${isActive ? 'text-emerald-400 drop-shadow-[0_0_5px_rgba(16,185,129,0.8)]' : 'text-gray-500'}`}>
+                                                        {d.day}
+                                                    </span>
+                                                    <span className={`relative z-10 text-2xl font-black font-mono ${isActive ? 'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'text-gray-400'}`}>
+                                                        {d.date}
+                                                    </span>
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
 
-                                <label className={`text-xs font-mono uppercase tracking-widest ${t.text.muted} mb-3 block`}>2. Khung giờ dự kiến</label>
-                                <div className="flex items-center gap-4">
-                                    <div className="flex-1">
-                                        <p className="text-xs text-gray-500 mb-1.5 ml-1">Bắt đầu lúc</p>
-                                        <div className={`relative rounded-xl border ${t.border.subtle} ${t.bg.elevated} overflow-hidden`}>
-                                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
-                                            <select
-                                                value={startTime}
-                                                onChange={e => setStartTime(e.target.value)}
-                                                className="w-full h-12 pl-10 pr-4 bg-transparent text-white font-bold outline-none cursor-pointer appearance-none"
-                                            >
-                                                {TIME_OPTIONS.map(t => <option key={`start-${t}`} value={t} className="bg-gray-900">{t}</option>)}
-                                            </select>
+                                {/* HUD ENERGY GRID */}
+                                <div className="relative">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <label className="text-[10px] font-black font-mono uppercase tracking-[0.2em] text-emerald-500/80 flex items-center gap-2">
+                                            CHỌN KHUNG GIỜ
+                                        </label>
+                                        <div className="flex gap-3 text-[9px] font-mono font-bold tracking-widest text-gray-500 uppercase">
+                                            <span className="flex items-center gap-1"><div className="w-2 h-2 bg-emerald-500 shadow-[0_0_5px_#10b981]" /> ĐANG CHỌN</span>
+                                            <span className="flex items-center gap-1"><div className="w-2 h-2 bg-red-500/20 border border-red-500/50" /> HẾT CHỖ</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="relative p-1">
+                                        {isLoadingSlots && (
+                                            <div className="absolute inset-0 z-10 bg-[#0a0c10]/80 backdrop-blur-sm flex items-center justify-center border border-emerald-500/30 rounded-xl">
+                                                <div className="flex flex-col items-center gap-3">
+                                                    <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                                                    <p className="font-mono text-xs text-emerald-400 tracking-widest animate-pulse">ĐANG TẢI DỮ LIỆU...</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                                            {SLOTS.map(slot => {
+                                                const booked = isSlotBooked(slot);
+                                                
+                                                let isSelected = false;
+                                                let isEndpoint = false;
+
+                                                if (rangeStart) {
+                                                    const sMins = timeToMins(slot);
+                                                    const rStartMins = timeToMins(rangeStart);
+                                                    
+                                                    if (!rangeEnd) {
+                                                        isSelected = slot === rangeStart;
+                                                        isEndpoint = isSelected;
+                                                    } else {
+                                                        const rEndMins = timeToMins(rangeEnd);
+                                                        isSelected = sMins >= Math.min(rStartMins, rEndMins) && sMins <= Math.max(rStartMins, rEndMins);
+                                                        isEndpoint = slot === rangeStart || slot === rangeEnd;
+                                                    }
+                                                }
+
+                                                return (
+                                                    <button
+                                                        key={slot}
+                                                        onClick={() => handleSlotClick(slot)}
+                                                        disabled={booked}
+                                                        className={`relative h-12 rounded-[8px] text-xs font-mono font-bold transition-all duration-300 flex items-center justify-center overflow-hidden group ${
+                                                            booked 
+                                                                ? 'bg-red-500/5 text-red-500/40 border border-red-500/20 cursor-not-allowed opacity-50'
+                                                                : isSelected
+                                                                    ? 'bg-emerald-500/20 text-emerald-50 border border-emerald-400 shadow-[inset_0_0_15px_rgba(16,185,129,0.5),0_0_15px_rgba(16,185,129,0.3)]'
+                                                                    : 'bg-black/40 text-gray-400 border border-white/5 hover:border-emerald-500/50 hover:text-white'
+                                                        }`}
+                                                    >
+                                                        {/* Scanning line effect on hover */}
+                                                        {!booked && !isSelected && (
+                                                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-500/10 to-transparent -translate-y-full group-hover:animate-shimmer" />
+                                                        )}
+                                                        
+                                                        <span className="relative z-10">{slot}</span>
+                                                        
+                                                        {isEndpoint && (
+                                                            <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_5px_white] animate-pulse" />
+                                                        )}
+                                                        
+                                                        {booked && (
+                                                            <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+                                                                <div className="w-full h-px bg-red-500/50 rotate-45 scale-150" />
+                                                            </div>
+                                                        )}
+                                                    </button>
+                                                )
+                                            })}
                                         </div>
                                     </div>
 
-                                    <div className="w-4 h-px bg-white/20 mt-6" />
-
-                                    <div className="flex-1">
-                                        <p className="text-xs text-gray-500 mb-1.5 ml-1">Kết thúc lúc</p>
-                                        <div className={`relative rounded-xl border ${t.border.subtle} ${t.bg.elevated} overflow-hidden`}>
-                                            <select
-                                                value={endTime}
-                                                onChange={e => setEndTime(e.target.value)}
-                                                className="w-full h-12 pl-4 pr-4 bg-transparent text-white font-bold outline-none cursor-pointer appearance-none"
-                                            >
-                                                {TIME_OPTIONS.map(t => <option key={`end-${t}`} value={t} className="bg-gray-900">{t}</option>)}
-                                            </select>
-                                        </div>
+                                    {/* HUD Validator */}
+                                    <div className="mt-6">
+                                        <AnimatePresence mode="wait">
+                                            {validation.error ? (
+                                                <motion.div 
+                                                    key="error"
+                                                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                                                    className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 font-mono text-xs text-red-400 shadow-[inset_0_0_20px_rgba(239,68,68,0.1)]"
+                                                    style={{ clipPath: "polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)" }}
+                                                >
+                                                    <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+                                                    {validation.error}
+                                                </motion.div>
+                                            ) : (
+                                                <motion.div 
+                                                    key="success"
+                                                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                                                    className="flex justify-between items-center p-5 bg-emerald-500/10 border border-emerald-500/40 relative overflow-hidden group shadow-[0_0_30px_rgba(16,185,129,0.1)]"
+                                                    style={{ clipPath: "polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px)" }}
+                                                >
+                                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                                                    
+                                                    <div>
+                                                        <p className="text-[10px] font-black uppercase font-mono tracking-[0.2em] text-emerald-500 mb-1">THỜI LƯỢNG</p>
+                                                        <span className="text-white font-mono text-lg">{validation.durationHours.toFixed(1)} GIỜ</span>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-[10px] font-black uppercase font-mono tracking-[0.2em] text-emerald-500 mb-1">TẠM TÍNH</p>
+                                                        <span className="text-emerald-400 font-black font-mono text-2xl drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]">
+                                                            {formatPrice(validation.total)}
+                                                        </span>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
                                 </div>
+                            </motion.div>
+                        ) : (
+                            <motion.div key="step2" custom={direction} variants={stepVariants} initial="enter" animate="center" exit="exit" className="flex justify-center">
+                                {/* HOLOGRAPHIC E-TICKET */}
+                                <div 
+                                    className="relative w-full max-w-sm bg-gradient-to-b from-[#15171b]/90 to-[#0c0d10]/90 backdrop-blur-md border border-emerald-500/30 p-8 shadow-[0_0_50px_rgba(16,185,129,0.15)]"
+                                    style={{ clipPath: "polygon(20px 0, 100% 0, 100% calc(50% - 15px), calc(100% - 10px) 50%, 100% calc(50% + 15px), 100% 100%, 0 100%, 0 calc(50% + 15px), 10px 50%, 0 calc(50% - 15px))" }}
+                                >
+                                    {/* Hologram Lines */}
+                                    <div className="absolute inset-0 pointer-events-none opacity-20" style={{ backgroundImage: "repeating-linear-gradient(transparent, transparent 2px, rgba(16,185,129,0.2) 2px, rgba(16,185,129,0.2) 4px)" }} />
+                                    
+                                    <div className="flex flex-col items-center mb-8 relative z-10">
+                                        <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-emerald-500/50 p-1 mb-4 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                                            <div className="w-full h-full rounded-xl overflow-hidden relative">
+                                                <img src={mainPhoto} alt="" className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-emerald-500/20 mix-blend-overlay" />
+                                            </div>
+                                        </div>
+                                        <h3 className="font-black text-xl text-white text-center font-mono uppercase tracking-wider">{court.name}</h3>
+                                        <p className="text-xs text-emerald-400/80 font-mono flex items-center gap-1 mt-2">
+                                            <MapPin className="w-3.5 h-3.5" /> {court.address?.district}
+                                        </p>
+                                    </div>
 
-                                {/* Thông báo lỗi hoặc hợp lệ */}
-                                <div className="mt-4">
-                                    {validation.error ? (
-                                        <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium leading-relaxed">
-                                            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                                            {validation.error}
+                                    {/* Dashed cut line */}
+                                    <div className="w-full border-b-2 border-dashed border-emerald-500/30 my-6 relative z-10" />
+
+                                    <div className="space-y-5 relative z-10">
+                                        <SummaryRow label="NGÀY CHƠI" value={`${dates[selectedDate].date}/${dates[selectedDate].month}/${new Date().getFullYear()}`} />
+                                        <SummaryRow label="THỜI GIAN" value={`${finalStartTime} - ${finalEndTime}`} accent />
+                                        <SummaryRow label="THỜI LƯỢNG" value={`${validation.durationHours} GIỜ`} />
+                                        <SummaryRow label="PHƯƠNG THỨC" value="Thanh toán VNPay" />
+                                    </div>
+
+                                    <div className="mt-8 pt-6 border-t border-emerald-500/20 relative z-10">
+                                        <div className="flex justify-between items-end">
+                                            <span className="font-mono text-xs font-black text-gray-500 tracking-[0.2em]">TỔNG THANH TOÁN</span>
+                                            <span className="text-3xl font-black font-mono text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.6)]">
+                                                {formatPrice(validation.total)}
+                                            </span>
                                         </div>
-                                    ) : (
-                                        <div className="flex justify-between items-center p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                                            <span className="text-xs text-emerald-400 font-medium">Thời gian thuê: {validation.durationHours} giờ</span>
-                                            <span className="text-emerald-400 font-black">{validation.total.toLocaleString()}đ</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </>
-                    ) : (
-                        <div className="space-y-4">
-                            <div className={`p-4 rounded-xl ${t.bg.elevated} border ${t.border.subtle} space-y-3`}>
-                                <div className="flex items-center gap-3">
-                                    <img src={mainPhoto} alt="" className="w-14 h-14 rounded-xl object-cover" />
-                                    <div>
-                                        <h3 className={`font-bold text-sm ${t.text.primary}`}>{court.name}</h3>
-                                        <p className={`text-xs ${t.text.muted}`}>{court.address.district}</p>
+                                    </div>
+                                    
+                                    {/* Barcode Mock */}
+                                    <div className="mt-8 flex justify-center opacity-50 relative z-10">
+                                        <div className="w-full h-10 bg-repeat-x" style={{ backgroundImage: "repeating-linear-gradient(to right, #10b981, #10b981 2px, transparent 2px, transparent 6px, #10b981 6px, #10b981 10px, transparent 10px, transparent 12px)", backgroundSize: "100% 100%" }} />
                                     </div>
                                 </div>
-                                <div className={`h-px ${t.bg.surface}`} />
-                                <div className="space-y-2">
-                                    <SummaryRow label="Ngày chơi" value={`${dates[selectedDate].date}/${dates[selectedDate].month}/${new Date().getFullYear()}`} />
-                                    <SummaryRow label="Thời gian" value={`${startTime} - ${endTime}`} accent />
-                                    <SummaryRow label="Thời lượng" value={`${validation.durationHours} giờ`} />
-                                </div>
-                            </div>
-
-                            <div className={`p-4 rounded-xl ${t.bg.elevated} border ${t.border.subtle}`}>
-                                <div className="flex items-center gap-2 mb-3">
-                                    <CreditCard className={`w-4 h-4 ${t.text.accent}`} />
-                                    <span className={`text-xs font-semibold ${t.text.secondary}`}>Thanh toán</span>
-                                </div>
-                                <div className="space-y-2">
-                                    <SummaryRow label="Tạm tính" value={`${validation.total.toLocaleString()}đ`} />
-                                    <div className={`h-px ${t.bg.surface}`} />
-                                    <div className="flex justify-between text-sm">
-                                        <span className={`font-bold ${t.text.primary}`}>Tổng cộng</span>
-                                        <span className={`font-black ${t.text.accent}`}>{validation.total.toLocaleString()}đ</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
 
-                <div className={`px-5 py-4 border-t ${t.border.subtle} ${t.bg.card}`}>
+                {/* Footer HUD CTA */}
+                <div className="px-6 py-6 bg-black/60 border-t border-white/5 relative z-10 backdrop-blur-md">
                     {step === 1 ? (
                         <button
-                            onClick={() => setStep(2)}
+                            onClick={() => changeStep(2)}
                             disabled={validation.error !== '' || isLoadingSlots}
-                            className="w-full py-4 rounded-xl bg-emerald-500 text-black font-black flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 disabled:opacity-30 disabled:hover:bg-emerald-500 transition-all active:scale-95"
+                            className="group relative w-full h-16 bg-emerald-500/10 text-emerald-400 font-black font-mono text-lg uppercase tracking-widest flex items-center justify-center gap-3 overflow-hidden disabled:opacity-30 disabled:cursor-not-allowed transition-all border border-emerald-500/50"
+                            style={{ clipPath: "polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px)" }}
                         >
-                            Tiếp tục thanh toán <ChevronRight className="w-5 h-5" />
+                            <div className="absolute inset-0 bg-emerald-500 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+                            <Fingerprint className="w-5 h-5 relative z-10 group-hover:text-black transition-colors duration-300" />
+                            <span className="relative z-10 group-hover:text-black transition-colors duration-300">TIẾP TỤC THANH TOÁN</span>
                         </button>
                     ) : (
                         <button
                             onClick={handleConfirm}
                             disabled={isBooking}
-                            className="w-full py-4 rounded-xl bg-emerald-500 text-black font-black flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 transition-colors active:scale-95 disabled:opacity-50"
+                            className="group relative w-full h-16 bg-emerald-500 text-black font-black font-mono text-lg uppercase tracking-widest flex items-center justify-center gap-3 overflow-hidden disabled:opacity-70 border border-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_50px_rgba(16,185,129,0.5)] transition-all"
+                            style={{ clipPath: "polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px)" }}
                         >
-                            {isBooking ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}
-                            {isBooking ? 'Đang xử lý...' : 'Xác nhận đặt sân'}
+                            {isBooking && (
+                                <div className="absolute inset-0 bg-black/20 flex items-center justify-center backdrop-blur-sm z-20">
+                                    <Loader2 className="w-6 h-6 animate-spin text-black" />
+                                </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-shimmer z-0" />
+                            <Check className="w-6 h-6 relative z-10" />
+                            <span className="relative z-10">{isBooking ? 'ĐANG TẠO MÃ...' : 'XÁC NHẬN ĐẶT SÂN'}</span>
                         </button>
                     )}
                 </div>
-            </div>
+            </motion.div>
         </div>
     );
 }
 
 function SummaryRow({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
     return (
-        <div className="flex justify-between text-xs items-center">
-            <span className="text-[#666] font-medium">{label}</span>
-            <span className={`font-bold ${accent ? 'text-emerald-400 text-sm' : 'text-[#eaeaea]'}`}>{value}</span>
+        <div className="flex justify-between items-center font-mono">
+            <span className="text-[10px] text-emerald-500/70 font-black tracking-widest">{label}</span>
+            <span className={`text-sm ${accent ? 'text-emerald-400 font-black drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-gray-300 font-bold'}`}>{value}</span>
         </div>
     );
 }
