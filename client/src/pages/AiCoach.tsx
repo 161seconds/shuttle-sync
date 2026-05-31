@@ -115,7 +115,7 @@ export default function AiCoach() {
     const formatTime = (d: Date) => d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
     return (
-        <div className="flex flex-col h-[calc(100vh-76px)] bg-[#060a08] relative overflow-hidden">
+        <div className="flex flex-col h-[calc(100vh-64px)] bg-[#060a08] relative overflow-hidden">
             {/* Ambient bg - breathing orbs */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-[120px] transition-all duration-[3000ms] ${isTyping ? 'bg-emerald-500/15 scale-125' : 'bg-emerald-500/5 scale-100'}`} />

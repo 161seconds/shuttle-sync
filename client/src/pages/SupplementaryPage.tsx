@@ -94,7 +94,7 @@ export default function SupplementaryPage() {
     }
 
     return (
-        <div className="w-full h-[calc(100vh-76px)] overflow-y-auto custom-scrollbar bg-[#0f141a] p-6 pb-24 font-sans text-gray-300">
+        <div className="w-full h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-[#0f141a] p-6 pb-24 font-sans text-gray-300">
             <div className="max-w-5xl mx-auto space-y-6">
 
                 {/* Header Banner */}
