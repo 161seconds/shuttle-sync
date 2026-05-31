@@ -214,6 +214,16 @@ export default function Login() {
     const [otpSent, setOtpSent] = useState(false);
     const [otpCode, setOtpCode] = useState('');
 
+    const [formMouseX, setFormMouseX] = useState(0);
+    const [formMouseY, setFormMouseY] = useState(0);
+    const [isHoveringForm, setIsHoveringForm] = useState(false);
+
+    const handleFormMouseMove = (e: React.MouseEvent) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setFormMouseX(e.clientX - rect.left);
+        setFormMouseY(e.clientY - rect.top);
+    };
+
     const [form, setForm] = useState({ email: '', password: '', displayName: '', phone: '', role: 'USER' });
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [apiError, setApiError] = useState('');
@@ -315,9 +325,24 @@ export default function Login() {
             </div>
 
             {/* RIGHT FORM SECTION */}
-            <div className="flex-1 flex items-center justify-center px-6 py-12 relative overflow-y-auto">
+            <div 
+                className="flex-1 flex items-center justify-center px-6 py-12 relative overflow-y-auto group"
+                onMouseMove={handleFormMouseMove}
+                onMouseEnter={() => setIsHoveringForm(true)}
+                onMouseLeave={() => setIsHoveringForm(false)}
+            >
+                {/* Magic Mouse Glow */}
+                <div 
+                    className="pointer-events-none absolute w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] transition-opacity duration-500"
+                    style={{ 
+                        left: formMouseX - 192, 
+                        top: formMouseY - 192,
+                        opacity: isHoveringForm ? 1 : 0 
+                    }}
+                />
+                
                 <div className="absolute top-0 right-0 w-72 h-72 rounded-full blur-[100px] opacity-[0.06] bg-emerald-400 pointer-events-none" />
-                <div className="w-full max-w-sm relative z-10">
+                <div className="w-full max-w-[420px] relative z-10 p-8 sm:p-10 rounded-[2.5rem] bg-[#141617]/40 border border-white/5 backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.3)] hover:border-white/10 transition-colors">
                     <div className="mb-8">
                         <h1 className="text-2xl font-black text-white tracking-tight">
                             {otpSent ? 'Xác thực Gmail' : mode === 'login' ? 'Welcome back!' : 'Create new account'}
@@ -382,8 +407,11 @@ export default function Login() {
                             </div>
                         )}
 
-                        <button type="submit" disabled={loading} className="w-full mt-6 py-3.5 rounded-xl bg-emerald-500 text-black font-bold text-sm flex items-center justify-center gap-2 shadow-lg hover:bg-emerald-400 active:scale-[0.98] transition-all disabled:opacity-50">
-                            {loading ? <span className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : <>{otpSent ? 'Xác nhận OTP' : mode === 'login' ? 'Đăng nhập' : 'Đăng ký'} <ChevronRight className="w-4 h-4" /></>}
+                        <button type="submit" disabled={loading} className="relative w-full mt-6 py-4 rounded-xl bg-emerald-500 text-black font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] hover:bg-emerald-400 active:scale-[0.98] transition-all overflow-hidden group/btn disabled:opacity-50">
+                            <div className="absolute top-0 bottom-0 -left-[100%] w-full bg-gradient-to-r from-transparent via-white/50 to-transparent group-hover/btn:animate-[slide-shimmer_1.5s_infinite]" />
+                            <span className="relative z-10 flex items-center gap-2">
+                                {loading ? <span className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : <>{otpSent ? 'Xác nhận OTP' : mode === 'login' ? 'Đăng nhập' : 'Đăng ký'} <ChevronRight className="w-4 h-4" /></>}
+                            </span>
                         </button>
                         {otpSent && <button type="button" onClick={() => { setOtpSent(false); setApiSuccess(''); }} className="w-full text-center flex justify-center items-center gap-2 text-xs text-gray-500 hover:text-white mt-2"><ArrowLeft className="w-3 h-3" /> Quay lại dùng mật khẩu</button>}
                     </form>
@@ -406,6 +434,7 @@ export default function Login() {
                 @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-12px); } }
                 @keyframes drift { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, -20px) scale(1.05); } 66% { transform: translate(-20px, 15px) scale(0.95); } }
                 @keyframes wave { 0%, 60%, 100% { transform: rotate(0deg); } 10%, 30% { transform: rotate(14deg); } 20% { transform: rotate(-8deg); } 40% { transform: rotate(-4deg); } 50% { transform: rotate(10deg); } }
+                @keyframes slide-shimmer { 0% { left: -100%; } 100% { left: 200%; } }
             `}</style>
         </div>
     );
