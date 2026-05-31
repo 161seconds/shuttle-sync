@@ -19,6 +19,7 @@ import { authApi } from './api/auth.api';
 import GroupPlayPage from './pages/GroupPlay';
 import AiCoach from './pages/AiCoach';
 import Notifications from './pages/profile/Notifications';
+import EditProfile from './pages/profile/EditProfile';
 import AppSidebar from './components/layout/Sidebar';
 import AdminDashboard from './features/admin/AdminDashboard';
 import MatchLeaderboard from './components/groups/MatchLeaderboard';
@@ -26,6 +27,7 @@ import RulesPage from './pages/RulesPage';
 import SupplementaryPage from './pages/SupplementaryPage';
 import ChatPage from './pages/chat/ChatPage';
 import NewsPage from './pages/NewsPage';
+import SupportPage from './pages/SupportPage';
 import { Loader2 } from 'lucide-react';
 import GlobalAlert from './components/GlobalAlert';
 import { useAlertStore } from './stores/useAlertStore';
@@ -151,6 +153,7 @@ function Shell() {
               {page === 'map' && <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MapPage /></motion.div>}
               {page === 'search' && <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SearchPage /></motion.div>}
               {page === 'profile' && <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ProfilePage /></motion.div>}
+              {page === 'edit-profile' && <motion.div key="edit-profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><EditProfile onBack={() => setPage('profile')} /></motion.div>}
               {page === 'groupplay' && <motion.div key="group-play" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><GroupPlayPage /></motion.div>}
               {page === 'aicoach' && <motion.div key="aicoach" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AiCoach /></motion.div>}
               {page === 'admin' && <motion.div key="admin" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AdminDashboard /></motion.div>}
@@ -160,6 +163,7 @@ function Shell() {
               {page === 'supplementary' && <motion.div key="supplementary" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SupplementaryPage /></motion.div>}
               {page === 'chat' && <motion.div key="chat" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ChatPage /></motion.div>}
               {page === 'news' && <motion.div key="news" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><NewsPage /></motion.div>}
+              {page === 'support' && <motion.div key="support" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SupportPage /></motion.div>}
             </AnimatePresence>
           </main>
 

@@ -113,9 +113,9 @@ export default function AppSidebar() {
 
                     <div className="relative flex items-center justify-around bg-[#141617]/90 backdrop-blur-3xl border border-white/10 rounded-3xl p-2 shadow-[0_10px_40px_rgba(0,0,0,0.5)] hover:border-emerald-500/30 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all duration-500">
                         <button
-                            onClick={() => { setPage('profile'); if (isSideBarOpen) toggleSidebar(); }}
+                            onClick={() => { setPage('edit-profile'); if (isSideBarOpen) toggleSidebar(); }}
                             className="p-3 rounded-[1.2rem] text-gray-500 hover:text-white hover:bg-white/5 transition-all group"
-                            title="Tài khoản"
+                            title="Chỉnh sửa tài khoản"
                         >
                             <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-700" />
                         </button>
