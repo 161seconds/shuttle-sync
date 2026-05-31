@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Check, MapPin, Leaf, Target, Trophy } from 'lucide-react';
 import { SPORTS, SKILLS, HCMC_DISTRICTS } from '../../features/onboarding/data';
 import type { UserPreferences, OnboardingSport } from '../../features/onboarding/type';
+import { EmojiIcon } from '../../components/EmojiIcon';
 
 const SKILL_ICONS: Record<string, React.ReactNode> = {
     leaf: <Leaf className="w-5 h-5" />,
@@ -62,8 +63,10 @@ export default function StepPersonalization({ preferences, onChange, onNext, onB
                                         }`}
                                     whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}
                                 >
-                                    <span className="text-3xl">{s.icon}</span>
-                                    <span className={`text-xs font-semibold ${selected ? 'text-emerald-300' : 'text-white/60'}`}>
+                                    <span className="text-3xl">
+                                        <EmojiIcon name={s.id as any} className="w-14 h-14" />
+                                    </span>
+                                    <span className={`text-sm font-bold ${selected ? 'text-emerald-300' : 'text-white/60'}`}>
                                         {s.label}
                                     </span>
                                     {selected && (
