@@ -35,7 +35,7 @@ export default function NewsPage() {
     useEffect(() => {
         const fetchNews = async () => {
             try {
-                // Fetch song song 4 luồng RSS: Thể thao chung (VnExpress, Thanh Niên, Tuổi Trẻ) và Cầu lông chuyên biệt (WebTheThao)
+                // Fetch song song 3 luồng RSS: Thể thao chung (VnExpress, Thanh Niên, Tuổi Trẻ)
                 const [vnexpressRes, thanhnienRes, tuoitreRes] = await Promise.all([
                     fetch('https://api.rss2json.com/v1/api.json?rss_url=https://vnexpress.net/rss/the-thao.rss'),
                     fetch('https://api.rss2json.com/v1/api.json?rss_url=https://thanhnien.vn/rss/the-thao.rss'),
