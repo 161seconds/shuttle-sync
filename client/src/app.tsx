@@ -29,7 +29,6 @@ import SupplementaryPage from './pages/SupplementaryPage';
 import ChatPage from './pages/chat/ChatPage';
 import NewsPage from './pages/NewsPage';
 import SupportPage from './pages/SupportPage';
-import { Loader2 } from 'lucide-react';
 import GlobalAlert from './components/GlobalAlert';
 import { useAlertStore } from './stores/useAlertStore';
 
@@ -116,15 +115,7 @@ function Shell() {
     }
   }, [user, page, setPage, isCheckingAuth, showAlert]);
 
-  // MÀN HÌNH CHỜ TRONG LÚC APP KIỂM TRA COOKIE (Tránh nháy giao diện)
-  if (isCheckingAuth) {
-    return (
-      <div className="w-screen h-screen bg-[#0a0a0a] flex flex-col items-center justify-center">
-        <Loader2 className="w-10 h-10 text-emerald-500 animate-spin mb-4" />
-        <p className="text-emerald-400 font-medium text-sm">Đang tải dữ liệu ShuttleSync...</p>
-      </div>
-    );
-  }
+  // Gộp chung thời gian check Auth vào Splash Screen để không bị nháy giao diện
 
   if (detailCourt) {
     return <CourtDetail court={detailCourt} onBack={() => setDetailCourt(null)} />;
@@ -133,16 +124,16 @@ function Shell() {
   return (
     <div className={`min-h-screen ${DS.bg.base} relative overflow-hidden`}>
       <AnimatePresence>
-        {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+        {(showSplash || isCheckingAuth) && <SplashScreen onComplete={() => setShowSplash(false)} />}
       </AnimatePresence>
 
       <PremiumBackground />
 
       <AnimatePresence>
-        {showOnboarding && <OnboardingModal onComplete={completeOnboarding} onSkip={skipOnboarding} />}
+        {showOnboarding && !isCheckingAuth && <OnboardingModal onComplete={completeOnboarding} onSkip={skipOnboarding} />}
       </AnimatePresence>
 
-      {!showOnboarding && (
+      {!showOnboarding && !isCheckingAuth && (
         <div className="relative z-10 flex flex-col min-h-screen">
 
           {page !== 'login' && <Header />}
