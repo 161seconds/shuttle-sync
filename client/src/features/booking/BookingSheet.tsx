@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
-import { X, ChevronLeft, Check, Loader2, MapPin, AlertTriangle, Fingerprint, Zap } from 'lucide-react';
+import { X, ChevronLeft, Check, Loader2, MapPin, AlertTriangle, Fingerprint, Zap, Repeat } from 'lucide-react';
 import { formatPrice } from '../../utils/theme';
 import type { Court } from '../../types';
 import { bookingApi } from '../../api/booking.api';
@@ -57,6 +57,9 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
 
     const [rangeStart, setRangeStart] = useState<string | null>(null);
     const [rangeEnd, setRangeEnd] = useState<string | null>(null);
+
+    const [bookingType, setBookingType] = useState<'casual' | 'fixed'>('casual');
+    const [fixedMonths, setFixedMonths] = useState<number>(1);
 
     const [isBooking, setIsBooking] = useState(false);
     const [bookingData, setBookingData] = useState<any>(null);
@@ -177,10 +180,11 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
         }
 
         const basePrice = court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 100000;
-        const total = error === '' ? basePrice * durationHours : 0;
+        const totalSessions = bookingType === 'fixed' ? fixedMonths * 4 : 1;
+        const total = error === '' ? basePrice * durationHours * totalSessions : 0;
 
-        return { error, durationHours, total };
-    }, [finalStartTime, finalEndTime, court]);
+        return { error, durationHours, total, totalSessions };
+    }, [finalStartTime, finalEndTime, court, bookingType, fixedMonths]);
 
     const handleConfirm = async () => {
         if (!user) {
@@ -198,7 +202,8 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                 date: dates[selectedDate].fullDate,
                 startTime: finalStartTime!,
                 endTime: finalEndTime!,
-                type: 'casual'
+                type: bookingType,
+                months: bookingType === 'fixed' ? fixedMonths : undefined
             });
             setBookingData(res.data.data || res.data);
             changeStep(3);
@@ -280,6 +285,47 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                         {step === 1 ? (
                             <motion.div key="step1" custom={direction} variants={stepVariants} initial="enter" animate="center" exit="exit" className="space-y-8">
                                 
+                                {/* HUD TYPE SELECTOR */}
+                                <div className="flex bg-black/40 border border-white/5 rounded-xl p-1">
+                                    <button 
+                                        onClick={() => setBookingType('casual')}
+                                        className={`flex-1 py-3 text-xs font-mono font-black uppercase tracking-widest rounded-lg flex items-center justify-center gap-2 transition-all ${bookingType === 'casual' ? 'bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                                    >
+                                        <Zap className="w-4 h-4" /> Vãng Lai
+                                    </button>
+                                    <button 
+                                        onClick={() => setBookingType('fixed')}
+                                        className={`flex-1 py-3 text-xs font-mono font-black uppercase tracking-widest rounded-lg flex items-center justify-center gap-2 transition-all ${bookingType === 'fixed' ? 'bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                                    >
+                                        <Repeat className="w-4 h-4" /> Cố Định
+                                    </button>
+                                </div>
+                                <AnimatePresence>
+                                    {bookingType === 'fixed' && (
+                                        <motion.div 
+                                            initial={{ opacity: 0, height: 0, marginTop: -32 }}
+                                            animate={{ opacity: 1, height: 'auto', marginTop: -16 }}
+                                            exit={{ opacity: 0, height: 0, marginTop: -32 }}
+                                            className="overflow-hidden"
+                                        >
+                                            <div className="flex items-center justify-between p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl">
+                                                <div className="flex items-center gap-3">
+                                                    <Repeat className="w-5 h-5 text-emerald-400" />
+                                                    <div>
+                                                        <p className="text-[10px] font-black font-mono text-emerald-500 tracking-widest">THỜI GIAN ĐẶT</p>
+                                                        <p className="text-xs text-white">4 buổi / tháng</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2 bg-black/40 rounded-lg p-1 border border-emerald-500/20">
+                                                    <button onClick={() => setFixedMonths(Math.max(1, fixedMonths - 1))} className="w-8 h-8 flex items-center justify-center text-emerald-500 hover:bg-emerald-500/20 rounded-md font-bold">-</button>
+                                                    <span className="font-mono text-white w-14 text-center text-sm font-bold">{fixedMonths} THÁNG</span>
+                                                    <button onClick={() => setFixedMonths(Math.min(12, fixedMonths + 1))} className="w-8 h-8 flex items-center justify-center text-emerald-500 hover:bg-emerald-500/20 rounded-md font-bold">+</button>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
                                 {/* HUD DATE PICKER */}
                                 <div>
                                     <div className="flex items-center justify-between mb-4">
@@ -460,7 +506,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                     <div className="w-full border-b-2 border-dashed border-emerald-500/30 my-6 relative z-10" />
 
                                     <div className="space-y-5 relative z-10">
-                                        <SummaryRow label="NGÀY CHƠI" value={`${dates[selectedDate].date}/${dates[selectedDate].month}/${new Date().getFullYear()}`} />
+                                        <SummaryRow label={bookingType === 'fixed' ? 'GÓI CỐ ĐỊNH' : 'NGÀY CHƠI'} value={bookingType === 'fixed' ? `${fixedMonths} Tháng (${validation.totalSessions} buổi)` : `${dates[selectedDate].date}/${dates[selectedDate].month}/${new Date().getFullYear()}`} />
                                         <SummaryRow label="THỜI GIAN" value={`${finalStartTime} - ${finalEndTime}`} accent />
                                         <SummaryRow label="THỜI LƯỢNG" value={`${validation.durationHours} GIỜ`} />
                                         <SummaryRow label="PHƯƠNG THỨC" value="Thanh toán VNPay" />

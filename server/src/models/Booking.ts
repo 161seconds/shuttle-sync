@@ -5,6 +5,7 @@ import {
 
 export interface IBookingDocument extends Document {
     bookingCode: string;
+    groupId?: string;
     userId?: mongoose.Types.ObjectId;
     guestInfo?: {
         name: string;
@@ -40,6 +41,7 @@ export interface IBookingDocument extends Document {
 const bookingSchema = new Schema<IBookingDocument>(
     {
         bookingCode: { type: String, required: true, unique: true, index: true },
+        groupId: { type: String, index: true },
         userId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
         guestInfo: {
             name: String,

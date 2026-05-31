@@ -55,6 +55,7 @@ export enum BookingType {
     CASUAL = 'casual',           // Đặt sân bình thường
     GROUP_PLAY = 'group_play',   // Đánh vãng lai (tìm người đánh cùng)
     TOURNAMENT = 'tournament',   // Tổ chức giải đấu
+    FIXED = 'fixed',             // Đặt cố định theo tháng
 }
 
 export enum PaymentStatus {

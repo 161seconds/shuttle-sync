@@ -89,7 +89,7 @@ export interface TimeSlot {
 // BOOKING
 // ========================
 export type BookingStatus = 'pending_payment' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
-export type BookingType = 'casual' | 'group_play' | 'tournament';
+export type BookingType = 'casual' | 'group_play' | 'tournament' | 'fixed';
 export type PaymentMethod = 'qr_code' | 'bank_transfer' | 'cash';
 
 export interface Booking {
