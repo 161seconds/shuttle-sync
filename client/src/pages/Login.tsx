@@ -231,8 +231,16 @@ export default function Login() {
         if (!form.email) e.email = 'Nhập email';
         else if (!/\S+@\S+/.test(form.email)) e.email = 'Email không hợp lệ';
         if (!otpSent) {
-            if (!form.password) e.password = 'Nhập mật khẩu';
-            else if (form.password.length < 6) e.password = 'Tối thiểu 6 ký tự';
+            if (!form.password) {
+                e.password = 'Nhập mật khẩu';
+            } else if (mode === 'register') {
+                if (form.password.length < 8) e.password = 'Mật khẩu phải dài ít nhất 8 ký tự';
+                else if (!/[A-Z]/.test(form.password)) e.password = 'Cần ít nhất 1 chữ cái viết hoa (VD: A-Z)';
+                else if (!/[0-9]/.test(form.password)) e.password = 'Cần ít nhất 1 chữ số (VD: 0-9)';
+                else if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(form.password)) e.password = 'Cần ít nhất 1 ký tự đặc biệt (VD: @, #, $, ...)';
+            } else if (form.password.length < 6) {
+                e.password = 'Tối thiểu 6 ký tự';
+            }
         }
         if (mode === 'register') {
             if (!form.displayName) e.displayName = 'Nhập tên hiển thị';
