@@ -46,6 +46,13 @@ export default function Dashboard() {
         setPage('search'); // Chuyển sang trang tìm kiếm
     };
 
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return 'Chào buổi sáng';
+        if (hour < 18) return 'Chào buổi chiều';
+        return 'Chào buổi tối';
+    };
+
     return (
         <div className="max-w-7xl mx-auto px-4 pb-24 md:pb-8 pt-6 space-y-8 overflow-x-hidden">
             {/* 1. Header & Lời chào */}
@@ -54,9 +61,9 @@ export default function Dashboard() {
                 className="flex items-center justify-between"
             >
                 <div>
-                    <p className={`text-sm ${t.text.muted}`}>Chào buổi sáng,</p>
-                    <h1 className={`text-2xl font-bold ${t.text.primary}`}>
-                        {user?.name || 'Vợt thủ'} <EmojiIcon name="badminton" />
+                    <p className={`text-sm ${t.text.muted}`}>{getGreeting()},</p>
+                    <h1 className={`text-2xl font-bold flex items-center gap-2 ${t.text.primary}`}>
+                        {user?.name || 'Lông thủ'} <EmojiIcon name="badminton" className="w-8 h-8" />
                     </h1>
                 </div>
                 <div
