@@ -29,9 +29,11 @@ export default function StepFinal({ preferences, onComplete, onBack }: Props) {
                     <motion.div key="summary" className="w-full max-w-sm" exit={{ opacity: 0, y: -30 }}>
                         {/* Summary Card */}
                         <motion.div
-                            className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 mb-8"
+                            className="bg-gradient-to-br from-white/10 to-transparent backdrop-blur-md border border-white/10 rounded-[1.5rem] p-6 mb-8 shadow-[0_0_30px_rgba(16,185,129,0.1)] relative overflow-hidden"
                             initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
                         >
+                            {/* Inner shine */}
+                            <div className="absolute inset-0 rounded-[1.5rem] border-t border-white/20 pointer-events-none" />
                             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                                 <Sparkles className="w-5 h-5 text-emerald-400" /> Lựa chọn của bạn
                             </h3>
@@ -106,9 +108,15 @@ export default function StepFinal({ preferences, onComplete, onBack }: Props) {
                         ))}
 
                         <motion.div
-                            className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-400 to-green-300 flex items-center justify-center mb-6 shadow-2xl shadow-emerald-500/40"
+                            className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-emerald-400/20 to-emerald-900/40 border border-emerald-500/30 flex items-center justify-center mb-6 shadow-[0_0_50px_rgba(16,185,129,0.3)] backdrop-blur-xl relative overflow-hidden"
                             initial={{ scale: 0 }} animate={{ scale: [0, 1.2, 1] }} transition={{ delay: 0.2, duration: 0.6 }}>
-                            <Gift className="w-10 h-10 text-black" />
+                            {/* Shimmer sweep effect */}
+                            <motion.div
+                                className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg]"
+                                animate={{ x: ['-100%', '200%'] }}
+                                transition={{ duration: 2, repeat: Infinity, repeatDelay: 1, ease: "easeInOut" }}
+                            />
+                            <Gift className="w-12 h-12 text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)] relative z-10" />
                         </motion.div>
 
                         <motion.h2 className="text-3xl font-black text-white mb-2"

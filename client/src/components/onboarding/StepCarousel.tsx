@@ -42,14 +42,20 @@ export default function StepCarousel({ onNext, onBack }: { onNext: () => void; o
                         >
                             <div className="relative mb-8">
                                 <motion.div
-                                    className="w-24 h-24 rounded-3xl bg-linear-to-br from-emerald-500/20 to-green-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"
+                                    className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-emerald-400/20 to-emerald-900/40 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-[0_0_50px_rgba(16,185,129,0.3)] backdrop-blur-xl relative overflow-hidden"
                                     animate={{ rotate: [0, 5, -5, 0] }}
                                     transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                                 >
+                                    {/* Shimmer sweep effect */}
+                                    <motion.div
+                                        className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg]"
+                                        animate={{ x: ['-100%', '200%'] }}
+                                        transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1.5, ease: "easeInOut" }}
+                                    />
                                     {ICONS[CAROUSEL_SLIDES[active].iconName]}
                                 </motion.div>
                                 <motion.div
-                                    className="absolute -inset-3 rounded-[28px] border border-emerald-400/10"
+                                    className="absolute -inset-2 rounded-[2.5rem] border border-emerald-400/20"
                                     animate={{ scale: [1, 1.08, 1], opacity: [0.3, 0, 0.3] }}
                                     transition={{ duration: 2.5, repeat: Infinity }}
                                 />

@@ -39,26 +39,32 @@ export default function OnboardingModal({ onComplete, onSkip }: Props) {
 
     return (
         <motion.div
-            className="fixed inset-0 z-1000 flex items-center justify-center"
+            className="fixed inset-0 z-1000 flex items-center justify-center p-4 sm:p-0"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         >
-            <div className="absolute inset-0 bg-[#0a0f0d]" />
+            {/* Dark glass backdrop */}
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            
+            {/* Aurora Background Glows */}
+            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-emerald-500/20 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none" />
 
-            {/* ĐÃ XÓA <ParticleField /> Ở ĐÂY */}
-
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+            <div className="absolute inset-0 opacity-[0.05] pointer-events-none"
                 style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")" }}
             />
 
             <motion.div
-                className="relative w-full h-full sm:max-w-md sm:h-162.5 sm:rounded-3xl overflow-hidden flex flex-col bg-transparent"
+                className="relative w-full h-[85vh] max-h-[700px] sm:max-w-md sm:h-[650px] bg-[#060809]/80 backdrop-blur-2xl sm:rounded-[2rem] border border-white/10 shadow-[0_0_100px_rgba(16,185,129,0.15)] overflow-hidden flex flex-col"
                 layout
             >
-                <div className="flex items-center justify-between relative z-20 shrink-0">
+                {/* Inner glass shine */}
+                <div className="absolute inset-0 rounded-[2rem] border-t border-white/10 pointer-events-none" />
+
+                <div className="flex items-center justify-between relative z-20 shrink-0 p-6 pb-2">
                     <ProgressBar current={step} total={totalSteps} />
                     {step > 1 && (
                         <button onClick={onSkip}
-                            className="absolute right-4 top-3 p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-all"
+                            className="absolute right-6 top-5 p-2 rounded-xl text-white/30 hover:text-white/80 hover:bg-white/10 transition-all backdrop-blur-md"
                             aria-label="Đóng">
                             <X className="w-5 h-5" />
                         </button>
