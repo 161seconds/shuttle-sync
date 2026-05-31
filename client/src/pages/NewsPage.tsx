@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Newspaper, Clock, ArrowRight, TrendingUp } from 'lucide-react';
+import { Newspaper, Clock, TrendingUp } from 'lucide-react';
 import { EmojiIcon } from '../components/EmojiIcon';
 
 type NewsCategory = 'all' | 'badminton' | 'pickleball' | 'gear';
@@ -155,8 +155,8 @@ export default function NewsPage() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id as NewsCategory)}
                                 className={`px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${activeTab === tab.id
-                                        ? 'bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-[0_0_20px_rgba(59,130,246,0.4)]'
-                                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                    ? 'bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-[0_0_20px_rgba(59,130,246,0.4)]'
+                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
                                     }`}
                             >
                                 {tab.icon && <EmojiIcon name={tab.icon as any} className={`w-4 h-4 ${activeTab === tab.id ? 'text-white' : 'opacity-70'}`} />}
@@ -334,9 +334,6 @@ export default function NewsPage() {
                                                         <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-blue-500" /> {article.date}</span>
                                                         <span className="w-1 h-1 rounded-full bg-gray-600"></span>
                                                         <span>{article.readTime} p</span>
-                                                    </div>
-                                                    <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center group-hover:bg-blue-500 group-hover:border-blue-400 group-hover:text-white transition-all duration-300 group-hover:shadow-[0_0_15px_rgba(59,130,246,0.5)]">
-                                                        <ArrowRight className="w-4 h-4 text-blue-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
                                                     </div>
                                                 </div>
                                             </div>
