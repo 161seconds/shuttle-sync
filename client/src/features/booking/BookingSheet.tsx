@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
-import { X, ChevronLeft, Check, Loader2, Calendar as MapPin, AlertTriangle, Fingerprint, Zap } from 'lucide-react';
+import { X, ChevronLeft, Check, Loader2, MapPin, AlertTriangle, Fingerprint, Zap } from 'lucide-react';
 import { formatPrice } from '../../utils/theme';
 import type { Court } from '../../types';
 import { bookingApi } from '../../api/booking.api';
@@ -247,12 +247,10 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
             {/* MAIN HUD CONTAINER */}
             <motion.div 
                 variants={sheetVariants} initial="hidden" animate="visible" exit="exit"
-                className="relative w-full max-w-2xl bg-[#0a0c10]/70 rounded-[32px] border border-white/5 shadow-[0_0_100px_-20px_rgba(16,185,129,0.3)] overflow-hidden flex flex-col backdrop-blur-3xl"
-                style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%)" }} // Cắt góc dưới phải cho ngầu
+                className="relative w-full max-w-2xl bg-[#0a0c10]/70 rounded-3xl border border-white/5 shadow-[0_0_100px_-20px_rgba(16,185,129,0.3)] overflow-hidden flex flex-col backdrop-blur-3xl"
             >
                 {/* HUD Decorative Lines */}
-                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent opacity-50" />
-                <div className="absolute bottom-0 right-0 w-32 h-[2px] bg-emerald-500 shadow-[0_0_10px_#10b981]" />
+                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent opacity-50 pointer-events-none z-20" />
 
                 {/* Header HUD */}
                 <div className="px-6 py-5 flex items-center justify-between relative z-10 border-b border-white/5">
@@ -407,8 +405,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                 <motion.div 
                                                     key="error"
                                                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                                                    className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 font-mono text-xs text-red-400 shadow-[inset_0_0_20px_rgba(239,68,68,0.1)]"
-                                                    style={{ clipPath: "polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)" }}
+                                                    className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl font-mono text-xs text-red-400 shadow-[inset_0_0_20px_rgba(239,68,68,0.1)]"
                                                 >
                                                     <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
                                                     {validation.error}
@@ -417,8 +414,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                 <motion.div 
                                                     key="success"
                                                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                                                    className="flex justify-between items-center p-5 bg-emerald-500/10 border border-emerald-500/40 relative overflow-hidden group shadow-[0_0_30px_rgba(16,185,129,0.1)]"
-                                                    style={{ clipPath: "polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px)" }}
+                                                    className="flex justify-between items-center p-5 bg-emerald-500/10 border border-emerald-500/40 rounded-2xl relative overflow-hidden group shadow-[0_0_30px_rgba(16,185,129,0.1)]"
                                                 >
                                                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
                                                     
@@ -442,8 +438,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                             <motion.div key="step2" custom={direction} variants={stepVariants} initial="enter" animate="center" exit="exit" className="flex justify-center">
                                 {/* HOLOGRAPHIC E-TICKET */}
                                 <div 
-                                    className="relative w-full max-w-sm bg-gradient-to-b from-[#15171b]/90 to-[#0c0d10]/90 backdrop-blur-md border border-emerald-500/30 p-8 shadow-[0_0_50px_rgba(16,185,129,0.15)]"
-                                    style={{ clipPath: "polygon(20px 0, 100% 0, 100% calc(50% - 15px), calc(100% - 10px) 50%, 100% calc(50% + 15px), 100% 100%, 0 100%, 0 calc(50% + 15px), 10px 50%, 0 calc(50% - 15px))" }}
+                                    className="relative w-full max-w-sm bg-gradient-to-b from-[#15171b]/90 to-[#0c0d10]/90 backdrop-blur-md rounded-3xl border border-emerald-500/30 p-8 shadow-[0_0_50px_rgba(16,185,129,0.15)] overflow-hidden"
                                 >
                                     {/* Hologram Lines */}
                                     <div className="absolute inset-0 pointer-events-none opacity-20" style={{ backgroundImage: "repeating-linear-gradient(transparent, transparent 2px, rgba(16,185,129,0.2) 2px, rgba(16,185,129,0.2) 4px)" }} />
@@ -480,10 +475,6 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                         </div>
                                     </div>
                                     
-                                    {/* Barcode Mock */}
-                                    <div className="mt-8 flex justify-center opacity-50 relative z-10">
-                                        <div className="w-full h-10 bg-repeat-x" style={{ backgroundImage: "repeating-linear-gradient(to right, #10b981, #10b981 2px, transparent 2px, transparent 6px, #10b981 6px, #10b981 10px, transparent 10px, transparent 12px)", backgroundSize: "100% 100%" }} />
-                                    </div>
                                 </div>
                             </motion.div>
                         )}
@@ -491,13 +482,12 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                 </div>
 
                 {/* Footer HUD CTA */}
-                <div className="px-6 py-6 bg-black/60 border-t border-white/5 relative z-10 backdrop-blur-md">
+                <div className="px-6 py-6 bg-black/60 border-t border-white/5 relative z-10 backdrop-blur-md rounded-b-3xl">
                     {step === 1 ? (
                         <button
                             onClick={() => changeStep(2)}
                             disabled={validation.error !== '' || isLoadingSlots}
-                            className="group relative w-full h-16 bg-emerald-500/10 text-emerald-400 font-black font-mono text-lg uppercase tracking-widest flex items-center justify-center gap-3 overflow-hidden disabled:opacity-30 disabled:cursor-not-allowed transition-all border border-emerald-500/50"
-                            style={{ clipPath: "polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px)" }}
+                            className="group relative w-full h-16 bg-emerald-500/10 text-emerald-400 rounded-2xl font-black font-mono text-lg uppercase tracking-widest flex items-center justify-center gap-3 overflow-hidden disabled:opacity-30 disabled:cursor-not-allowed transition-all border border-emerald-500/50"
                         >
                             <div className="absolute inset-0 bg-emerald-500 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
                             <Fingerprint className="w-5 h-5 relative z-10 group-hover:text-black transition-colors duration-300" />
@@ -507,8 +497,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                         <button
                             onClick={handleConfirm}
                             disabled={isBooking}
-                            className="group relative w-full h-16 bg-emerald-500 text-black font-black font-mono text-lg uppercase tracking-widest flex items-center justify-center gap-3 overflow-hidden disabled:opacity-70 border border-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_50px_rgba(16,185,129,0.5)] transition-all"
-                            style={{ clipPath: "polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px)" }}
+                            className="group relative w-full h-16 bg-emerald-500 text-black rounded-2xl font-black font-mono text-lg uppercase tracking-widest flex items-center justify-center gap-3 overflow-hidden disabled:opacity-70 border border-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_50px_rgba(16,185,129,0.5)] transition-all"
                         >
                             {isBooking && (
                                 <div className="absolute inset-0 bg-black/20 flex items-center justify-center backdrop-blur-sm z-20">
