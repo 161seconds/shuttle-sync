@@ -88,13 +88,16 @@ function Shell() {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const res = await authApi.getMe();
+        // Đảm bảo không bị treo quá 5s nếu backend bị đứng
+        const res: any = await Promise.race([
+          authApi.getMe(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+        ]);
         const userData = res.data?.data?.user || res.data?.data || res.data?.user || res.data;
         setUser(userData);
       } catch (error) {
-        console.log("Phiên đăng nhập không tồn tại hoặc Cookie hết hạn");
+        console.log("Phiên đăng nhập không tồn tại hoặc lỗi kết nối");
         setUser(null);
-        // Lưu ý: Không tự động đá về 'login' ở đây để khách vẫn xem được trang chủ khi chưa đăng nhập
       } finally {
         setIsCheckingAuth(false);
       }
@@ -124,7 +127,7 @@ function Shell() {
   return (
     <div className={`min-h-screen ${DS.bg.base} relative overflow-hidden`}>
       <AnimatePresence>
-        {(showSplash || isCheckingAuth) && <SplashScreen onComplete={() => setShowSplash(false)} />}
+        {(showSplash || isCheckingAuth) && <SplashScreen isLoading={isCheckingAuth} onComplete={() => setShowSplash(false)} />}
       </AnimatePresence>
 
       <PremiumBackground />
