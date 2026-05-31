@@ -60,6 +60,15 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
 
     const [bookingType, setBookingType] = useState<'casual' | 'fixed'>('casual');
     const [fixedMonths, setFixedMonths] = useState<number>(1);
+    const [selectedDaysOfWeek, setSelectedDaysOfWeek] = useState<number[]>([new Date().getDay()]);
+
+    const toggleDayOfWeek = (day: number) => {
+        setSelectedDaysOfWeek(prev => 
+            prev.includes(day) && prev.length > 1
+                ? prev.filter(d => d !== day)
+                : [...new Set([...prev, day])]
+        );
+    };
 
     const [isBooking, setIsBooking] = useState(false);
     const [bookingData, setBookingData] = useState<any>(null);
@@ -180,11 +189,11 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
         }
 
         const basePrice = court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 100000;
-        const totalSessions = bookingType === 'fixed' ? fixedMonths * 4 : 1;
+        const totalSessions = bookingType === 'fixed' ? fixedMonths * 4 * selectedDaysOfWeek.length : 1;
         const total = error === '' ? basePrice * durationHours * totalSessions : 0;
 
         return { error, durationHours, total, totalSessions };
-    }, [finalStartTime, finalEndTime, court, bookingType, fixedMonths]);
+    }, [finalStartTime, finalEndTime, court, bookingType, fixedMonths, selectedDaysOfWeek]);
 
     const handleConfirm = async () => {
         if (!user) {
@@ -203,7 +212,8 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                 startTime: finalStartTime!,
                 endTime: finalEndTime!,
                 type: bookingType,
-                months: bookingType === 'fixed' ? fixedMonths : undefined
+                months: bookingType === 'fixed' ? fixedMonths : undefined,
+                daysOfWeek: bookingType === 'fixed' ? selectedDaysOfWeek : undefined
             });
             setBookingData(res.data.data || res.data);
             changeStep(3);
@@ -313,7 +323,6 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                     <Repeat className="w-5 h-5 text-emerald-400" />
                                                     <div>
                                                         <p className="text-[10px] font-black font-mono text-emerald-500 tracking-widest">THỜI GIAN ĐẶT</p>
-                                                        <p className="text-xs text-white">4 buổi / tháng</p>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-2 bg-black/40 rounded-lg p-1 border border-emerald-500/20">
@@ -326,45 +335,75 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                     )}
                                 </AnimatePresence>
 
-                                {/* HUD DATE PICKER */}
-                                <div>
-                                    <div className="flex items-center justify-between mb-4">
-                                        <label className="text-[10px] font-black font-mono uppercase tracking-[0.2em] text-emerald-500/80 flex items-center gap-2">
-                                            CHỌN NGÀY
-                                        </label>
-                                        <div className="font-mono text-xs text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded border border-emerald-500/20">
-                                            THÁNG_{String(dates[selectedDate].month).padStart(2, '0')}
+                                {/* HUD DATE PICKER / DAYS OF WEEK */}
+                                {bookingType === 'casual' ? (
+                                    <div>
+                                        <div className="flex items-center justify-between mb-4">
+                                            <label className="text-[10px] font-black font-mono uppercase tracking-[0.2em] text-emerald-500/80 flex items-center gap-2">
+                                                CHỌN NGÀY
+                                            </label>
+                                            <div className="font-mono text-xs text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded border border-emerald-500/20">
+                                                THÁNG_{String(dates[selectedDate].month).padStart(2, '0')}
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory mask-fade-edges">
+                                            {dates.map((d, i) => {
+                                                const isActive = selectedDate === i;
+                                                return (
+                                                    <button
+                                                        key={i}
+                                                        onClick={() => setSelectedDate(i)}
+                                                        className={`relative shrink-0 w-[5rem] py-4 rounded-xl flex flex-col items-center justify-center gap-2 snap-center transition-all duration-300 bg-black/40 border ${isActive ? 'border-emerald-500/50' : 'border-white/5 hover:border-white/20'}`}
+                                                    >
+                                                        {isActive && (
+                                                            <motion.div
+                                                                layoutId="hud-date"
+                                                                className="absolute inset-0 bg-emerald-500/10 border border-emerald-400 shadow-[inset_0_0_20px_rgba(16,185,129,0.2)] rounded-xl"
+                                                                initial={false}
+                                                                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                                            />
+                                                        )}
+                                                        <span className={`relative z-10 text-[10px] font-black tracking-widest uppercase font-mono ${isActive ? 'text-emerald-400 drop-shadow-[0_0_5px_rgba(16,185,129,0.8)]' : 'text-gray-500'}`}>
+                                                            {d.day}
+                                                        </span>
+                                                        <span className={`relative z-10 text-2xl font-black font-mono ${isActive ? 'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'text-gray-400'}`}>
+                                                            {d.date}
+                                                        </span>
+                                                    </button>
+                                                )
+                                            })}
                                         </div>
                                     </div>
-                                    
-                                    <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory mask-fade-edges">
-                                        {dates.map((d, i) => {
-                                            const isActive = selectedDate === i;
-                                            return (
-                                                <button
-                                                    key={i}
-                                                    onClick={() => setSelectedDate(i)}
-                                                    className={`relative shrink-0 w-[5rem] py-4 rounded-xl flex flex-col items-center justify-center gap-2 snap-center transition-all duration-300 bg-black/40 border ${isActive ? 'border-emerald-500/50' : 'border-white/5 hover:border-white/20'}`}
-                                                >
-                                                    {isActive && (
-                                                        <motion.div
-                                                            layoutId="hud-date"
-                                                            className="absolute inset-0 bg-emerald-500/10 border border-emerald-400 shadow-[inset_0_0_20px_rgba(16,185,129,0.2)] rounded-xl"
-                                                            initial={false}
-                                                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                                                        />
-                                                    )}
-                                                    <span className={`relative z-10 text-[10px] font-black tracking-widest uppercase font-mono ${isActive ? 'text-emerald-400 drop-shadow-[0_0_5px_rgba(16,185,129,0.8)]' : 'text-gray-500'}`}>
-                                                        {d.day}
-                                                    </span>
-                                                    <span className={`relative z-10 text-2xl font-black font-mono ${isActive ? 'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'text-gray-400'}`}>
-                                                        {d.date}
-                                                    </span>
-                                                </button>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
+                                ) : (
+                                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <label className="text-[10px] font-black font-mono uppercase tracking-[0.2em] text-emerald-500/80 flex items-center gap-2">
+                                                CHỌN THỨ TRONG TUẦN
+                                            </label>
+                                            <span className="text-[10px] text-gray-500 font-mono tracking-widest uppercase">Có thể chọn nhiều</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            {[1, 2, 3, 4, 5, 6, 0].map(day => {
+                                                const isActive = selectedDaysOfWeek.includes(day);
+                                                const label = day === 0 ? 'CN' : `T${day + 1}`;
+                                                return (
+                                                    <button
+                                                        key={day}
+                                                        onClick={() => toggleDayOfWeek(day)}
+                                                        className={`flex-1 py-3 rounded-xl border font-mono font-black text-sm transition-all ${
+                                                            isActive 
+                                                            ? 'bg-emerald-500/20 border-emerald-400 text-white shadow-[inset_0_0_15px_rgba(16,185,129,0.3)]'
+                                                            : 'bg-black/40 border-white/5 text-gray-500 hover:border-white/20 hover:text-gray-300'
+                                                        }`}
+                                                    >
+                                                        {label}
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+                                    </motion.div>
+                                )}
 
                                 {/* HUD ENERGY GRID */}
                                 <div className="relative">
