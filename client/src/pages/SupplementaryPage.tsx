@@ -4,10 +4,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // ═══ DANH MỤC ═══
 const CATEGORIES = [
-    { id: 'warmup', label: 'Khởi Động', icon: <Zap className="w-4 h-4" />, color: 'text-yellow-500', bg: 'bg-yellow-500/10 border-yellow-500/30' },
-    { id: 'fitness', label: 'Thể Lực', icon: <Dumbbell className="w-4 h-4" />, color: 'text-red-500', bg: 'bg-red-500/10 border-red-500/30' },
-    { id: 'stretching', label: 'Giãn Cơ', icon: <Move className="w-4 h-4" />, color: 'text-blue-500', bg: 'bg-blue-500/10 border-blue-500/30' },
-    { id: 'recovery', label: 'Phục Hồi', icon: <ShieldPlus className="w-4 h-4" />, color: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/30' },
+    { 
+        id: 'warmup', label: 'Khởi Động', icon: <Zap className="w-4 h-4" />, 
+        color: 'text-yellow-500', activeBorder: 'border-yellow-500/50', activeBg: 'bg-yellow-500/20', activeShadow: 'shadow-[0_0_30px_rgba(234,179,8,0.2)]' 
+    },
+    { 
+        id: 'fitness', label: 'Thể Lực', icon: <Dumbbell className="w-4 h-4" />, 
+        color: 'text-red-500', activeBorder: 'border-red-500/50', activeBg: 'bg-red-500/20', activeShadow: 'shadow-[0_0_30px_rgba(239,68,68,0.2)]'
+    },
+    { 
+        id: 'stretching', label: 'Giãn Cơ', icon: <Move className="w-4 h-4" />, 
+        color: 'text-blue-500', activeBorder: 'border-blue-500/50', activeBg: 'bg-blue-500/20', activeShadow: 'shadow-[0_0_30px_rgba(59,130,246,0.2)]'
+    },
+    { 
+        id: 'recovery', label: 'Phục Hồi', icon: <ShieldPlus className="w-4 h-4" />, 
+        color: 'text-emerald-500', activeBorder: 'border-emerald-500/50', activeBg: 'bg-emerald-500/20', activeShadow: 'shadow-[0_0_30px_rgba(16,185,129,0.2)]'
+    },
 ];
 
 // ═══ DATA: 60 BÀI TẬP CÓ KÈM HƯỚNG DẪN ═══
@@ -148,11 +160,11 @@ export default function SupplementaryPage() {
                             onClick={() => handleTabChange(cat.id)}
                             className={`flex-1 min-w-[150px] p-5 rounded-[2rem] border backdrop-blur-xl transition-all duration-300 flex flex-col items-center justify-center gap-3 group ${
                                 activeTab === cat.id
-                                ? `bg-white/10 border-${cat.color.split('-')[1]}-500/50 shadow-[0_0_30px_rgba(255,255,255,0.1)]`
+                                ? `bg-white/10 ${cat.activeBorder} ${cat.activeShadow}`
                                 : `bg-white/5 border-white/10 text-gray-500 hover:bg-white/10 hover:border-white/20`
                             }`}
                         >
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${activeTab === cat.id ? `bg-${cat.color.split('-')[1]}-500/20 ${cat.color} scale-110` : 'bg-white/5 text-gray-400 group-hover:scale-110 group-hover:text-white'}`}>
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${activeTab === cat.id ? `${cat.activeBg} ${cat.color} scale-110` : 'bg-white/5 text-gray-400 group-hover:scale-110 group-hover:text-white'}`}>
                                 {cat.icon}
                             </div>
                             <span className={`text-sm font-black uppercase tracking-widest ${activeTab === cat.id ? cat.color : 'text-gray-400 group-hover:text-white'}`}>
