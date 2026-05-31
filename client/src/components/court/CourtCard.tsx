@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { MapPin, Star, Heart, Zap } from 'lucide-react';
+import { MapPin, Star, Heart, Zap, Loader2 } from 'lucide-react';
 import { theme as t, formatPrice, AMENITY_MAP } from '../../utils/theme';
 import { useAppStore } from '../../store';
 import type { Court } from '../../types';
 import { EmojiIcon } from '../../components/EmojiIcon';
-
+import axiosClient from '../../api/axiosClient';
 
 interface CourtCardProps {
     court: Court;
@@ -12,18 +12,50 @@ interface CourtCardProps {
 }
 
 export default function CourtCard({ court, index = 0 }: CourtCardProps) {
-    const { setBookingCourt } = useAppStore();
-    const [liked, setLiked] = useState(false);
+    const { setBookingCourt, user, setUser, setPage } = useAppStore();
+    const [loadingLike, setLoadingLike] = useState(false);
+    
+    const liked = user?.favoriteCourtIds?.includes(court._id) || false;
 
-    const minPrice = court.pricePerHour.length
+    const handleLike = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!user) {
+            setPage('login');
+            return;
+        }
+        if (loadingLike) return;
+
+        setLoadingLike(true);
+        const isAdding = !liked;
+        const newFavorites = isAdding 
+            ? [...(user.favoriteCourtIds || []), court._id] 
+            : (user.favoriteCourtIds || []).filter((id: string) => id !== court._id);
+        
+        setUser({ ...user, favoriteCourtIds: newFavorites });
+
+        try {
+            await axiosClient.post(`/users/favorites/${court._id}`);
+        } catch (err) {
+            console.error('Lỗi khi thích sân:', err);
+            // Revert
+            const reverted = isAdding 
+                ? newFavorites.filter((id: string) => id !== court._id)
+                : [...newFavorites, court._id];
+            setUser({ ...user, favoriteCourtIds: reverted });
+        } finally {
+            setLoadingLike(false);
+        }
+    };
+
+    const minPrice = court.pricePerHour?.length
         ? Math.min(...court.pricePerHour.flatMap(p => p.timeSlots.map(s => s.pricePerHour)))
         : 0;
 
-    const mainPhoto = court.photos.find(p => p.isMain)?.url
-        || court.photos[0]?.url
+    const mainPhoto = court.photos?.find(p => p.isMain)?.url
+        || court.photos?.[0]?.url
         || `https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&h=250&fit=crop`;
 
-    const sportIcon = court.sportTypes.includes('pickleball') ? (<EmojiIcon name="pickleball" />) : (<EmojiIcon name="badminton" />);
+    const sportIcon = court.sportTypes?.includes('pickleball') ? (<EmojiIcon name="pickleball" />) : (<EmojiIcon name="badminton" />);
 
     return (
         <div
@@ -39,7 +71,7 @@ export default function CourtCard({ court, index = 0 }: CourtCardProps) {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
                 {/* Tags */}
                 <div className="absolute top-3 left-3 flex gap-1.5">
@@ -62,11 +94,15 @@ export default function CourtCard({ court, index = 0 }: CourtCardProps) {
 
                 {/* Favorite */}
                 <button
-                    onClick={(e) => { e.stopPropagation(); setLiked(!liked); }}
+                    onClick={handleLike}
                     className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors"
                     aria-label="Yêu thích"
                 >
-                    <Heart className={`w-4 h-4 transition-colors ${liked ? 'fill-red-500 text-red-500' : 'text-white/70'}`} />
+                    {loadingLike ? (
+                        <Loader2 className="w-4 h-4 text-white/70 animate-spin" />
+                    ) : (
+                        <Heart className={`w-4 h-4 transition-colors ${liked ? 'fill-red-500 text-red-500' : 'text-white/70'}`} />
+                    )}
                 </button>
 
                 {/* Rating overlay */}
@@ -74,13 +110,13 @@ export default function CourtCard({ court, index = 0 }: CourtCardProps) {
                     <div className="flex items-center gap-1.5">
                         <span className="text-xl">{sportIcon}</span>
                         <span className="text-white/50 text-[10px] font-medium uppercase tracking-wider">
-                            {court.sportTypes.join(' · ')}
+                            {court.sportTypes?.join(' · ')}
                         </span>
                     </div>
                     <div className="flex items-center gap-1 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-lg">
                         <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                        <span className="text-white text-xs font-bold">{court.averageRating.toFixed(1)}</span>
-                        <span className="text-white/40 text-[10px]">({court.reviewCount})</span>
+                        <span className="text-white text-xs font-bold">{court.averageRating?.toFixed(1) || '0.0'}</span>
+                        <span className="text-white/40 text-[10px]">({court.reviewCount || 0})</span>
                     </div>
                 </div>
             </div>
@@ -91,7 +127,7 @@ export default function CourtCard({ court, index = 0 }: CourtCardProps) {
 
                 <div className="flex items-center justify-between mb-3">
                     <span className={`text-xs ${t.text.muted} flex items-center gap-1`}>
-                        <MapPin className="w-3 h-3" /> {court.address.district}
+                        <MapPin className="w-3 h-3" /> {court.address?.district}
                     </span>
                     {court.distance !== undefined && (
                         <span className={`text-xs ${t.text.muted}`}>{court.distance.toFixed(1)} km</span>
@@ -101,7 +137,7 @@ export default function CourtCard({ court, index = 0 }: CourtCardProps) {
                 <div className="flex items-center justify-between">
                     {/* Amenity icons */}
                     <div className="flex gap-1">
-                        {court.amenities.slice(0, 4).map(a => (
+                        {court.amenities?.slice(0, 4).map(a => (
                             <span
                                 key={a}
                                 className={`w-6 h-6 rounded-md ${t.bg.elevated} flex items-center justify-center text-[9px]`}

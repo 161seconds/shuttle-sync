@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function FavoriteCourts({ onBack }: Props) {
-    const { setBookingCourt } = useAppStore();
+    const { setBookingCourt, user, setUser } = useAppStore();
     const [courts, setCourts] = useState<Court[]>([]);
     const [loading, setLoading] = useState(true);
     const [removing, setRemoving] = useState<string | null>(null);
@@ -34,6 +34,12 @@ export default function FavoriteCourts({ onBack }: Props) {
         try {
             await axiosClient.post(`/users/favorites/${courtId}`);
             setCourts(prev => prev.filter(c => c._id !== courtId));
+            
+            // Cập nhật state toàn cục để trái tim ở trang chủ cũng tắt
+            if (user) {
+                const updatedIds = (user.favoriteCourtIds || []).filter((id: string) => id !== courtId);
+                setUser({ ...user, favoriteCourtIds: updatedIds });
+            }
         } catch (err) {
             console.error('Lỗi bỏ yêu thích:', err);
         } finally {
