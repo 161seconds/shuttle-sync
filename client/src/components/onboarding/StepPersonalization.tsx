@@ -56,9 +56,9 @@ export default function StepPersonalization({ preferences, onChange, onNext, onB
                             const selected = preferences.sports.includes(s.id);
                             return (
                                 <motion.button key={s.id} onClick={() => toggleSport(s.id)}
-                                    className={`relative p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${selected
-                                        ? 'border-emerald-400 bg-emerald-500/10 shadow-lg shadow-emerald-500/10'
-                                        : 'border-white/8 bg-white/3 hover:border-white/15'
+                                    className={`relative p-4 rounded-2xl border transition-all flex flex-col items-center gap-2 overflow-hidden ${selected
+                                        ? 'border-emerald-400/80 bg-gradient-to-b from-emerald-500/20 to-transparent shadow-[0_0_30px_rgba(16,185,129,0.15)]'
+                                        : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'
                                         }`}
                                     whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}
                                 >
@@ -92,9 +92,9 @@ export default function StepPersonalization({ preferences, onChange, onNext, onB
                             return (
                                 <motion.button key={s.id}
                                     onClick={() => onChange({ ...preferences, skillLevel: s.id })}
-                                    className={`w-full p-4 rounded-xl border-2 flex items-center gap-4 transition-all text-left ${selected
-                                        ? 'border-emerald-400 bg-emerald-500/10'
-                                        : 'border-white/8 bg-white/3 hover:border-white/15'
+                                    className={`w-full p-4 rounded-xl border flex items-center gap-4 transition-all text-left overflow-hidden relative ${selected
+                                        ? 'border-emerald-400/80 bg-gradient-to-r from-emerald-500/20 to-transparent shadow-[0_0_20px_rgba(16,185,129,0.1)]'
+                                        : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'
                                         }`}
                                     whileTap={{ scale: 0.98 }}
                                 >
@@ -133,7 +133,7 @@ export default function StepPersonalization({ preferences, onChange, onNext, onB
                             value={locSearch}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setLocSearch(e.currentTarget.value); setShowLocDropdown(true); }}
                             onFocus={() => setShowLocDropdown(true)}
-                            className="w-full py-3.5 pl-11 pr-4 rounded-xl bg-white/5 border-2 border-white/8 text-white placeholder-white/25 text-sm outline-none focus:border-emerald-400/50 transition-colors"
+                            className="w-full py-4 pl-12 pr-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 text-sm outline-none focus:bg-white/10 focus:border-emerald-400/50 focus:shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all"
                         />
 
                         {/* Drop-up: Nổi lên trên input */}
