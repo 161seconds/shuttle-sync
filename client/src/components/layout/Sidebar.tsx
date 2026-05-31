@@ -2,14 +2,15 @@ import {
     Bot,
     UserCircle, BookOpen, Dumbbell,
     Zap, ChevronRight,
-    BarChart2, Newspaper
+    BarChart2, Newspaper, Settings, HelpCircle, LogOut
 } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { theme as t } from '../../utils/theme';
 import { motion, AnimatePresence } from 'framer-motion';
+import { authApi } from '../../api/auth.api';
 
 export default function AppSidebar() {
-    const { setPage, page, user, isSideBarOpen, toggleSidebar } = useAppStore();
+    const { setPage, page, user, setUser, isSideBarOpen, toggleSidebar } = useAppStore();
 
     const menuItems = [
         { id: 'news', label: 'Tin tức & Giải đấu', icon: <Newspaper className="w-5 h-5 text-blue-400" /> },
@@ -103,6 +104,47 @@ export default function AppSidebar() {
                             <span className="text-sm tracking-tight">{item.label}</span>
                         </button>
                     ))}
+                </div>
+
+                {/* KHU VỰC 3: TIỆN ÍCH DƯỚI CÙNG (FLOATING DOCK) */}
+                <div className="p-4 mt-auto mb-2 relative">
+                    {/* Ánh sáng hắt sau lưng (Glow effect) */}
+                    <div className="absolute inset-0 top-6 w-[80%] mx-auto h-12 bg-emerald-500/20 blur-[20px] rounded-full pointer-events-none" />
+
+                    <div className="relative flex items-center justify-around bg-[#141617]/90 backdrop-blur-3xl border border-white/10 rounded-3xl p-2 shadow-[0_10px_40px_rgba(0,0,0,0.5)] hover:border-emerald-500/30 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all duration-500">
+                        <button
+                            onClick={() => { setPage('profile'); if (isSideBarOpen) toggleSidebar(); }}
+                            className="p-3 rounded-[1.2rem] text-gray-500 hover:text-white hover:bg-white/5 transition-all group"
+                            title="Tài khoản"
+                        >
+                            <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-700" />
+                        </button>
+
+                        <div className="w-px h-6 bg-gradient-to-b from-transparent via-white/10 to-transparent" />
+
+                        <button
+                            onClick={() => { setPage('support' as any); if (isSideBarOpen) toggleSidebar(); }}
+                            className="p-3 rounded-[1.2rem] text-gray-500 hover:text-purple-400 hover:bg-purple-500/10 transition-all group"
+                            title="Hỗ trợ & Báo lỗi"
+                        >
+                            <HelpCircle className="w-5 h-5 group-hover:-translate-y-1 transition-transform duration-300" />
+                        </button>
+
+                        <div className="w-px h-6 bg-gradient-to-b from-transparent via-white/10 to-transparent" />
+
+                        <button
+                            onClick={async () => {
+                                try { await authApi.logout(); } catch (e) { console.log(e); }
+                                setUser(null);
+                                setPage('login');
+                                if (isSideBarOpen) toggleSidebar();
+                            }}
+                            className="p-3 rounded-[1.2rem] text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all group"
+                            title="Đăng xuất"
+                        >
+                            <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                        </button>
+                    </div>
                 </div>
             </aside>
         </>
