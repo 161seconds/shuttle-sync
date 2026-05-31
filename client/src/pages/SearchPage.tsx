@@ -65,7 +65,7 @@ export default function SearchPage() {
                     }
                     if (response.data.pagination) {
                         setTotalPages(response.data.pagination.totalPages);
-                        setTotalRecords(response.data.pagination.totalRecords);
+                        setTotalRecords(response.data.pagination.total);
                     }
                     isAppending.current = false;
                 }
@@ -137,13 +137,13 @@ export default function SearchPage() {
                 {/* 1. Smart Sort Tags */}
                 <div className="flex items-center gap-2 mt-4 overflow-x-auto custom-scrollbar pb-2">
                     <button onClick={() => handleFilterChange({ sortBy: 'distance' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'distance' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}>
-                        📍 Gần tôi nhất
+                        Gần tôi nhất
                     </button>
                     <button onClick={() => handleFilterChange({ sortBy: 'price_asc' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'price_asc' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}>
-                        💰 Giá rẻ nhất
+                        Giá rẻ nhất
                     </button>
                     <button onClick={() => handleFilterChange({ sortBy: 'rating' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'rating' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}>
-                        ⭐ Đánh giá cao
+                        Đánh giá cao
                     </button>
                 </div>
 
@@ -151,7 +151,7 @@ export default function SearchPage() {
                 <div className="mt-6">
                     {(!loading || page > 1) && (
                         <p className={`text-sm mb-4 font-medium ${t.text.muted}`}>
-                            {totalRecords === 0 ? 'Không tìm thấy sân nào phù hợp' : `Tìm thấy ${totalRecords} sân cầu lông`}
+                            {totalRecords === 0 ? 'Không tìm thấy sân nào phù hợp' : `Tìm thấy ${totalRecords} ${filters.sport === 'badminton' ? 'sân cầu lông' : filters.sport === 'pickleball' ? 'sân pickleball' : 'sân'}`}
                         </p>
                     )}
 
@@ -164,7 +164,7 @@ export default function SearchPage() {
                                 <div className="w-24 h-24 mb-6 relative">
                                     <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl animate-pulse"></div>
                                     <div className="relative w-full h-full bg-[#1e1e1e] border border-white/10 rounded-full flex items-center justify-center shadow-lg">
-                                        <span className="text-4xl">🏸</span>
+                                        <span className="text-4xl">{filters.sport === 'pickleball' ? '🏓' : '🏸'}</span>
                                     </div>
                                 </div>
                                 <h3 className="text-xl font-bold text-white mb-2">Không tìm thấy sân nào</h3>
