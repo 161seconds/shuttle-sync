@@ -1,7 +1,5 @@
 import { motion } from 'framer-motion';
-import { ChevronRight } from 'lucide-react';
-import { EmojiIcon } from '../../components/EmojiIcon';
-
+import { ChevronRight, Zap } from 'lucide-react';
 
 export default function StepWelcome({ onNext, onSkip }: { onNext: () => void; onSkip: () => void }) {
     return (
@@ -15,13 +13,14 @@ export default function StepWelcome({ onNext, onSkip }: { onNext: () => void; on
                 initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
             >
-                <div className="w-28 h-28 rounded-3xl bg-linear-to-br from-emerald-400 via-green-500 to-emerald-600 flex items-center justify-center shadow-2xl shadow-emerald-500/30 relative">
-                    <EmojiIcon name="badminton" className="w-12 h-12 text-emerald-400" />
+                <div className="w-28 h-28 bg-gradient-to-br from-emerald-400/20 to-emerald-900/40 rounded-[2rem] border border-emerald-500/30 flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.3)] backdrop-blur-xl relative overflow-hidden">
+                    {/* Shimmer sweep effect */}
                     <motion.div
-                        className="absolute inset-0 rounded-3xl border-2 border-emerald-300/40"
-                        animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity }}
+                        className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg]"
+                        animate={{ x: ['-100%', '200%'] }}
+                        transition={{ duration: 2, repeat: Infinity, repeatDelay: 1, ease: "easeInOut" }}
                     />
+                    <Zap className="w-14 h-14 text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)] fill-emerald-400" />
                 </div>
             </motion.div>
 
@@ -29,7 +28,7 @@ export default function StepWelcome({ onNext, onSkip }: { onNext: () => void; on
                 initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4, duration: 0.6 }}
             >
                 <span className="text-white">Shuttle</span>
-                <span className="text-transparent bg-clip-text bg-linear-to-r from-emerald-400 to-green-300">Sync</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Sync</span>
             </motion.h1>
 
             <motion.p className="text-white/50 text-lg sm:text-xl max-w-md leading-relaxed mb-2 font-light"
@@ -44,7 +43,7 @@ export default function StepWelcome({ onNext, onSkip }: { onNext: () => void; on
             </motion.p>
 
             <motion.button onClick={onNext}
-                className="group relative px-10 py-4 rounded-2xl font-bold text-lg text-black bg-linear-to-r from-emerald-400 to-green-300 shadow-xl shadow-emerald-500/25 overflow-hidden"
+                className="group relative px-10 py-4 rounded-2xl font-bold text-lg text-black bg-gradient-to-r from-emerald-400 to-green-300 shadow-xl shadow-emerald-500/25 overflow-hidden"
                 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.9 }}
                 whileHover={{ scale: 1.03, boxShadow: '0 20px 60px rgba(16,185,129,0.35)' }}
                 whileTap={{ scale: 0.97 }}
@@ -52,7 +51,7 @@ export default function StepWelcome({ onNext, onSkip }: { onNext: () => void; on
                 <span className="relative z-10 flex items-center gap-2">
                     Bắt đầu <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </span>
-                <motion.div className="absolute inset-0 bg-linear-to-r from-green-300 to-emerald-200"
+                <motion.div className="absolute inset-0 bg-gradient-to-r from-green-300 to-emerald-200"
                     initial={{ x: '-100%' }} whileHover={{ x: 0 }} transition={{ duration: 0.3 }}
                 />
             </motion.button>

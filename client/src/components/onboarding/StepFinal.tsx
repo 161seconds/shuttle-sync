@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
-import { Sparkles, MapPin, ArrowRight, Leaf, Gift } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, MapPin, ArrowRight, Gift } from 'lucide-react';
 import { SPORTS, SKILLS } from '../../features/onboarding/data';
 import type { UserPreferences } from '../../features/onboarding/type';
 
@@ -12,12 +12,9 @@ interface Props {
 
 export default function StepFinal({ preferences, onComplete, onBack }: Props) {
     const [showReward, setShowReward] = useState(false);
-    const leafCount = useMotionValue(0);
-    const displayLeaves = useTransform(leafCount, (v) => Math.round(v));
 
     const handleComplete = () => {
         setShowReward(true);
-        animate(leafCount, 50, { duration: 1.5, ease: 'easeOut' });
         setTimeout(onComplete, 2200);
     };
 
@@ -78,7 +75,7 @@ export default function StepFinal({ preferences, onComplete, onBack }: Props) {
                         </motion.p>
 
                         <motion.button onClick={handleComplete}
-                            className="w-full py-4 rounded-2xl bg-linear-to-r from-emerald-400 to-green-300 text-black font-bold text-lg shadow-xl shadow-emerald-500/25 flex items-center justify-center gap-2"
+                            className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-400 to-green-300 text-black font-bold text-lg shadow-xl shadow-emerald-500/25 flex items-center justify-center gap-2"
                             initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.6 }}
                             whileHover={{ scale: 1.02, boxShadow: '0 20px 60px rgba(16,185,129,0.35)' }}
                             whileTap={{ scale: 0.97 }}>
@@ -109,7 +106,7 @@ export default function StepFinal({ preferences, onComplete, onBack }: Props) {
                         ))}
 
                         <motion.div
-                            className="w-24 h-24 rounded-full bg-linear-to-br from-emerald-400 to-green-300 flex items-center justify-center mb-6 shadow-2xl shadow-emerald-500/40"
+                            className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-400 to-green-300 flex items-center justify-center mb-6 shadow-2xl shadow-emerald-500/40"
                             initial={{ scale: 0 }} animate={{ scale: [0, 1.2, 1] }} transition={{ delay: 0.2, duration: 0.6 }}>
                             <Gift className="w-10 h-10 text-black" />
                         </motion.div>
@@ -119,17 +116,9 @@ export default function StepFinal({ preferences, onComplete, onBack }: Props) {
                             Chào mừng bạn!
                         </motion.h2>
 
-                        <motion.div className="flex items-center gap-2 text-emerald-400 font-bold text-xl"
-                            initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.7 }}>
-                            <Leaf className="w-6 h-6" />
-                            <span>+</span>
-                            <motion.span>{displayLeaves}</motion.span>
-                            <span>lá xanh</span>
-                        </motion.div>
-
                         <motion.p className="text-white/40 text-sm mt-2"
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}>
-                            Phần thưởng hoàn thành giới thiệu
+                            Bắt đầu hành trình của bạn ngay bây giờ
                         </motion.p>
                     </motion.div>
                 )}

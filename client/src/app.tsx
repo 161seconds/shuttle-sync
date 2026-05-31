@@ -18,6 +18,7 @@ import type { Court } from './types';
 import { authApi } from './api/auth.api';
 import GroupPlayPage from './pages/GroupPlay';
 import AiCoach from './pages/AiCoach';
+import SplashScreen from './components/SplashScreen';
 import Notifications from './pages/profile/Notifications';
 import EditProfile from './pages/profile/EditProfile';
 import AppSidebar from './components/layout/Sidebar';
@@ -82,6 +83,7 @@ function Shell() {
   const { showOnboarding, showTour, completeOnboarding, skipOnboarding, completeTour } = useOnboarding();
   const { showAlert } = useAlertStore();
 
+  const [showSplash, setShowSplash] = useState(true);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
@@ -130,6 +132,9 @@ function Shell() {
 
   return (
     <div className={`min-h-screen ${DS.bg.base} relative overflow-hidden`}>
+      <AnimatePresence>
+        {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+      </AnimatePresence>
 
       <PremiumBackground />
 
