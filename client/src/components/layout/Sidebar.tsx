@@ -2,7 +2,7 @@ import {
     Bot,
     UserCircle, BookOpen, Dumbbell,
     Zap, ChevronRight,
-    BarChart2
+    BarChart2, Newspaper
 } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { theme as t } from '../../utils/theme';
@@ -12,6 +12,7 @@ export default function AppSidebar() {
     const { setPage, page, user, isSideBarOpen, toggleSidebar } = useAppStore();
 
     const menuItems = [
+        { id: 'news', label: 'Tin tức & Giải đấu', icon: <Newspaper className="w-5 h-5 text-blue-400" /> },
         { id: 'aicoach', label: 'Huấn luyện viên AI', icon: <Bot className="w-5 h-5 text-emerald-400" /> },
         { id: 'rules', label: 'Luật chơi & thi đấu', icon: <BookOpen className="w-5 h-5 text-orange-400" /> },
         { id: 'supplementary', label: 'Các bài tập bổ trợ', icon: <Dumbbell className="w-5 h-5 text-red-400" /> },

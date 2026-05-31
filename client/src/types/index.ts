@@ -170,4 +170,4 @@ export interface ApiResponse<T = unknown> {
 export type AppPage = 'home' | 'map' | 'search' | 'profile' | 'court-detail' | 'login' | 'admin'
     | 'edit-profile' | 'favorites' | 'history' | 'tournaments'
     | 'groups' | 'notifications' | 'settings' | 'owner-dashboard'
-    | 'groupplay' | 'aicoach' | 'match-leaderboard' | 'rules' | 'supplementary' | 'chat';
+    | 'groupplay' | 'aicoach' | 'match-leaderboard' | 'rules' | 'supplementary' | 'chat' | 'news';

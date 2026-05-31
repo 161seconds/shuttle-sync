@@ -25,6 +25,7 @@ import MatchLeaderboard from './components/groups/MatchLeaderboard';
 import RulesPage from './pages/RulesPage';
 import SupplementaryPage from './pages/SupplementaryPage';
 import ChatPage from './pages/chat/ChatPage';
+import NewsPage from './pages/NewsPage';
 import { Loader2 } from 'lucide-react';
 import GlobalAlert from './components/GlobalAlert';
 
@@ -150,6 +151,7 @@ function Shell() {
               {page === 'rules' && <motion.div key="rules" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><RulesPage /></motion.div>}
               {page === 'supplementary' && <motion.div key="supplementary" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SupplementaryPage /></motion.div>}
               {page === 'chat' && <motion.div key="chat" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ChatPage /></motion.div>}
+              {page === 'news' && <motion.div key="news" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><NewsPage /></motion.div>}
             </AnimatePresence>
           </main>
 
