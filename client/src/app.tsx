@@ -28,6 +28,7 @@ import ChatPage from './pages/chat/ChatPage';
 import NewsPage from './pages/NewsPage';
 import { Loader2 } from 'lucide-react';
 import GlobalAlert from './components/GlobalAlert';
+import { useAlertStore } from './stores/useAlertStore';
 
 function PremiumBackground() {
   const lightRef = useRef<HTMLDivElement>(null);
@@ -77,6 +78,7 @@ function Shell() {
   const { page, setPage, bookingCourt, setBookingCourt, user, setUser, isSideBarOpen } = useAppStore();
   const [detailCourt, setDetailCourt] = useState<Court | null>(null);
   const { showOnboarding, showTour, completeOnboarding, skipOnboarding, completeTour } = useOnboarding();
+  const { showAlert } = useAlertStore();
 
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
@@ -102,7 +104,13 @@ function Shell() {
     if (user && page === 'login') {
       setPage('home');
     }
-  }, [user, page, setPage]);
+
+    // Yêu cầu đăng nhập nếu vào trang chat
+    if (!user && page === 'chat' && !isCheckingAuth) {
+      showAlert('Vui lòng đăng nhập để sử dụng tính năng Trò chuyện', 'Yêu cầu đăng nhập', 'warning');
+      setPage('login');
+    }
+  }, [user, page, setPage, isCheckingAuth, showAlert]);
 
   // MÀN HÌNH CHỜ TRONG LÚC APP KIỂM TRA COOKIE (Tránh nháy giao diện)
   if (isCheckingAuth) {
