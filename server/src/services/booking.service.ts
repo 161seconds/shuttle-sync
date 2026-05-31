@@ -36,12 +36,23 @@ class BookingService {
 
         if (data.type === BookingType.FIXED) {
             const months = parseInt(data.months) || 1;
-            totalSessions = months * 4; // 4 weeks per month
-            let currentDate = new Date(data.date);
-            for (let i = 0; i < totalSessions; i++) {
-                generatedDates.push(new Date(currentDate));
-                currentDate.setDate(currentDate.getDate() + 7);
+            const weeks = months * 4;
+            const daysOfWeek: number[] = Array.isArray(data.daysOfWeek) ? data.daysOfWeek : [new Date(data.date).getDay()];
+            
+            const baseDate = new Date();
+            baseDate.setHours(12, 0, 0, 0); // Use 12:00 to avoid daylight saving time skips
+            
+            for (const dow of daysOfWeek) {
+                let current = new Date(baseDate);
+                while (current.getDay() !== dow) {
+                    current.setDate(current.getDate() + 1);
+                }
+                for (let i = 0; i < weeks; i++) {
+                    generatedDates.push(new Date(current));
+                    current.setDate(current.getDate() + 7);
+                }
             }
+            totalSessions = generatedDates.length;
         } else {
             generatedDates = [new Date(data.date)];
         }
