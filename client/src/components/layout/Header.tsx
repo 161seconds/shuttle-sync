@@ -1,9 +1,36 @@
 import { Calendar, Search, Bell, Menu, Zap } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { theme as t } from '../../utils/theme';
+import { useState, useEffect } from 'react';
+import axiosClient from '../../api/axiosClient';
 
 export default function Header() {
     const { setPage, user, isSideBarOpen, toggleSidebar } = useAppStore();
+    const [hasUnread, setHasUnread] = useState(false);
+
+    useEffect(() => {
+        if (!user) return;
+
+        const checkUnread = async () => {
+            try {
+                const res = await axiosClient.get('/notifications');
+                let dataList = res.data.data || res.data.notifications || res.data;
+                if (dataList && !Array.isArray(dataList) && Array.isArray(dataList.notifications)) {
+                    dataList = dataList.notifications;
+                }
+                const has = (Array.isArray(dataList) ? dataList : []).some((n: any) => !n.isRead);
+                setHasUnread(has);
+            } catch (error) {
+                console.error("Lỗi lấy thông báo header:", error);
+            }
+        };
+
+        checkUnread();
+
+        const onRead = () => setHasUnread(false);
+        window.addEventListener('notificationsRead', onRead);
+        return () => window.removeEventListener('notificationsRead', onRead);
+    }, [user]);
 
     return (
         <header
@@ -30,8 +57,6 @@ export default function Header() {
                             <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)] group-hover:scale-105 group-hover:border-emerald-500/40 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all duration-300">
                                 <Zap className="w-4 h-4 text-emerald-400 fill-emerald-400/10 group-hover:scale-110 transition-transform" />
                             </div>
-                            {/* Chấm tròn hiệu ứng Pulse báo trạng thái đồng bộ real-time */}
-                            <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-emerald-400 rounded-full border border-[#0a0a0b] animate-pulse"></div>
                         </div>
 
                         {/* Tên thương hiệu phong cách gọn gàng */}
@@ -62,11 +87,16 @@ export default function Header() {
                     {user ? (
                         <>
                             <button
-                                onClick={() => setPage('notifications')}
+                                onClick={() => {
+                                    setHasUnread(false);
+                                    setPage('notifications');
+                                }}
                                 className={`relative w-10 h-10 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-emerald-400 hover:bg-white/5 transition-all`}
                             >
                                 <Bell className="w-5 h-5" />
-                                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0a0a0a]" />
+                                {hasUnread && (
+                                    <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0a0a0a]" />
+                                )}
                             </button>
 
                             <button
