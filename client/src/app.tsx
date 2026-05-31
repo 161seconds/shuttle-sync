@@ -163,7 +163,7 @@ function Shell() {
             </AnimatePresence>
           </main>
 
-          {['home', 'map', 'search', 'groupplay', 'profile'].includes(page) && (
+          {['home', 'map', 'search', 'groupplay', 'profile'].includes(page) && !isSideBarOpen && (
             <BottomNav />
           )}
 
