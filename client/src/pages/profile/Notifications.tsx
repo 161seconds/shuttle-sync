@@ -89,6 +89,9 @@ export default function Notifications({ onBack }: Props) {
 
             // Bắn lệnh xuống Backend để lưu vào DB
             await axiosClient.put('/notifications/read-all');
+            
+            // Báo cho Header biết để tắt chấm xanh
+            window.dispatchEvent(new Event('notificationsRead'));
         } catch (error) {
             console.error("Lỗi cập nhật trạng thái đã đọc:", error);
         }
