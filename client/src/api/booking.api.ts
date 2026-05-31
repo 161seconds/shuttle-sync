@@ -9,6 +9,8 @@ export const bookingApi = {
         startTime: string; // Thêm startTime
         endTime: string;   // Thêm endTime
         type?: string;
+        months?: number;
+        daysOfWeek?: number[];
         paymentMethod?: string;
         voucherCode?: string;
         notes?: string;
