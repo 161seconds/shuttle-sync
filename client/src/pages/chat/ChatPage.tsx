@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import ChatSidebar from './ChatSidebar';
 import ChatWindow from './ChatWindow';
@@ -9,6 +9,7 @@ import { userApi } from '../../api/user.api';
 import { chatApi, type ChatMessage } from '../../api/chat.api';
 import { socketService } from '../../utils/socket';
 import type { ChatRoom, ChatUser } from './mockData';
+import { useAlertStore } from '../../stores/useAlertStore';
 
 export default function ChatPage() {
     const { user, setPage } = useAppStore();
@@ -17,6 +18,7 @@ export default function ChatPage() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null);
     const [loadingRooms, setLoadingRooms] = useState(true);
+    const sentTimestampsRef = useRef<number[]>([]);
 
     const activeRoom = rooms.find(r => r.id === activeRoomId) || null;
 
@@ -25,8 +27,8 @@ export default function ChatPage() {
         const fetchRooms = async () => {
             try {
                 const res = await groupPlayApi.getMyGroupPlays();
-                const groupPlays = res.data?.data || res.data?.groupPlays || []; 
-                
+                const groupPlays = res.data?.data || res.data?.groupPlays || [];
+
                 const mappedRooms: ChatRoom[] = groupPlays.map((gp: any) => ({
                     id: gp._id,
                     name: gp.title,
@@ -64,7 +66,7 @@ export default function ChatPage() {
         fetchHistory();
 
         // Connect socket if not connected
-        socketService.connect(''); 
+        socketService.connect('');
         const socket = socketService.getSocket();
 
         if (socket) {
@@ -77,7 +79,7 @@ export default function ChatPage() {
                         if (prev.some(m => m._id === message._id)) return prev;
                         return [...prev, message];
                     });
-                    
+
                     // Update room last message conceptually
                     setRooms(prevRooms => prevRooms.map(room => {
                         if (room.id === activeRoomId) {
@@ -117,6 +119,16 @@ export default function ChatPage() {
     const handleSendMessage = (text: string, replyTo?: ChatMessage['replyTo']) => {
         if (!activeRoomId || !user) return;
 
+        const now = Date.now();
+        const recentMessages = sentTimestampsRef.current.filter(t => now - t < 30000); // 30 seconds window
+
+        if (recentMessages.length >= 10) {
+            useAlertStore.getState().showAlert('Bạn gửi tin nhắn quá nhanh. Vui lòng chậm lại.', 'Cảnh báo', 'warning');
+            return;
+        }
+
+        sentTimestampsRef.current = [...recentMessages, now];
+
         const socket = socketService.getSocket();
         if (socket) {
             socket.emit('chat:send', {
@@ -143,7 +155,7 @@ export default function ChatPage() {
         try {
             const res = await userApi.getPublicProfile(userId);
             const publicUser = res.data?.data || res.data;
-            
+
             if (publicUser) {
                 const mappedUser: ChatUser = {
                     id: publicUser._id,
