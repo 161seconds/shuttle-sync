@@ -38,8 +38,6 @@ const FILTER_CHIPS = [
     { id: 'all', label: 'Tất cả' },
     { id: 'badminton', label: 'Cầu lông' },
     { id: 'pickleball', label: 'Pickleball' },
-    { id: 'nearby', label: 'Gần tôi' },
-    { id: 'cheap', label: 'Giá rẻ' },
     { id: 'top_rated', label: 'Đánh giá cao' },
 ];
 
@@ -165,11 +163,11 @@ export default function MapPage() {
 
             const emojiStr = renderToString(court.sportTypes?.includes('pickleball') ? <EmojiIcon name="pickleball" /> : <EmojiIcon name="badminton" />);
             const el = document.createElement('div');
-            
+
             // Màu sắc dựa trên rating
             const ratingColor = rating >= 4.5 ? '#fbbf24' : rating >= 3.8 ? '#34d399' : '#94a3b8';
             const displayRating = rating ? rating.toFixed(1) : 'Mới';
-            
+
             el.innerHTML = `
                 <div style="cursor: pointer; display: flex; flex-direction: column; align-items: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: ${isActive ? 'scale(1.15)' : 'scale(1)'}; z-index: ${isActive ? 10 : 2};">
                     <div style="
