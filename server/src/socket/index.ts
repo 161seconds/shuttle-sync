@@ -21,7 +21,8 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
         cors: {
             origin: [
                 config.client.url,
-                'https://shuttle-sync-nu.vercel.app'
+                'https://shuttle-sync-nu.vercel.app',
+                'https://shuttle-sync-client-1.onrender.com'
             ],
             methods: ['GET', 'POST'],
             credentials: true,
@@ -233,7 +234,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
             try {
                 // We use dynamic import for ChatMessage to avoid circular dependencies if any
                 const { ChatMessage } = await import('../models/ChatMessage');
-                
+
                 const newMessage = new ChatMessage({
                     groupPlayId: data.groupPlayId,
                     senderId: socket.userId,
