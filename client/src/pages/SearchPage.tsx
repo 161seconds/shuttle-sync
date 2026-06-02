@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { MapPin, Star, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { theme as t, formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
@@ -21,7 +21,6 @@ export default function SearchPage() {
     const [totalPages, setTotalPages] = useState(1);
     const [totalRecords, setTotalRecords] = useState(0);
     const [inputPage, setInputPage] = useState('');
-    const isAppending = useRef(false);
 
     useEffect(() => {
         const fetchCourts = async () => {
@@ -47,7 +46,7 @@ export default function SearchPage() {
 
                 const response = await courtApi.searchCourts({
                     page: page,
-                    limit: 24,
+                    limit: 20,
                     sportType: filters.sport !== 'all' ? filters.sport : undefined,
                     district: filters.district !== 'Tất cả' ? filters.district : undefined,
                     sortBy: filters.sortBy,
@@ -58,16 +57,11 @@ export default function SearchPage() {
                 });
 
                 if (response.data && response.data.data) {
-                    if (isAppending.current) {
-                        setCourts(prev => [...prev, ...response.data.data]);
-                    } else {
-                        setCourts(response.data.data);
-                    }
+                    setCourts(response.data.data);
                     if (response.data.pagination) {
                         setTotalPages(response.data.pagination.totalPages);
                         setTotalRecords(response.data.pagination.total);
                     }
-                    isAppending.current = false;
                 }
             } catch (error) {
                 console.error('Lỗi khi lấy dữ liệu tìm kiếm:', error);
@@ -82,7 +76,6 @@ export default function SearchPage() {
 
     const handleFilterChange = (partial: any) => {
         setFilters(partial);
-        isAppending.current = false;
         setPage(1);
     };
 
@@ -91,14 +84,12 @@ export default function SearchPage() {
         if (isNaN(p)) return;
         if (p < 1) p = 1;
         if (p > totalPages) p = totalPages;
-        isAppending.current = false;
         setPage(p);
         setInputPage('');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handlePageChange = (newPage: number) => {
-        isAppending.current = false;
         setPage(newPage);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -157,7 +148,7 @@ export default function SearchPage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
                         {loading ? (
-                            Array.from({ length: 24 }).map((_, i) => <ListCardSkeleton key={i} />)
+                            Array.from({ length: 20 }).map((_, i) => <ListCardSkeleton key={i} />)
                         ) : courts.length === 0 ? (
                             /* 2. Beautiful Empty State */
                             <div className="col-span-full flex flex-col items-center justify-center py-20 px-4 text-center">
@@ -233,19 +224,6 @@ export default function SearchPage() {
 
                     {/* Actions Container */}
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-10">
-                        {/* Load More Button */}
-                        {!loading && page < totalPages && courts.length > 0 && (
-                            <button
-                                onClick={() => {
-                                    isAppending.current = true;
-                                    setPage(p => p + 1);
-                                }}
-                                className={`px-6 py-2.5 rounded-full font-bold bg-white/10 text-white hover:bg-emerald-500 hover:text-black transition-all border border-emerald-500/30 hover:border-emerald-500`}
-                            >
-                                Tải thêm sân
-                            </button>
-                        )}
-
                         {/* Go To Page Input */}
                         {!loading && totalPages > 1 && (
                             <div className="flex flex-wrap items-center gap-4">

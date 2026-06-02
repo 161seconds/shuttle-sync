@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Newspaper, Clock, TrendingUp } from 'lucide-react';
+import { Newspaper, Clock, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { EmojiIcon } from '../components/EmojiIcon';
 
 type NewsCategory = 'all' | 'badminton' | 'pickleball' | 'gear';
@@ -31,26 +31,34 @@ export default function NewsPage() {
     const [activeTab, setActiveTab] = useState<NewsCategory>('all');
     const [news, setNews] = useState<Article[]>([]);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 16;
 
     useEffect(() => {
         const fetchNews = async () => {
             try {
                 // Fetch song song 3 luồng RSS: Thể thao chung (VnExpress, Thanh Niên, Tuổi Trẻ)
-                const [vnexpressRes, thanhnienRes, tuoitreRes] = await Promise.all([
+                const [vnexpressRes, thanhnienRes, tuoitreRes, thethao247cl, thethao247pk] = await Promise.all([
                     fetch('https://api.rss2json.com/v1/api.json?rss_url=https://vnexpress.net/rss/the-thao.rss'),
                     fetch('https://api.rss2json.com/v1/api.json?rss_url=https://thanhnien.vn/rss/the-thao.rss'),
-                    fetch('https://api.rss2json.com/v1/api.json?rss_url=https://tuoitre.vn/rss/the-thao.rss')
+                    fetch('https://api.rss2json.com/v1/api.json?rss_url=https://tuoitre.vn/rss/the-thao.rss'),
+                    fetch('https://api.rss2json.com/v1/api.json?rss_url=https://thethao247.vn/cau-long-c44.rss'),
+                    fetch('https://api.rss2json.com/v1/api.json?rss_url=https://thethao247.vn/pickleball/rss.rss')
                 ]);
 
                 const vnData = await vnexpressRes.json();
                 const tnData = await thanhnienRes.json();
                 const ttData = await tuoitreRes.json();
+                const thethao247clData = await thethao247cl.json();
+                const thethao247pkData = await thethao247pk.json();
 
                 let allItems: any[] = [];
                 if (vnData.status === 'ok') allItems = [...allItems, ...vnData.items];
                 if (tnData.status === 'ok') allItems = [...allItems, ...tnData.items];
                 if (ttData.status === 'ok') allItems = [...allItems, ...ttData.items];
-
+                if (thethao247clData.status === 'ok') allItems = [...allItems, ...thethao247clData.items];
+                if (thethao247pkData.status === 'ok') allItems = [...allItems, ...thethao247pkData.items];
+                
                 const articles: Article[] = allItems.map((item: any, index: number) => {
                     // Trích xuất URL ảnh (từ enclosure hoặc description)
                     let imageUrl = item.thumbnail;
@@ -107,9 +115,19 @@ export default function NewsPage() {
     }, []);
 
     const filteredNews = news.filter(n => activeTab === 'all' || n.category === activeTab);
+    const totalPages = Math.ceil(filteredNews.length / itemsPerPage);
+    const paginatedNews = filteredNews.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    const handlePageChange = (newPage: number) => {
+        setCurrentPage(newPage);
+        const container = document.querySelector('.news-container');
+        if (container) {
+            container.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
 
     return (
-        <div className="w-full h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-[#090b10] relative font-sans text-gray-300">
+        <div className="w-full h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar news-container bg-[#090b10] relative font-sans text-gray-300">
 
             {/* Animated Ambient Background */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
@@ -149,11 +167,10 @@ export default function NewsPage() {
                             { id: 'all', label: 'Tất cả', icon: null },
                             { id: 'badminton', label: 'Cầu lông', icon: 'badminton' },
                             { id: 'pickleball', label: 'Pickleball', icon: 'pickleball' },
-                            { id: 'gear', label: 'Đồ tập', icon: null }
                         ].map((tab) => (
                             <button
                                 key={tab.id}
-                                onClick={() => setActiveTab(tab.id as NewsCategory)}
+                                onClick={() => { setActiveTab(tab.id as NewsCategory); setCurrentPage(1); }}
                                 className={`px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${activeTab === tab.id
                                     ? 'bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-[0_0_20px_rgba(59,130,246,0.4)]'
                                     : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -175,7 +192,7 @@ export default function NewsPage() {
                         </div>
                         <p className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 font-black animate-pulse tracking-widest text-lg uppercase">Đang đồng bộ dữ liệu...</p>
                     </div>
-                ) : filteredNews.length > 0 ? (
+                ) : paginatedNews.length > 0 ? (
                     <motion.div
                         layout
                         initial={{ opacity: 0 }}
@@ -183,19 +200,20 @@ export default function NewsPage() {
                         className="flex flex-col gap-8"
                     >
                         {/* Premium Bento Box Hero Section */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-[250px] md:auto-rows-[300px]">
+                        {currentPage === 1 && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-[250px] md:auto-rows-[300px]">
 
                             {/* Item 1: Giant Featured (2x2) */}
-                            {filteredNews[0] && (
+                            {paginatedNews[0] && (
                                 <motion.div
                                     layout
                                     className="lg:col-span-2 lg:row-span-2 group relative rounded-[2rem] overflow-hidden cursor-pointer"
-                                    onClick={() => { if (filteredNews[0].link) window.open(filteredNews[0].link, '_blank'); }}
+                                    onClick={() => { if (paginatedNews[0].link) window.open(paginatedNews[0].link, '_blank'); }}
                                 >
                                     {/* Glass Frame */}
                                     <div className="absolute inset-0 bg-white/5 border border-white/10 rounded-[2rem] z-20 pointer-events-none group-hover:border-blue-500/50 transition-colors duration-500"></div>
 
-                                    <img src={filteredNews[0].imageUrl} alt={filteredNews[0].title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.5s] ease-out" />
+                                    <img src={paginatedNews[0].imageUrl} alt={paginatedNews[0].title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.5s] ease-out" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10" />
                                     <div className="absolute inset-0 bg-blue-900/20 mix-blend-multiply group-hover:opacity-0 transition-opacity duration-500 z-10" />
 
@@ -208,91 +226,92 @@ export default function NewsPage() {
                                     <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 z-30 transform group-hover:-translate-y-4 transition-transform duration-500">
                                         <div className="flex items-center gap-4 text-xs font-black text-blue-400 mb-4 uppercase tracking-widest">
                                             <span className="flex items-center gap-1.5 bg-blue-500/20 px-3 py-1.5 rounded-full border border-blue-500/30 backdrop-blur-md">
-                                                {filteredNews[0].category}
+                                                {paginatedNews[0].category}
                                             </span>
-                                            <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> {filteredNews[0].date}</span>
+                                            <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> {paginatedNews[0].date}</span>
                                             <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                                            <span>{filteredNews[0].readTime} p</span>
+                                            <span>{paginatedNews[0].readTime} p</span>
                                         </div>
                                         <h2 className="text-3xl md:text-5xl font-black text-white mb-4 leading-[1.15] group-hover:text-blue-300 transition-colors line-clamp-3 drop-shadow-2xl">
-                                            {filteredNews[0].title}
+                                            {paginatedNews[0].title}
                                         </h2>
                                         <p className="text-gray-300 line-clamp-2 md:text-lg font-medium drop-shadow-lg opacity-80 group-hover:opacity-100 transition-opacity">
-                                            {filteredNews[0].summary}
+                                            {paginatedNews[0].summary}
                                         </p>
                                     </div>
                                 </motion.div>
                             )}
 
                             {/* Item 2: Tall Portrait (1x2) */}
-                            {filteredNews[1] && (
+                            {paginatedNews[1] && (
                                 <motion.div
                                     layout
                                     className="lg:col-span-1 lg:row-span-2 group relative rounded-[2rem] overflow-hidden cursor-pointer"
-                                    onClick={() => { if (filteredNews[1].link) window.open(filteredNews[1].link, '_blank'); }}
+                                    onClick={() => { if (paginatedNews[1].link) window.open(paginatedNews[1].link, '_blank'); }}
                                 >
                                     <div className="absolute inset-0 bg-white/5 border border-white/10 rounded-[2rem] z-20 pointer-events-none group-hover:border-purple-500/50 transition-colors duration-500"></div>
 
-                                    <img src={filteredNews[1].imageUrl} alt={filteredNews[1].title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out" />
+                                    <img src={paginatedNews[1].imageUrl} alt={paginatedNews[1].title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent z-10" />
 
                                     <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 z-30 transform group-hover:-translate-y-2 transition-transform duration-500">
                                         <div className="flex items-center gap-3 text-xs font-black text-purple-400 mb-3 uppercase tracking-widest">
-                                            <span>{filteredNews[1].category}</span>
+                                            <span>{paginatedNews[1].category}</span>
                                             <span className="w-1 h-1 rounded-full bg-purple-400"></span>
-                                            <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {filteredNews[1].date}</span>
+                                            <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {paginatedNews[1].date}</span>
                                         </div>
                                         <h2 className="text-xl md:text-3xl font-black text-white leading-tight group-hover:text-purple-300 transition-colors line-clamp-4 drop-shadow-xl">
-                                            {filteredNews[1].title}
+                                            {paginatedNews[1].title}
                                         </h2>
                                     </div>
                                 </motion.div>
                             )}
 
                             {/* Item 3: Square (1x1) */}
-                            {filteredNews[2] && (
+                            {paginatedNews[2] && (
                                 <motion.div
                                     layout
                                     className="lg:col-span-1 lg:row-span-1 group relative rounded-[2rem] overflow-hidden cursor-pointer bg-white/5 border border-white/10 hover:border-emerald-500/50 transition-colors duration-500 p-2"
-                                    onClick={() => { if (filteredNews[2].link) window.open(filteredNews[2].link, '_blank'); }}
+                                    onClick={() => { if (paginatedNews[2].link) window.open(paginatedNews[2].link, '_blank'); }}
                                 >
                                     <div className="w-full h-full relative rounded-3xl overflow-hidden">
-                                        <img src={filteredNews[2].imageUrl} alt={filteredNews[2].title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
+                                        <img src={paginatedNews[2].imageUrl} alt={paginatedNews[2].title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
 
                                         <div className="absolute bottom-0 left-0 right-0 p-5 z-20">
-                                            <div className="text-[10px] font-black text-emerald-400 mb-2 uppercase tracking-widest">{filteredNews[2].category}</div>
-                                            <h3 className="text-lg font-bold text-white line-clamp-2 leading-snug group-hover:text-emerald-300 transition-colors">{filteredNews[2].title}</h3>
+                                            <div className="text-[10px] font-black text-emerald-400 mb-2 uppercase tracking-widest">{paginatedNews[2].category}</div>
+                                            <h3 className="text-lg font-bold text-white line-clamp-2 leading-snug group-hover:text-emerald-300 transition-colors">{paginatedNews[2].title}</h3>
                                         </div>
                                     </div>
                                 </motion.div>
                             )}
 
                             {/* Item 4: Square (1x1) */}
-                            {filteredNews[3] && (
+                            {paginatedNews[3] && (
                                 <motion.div
                                     layout
                                     className="lg:col-span-1 lg:row-span-1 group relative rounded-[2rem] overflow-hidden cursor-pointer bg-white/5 border border-white/10 hover:border-orange-500/50 transition-colors duration-500 p-2"
-                                    onClick={() => { if (filteredNews[3].link) window.open(filteredNews[3].link, '_blank'); }}
+                                    onClick={() => { if (paginatedNews[3].link) window.open(paginatedNews[3].link, '_blank'); }}
                                 >
                                     <div className="w-full h-full relative rounded-3xl overflow-hidden">
-                                        <img src={filteredNews[3].imageUrl} alt={filteredNews[3].title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
+                                        <img src={paginatedNews[3].imageUrl} alt={paginatedNews[3].title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
 
                                         <div className="absolute bottom-0 left-0 right-0 p-5 z-20">
-                                            <div className="text-[10px] font-black text-orange-400 mb-2 uppercase tracking-widest">{filteredNews[3].category}</div>
-                                            <h3 className="text-lg font-bold text-white line-clamp-2 leading-snug group-hover:text-orange-300 transition-colors">{filteredNews[3].title}</h3>
+                                            <div className="text-[10px] font-black text-orange-400 mb-2 uppercase tracking-widest">{paginatedNews[3].category}</div>
+                                            <h3 className="text-lg font-bold text-white line-clamp-2 leading-snug group-hover:text-orange-300 transition-colors">{paginatedNews[3].title}</h3>
                                         </div>
                                     </div>
                                 </motion.div>
                             )}
-                        </div>
+                            </div>
+                        )}
 
                         {/* Remaining Grid */}
-                        {filteredNews.length > 4 && (
+                        {(currentPage === 1 ? paginatedNews.length > 4 : paginatedNews.length > 0) && (
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pt-10">
                                 <AnimatePresence>
-                                    {filteredNews.slice(4).map((article, idx) => (
+                                    {(currentPage === 1 ? paginatedNews.slice(4) : paginatedNews).map((article, idx) => (
                                         <motion.div
                                             key={article.id}
                                             layout
@@ -340,6 +359,51 @@ export default function NewsPage() {
                                         </motion.div>
                                     ))}
                                 </AnimatePresence>
+                            </div>
+                        )}
+
+                        {/* Pagination Controls */}
+                        {totalPages > 1 && (
+                            <div className="flex justify-center items-center gap-2 mt-12 pb-8">
+                                <button
+                                    onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                                    disabled={currentPage === 1}
+                                    className="p-3 rounded-xl bg-white/5 border border-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+                                >
+                                    <ChevronLeft className="w-5 h-5" />
+                                </button>
+                                
+                                {Array.from({ length: totalPages }).map((_, i) => {
+                                    if (totalPages > 7) {
+                                        if (i !== 0 && i !== totalPages - 1 && Math.abs(i + 1 - currentPage) > 1) {
+                                            if (i + 1 === currentPage - 2 || i + 1 === currentPage + 2) {
+                                                return <span key={i} className="text-gray-500">...</span>;
+                                            }
+                                            return null;
+                                        }
+                                    }
+                                    return (
+                                        <button
+                                            key={i}
+                                            onClick={() => handlePageChange(i + 1)}
+                                            className={`w-11 h-11 rounded-xl font-bold transition-all ${
+                                                currentPage === i + 1
+                                                    ? 'bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]'
+                                                    : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'
+                                            }`}
+                                        >
+                                            {i + 1}
+                                        </button>
+                                    );
+                                })}
+
+                                <button
+                                    onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="p-3 rounded-xl bg-white/5 border border-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+                                >
+                                    <ChevronRight className="w-5 h-5" />
+                                </button>
                             </div>
                         )}
                     </motion.div>
