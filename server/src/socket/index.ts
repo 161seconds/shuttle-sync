@@ -19,7 +19,10 @@ const slotLockTimers = new Map<string, NodeJS.Timeout>(); // slotId -> timeout
 export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
     const io = new SocketIOServer(httpServer, {
         cors: {
-            origin: config.client.url,
+            origin: [
+                config.client.url,
+                'https://shuttle-sync-nu.vercel.app'
+            ],
             methods: ['GET', 'POST'],
             credentials: true,
         },
