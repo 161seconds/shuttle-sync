@@ -11,7 +11,6 @@ interface AuthSocket extends Socket {
     userRole?: UserRole;
 }
 
-// Track which users are viewing which courts
 const courtViewers = new Map<string, Set<string>>(); // courtId -> Set<socketId>
 // Track slot locks with timeout
 const slotLockTimers = new Map<string, NodeJS.Timeout>(); // slotId -> timeout
