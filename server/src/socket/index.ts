@@ -11,9 +11,8 @@ interface AuthSocket extends Socket {
     userRole?: UserRole;
 }
 
-const courtViewers = new Map<string, Set<string>>(); // courtId -> Set<socketId>
-// Track slot locks with timeout
-const slotLockTimers = new Map<string, NodeJS.Timeout>(); // slotId -> timeout
+const courtViewers = new Map<string, Set<string>>(); 
+const slotLockTimers = new Map<string, NodeJS.Timeout>(); 
 
 export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
     const io = new SocketIOServer(httpServer, {
