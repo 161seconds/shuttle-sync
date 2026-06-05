@@ -23,12 +23,14 @@ export interface ChatRoom {
     avatar: string;
     statusText: string;
     unreadCount: number;
-    lastMessage?: string;
+    lastMessage: string;
     lastMessageTime?: string;
-    organizerId?: string;
+    organizerId?: string | Record<string, any>;
     date?: string;
     createdAt?: string;
     isChatDeleted?: boolean;
+    participants?: any[];
+    joinRequests?: any[];
 }
 
 // 1. Mock Users (including the logged in user)

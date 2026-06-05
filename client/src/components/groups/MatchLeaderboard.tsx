@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Trophy, Swords, Send, Info, ArrowLeft } from 'lucide-react';
-import { theme as t } from '../../utils/theme';
+import { Trophy, Swords, Send, Info, ArrowLeft, Crown } from 'lucide-react';
 import { useAlertStore } from '../../stores/useAlertStore';
+import { motion } from 'framer-motion';
+
 interface Props {
     onBack?: () => void;
 }
@@ -14,111 +15,135 @@ export default function MatchLeaderboard({ onBack }: Props) {
         { id: 1, name: 'Quốc Bảo', wins: 5, losses: 1 },
         { id: 2, name: 'Tiến Minh', wins: 3, losses: 2 },
         { id: 3, name: 'Hoàng Nam', wins: 1, losses: 4 },
+        { id: 4, name: 'Tuấn Anh', wins: 0, losses: 2 },
     ];
 
-    // Hàm xử lý "Ghi nhận nhanh" (Giả lập việc bóc tách chuỗi)
     const handleQuickSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!quickInput.trim()) return;
 
-        useAlertStore.getState().showAlert(`Gửi API: ${quickInput}\n(Hệ thống sẽ tự bóc tách Team A, Team B và Tỉ số, 'Thông báo', 'info')`);
+        useAlertStore.getState().showAlert(`Gửi API: ${quickInput}\n(Hệ thống sẽ tự bóc tách Team A, Team B và Tỉ số)`, 'Thông báo', 'info');
         setQuickInput('');
     };
 
     return (
-        <div className={`w-full h-full min-h-[calc(100vh-76px)] overflow-y-auto custom-scrollbar ${t.bg.base} p-6 pb-24`}>
+        <div className="w-full h-full min-h-[calc(100vh-76px)] overflow-y-auto custom-scrollbar bg-transparent p-4 sm:p-6 pb-24">
             <div className="max-w-3xl mx-auto space-y-6">
 
-                {/* HEADER CÓ NÚT BACK CHUYÊN NGHIỆP */}
+                {/* Header */}
                 {onBack && (
-                    <div className="flex items-center gap-4 mb-2">
+                    <div className="flex items-center gap-4 mb-4">
                         <button
                             onClick={onBack}
-                            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-emerald-500/50 transition-all group"
+                            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-emerald-500/50 transition-all group shadow-sm"
                         >
                             <ArrowLeft className="w-5 h-5 text-gray-400 group-hover:text-emerald-400 transition-colors" />
                         </button>
                         <div>
-                            <h2 className={`text-xl font-black ${t.text.primary}`}>Ghi nhận Trận đấu</h2>
-                            <p className="text-xs text-emerald-500 font-medium">Bảng xếp hạng nội bộ nhóm</p>
+                            <h2 className="text-xl font-black text-white flex items-center gap-2">Ghi nhận Trận đấu</h2>
+                            <p className="text-xs text-emerald-400 font-medium">Bảng xếp hạng nội bộ nhóm</p>
                         </div>
                     </div>
                 )}
 
-                {/* KHU VỰC 1: GHI NHẬN NHANH */}
-                <div className={`p-5 rounded-2xl ${t.bg.elevated} border ${t.border.subtle} relative overflow-hidden`}>
-                    <h3 className="text-sm font-bold text-emerald-500 uppercase tracking-wider mb-4 flex items-center gap-2">
-                        <Swords className="w-4 h-4" /> Ghi nhận kết quả
+                {/* Ghi nhận nhanh */}
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="relative p-6 rounded-[24px] bg-gradient-to-b from-[#1a1c23] to-[#111113] border border-white/10 overflow-hidden shadow-xl shadow-emerald-500/5">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[50px] pointer-events-none" />
+                    
+                    <h3 className="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <Swords className="w-4 h-4 text-blue-400" /> GHI NHẬN KẾT QUẢ
                     </h3>
 
-                    <form onSubmit={handleQuickSubmit}>
-                        <textarea
-                            value={quickInput}
-                            onChange={(e) => setQuickInput(e.target.value)}
-                            placeholder="Nhập theo cú pháp: bao minh hai nam; 21-15; 50k&#10;(Bảo, Minh - Hải, Nam; Tỉ số 21-15; Kèo 50k)"
-                            className="w-full h-24 bg-[#16181c] border border-[#2a2d35] rounded-xl p-3 text-white text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none resize-none mb-3 placeholder-gray-600"
-                        />
+                    <form onSubmit={handleQuickSubmit} className="relative z-10">
+                        <div className="relative group">
+                            <textarea
+                                value={quickInput}
+                                onChange={(e) => setQuickInput(e.target.value)}
+                                placeholder="Nhập theo cú pháp: bao minh hai nam; 21-15; 50k&#10;(Bảo, Minh - Hải, Nam; Tỉ số 21-15; Kèo 50k)"
+                                className="w-full h-28 bg-black/40 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-blue-500/50 focus:bg-blue-500/5 outline-none resize-none mb-4 placeholder-gray-600 transition-all custom-scrollbar"
+                            />
+                        </div>
                         <button
                             type="submit"
-                            className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-emerald-500/20"
+                            className="relative w-full py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 overflow-hidden group"
                         >
-                            GHI NHẬN SET ĐẤU <Send className="w-4 h-4" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 transition-transform duration-300 group-hover:scale-[1.03]" />
+                            <div className="relative flex items-center justify-center gap-2 text-black shadow-sm">
+                                GHI NHẬN SET ĐẤU <Send className="w-4 h-4" />
+                            </div>
                         </button>
                     </form>
 
-                    {/* Hướng dẫn cú pháp mini */}
-                    <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                    {/* Hướng dẫn cú pháp */}
+                    <div className="mt-5 p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl relative z-10 transition-colors hover:bg-blue-500/15">
                         <div className="flex items-center gap-2 text-blue-400 text-xs font-bold mb-2">
                             <Info className="w-4 h-4" /> HƯỚNG DẪN CÚ PHÁP:
                         </div>
-                        <ul className="text-[11px] text-blue-200/70 space-y-1 ml-6 list-disc">
-                            <li>Dấu cách để ngăn cách tên.</li>
-                            <li>Dấu <code className="bg-black/30 px-1 rounded text-white">;</code> để nhập tỉ số và tiền kèo.</li>
-                            <li>VD: <span className="text-white font-mono">bao minh ; 21-15</span></li>
+                        <ul className="text-[11px] text-blue-200/70 space-y-1.5 ml-6 list-disc">
+                            <li>Dấu cách để ngăn cách tên người chơi.</li>
+                            <li>Dấu <code className="bg-black/40 px-1.5 py-0.5 rounded-md text-white font-mono shadow-sm border border-white/5">;</code> để nhập tỉ số và tiền kèo (nếu có).</li>
+                            <li>Ví dụ: <span className="text-white font-mono bg-black/20 px-1.5 py-0.5 rounded-md border border-white/5">bao minh ; 21-15</span></li>
                         </ul>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* KHU VỰC 2: LEADERBOARD */}
-                <div className={`p-5 rounded-2xl ${t.bg.elevated} border ${t.border.subtle}`}>
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-sm font-bold text-yellow-500 uppercase tracking-wider flex items-center gap-2">
-                            <Trophy className="w-4 h-4" /> Bảng xếp hạng
+                {/* Leaderboard */}
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="relative p-6 rounded-[24px] bg-gradient-to-b from-[#1a1c23] to-[#111113] border border-white/10 overflow-hidden shadow-xl shadow-yellow-500/5">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/10 blur-[50px] pointer-events-none" />
+
+                    <div className="flex items-center justify-between mb-5 relative z-10">
+                        <h3 className="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-500 uppercase tracking-wider flex items-center gap-2">
+                            <Trophy className="w-4 h-4 text-yellow-400" /> Bảng xếp hạng nhóm
                         </h3>
                     </div>
 
-                    <div className="overflow-x-auto">
+                    <div className="overflow-hidden rounded-2xl border border-white/5 bg-black/20 relative z-10">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-[#2a2d35] text-[10px] text-gray-500 uppercase tracking-wider">
-                                    <th className="pb-3 font-semibold pl-2">Vợt thủ</th>
-                                    <th className="pb-3 font-semibold text-center">Set Đánh</th>
-                                    <th className="pb-3 font-semibold text-center">Thắng/Thua</th>
+                                <tr className="border-b border-white/10 bg-black/40">
+                                    <th className="py-3 px-4 text-[10px] text-gray-500 uppercase font-bold tracking-wider">Vợt thủ</th>
+                                    <th className="py-3 px-4 text-[10px] text-gray-500 uppercase font-bold tracking-wider text-center">Đã Đánh</th>
+                                    <th className="py-3 px-4 text-[10px] text-gray-500 uppercase font-bold tracking-wider text-center">Thắng/Thua</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {leaderboard.map((player, index) => (
-                                    <tr key={player.id} className="border-b border-[#2a2d35]/50 last:border-0 hover:bg-white/5 transition-colors">
-                                        <td className="py-3 pl-2">
-                                            <div className="flex items-center gap-3">
-                                                <span className={`text-xs font-black ${index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-300' : index === 2 ? 'text-amber-600' : 'text-gray-500'}`}>
-                                                    #{index + 1}
-                                                </span>
-                                                <span className="text-sm font-bold text-white">{player.name}</span>
-                                            </div>
-                                        </td>
-                                        <td className="py-3 text-center text-sm text-gray-400">{player.wins + player.losses}</td>
-                                        <td className="py-3 text-center">
-                                            <span className="text-xs font-bold text-emerald-400">{player.wins}W</span>
-                                            <span className="text-gray-600 mx-1">-</span>
-                                            <span className="text-xs font-bold text-red-400">{player.losses}L</span>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {leaderboard.map((player, index) => {
+                                    const isTop1 = index === 0;
+                                    const isTop2 = index === 1;
+                                    const isTop3 = index === 2;
+
+                                    return (
+                                        <tr key={player.id} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors group">
+                                            <td className="py-3 px-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black shadow-sm ${
+                                                        isTop1 ? 'bg-gradient-to-br from-yellow-300 to-yellow-600 text-black' :
+                                                        isTop2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-black' :
+                                                        isTop3 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-white' :
+                                                        'bg-white/5 text-gray-500'
+                                                    }`}>
+                                                        {isTop1 ? <Crown className="w-3.5 h-3.5" /> : index + 1}
+                                                    </div>
+                                                    <span className={`text-sm font-bold ${isTop1 ? 'text-yellow-400' : 'text-white'}`}>{player.name}</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-3 px-4 text-center text-sm font-medium text-gray-400 group-hover:text-gray-300 transition-colors">
+                                                {player.wins + player.losses}
+                                            </td>
+                                            <td className="py-3 px-4 text-center">
+                                                <div className="flex items-center justify-center gap-1.5">
+                                                    <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">{player.wins}W</span>
+                                                    <span className="text-gray-600 text-xs">-</span>
+                                                    <span className="text-xs font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-md border border-red-500/20">{player.losses}L</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </motion.div>
             </div>
         </div>
     );

@@ -16,4 +16,7 @@ router.post('/:groupPlayId/join', authenticate, groupPlayController.joinGroupPla
 router.post('/:groupPlayId/leave', authenticate, groupPlayController.leaveGroupPlay);
 router.post('/:groupPlayId/cancel', authenticate, groupPlayController.cancelGroupPlay);
 
+router.post('/:groupPlayId/requests/:requesterId/accept', authenticate, groupPlayController.acceptJoinRequest);
+router.post('/:groupPlayId/requests/:requesterId/reject', authenticate, groupPlayController.rejectJoinRequest);
+
 export default router;

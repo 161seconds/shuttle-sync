@@ -35,6 +35,7 @@ interface GroupPlay {
     isPublic: boolean;
     requirements?: string;
     contactInfo?: string;
+    joinRequests?: { userId: string, requestedAt: string, status: 'pending' | 'rejected', rejectReason?: string }[];
 }
 
 // ═══ Constants ═══
@@ -126,7 +127,7 @@ export default function GroupPlayPage() {
         setJoining(groupId);
         try {
             await groupPlayApi.joinGroupPlay(groupId);
-            useAlertStore.getState().showAlert('🎉 Tham gia thành công!', 'Thông báo', 'success');
+            useAlertStore.getState().showAlert('🎉 Đã gửi yêu cầu tham gia, vui lòng chờ duyệt!', 'Thông báo', 'success');
             await fetchGroups();
         } catch (err: any) {
             useAlertStore.getState().showAlert(err.response?.data?.message || 'Lỗi tham gia', 'Thông báo', 'error');
@@ -226,6 +227,7 @@ export default function GroupPlayPage() {
                     const status = STATUS_MAP[g.status] || STATUS_MAP.open;
                     const isOrg = user && (typeof g.organizerId === 'object' ? g.organizerId._id === user._id : g.organizerId === user._id);
                     const joined = user && g.participants.some(p => p.userId === user._id);
+                    const isPending = user && g.joinRequests?.some(r => r.userId === user._id && r.status === 'pending');
 
                     return (
                         <motion.div key={g._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
@@ -333,7 +335,7 @@ export default function GroupPlayPage() {
 
                                             {/* Action Buttons */}
                                             <div className="pt-2">
-                                                {!joined && !isOrg && g.status === 'open' && (
+                                                {!joined && !isOrg && !isPending && g.status === 'open' && (
                                                     <button onClick={() => handleJoin(g._id)} disabled={joining === g._id}
                                                         className="relative w-full py-3.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 overflow-hidden group">
                                                         <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-cyan-500 transition-transform group-hover:scale-[1.02]" />
@@ -342,6 +344,11 @@ export default function GroupPlayPage() {
                                                             THAM GIA NGAY
                                                         </div>
                                                     </button>
+                                                )}
+                                                {isPending && !joined && !isOrg && (
+                                                    <div className="w-full py-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 font-black text-sm flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
+                                                        <Clock className="w-5 h-5" /> ĐANG CHỜ DUYỆT
+                                                    </div>
                                                 )}
                                                 {joined && (
                                                     <div className="flex gap-3">
@@ -423,10 +430,11 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                 const res = await bookingApi.getMyBookings({ status: 'confirmed' });
                 const allBookings = res.data?.data || [];
 
-                // LỌC BỎ SÂN TRONG QUÁ KHỨ
+                // LỌC BỎ SÂN TRONG QUÁ KHỨ VÀ SÂN ĐÃ TẠO KÈO
                 const now = new Date();
                 const futureBookings = allBookings.filter((b: any) => {
                     if (!b.date || !b.startTime) return false;
+                    if (b.hasGroupPlay) return false; // Không hiển thị sân đã tạo kèo
 
                     // Tách giờ phút từ chuỗi startTime (vd: "14:30")
                     const [hours, minutes] = b.startTime.split(':').map(Number);
@@ -479,7 +487,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
     return (
         <motion.div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-            <motion.div className="relative w-full max-w-2xl bg-gradient-to-b from-[#1a1c23] to-[#111113] rounded-[32px] border border-white/10 overflow-hidden flex flex-col shadow-2xl shadow-emerald-500/10" initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: "spring", damping: 25, stiffness: 300 }}>
+            <motion.div className="relative w-full max-w-2xl max-h-[90vh] bg-gradient-to-b from-[#1a1c23] to-[#111113] rounded-[32px] border border-white/10 flex flex-col shadow-2xl shadow-emerald-500/10" initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: "spring", damping: 25, stiffness: 300 }}>
                 
                 {/* Decorative background glow */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-emerald-500/20 blur-[80px] pointer-events-none" />
@@ -498,7 +506,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                     <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 hover:rotate-90 transition-all shadow-sm"><X className="w-5 h-5" /></button>
                 </div>
 
-                <div className="relative p-6 z-10">
+                <div className="relative p-6 flex-1 overflow-y-auto custom-scrollbar z-10">
                     {fetchingBookings ? (
                         <div className="py-12 flex flex-col items-center gap-4">
                             <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
@@ -559,45 +567,48 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                             const isSelected = selectedBookingId === b._id;
 
                                             return (
-                                                <button
+                                                <motion.button
+                                                    whileTap={{ scale: 0.96 }}
                                                     key={b._id}
                                                     onClick={() => setSelectedBookingId(b._id)}
-                                                    className={`relative w-full text-left p-4 rounded-2xl border transition-all duration-300 flex flex-col group overflow-hidden ${isSelected ? 'bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]' : 'bg-black/20 border-white/5 hover:border-white/20 hover:bg-white/5 hover:-translate-y-0.5'}`}
+                                                    className={`relative w-full text-left p-5 rounded-[24px] border transition-all duration-300 flex flex-col group overflow-hidden ${isSelected ? 'bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]' : 'bg-black/20 border-white/10 hover:border-white/30 hover:bg-white/10 hover:-translate-y-0.5'}`}
                                                 >
                                                     <div className={`absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent transition-opacity duration-300 ${isSelected ? 'opacity-100' : 'opacity-0'}`} />
 
-                                                    <div className={`absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all z-10 ${isSelected ? 'border-emerald-500 bg-emerald-500 scale-100' : 'border-gray-500 scale-0 opacity-0'}`}>
+                                                    <div className={`absolute top-4 right-4 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all z-10 ${isSelected ? 'border-emerald-500 bg-emerald-500 scale-100' : 'border-gray-400 scale-0 opacity-0'}`}>
                                                         <Check className="w-3 h-3 text-black" />
                                                     </div>
 
-                                                    <div className={`font-black text-sm mb-2 transition-colors pr-6 line-clamp-1 relative z-10 ${isSelected ? 'text-emerald-400' : 'text-white'}`}>
+                                                    <div className={`font-black text-sm mb-3 transition-colors pr-8 line-clamp-2 relative z-10 flex items-start gap-2 ${isSelected ? 'text-emerald-400' : 'text-white'}`}>
+                                                        <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
                                                         {courtName}
                                                     </div>
                                                     
-                                                    <div className="space-y-1.5 mt-auto relative z-10">
-                                                        <div className="flex items-center gap-2 text-[11px] text-gray-400 font-medium">
-                                                            <Calendar className="w-3.5 h-3.5 text-emerald-500/80" /> {dateStr}
+                                                    <div className="space-y-2 mt-auto relative z-10 bg-black/20 p-2.5 rounded-xl border border-white/5">
+                                                        <div className="flex items-center gap-2 text-[11px] text-gray-300 font-medium">
+                                                            <Calendar className="w-3.5 h-3.5 text-emerald-400" /> {dateStr}
                                                         </div>
-                                                        <div className="flex items-center gap-2 text-[11px] text-gray-400 font-medium">
-                                                            <Clock className="w-3.5 h-3.5 text-emerald-500/80" /> {b.startTime} - {b.endTime}
+                                                        <div className="flex items-center gap-2 text-[11px] text-gray-300 font-medium">
+                                                            <Clock className="w-3.5 h-3.5 text-emerald-400" /> {b.startTime} - {b.endTime}
                                                         </div>
                                                     </div>
-                                                </button>
+                                                </motion.button>
                                             );
                                         })}
                                     </div>
                                     
                                     <div className="pt-4">
-                                        <button 
+                                        <motion.button 
+                                            whileTap={{ scale: 0.97 }}
                                             onClick={() => setStep(2)} 
                                             disabled={!selectedBookingId} 
-                                            className="relative w-full py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="relative w-full py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/10"
                                         >
                                             <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-cyan-500 transition-transform duration-300 group-hover:scale-[1.03]" />
                                             <div className="relative flex items-center justify-center gap-2 text-black shadow-sm">
                                                 TIẾP TỤC <ChevronRight className="w-5 h-5" />
                                             </div>
-                                        </button>
+                                        </motion.button>
                                     </div>
                                 </motion.div>
                             )}
@@ -612,8 +623,8 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                     </div>
                                     
                                     <div className="space-y-3">
-                                        <input type="text" placeholder="Tên nhóm chơi (Ví dụ: Kèo tối thứ 3 vui vẻ...)" className="w-full h-14 bg-black/20 border border-white/5 rounded-2xl px-5 text-sm text-white placeholder-gray-500 focus:border-blue-500/50 focus:bg-blue-500/5 transition-all outline-none" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
-                                        <textarea placeholder="Mô tả ngắn gọn, yêu cầu trình độ, liên hệ..." className="w-full h-24 bg-black/20 border border-white/5 rounded-2xl p-5 text-sm text-white placeholder-gray-500 focus:border-blue-500/50 focus:bg-blue-500/5 transition-all outline-none resize-none custom-scrollbar" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+                                        <input type="text" placeholder="Tên nhóm chơi (Ví dụ: Kèo tối thứ 3 vui vẻ...)" className="w-full h-14 bg-[#1e2028] border border-white/20 rounded-2xl px-5 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:bg-[#252833] transition-all outline-none shadow-inner" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
+                                        <textarea placeholder="Mô tả ngắn gọn, yêu cầu trình độ, liên hệ..." className="w-full h-24 bg-[#1e2028] border border-white/20 rounded-2xl p-5 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:bg-[#252833] transition-all outline-none resize-none custom-scrollbar shadow-inner" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
                                     </div>
                                     
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -628,51 +639,71 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                     <p className="text-sm font-black text-white">{form.maxPlayers} người</p>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-3 bg-white/5 rounded-xl p-1 border border-white/10">
+                                            <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1 border border-white/10">
                                                 <button onClick={() => setForm(f => ({ ...f, maxPlayers: Math.max(2, f.maxPlayers - 1) }))} className="w-8 h-8 rounded-lg bg-black/40 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors">-</button>
-                                                <span className="text-sm font-bold w-4 text-center">{form.maxPlayers}</span>
+                                                <input 
+                                                    type="number" 
+                                                    className="text-sm font-bold w-10 bg-transparent text-center text-white outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+                                                    value={form.maxPlayers || ''}
+                                                    onChange={(e) => {
+                                                        const val = parseInt(e.target.value);
+                                                        setForm(f => ({ ...f, maxPlayers: isNaN(val) ? 0 : val }));
+                                                    }}
+                                                    onBlur={() => {
+                                                        let val = form.maxPlayers;
+                                                        if (val < 2) val = 2;
+                                                        if (val > 20) val = 20;
+                                                        setForm(f => ({ ...f, maxPlayers: val }));
+                                                    }}
+                                                />
                                                 <button onClick={() => setForm(f => ({ ...f, maxPlayers: Math.min(20, f.maxPlayers + 1) }))} className="w-8 h-8 rounded-lg bg-black/40 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors">+</button>
                                             </div>
                                         </div>
 
-                                        {/* Phí/Người */}
+                                        {/* Tổng Tiền */}
                                         <div className="p-4 bg-black/20 border border-white/5 rounded-2xl space-y-3 flex flex-col justify-center transition-colors hover:bg-white/5">
                                             <div className="flex items-center gap-2">
                                                 <Zap className="w-4 h-4 text-amber-400" />
-                                                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Phí / Người (VNĐ)</p>
+                                                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Tổng tiền / Người</p>
                                             </div>
-                                            <div className="flex gap-2">
-                                                {[0, 30000, 50000].map(price => (
-                                                    <button
-                                                        key={price}
-                                                        onClick={() => setForm({ ...form, pricePerPlayer: price })}
-                                                        className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${form.pricePerPlayer === price ? 'bg-amber-500/20 border-amber-500/50 text-amber-400' : 'bg-black/40 border-white/10 text-gray-400 hover:text-gray-200 hover:bg-white/10'}`}
-                                                    >
-                                                        {price === 0 ? 'Free' : `${price / 1000}k`}
-                                                    </button>
-                                                ))}
+                                            
+                                            <div className="relative">
                                                 <input 
                                                     type="number" 
                                                     value={form.pricePerPlayer || ''} 
                                                     onChange={e => setForm({ ...form, pricePerPlayer: parseInt(e.target.value) || 0 })}
-                                                    className="flex-1 min-w-0 bg-black/40 border border-white/10 rounded-xl text-xs font-bold text-center text-white focus:border-amber-500/50 focus:bg-amber-500/5 outline-none transition-all placeholder:text-gray-600"
-                                                    placeholder="Nhập..."
+                                                    className="w-full bg-[#1e2028] border border-white/20 rounded-xl py-2 px-3 text-base font-black text-amber-400 focus:border-amber-500/50 focus:bg-amber-500/5 outline-none transition-all placeholder:text-gray-600 shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    placeholder="0"
                                                 />
+                                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-500 uppercase tracking-wider">VNĐ</span>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <div className="grid grid-cols-3 gap-1">
+                                                    {[-10, -20, -50].map(val => (
+                                                        <button key={val} onClick={() => setForm(f => ({ ...f, pricePerPlayer: Math.max(0, f.pricePerPlayer + val * 1000) }))} className="py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white text-[10px] font-bold transition-all">{val}k</button>
+                                                    ))}
+                                                </div>
+                                                <div className="grid grid-cols-3 gap-1">
+                                                    {[10, 20, 50].map(val => (
+                                                        <button key={val} onClick={() => setForm(f => ({ ...f, pricePerPlayer: f.pricePerPlayer + val * 1000 }))} className="py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white text-[10px] font-bold transition-all">+{val}k</button>
+                                                    ))}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                     
                                     <div className="pt-4 flex gap-3">
-                                        <button onClick={() => setStep(1)} className="px-5 py-4 rounded-2xl bg-white/5 border border-white/10 font-bold text-sm text-gray-300 hover:bg-white/10 transition-colors flex items-center gap-2">
+                                        <motion.button whileTap={{ scale: 0.95 }} onClick={() => setStep(1)} className="px-5 py-4 rounded-2xl bg-white/10 border border-white/20 font-bold text-sm text-white hover:bg-white/20 transition-colors flex items-center gap-2 shadow-sm">
                                             <ChevronLeft className="w-5 h-5" />
-                                        </button>
-                                        <button onClick={handleCreate} disabled={creating} className="relative flex-1 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 overflow-hidden group">
+                                        </motion.button>
+                                        <motion.button whileTap={{ scale: 0.98 }} onClick={handleCreate} disabled={creating} className="relative flex-1 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 overflow-hidden group shadow-lg shadow-emerald-500/10">
                                             <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-cyan-500 transition-transform duration-300 group-hover:scale-[1.03]" />
                                             <div className="relative flex items-center justify-center gap-2 text-black shadow-sm">
                                                 {creating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
                                                 XÁC NHẬN MỞ NHÓM
                                             </div>
-                                        </button>
+                                        </motion.button>
                                     </div>
                                 </motion.div>
                             )}

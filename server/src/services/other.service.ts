@@ -233,7 +233,7 @@ class NotificationService {
         userId: string;
         title: string;
         message: string;
-        type: 'booking' | 'group_play' | 'tournament' | 'system' | 'promotion';
+        type: string;
         data?: Record<string, unknown>;
     }) {
         return Notification.create(data);
