@@ -166,9 +166,11 @@ function Shell() {
             </AnimatePresence>
           </main>
 
-          {['home', 'map', 'search', 'groupplay', 'profile'].includes(page) && !isSideBarOpen && (
-            <BottomNav />
-          )}
+          <AnimatePresence>
+            {['home', 'map', 'search', 'groupplay', 'profile'].includes(page) && !isSideBarOpen && (
+              <BottomNav key="bottom-nav" />
+            )}
+          </AnimatePresence>
 
           <AnimatePresence>
             {bookingCourt && <BookingSheet court={bookingCourt} onClose={() => setBookingCourt(null)} />}

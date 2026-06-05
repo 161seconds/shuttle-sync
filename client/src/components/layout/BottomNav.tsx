@@ -1,4 +1,5 @@
 import { Home, Search, MapPin, User, MessageCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useAppStore } from '../../store';
 
 export default function BottomNav() {
@@ -13,7 +14,12 @@ export default function BottomNav() {
     ];
 
     return (
-        <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center pointer-events-none px-4"
+        <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="fixed bottom-4 left-0 right-0 z-50 flex justify-center pointer-events-none px-4"
             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
             <nav className="pointer-events-auto w-full max-w-75 bg-[#141617] border border-[#2a2d30] rounded-[18px] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8)] flex items-center justify-around px-1.5 py-1.5">
@@ -47,6 +53,6 @@ export default function BottomNav() {
                     );
                 })}
             </nav>
-        </div>
+        </motion.div>
     );
 }
