@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { bookingService, courtService } from '../services';
-import { Court, TimeSlot } from '../models';
+import { Court, TimeSlot, GroupPlay, ChatMessage } from '../models';
 import { SlotStatus, CourtStatus } from '@shuttle-sync/shared';
 import { logger } from '../utils/logger';
 
@@ -82,6 +82,39 @@ export const initCronJobs = () => {
             logger.info(`[CRON] Cleaned ${result.deletedCount} old time slots`);
         } catch (error) {
             logger.error('[CRON] Old slot cleanup failed:', error);
+        }
+    });
+
+    // Auto delete chat for group plays older than 14 days, daily at 4 AM
+    cron.schedule('0 4 * * *', async () => {
+        try {
+            const fourteenDaysAgo = new Date();
+            fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
+            // Find all groups older than 14 days that haven't been marked as chat deleted
+            const oldGroups = await GroupPlay.find({
+                createdAt: { $lt: fourteenDaysAgo },
+                isChatDeleted: { $ne: true }
+            }).select('_id');
+
+            if (oldGroups.length > 0) {
+                const groupIds = oldGroups.map(g => g._id);
+
+                // Mark as chat deleted
+                const result = await GroupPlay.updateMany(
+                    { _id: { $in: groupIds } },
+                    { $set: { isChatDeleted: true } }
+                );
+
+                // Delete messages for these groups
+                const msgResult = await ChatMessage.deleteMany({
+                    groupPlayId: { $in: groupIds }
+                });
+
+                logger.info(`[CRON] Auto-deleted chat for ${result.modifiedCount} groups (${msgResult.deletedCount} messages) older than 14 days`);
+            }
+        } catch (error) {
+            logger.error('[CRON] Auto delete old chats failed:', error);
         }
     });
 
