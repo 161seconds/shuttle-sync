@@ -40,6 +40,7 @@ export default function ChatPage() {
                         lastMessage: gp.description || 'Tham gia trò chuyện ngay',
                         organizerId: gp.organizerId,
                         date: gp.date,
+                        createdAt: gp.createdAt,
                         isChatDeleted: gp.isChatDeleted,
                     }));
                 setRooms(mappedRooms);

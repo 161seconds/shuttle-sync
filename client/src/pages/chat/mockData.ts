@@ -27,6 +27,7 @@ export interface ChatRoom {
     lastMessageTime?: string;
     organizerId?: string;
     date?: string;
+    createdAt?: string;
     isChatDeleted?: boolean;
 }
 
