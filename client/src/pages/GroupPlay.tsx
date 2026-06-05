@@ -4,7 +4,7 @@ import {
     Users, Search, MapPin, Calendar, Clock, Star,
     Plus, Loader2, Zap, Target, Trophy, Leaf,
     ChevronDown, ChevronLeft, ChevronRight, X, Check, UserPlus, Flame, Settings,
-    MessageSquare, AlignLeft
+    MessageSquare, AlignLeft, XCircle
 } from 'lucide-react';
 import { formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
@@ -75,6 +75,7 @@ export default function GroupPlayPage() {
     const [groups, setGroups] = useState<GroupPlay[]>([]);
     const [loading, setLoading] = useState(true);
     const [joining, setJoining] = useState<string | null>(null);
+    const [leaving, setLeaving] = useState<string | null>(null);
     const [searchVal, setSearchVal] = useState('');
     const [sportFilter, setSportFilter] = useState('all');
     const [skillFilter] = useState('all');
@@ -133,6 +134,20 @@ export default function GroupPlayPage() {
             useAlertStore.getState().showAlert(err.response?.data?.message || 'Lỗi tham gia', 'Thông báo', 'error');
         } finally {
             setJoining(null);
+        }
+    };
+
+    const handleLeave = async (groupId: string) => {
+        if (!window.confirm('Bạn có chắc chắn muốn rời nhóm này không?')) return;
+        setLeaving(groupId);
+        try {
+            await groupPlayApi.leaveGroupPlay(groupId);
+            useAlertStore.getState().showAlert('Đã rời nhóm thành công!', 'Thông báo', 'success');
+            await fetchGroups();
+        } catch (err: any) {
+            useAlertStore.getState().showAlert(err.response?.data?.message || 'Lỗi rời nhóm', 'Thông báo', 'error');
+        } finally {
+            setLeaving(null);
         }
     };
 
@@ -352,12 +367,18 @@ export default function GroupPlayPage() {
                                                 )}
                                                 {joined && (
                                                     <div className="flex gap-3">
-                                                        <div className="flex-1 py-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-black text-sm flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                                                            <Check className="w-5 h-5" /> ĐÃ THAM GIA
-                                                        </div>
+                                                        {!isOrg && (
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); handleLeave(g._id); }}
+                                                                disabled={leaving === g._id}
+                                                                className="flex-1 py-3.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 font-black text-sm flex items-center justify-center gap-2 hover:bg-red-500/20 transition-all shadow-[0_0_15px_rgba(239,68,68,0.1)]">
+                                                                {leaving === g._id ? <Loader2 className="w-5 h-5 animate-spin" /> : <XCircle className="w-5 h-5" />}
+                                                                RỜI NHÓM
+                                                            </button>
+                                                        )}
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); setPage('chat'); }}
-                                                            className="flex-1 py-3.5 rounded-2xl bg-blue-500 text-black font-black text-sm flex items-center justify-center gap-2 hover:bg-blue-400 transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)]"
+                                                            className={`${isOrg ? 'flex-1' : 'flex-[2]'} py-3.5 rounded-2xl bg-blue-500 text-black font-black text-sm flex items-center justify-center gap-2 hover:bg-blue-400 transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)]`}
                                                         >
                                                             <MessageSquare className="w-5 h-5" /> VÀO NHÓM CHAT
                                                         </button>

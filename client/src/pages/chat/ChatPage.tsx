@@ -197,6 +197,18 @@ export default function ChatPage() {
         }
     };
 
+    const handleLeaveGroup = async (roomId: string) => {
+        try {
+            await groupPlayApi.leaveGroupPlay(roomId);
+            setRooms(prev => prev.filter(r => r.id !== roomId));
+            setActiveRoomId(null);
+            useAlertStore.getState().showAlert('Đã rời nhóm thành công', 'Thành công', 'success');
+        } catch (error: any) {
+            console.error('Lỗi khi rời nhóm:', error);
+            useAlertStore.getState().showAlert(error.response?.data?.message || 'Không thể rời nhóm', 'Lỗi', 'error');
+        }
+    };
+
     const handleAvatarClick = async (userId: string, fallbackName?: string, fallbackAvatar?: string) => {
         try {
             const res = await userApi.getPublicProfile(userId);
@@ -282,6 +294,7 @@ export default function ChatPage() {
                             onSendMessage={handleSendMessage}
                             onAvatarClick={handleAvatarClick}
                             onDeleteChat={() => handleDeleteChat(activeRoom.id)}
+                            onLeaveGroup={() => handleLeaveGroup(activeRoom.id)}
                         />
                     ) : (
                         <div className="text-center text-gray-500 m-auto">
