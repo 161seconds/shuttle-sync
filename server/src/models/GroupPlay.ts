@@ -49,6 +49,7 @@ export interface IGroupPlayDocument extends Document {
     isPublic: boolean;
     requirements?: string;
     contactInfo?: string;
+    isChatDeleted?: boolean;
 }
 
 const groupPlaySchema = new Schema<IGroupPlayDocument>(
@@ -124,6 +125,7 @@ const groupPlaySchema = new Schema<IGroupPlayDocument>(
         isPublic: { type: Boolean, default: true },
         requirements: { type: String, maxlength: 300 },
         contactInfo: String,
+        isChatDeleted: { type: Boolean, default: false },
     },
     { timestamps: true },
 );

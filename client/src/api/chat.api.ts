@@ -21,4 +21,7 @@ export const chatApi = {
             params: { page, limit },
         });
     },
+    deleteChat: (groupPlayId: string) => {
+        return axiosClient.delete(`/chat/${groupPlayId}`);
+    },
 };
