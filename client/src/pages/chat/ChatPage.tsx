@@ -29,14 +29,19 @@ export default function ChatPage() {
                 const res = await groupPlayApi.getMyGroupPlays();
                 const groupPlays = res.data?.data || res.data?.groupPlays || [];
 
-                const mappedRooms: ChatRoom[] = groupPlays.map((gp: any) => ({
-                    id: gp._id,
-                    name: gp.title,
-                    avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(gp.title)}`,
-                    statusText: `${gp.currentPlayers}/${gp.maxPlayers} thành viên`,
-                    unreadCount: 0,
-                    lastMessage: gp.description || 'Tham gia trò chuyện ngay',
-                }));
+                const mappedRooms: ChatRoom[] = groupPlays
+                    .filter((gp: any) => !gp.isChatDeleted)
+                    .map((gp: any) => ({
+                        id: gp._id,
+                        name: gp.title,
+                        avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(gp.title)}`,
+                        statusText: `${gp.currentPlayers}/${gp.maxPlayers} thành viên`,
+                        unreadCount: 0,
+                        lastMessage: gp.description || 'Tham gia trò chuyện ngay',
+                        organizerId: gp.organizerId,
+                        date: gp.date,
+                        isChatDeleted: gp.isChatDeleted,
+                    }));
                 setRooms(mappedRooms);
             } catch (error) {
                 console.error('Failed to fetch rooms', error);
@@ -151,6 +156,18 @@ export default function ChatPage() {
         }));
     };
 
+    const handleDeleteChat = async (roomId: string) => {
+        try {
+            await chatApi.deleteChat(roomId);
+            setRooms(prev => prev.filter(r => r.id !== roomId));
+            setActiveRoomId(null);
+            useAlertStore.getState().showAlert('Đã xóa nhóm chat thành công', 'Thành công', 'success');
+        } catch (error) {
+            console.error('Lỗi khi xóa nhóm chat:', error);
+            useAlertStore.getState().showAlert('Không thể xóa nhóm chat', 'Lỗi', 'error');
+        }
+    };
+
     const handleAvatarClick = async (userId: string, fallbackName?: string, fallbackAvatar?: string) => {
         try {
             const res = await userApi.getPublicProfile(userId);
@@ -235,6 +252,7 @@ export default function ChatPage() {
                             onBack={() => setActiveRoomId(null)}
                             onSendMessage={handleSendMessage}
                             onAvatarClick={handleAvatarClick}
+                            onDeleteChat={() => handleDeleteChat(activeRoom.id)}
                         />
                     ) : (
                         <div className="text-center text-gray-500 m-auto">

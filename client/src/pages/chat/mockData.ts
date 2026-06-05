@@ -25,6 +25,9 @@ export interface ChatRoom {
     unreadCount: number;
     lastMessage?: string;
     lastMessageTime?: string;
+    organizerId?: string;
+    date?: string;
+    isChatDeleted?: boolean;
 }
 
 // 1. Mock Users (including the logged in user)
