@@ -1,9 +1,10 @@
 import { useRef, useEffect, useState } from 'react';
-import { ChevronLeft, Info, MoreVertical, Trash2 } from 'lucide-react';
+import { ChevronLeft, Info, MoreVertical, Trash2, Clock, XCircle, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
 import GroupInfoModal from './GroupInfoModal';
+import JoinRequestsModal from './JoinRequestsModal';
 import type { ChatRoom, ChatUser } from './mockData';
 import dayjs from 'dayjs';
 import { type ChatMessage } from '../../api/chat.api';
@@ -32,6 +33,7 @@ export default function ChatWindow({
     const [showMenu, setShowMenu] = useState(false);
     const [showInfo, setShowInfo] = useState(false);
     const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+    const [showRequestsModal, setShowRequestsModal] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -74,6 +76,58 @@ export default function ChatWindow({
     }
     const shouldShowDeleteBanner = isOwner && daysPassed >= 7;
 
+    const isParticipant = isOwner || room.participants?.some((p: any) => p.userId === currentUser.id);
+    const myRequest = room.joinRequests?.find((r: any) => String(r.userId) === String(currentUser.id));
+    const pendingRequests = room.joinRequests?.filter((r: any) => r.status === 'pending') || [];
+
+    if (!isParticipant && myRequest?.status === 'pending') {
+        return (
+            <div className="flex flex-col h-full bg-transparent">
+                <div className="h-[85px] shrink-0 px-4 flex items-center border-b border-white/5 bg-black/20 backdrop-blur-sm relative z-20">
+                    <button onClick={onBack} className="p-2 -ml-2 text-gray-400 hover:text-white transition-colors">
+                        <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <h3 className="font-bold text-white text-base leading-tight ml-2">Phòng chờ: {room.name}</h3>
+                </div>
+                <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+                    <div className="w-20 h-20 bg-amber-500/10 rounded-full flex items-center justify-center mb-6 border border-amber-500/20">
+                        <Clock className="w-10 h-10 text-amber-500" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">Đang chờ phê duyệt</h3>
+                    <p className="text-gray-400 max-w-sm">
+                        Yêu cầu tham gia của bạn đã được gửi đến chủ sân. Bạn sẽ có thể trò chuyện và xem chi tiết ngay khi được duyệt.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!isParticipant && myRequest?.status === 'rejected') {
+        return (
+            <div className="flex flex-col h-full bg-transparent">
+                <div className="h-[85px] shrink-0 px-4 flex items-center border-b border-white/5 bg-black/20 backdrop-blur-sm relative z-20">
+                    <button onClick={onBack} className="p-2 -ml-2 text-gray-400 hover:text-white transition-colors">
+                        <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <h3 className="font-bold text-white text-base leading-tight ml-2">{room.name}</h3>
+                </div>
+                <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+                    <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6 border border-red-500/20">
+                        <XCircle className="w-10 h-10 text-red-500" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">Yêu cầu bị từ chối</h3>
+                    <p className="text-gray-400 max-w-sm mb-6">
+                        Rất tiếc, chủ sân đã từ chối yêu cầu tham gia của bạn.
+                    </p>
+                    <div className="bg-white/5 p-4 rounded-xl border border-white/10 w-full max-w-sm text-left">
+                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Lý do từ chối:</p>
+                        <p className="text-white text-sm font-medium">{myRequest.rejectReason || 'Không có lý do'}</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col h-full bg-transparent">
             {/* Header */}
@@ -96,7 +150,16 @@ export default function ChatWindow({
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2 relative" ref={menuRef}>
+                <div className="flex items-center gap-1 sm:gap-2 relative" ref={menuRef}>
+                    {isOwner && pendingRequests.length > 0 && (
+                        <button 
+                            onClick={() => setShowRequestsModal(true)}
+                            className="relative p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/5"
+                        >
+                            <Users className="w-5 h-5 text-amber-400" />
+                            <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#111113]"></span>
+                        </button>
+                    )}
                     <button 
                         onClick={() => setShowInfo(true)}
                         className="p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/5"
@@ -215,6 +278,23 @@ export default function ChatWindow({
                         key="group-info-modal"
                         groupId={room.id} 
                         onClose={() => setShowInfo(false)} 
+                    />
+                )}
+
+                {showRequestsModal && (
+                    <JoinRequestsModal
+                        key="join-requests-modal"
+                        groupId={room.id}
+                        requests={pendingRequests}
+                        onClose={() => setShowRequestsModal(false)}
+                        onUpdate={() => {
+                            // Let the parent component know so it can refresh the rooms
+                            // Or handle state refresh if passed as props. 
+                            // Since ChatPage maps rooms and passes it, maybe we should trigger a refresh?
+                            // We can use a socket event or window event to refresh ChatPage
+                            window.dispatchEvent(new Event('refresh_chat_rooms'));
+                        }}
+                        onAvatarClick={(userId) => onAvatarClick?.(userId)}
                     />
                 )}
 

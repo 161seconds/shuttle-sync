@@ -2,11 +2,23 @@ import { Calendar, Search, Bell, Menu, Zap } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { theme as t } from '../../utils/theme';
 import { useState, useEffect } from 'react';
+import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import axiosClient from '../../api/axiosClient';
 
 export default function Header() {
     const { setPage, user, isSideBarOpen, toggleSidebar } = useAppStore();
     const [hasUnread, setHasUnread] = useState(false);
+    const [hidden, setHidden] = useState(false);
+    const { scrollY } = useScroll();
+
+    useMotionValueEvent(scrollY, "change", (latest) => {
+        const previous = scrollY.getPrevious() ?? 0;
+        if (latest > previous && latest > 150) {
+            setHidden(true);
+        } else {
+            setHidden(false);
+        }
+    });
 
     useEffect(() => {
         if (!user) return;
@@ -33,7 +45,13 @@ export default function Header() {
     }, [user]);
 
     return (
-        <header
+        <motion.header
+            variants={{
+                visible: { y: 0 },
+                hidden: { y: "-100%" },
+            }}
+            animate={hidden ? "hidden" : "visible"}
+            transition={{ duration: 0.35, ease: "easeInOut" }}
             className={`fixed top-0 left-0 right-0 z-50 w-full h-16 border-b ${t.border.subtle} bg-[#060809]/80 backdrop-blur-xl supports-[backdrop-filter]:bg-[#060809]/60`}
         >
             <div className="w-full h-full flex items-center justify-between md:grid md:grid-cols-3 px-3 md:px-6">
@@ -124,7 +142,7 @@ export default function Header() {
                     )}
                 </div>
             </div>
-        </header>
+        </motion.header>
     );
 }
 

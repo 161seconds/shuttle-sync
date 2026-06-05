@@ -34,5 +34,15 @@ export const groupPlayApi = {
     // Chủ nhóm hủy kèo
     cancelGroupPlay(groupPlayId: string) {
         return axiosClient.post(`/group-plays/${groupPlayId}/cancel`);
+    },
+
+    // Duyệt người chơi vào nhóm
+    acceptJoinRequest(groupPlayId: string, requesterId: string) {
+        return axiosClient.post(`/group-plays/${groupPlayId}/requests/${requesterId}/accept`);
+    },
+
+    // Từ chối người chơi
+    rejectJoinRequest(groupPlayId: string, requesterId: string, reason?: string) {
+        return axiosClient.post(`/group-plays/${groupPlayId}/requests/${requesterId}/reject`, { reason });
     }
 };

@@ -50,6 +50,14 @@ export interface IGroupPlayDocument extends Document {
     requirements?: string;
     contactInfo?: string;
     isChatDeleted?: boolean;
+    joinRequests: {
+        userId: mongoose.Types.ObjectId;
+        displayName: string;
+        avatar?: string;
+        requestedAt: Date;
+        status: 'pending' | 'rejected';
+        rejectReason?: string;
+    }[];
 }
 
 const groupPlaySchema = new Schema<IGroupPlayDocument>(
@@ -123,11 +131,20 @@ const groupPlaySchema = new Schema<IGroupPlayDocument>(
             index: true,
         },
         isPublic: { type: Boolean, default: true },
-        requirements: { type: String, maxlength: 300 },
-        contactInfo: String,
+        requirements: { type: String, maxlength: 500 },
+        contactInfo: { type: String, trim: true },
         isChatDeleted: { type: Boolean, default: false },
+        joinRequests: [{
+            userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+            displayName: { type: String, required: true },
+            avatar: { type: String },
+            requestedAt: { type: Date, default: Date.now },
+            status: { type: String, enum: ['pending', 'rejected'], default: 'pending' },
+            rejectReason: { type: String, maxlength: 200 }
+        }]
     },
-    { timestamps: true },
+    {
+        timestamps: true, },
 );
 
 groupPlaySchema.index({ date: 1, sportType: 1, status: 1, skillLevel: 1 });

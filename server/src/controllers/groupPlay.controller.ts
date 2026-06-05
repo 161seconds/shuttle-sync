@@ -20,6 +20,16 @@ class GroupPlayController {
                 req.params.groupPlayId as string,
                 req.userId!
             );
+            
+            const io = req.app.get('io');
+            if (io) {
+                // Notice to owner
+                io.to(`user:${groupPlay.organizerId.toString()}`).emit('join_request_received', {
+                    groupPlayId: groupPlay._id,
+                    requesterId: req.userId!
+                });
+            }
+
             sendSuccess(res, groupPlay, 'Tham gia nhóm chơi thành công');
         } catch (error) {
             next(error);
@@ -136,6 +146,57 @@ class GroupPlayController {
                 message: 'Đã lưu trận và cập nhật Phong Thần Bảng!',
                 eloChanges: { teamA: eloChangeA, teamB: eloChangeB }
             });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async acceptJoinRequest(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const groupPlay = await groupPlayService.acceptJoinRequest(
+                req.params.groupPlayId as string,
+                req.params.requesterId as string,
+                req.userId!
+            );
+            
+            const io = req.app.get('io');
+            if (io) {
+                // Notify requester
+                io.to(`user:${req.params.requesterId}`).emit('join_request_accepted', {
+                    groupPlayId: groupPlay._id
+                });
+                // Notify chat room
+                io.to(`group_play:${groupPlay._id}`).emit('user_joined', {
+                    userId: req.params.requesterId
+                });
+            }
+
+            sendSuccess(res, groupPlay, 'Đã duyệt người chơi vào nhóm');
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async rejectJoinRequest(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const { reason } = req.body;
+            const groupPlay = await groupPlayService.rejectJoinRequest(
+                req.params.groupPlayId as string,
+                req.params.requesterId as string,
+                req.userId!,
+                reason
+            );
+
+            const io = req.app.get('io');
+            if (io) {
+                // Notify requester
+                io.to(`user:${req.params.requesterId}`).emit('join_request_rejected', {
+                    groupPlayId: groupPlay._id,
+                    reason
+                });
+            }
+
+            sendSuccess(res, groupPlay, 'Đã từ chối người chơi');
         } catch (error) {
             next(error);
         }

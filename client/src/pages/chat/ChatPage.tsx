@@ -42,6 +42,8 @@ export default function ChatPage() {
                         date: gp.date,
                         createdAt: gp.createdAt,
                         isChatDeleted: gp.isChatDeleted,
+                        participants: gp.participants,
+                        joinRequests: gp.joinRequests,
                     }));
                 setRooms(mappedRooms);
             } catch (error) {
@@ -54,6 +56,32 @@ export default function ChatPage() {
         if (user) {
             fetchRooms();
         }
+
+        const handleRefresh = () => {
+            if (user) fetchRooms();
+        };
+
+        window.addEventListener('refresh_chat_rooms', handleRefresh);
+        
+        // Socket listeners
+        socketService.connect('');
+        const socket = socketService.getSocket();
+        if (socket) {
+            socket.on('join_request_received', handleRefresh);
+            socket.on('join_request_accepted', handleRefresh);
+            socket.on('join_request_rejected', handleRefresh);
+            socket.on('user_joined', handleRefresh);
+        }
+
+        return () => {
+            window.removeEventListener('refresh_chat_rooms', handleRefresh);
+            if (socket) {
+                socket.off('join_request_received', handleRefresh);
+                socket.off('join_request_accepted', handleRefresh);
+                socket.off('join_request_rejected', handleRefresh);
+                socket.off('user_joined', handleRefresh);
+            }
+        };
     }, [user]);
 
     // Fetch messages and connect socket when room is selected

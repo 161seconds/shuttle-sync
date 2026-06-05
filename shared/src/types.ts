@@ -285,6 +285,16 @@ export interface IGroupPlay extends ITimestamps {
     isPublic: boolean;
     requirements?: string;
     contactInfo?: string;
+    joinRequests?: IGroupPlayJoinRequest[];
+}
+
+export interface IGroupPlayJoinRequest {
+    userId: string;
+    displayName: string;
+    avatar?: string;
+    requestedAt: Date;
+    status: 'pending' | 'rejected';
+    rejectReason?: string;
 }
 
 export interface IGroupPlayParticipant {

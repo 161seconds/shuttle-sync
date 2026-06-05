@@ -79,8 +79,77 @@ class GroupPlayService {
         const user = await User.findById(userId);
         if (!user) throw ApiError.notFound('Người dùng không tồn tại');
 
+        // Thêm vào danh sách chờ duyệt (joinRequests) thay vì vào thẳng participants
+        const existingRequestIndex = groupPlay.joinRequests.findIndex(r => r.userId.toString() === userId);
+        
+        if (existingRequestIndex !== -1) {
+            const req = groupPlay.joinRequests[existingRequestIndex];
+            if (req.status === 'pending') {
+                throw ApiError.conflict('Bạn đã gửi yêu cầu tham gia và đang chờ duyệt');
+            } else if (req.status === 'rejected') {
+                // Nếu từng bị từ chối, cập nhật lại thành pending
+                groupPlay.joinRequests[existingRequestIndex].status = 'pending';
+                groupPlay.joinRequests[existingRequestIndex].requestedAt = new Date();
+                groupPlay.joinRequests[existingRequestIndex].rejectReason = undefined;
+            }
+        } else {
+            groupPlay.joinRequests.push({
+                userId: user._id as any,
+                displayName: user.displayName,
+                avatar: user.avatar,
+                requestedAt: new Date(),
+                status: 'pending'
+            });
+        }
+
+        await groupPlay.save();
+
+        // Add Notification for organizer
+        await notificationService.createNotification({
+            userId: groupPlay.organizerId.toString(),
+            title: '👋 Yêu cầu tham gia mới!',
+            message: `${user.displayName} muốn tham gia nhóm "${groupPlay.title}" của bạn. Hãy vào duyệt ngay!`,
+            type: 'group_play'
+        }).catch(err => console.error(err));
+
+        // Note: socket event should be emitted by controller to owner
+        
+        logger.info(`User ${user.displayName} requested to join group play: ${groupPlay.title}`);
+        return groupPlay;
+    }
+
+    /**
+     * Accept a join request
+     */
+    async acceptJoinRequest(
+        groupPlayId: string,
+        requesterId: string,
+        ownerId: string
+    ): Promise<IGroupPlayDocument> {
+        const groupPlay = await GroupPlay.findById(groupPlayId);
+        if (!groupPlay) throw ApiError.notFound('Không tìm thấy nhóm chơi');
+
+        if (groupPlay.organizerId.toString() !== ownerId) {
+            throw ApiError.forbidden('Chỉ chủ sân mới có thể duyệt người chơi');
+        }
+
+        if (groupPlay.currentPlayers >= groupPlay.maxPlayers) {
+            throw ApiError.badRequest('Nhóm chơi đã đủ người');
+        }
+
+        const requestIndex = groupPlay.joinRequests.findIndex(r => r.userId.toString() === requesterId && r.status === 'pending');
+        if (requestIndex === -1) {
+            throw ApiError.notFound('Không tìm thấy yêu cầu tham gia đang chờ duyệt');
+        }
+
+        const user = await User.findById(requesterId);
+        if (!user) throw ApiError.notFound('Người dùng không tồn tại');
+
+        // Chuyển từ joinRequests sang participants
+        groupPlay.joinRequests.splice(requestIndex, 1);
+        
         groupPlay.participants.push({
-            userId: user._id,
+            userId: user._id as any,
             displayName: user.displayName,
             avatar: user.avatar,
             role: GroupPlayRole.PARTICIPANT,
@@ -100,19 +169,55 @@ class GroupPlayService {
 
         await groupPlay.save();
 
-        await User.findByIdAndUpdate(userId, {
+        await User.findByIdAndUpdate(requesterId, {
             $inc: { 'stats.totalGroupPlays': 1 },
         });
 
-        // Add Notification for organizer
+        // Add Notification for requester
         await notificationService.createNotification({
-            userId: groupPlay.organizerId.toString(),
-            title: '👋 Có thành viên mới!',
-            message: `${user.displayName} vừa tham gia nhóm "${groupPlay.title}" của bạn.`,
+            userId: requesterId,
+            title: '✅ Đã được duyệt!',
+            message: `Chủ sân đã duyệt bạn vào nhóm "${groupPlay.title}". Vào chat ngay nào!`,
             type: 'group_play'
         }).catch(err => console.error(err));
 
-        logger.info(`User ${user.displayName} joined group play: ${groupPlay.title}`);
+        return groupPlay;
+    }
+
+    /**
+     * Reject a join request
+     */
+    async rejectJoinRequest(
+        groupPlayId: string,
+        requesterId: string,
+        ownerId: string,
+        reason: string
+    ): Promise<IGroupPlayDocument> {
+        const groupPlay = await GroupPlay.findById(groupPlayId);
+        if (!groupPlay) throw ApiError.notFound('Không tìm thấy nhóm chơi');
+
+        if (groupPlay.organizerId.toString() !== ownerId) {
+            throw ApiError.forbidden('Chỉ chủ sân mới có thể từ chối người chơi');
+        }
+
+        const request = groupPlay.joinRequests.find(r => r.userId.toString() === requesterId && r.status === 'pending');
+        if (!request) {
+            throw ApiError.notFound('Không tìm thấy yêu cầu tham gia đang chờ duyệt');
+        }
+
+        request.status = 'rejected';
+        request.rejectReason = reason || 'Từ chối bởi chủ sân';
+
+        await groupPlay.save();
+
+        // Add Notification for requester
+        await notificationService.createNotification({
+            userId: requesterId,
+            title: '❌ Yêu cầu bị từ chối',
+            message: `Chủ sân đã từ chối yêu cầu tham gia nhóm "${groupPlay.title}" của bạn. Lý do: ${request.rejectReason}`,
+            type: 'group_play'
+        }).catch(err => console.error(err));
+
         return groupPlay;
     }
 
@@ -242,7 +347,12 @@ class GroupPlayService {
         page?: number;
         limit?: number;
     }) {
-        const filter = { 'participants.userId': userId };
+        const filter = {
+            $or: [
+                { 'participants.userId': userId },
+                { 'joinRequests.userId': userId }
+            ]
+        };
         const total = await GroupPlay.countDocuments(filter);
         const { page, limit, totalPages, skip } = calculatePagination(
             params.page || 1,
