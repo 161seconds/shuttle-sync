@@ -3,6 +3,7 @@ import { ChevronLeft, Info, MoreVertical, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
+import GroupInfoModal from './GroupInfoModal';
 import type { ChatRoom, ChatUser } from './mockData';
 import { type ChatMessage } from '../../api/chat.api';
 
@@ -28,6 +29,7 @@ export default function ChatWindow({
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
     const [showMenu, setShowMenu] = useState(false);
+    const [showInfo, setShowInfo] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -93,7 +95,10 @@ export default function ChatWindow({
                 </div>
 
                 <div className="flex items-center gap-2 relative" ref={menuRef}>
-                    <button className="p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/5">
+                    <button 
+                        onClick={() => setShowInfo(true)}
+                        className="p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/5"
+                    >
                         <Info className="w-5 h-5" />
                     </button>
                     <button 
@@ -114,6 +119,10 @@ export default function ChatWindow({
                             >
                                 <div className="py-1">
                                     <button 
+                                        onClick={() => {
+                                            setShowMenu(false);
+                                            setShowInfo(true);
+                                        }}
                                         className="w-full text-left px-4 py-3 text-sm text-white hover:bg-white/5 flex items-center gap-3 transition-colors"
                                     >
                                         <Info className="w-4 h-4 text-gray-400" />
@@ -199,6 +208,16 @@ export default function ChatWindow({
                 replyingTo={replyingTo}
                 onCancelReply={() => setReplyingTo(null)}
             />
+
+            <AnimatePresence>
+                {showInfo && (
+                    <GroupInfoModal 
+                        key="group-info-modal"
+                        groupId={room.id} 
+                        onClose={() => setShowInfo(false)} 
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 }
