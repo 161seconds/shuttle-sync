@@ -137,7 +137,7 @@ class BookingService {
         };
     }
 
-    async getMyBookings(userId: string, status?: any) {
+    async getMyBookings(userId: string, status?: any): Promise<any[]> {
         const filter: any = { userId };
         if (status) filter.status = status;
 
