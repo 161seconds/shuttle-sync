@@ -64,5 +64,7 @@ const notificationSchema = new Schema<INotificationDocument>(
 notificationSchema.index({ userId: 1, createdAt: -1 });
 // Tối ưu hóa tốc độ khi đếm: "User X có bao nhiêu thông báo CHƯA ĐỌC"
 notificationSchema.index({ userId: 1, isRead: 1 });
+// Tự động xóa thông báo sau 5 ngày (432000 giây)
+notificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 432000 });
 
 export const Notification = (mongoose.models.Notification as INotificationModel) || mongoose.model<INotificationDocument, INotificationModel>('Notification', notificationSchema);
