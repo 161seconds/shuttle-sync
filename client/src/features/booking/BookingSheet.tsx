@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
-import { X, ChevronLeft, Check, Loader2, MapPin, AlertTriangle, Fingerprint, Zap, Repeat } from 'lucide-react';
+import { X, ChevronLeft, Check, Loader2, MapPin, AlertTriangle, ChevronRight, Zap, Repeat } from 'lucide-react';
 import { formatPrice } from '../../utils/theme';
 import type { Court } from '../../types';
 import { bookingApi } from '../../api/booking.api';
@@ -255,37 +255,36 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             {/* FULLSCREEN BLURRED BACKGROUND */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 overflow-hidden" onClick={onClose}>
-                <div className="absolute inset-[-10%] bg-cover bg-center bg-no-repeat blur-[40px] opacity-30" style={{ backgroundImage: `url(${mainPhoto})` }} />
-                <div className="absolute inset-0 bg-[#06080a]/80 backdrop-blur-2xl" />
+                <div className="absolute inset-[-10%] bg-cover bg-center bg-no-repeat blur-[60px] opacity-40" style={{ backgroundImage: `url(${mainPhoto})` }} />
+                <div className="absolute inset-0 bg-[#06080a]/60 backdrop-blur-3xl" />
             </motion.div>
 
-            {/* MAIN HUD CONTAINER */}
+            {/* MAIN GLASS CONTAINER */}
             <motion.div 
                 variants={sheetVariants} initial="hidden" animate="visible" exit="exit"
-                className="relative w-full max-w-2xl bg-[#0a0c10]/70 rounded-3xl border border-white/5 shadow-[0_0_100px_-20px_rgba(16,185,129,0.3)] overflow-hidden flex flex-col backdrop-blur-3xl"
+                className="relative w-full max-w-2xl bg-white/5 rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col backdrop-blur-xl"
             >
-                {/* HUD Decorative Lines */}
-                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent opacity-50 pointer-events-none z-20" />
-
-                {/* Header HUD */}
-                <div className="px-6 py-5 flex items-center justify-between relative z-10 border-b border-white/5">
+                {/* Header */}
+                <div className="px-6 py-5 flex items-center justify-between relative z-10 border-b border-white/5 bg-white/5">
                     <div className="flex items-center gap-4">
                         {step === 2 && (
-                            <button onClick={() => changeStep(1)} className="w-10 h-10 rounded-full border border-white/10 bg-black/40 flex items-center justify-center text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/50 hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all">
+                            <button onClick={() => changeStep(1)} className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-300 hover:text-white transition-all">
                                 <ChevronLeft className="w-5 h-5" />
                             </button>
                         )}
                         <div>
-                            <div className="flex items-center gap-2 mb-1">
-                                <Zap className="w-4 h-4 text-emerald-500 animate-pulse" />
-                                <h2 className="font-black text-xl text-white tracking-widest uppercase">
-                                {step === 1 ? 'LỊCH & GIỜ CHƠI' : 'XÁC NHẬN & THANH TOÁN'}
+                            <div className="flex items-center gap-2 mb-0.5">
+                                <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                                    <Zap className="w-3.5 h-3.5 text-emerald-400" />
+                                </div>
+                                <h2 className="font-bold text-xl text-white tracking-wide">
+                                {step === 1 ? 'Lịch & Giờ chơi' : 'Xác nhận & Thanh toán'}
                             </h2>
                             </div>
-                            <p className="text-xs text-emerald-400/80 font-mono tracking-widest">{court.name.toUpperCase()}</p>
+                            <p className="text-[13px] text-gray-400 font-medium ml-8">{court.name}</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50 transition-all">
+                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
@@ -295,17 +294,17 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                         {step === 1 ? (
                             <motion.div key="step1" custom={direction} variants={stepVariants} initial="enter" animate="center" exit="exit" className="space-y-8">
                                 
-                                {/* HUD TYPE SELECTOR */}
-                                <div className="flex bg-black/40 border border-white/5 rounded-xl p-1">
+                                {/* TYPE SELECTOR */}
+                                <div className="flex bg-white/5 p-1 rounded-2xl">
                                     <button 
                                         onClick={() => setBookingType('casual')}
-                                        className={`flex-1 py-3 text-xs font-mono font-black uppercase tracking-widest rounded-lg flex items-center justify-center gap-2 transition-all ${bookingType === 'casual' ? 'bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                                        className={`flex-1 py-3 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${bookingType === 'casual' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25' : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'}`}
                                     >
                                         <Zap className="w-4 h-4" /> Vãng Lai
                                     </button>
                                     <button 
                                         onClick={() => setBookingType('fixed')}
-                                        className={`flex-1 py-3 text-xs font-mono font-black uppercase tracking-widest rounded-lg flex items-center justify-center gap-2 transition-all ${bookingType === 'fixed' ? 'bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                                        className={`flex-1 py-3 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${bookingType === 'fixed' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25' : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'}`}
                                     >
                                         <Repeat className="w-4 h-4" /> Cố Định
                                     </button>
@@ -318,56 +317,48 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                             exit={{ opacity: 0, height: 0, marginTop: -32 }}
                                             className="overflow-hidden"
                                         >
-                                            <div className="flex items-center justify-between p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl">
+                                            <div className="flex items-center justify-between p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl">
                                                 <div className="flex items-center gap-3">
-                                                    <Repeat className="w-5 h-5 text-emerald-400" />
-                                                    <div>
-                                                        <p className="text-[10px] font-black font-mono text-emerald-500 tracking-widest">THỜI GIAN ĐẶT</p>
+                                                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                                                        <Repeat className="w-4 h-4 text-emerald-400" />
                                                     </div>
+                                                    <p className="text-[13px] font-bold text-gray-300">Thời gian đặt</p>
                                                 </div>
-                                                <div className="flex items-center gap-2 bg-black/40 rounded-lg p-1 border border-emerald-500/20">
-                                                    <button onClick={() => setFixedMonths(Math.max(1, fixedMonths - 1))} className="w-8 h-8 flex items-center justify-center text-emerald-500 hover:bg-emerald-500/20 rounded-md font-bold">-</button>
-                                                    <span className="font-mono text-white w-14 text-center text-sm font-bold">{fixedMonths} THÁNG</span>
-                                                    <button onClick={() => setFixedMonths(Math.min(12, fixedMonths + 1))} className="w-8 h-8 flex items-center justify-center text-emerald-500 hover:bg-emerald-500/20 rounded-md font-bold">+</button>
+                                                <div className="flex items-center gap-2 bg-white/5 rounded-xl p-1">
+                                                    <button onClick={() => setFixedMonths(Math.max(1, fixedMonths - 1))} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">-</button>
+                                                    <span className="text-white w-16 text-center text-sm font-bold">{fixedMonths} tháng</span>
+                                                    <button onClick={() => setFixedMonths(Math.min(12, fixedMonths + 1))} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">+</button>
                                                 </div>
                                             </div>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
 
-                                {/* HUD DATE PICKER / DAYS OF WEEK */}
+                                {/* DATE PICKER / DAYS OF WEEK */}
                                 {bookingType === 'casual' ? (
                                     <div>
                                         <div className="flex items-center justify-between mb-4">
-                                            <label className="text-[10px] font-black font-mono uppercase tracking-[0.2em] text-emerald-500/80 flex items-center gap-2">
-                                                CHỌN NGÀY
+                                            <label className="text-sm font-bold text-gray-300">
+                                                Chọn ngày
                                             </label>
-                                            <div className="font-mono text-xs text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded border border-emerald-500/20">
-                                                THÁNG_{String(dates[selectedDate].month).padStart(2, '0')}
+                                            <div className="text-[13px] font-medium text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full">
+                                                Tháng {dates[selectedDate].month}
                                             </div>
                                         </div>
                                         
-                                        <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory mask-fade-edges">
+                                        <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory">
                                             {dates.map((d, i) => {
                                                 const isActive = selectedDate === i;
                                                 return (
                                                     <button
                                                         key={i}
                                                         onClick={() => setSelectedDate(i)}
-                                                        className={`relative shrink-0 w-[5rem] py-4 rounded-xl flex flex-col items-center justify-center gap-2 snap-center transition-all duration-300 bg-black/40 border ${isActive ? 'border-emerald-500/50' : 'border-white/5 hover:border-white/20'}`}
+                                                        className={`relative shrink-0 w-[4.5rem] py-3 rounded-2xl flex flex-col items-center justify-center gap-1 snap-center transition-all duration-300 ${isActive ? 'bg-emerald-500 shadow-lg shadow-emerald-500/25' : 'bg-white/5 hover:bg-white/10'}`}
                                                     >
-                                                        {isActive && (
-                                                            <motion.div
-                                                                layoutId="hud-date"
-                                                                className="absolute inset-0 bg-emerald-500/10 border border-emerald-400 shadow-[inset_0_0_20px_rgba(16,185,129,0.2)] rounded-xl"
-                                                                initial={false}
-                                                                transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                                                            />
-                                                        )}
-                                                        <span className={`relative z-10 text-[10px] font-black tracking-widest uppercase font-mono ${isActive ? 'text-emerald-400 drop-shadow-[0_0_5px_rgba(16,185,129,0.8)]' : 'text-gray-500'}`}>
+                                                        <span className={`relative z-10 text-[11px] font-bold uppercase ${isActive ? 'text-emerald-50' : 'text-gray-400'}`}>
                                                             {d.day}
                                                         </span>
-                                                        <span className={`relative z-10 text-2xl font-black font-mono ${isActive ? 'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'text-gray-400'}`}>
+                                                        <span className={`relative z-10 text-xl font-bold ${isActive ? 'text-white' : 'text-gray-300'}`}>
                                                             {d.date}
                                                         </span>
                                                     </button>
@@ -378,10 +369,10 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                 ) : (
                                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
                                         <div className="flex items-center justify-between mb-4">
-                                            <label className="text-[10px] font-black font-mono uppercase tracking-[0.2em] text-emerald-500/80 flex items-center gap-2">
-                                                CHỌN THỨ TRONG TUẦN
+                                            <label className="text-sm font-bold text-gray-300">
+                                                Thứ trong tuần
                                             </label>
-                                            <span className="text-[10px] text-gray-500 font-mono tracking-widest uppercase">Có thể chọn nhiều</span>
+                                            <span className="text-[11px] text-gray-500 uppercase tracking-wide font-semibold">Có thể chọn nhiều</span>
                                         </div>
                                         <div className="flex gap-2">
                                             {[1, 2, 3, 4, 5, 6, 0].map(day => {
@@ -391,10 +382,10 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                     <button
                                                         key={day}
                                                         onClick={() => toggleDayOfWeek(day)}
-                                                        className={`flex-1 py-3 rounded-xl border font-mono font-black text-sm transition-all ${
+                                                        className={`flex-1 py-3 rounded-2xl text-sm font-bold transition-all duration-300 ${
                                                             isActive 
-                                                            ? 'bg-emerald-500/20 border-emerald-400 text-white shadow-[inset_0_0_15px_rgba(16,185,129,0.3)]'
-                                                            : 'bg-black/40 border-white/5 text-gray-500 hover:border-white/20 hover:text-gray-300'
+                                                            ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25'
+                                                            : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-gray-200'
                                                         }`}
                                                     >
                                                         {label}
@@ -405,29 +396,29 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                     </motion.div>
                                 )}
 
-                                {/* HUD ENERGY GRID */}
+                                {/* TIME GRID */}
                                 <div className="relative">
                                     <div className="flex items-center justify-between mb-4">
-                                        <label className="text-[10px] font-black font-mono uppercase tracking-[0.2em] text-emerald-500/80 flex items-center gap-2">
-                                            CHỌN KHUNG GIỜ
+                                        <label className="text-sm font-bold text-gray-300">
+                                            Khung giờ
                                         </label>
-                                        <div className="flex gap-3 text-[9px] font-mono font-bold tracking-widest text-gray-500 uppercase">
-                                            <span className="flex items-center gap-1"><div className="w-2 h-2 bg-emerald-500 shadow-[0_0_5px_#10b981]" /> ĐANG CHỌN</span>
-                                            <span className="flex items-center gap-1"><div className="w-2 h-2 bg-red-500/20 border border-red-500/50" /> HẾT CHỖ</span>
+                                        <div className="flex gap-4 text-[12px] font-semibold text-gray-400">
+                                            <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50" /> Đang chọn</span>
+                                            <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-white/5 border border-white/10" /> Hết chỗ</span>
                                         </div>
                                     </div>
                                     
                                     <div className="relative p-1">
                                         {isLoadingSlots && (
-                                            <div className="absolute inset-0 z-10 bg-[#0a0c10]/80 backdrop-blur-sm flex items-center justify-center border border-emerald-500/30 rounded-xl">
+                                            <div className="absolute inset-0 z-10 bg-[#0a0c10]/50 backdrop-blur-md flex items-center justify-center rounded-2xl">
                                                 <div className="flex flex-col items-center gap-3">
                                                     <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
-                                                    <p className="font-mono text-xs text-emerald-400 tracking-widest animate-pulse">ĐANG TẢI DỮ LIỆU...</p>
+                                                    <p className="text-sm text-emerald-400 font-medium">Đang tải dữ liệu...</p>
                                                 </div>
                                             </div>
                                         )}
                                         
-                                        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                                        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2.5">
                                             {SLOTS.map(slot => {
                                                 const booked = isSlotBooked(slot);
                                                 
@@ -453,29 +444,18 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                         key={slot}
                                                         onClick={() => handleSlotClick(slot)}
                                                         disabled={booked}
-                                                        className={`relative h-12 rounded-[8px] text-xs font-mono font-bold transition-all duration-300 flex items-center justify-center overflow-hidden group ${
+                                                        className={`relative h-11 rounded-xl text-[13px] font-semibold transition-all duration-300 flex items-center justify-center overflow-hidden ${
                                                             booked 
-                                                                ? 'bg-red-500/5 text-red-500/40 border border-red-500/20 cursor-not-allowed opacity-50'
+                                                                ? 'bg-white/5 text-gray-500/50 cursor-not-allowed'
                                                                 : isSelected
-                                                                    ? 'bg-emerald-500/20 text-emerald-50 border border-emerald-400 shadow-[inset_0_0_15px_rgba(16,185,129,0.5),0_0_15px_rgba(16,185,129,0.3)]'
-                                                                    : 'bg-black/40 text-gray-400 border border-white/5 hover:border-emerald-500/50 hover:text-white'
+                                                                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
+                                                                    : 'bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white'
                                                         }`}
                                                     >
-                                                        {/* Scanning line effect on hover */}
-                                                        {!booked && !isSelected && (
-                                                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-500/10 to-transparent -translate-y-full group-hover:animate-shimmer" />
-                                                        )}
-                                                        
                                                         <span className="relative z-10">{slot}</span>
                                                         
                                                         {isEndpoint && (
-                                                            <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_5px_white] animate-pulse" />
-                                                        )}
-                                                        
-                                                        {booked && (
-                                                            <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-                                                                <div className="w-full h-px bg-red-500/50 rotate-45 scale-150" />
-                                                            </div>
+                                                            <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_5px_white]" />
                                                         )}
                                                     </button>
                                                 )
@@ -483,33 +463,31 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                         </div>
                                     </div>
 
-                                    {/* HUD Validator */}
-                                    <div className="mt-6">
+                                    {/* Validator */}
+                                    <div className="mt-8 h-[88px] relative">
                                         <AnimatePresence mode="wait">
                                             {validation.error ? (
                                                 <motion.div 
                                                     key="error"
-                                                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                                                    className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl font-mono text-xs text-red-400 shadow-[inset_0_0_20px_rgba(239,68,68,0.1)]"
+                                                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                                                    className="absolute inset-0 w-full flex items-center justify-center gap-3 px-5 bg-red-500/10 border border-red-500/20 rounded-2xl text-sm font-medium text-red-400 text-center"
                                                 >
-                                                    <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+                                                    <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
                                                     {validation.error}
                                                 </motion.div>
                                             ) : (
                                                 <motion.div 
                                                     key="success"
-                                                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                                                    className="flex justify-between items-center p-5 bg-emerald-500/10 border border-emerald-500/40 rounded-2xl relative overflow-hidden group shadow-[0_0_30px_rgba(16,185,129,0.1)]"
+                                                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                                                    className="absolute inset-0 w-full flex justify-between items-center px-6 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-2xl overflow-hidden group shadow-lg"
                                                 >
-                                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
-                                                    
                                                     <div>
-                                                        <p className="text-[10px] font-black uppercase font-mono tracking-[0.2em] text-emerald-500 mb-1">THỜI LƯỢNG</p>
-                                                        <span className="text-white font-mono text-lg">{validation.durationHours.toFixed(1)} GIỜ</span>
+                                                        <p className="text-[12px] font-semibold text-emerald-500/80 mb-1 uppercase tracking-wider">Thời lượng</p>
+                                                        <span className="text-white text-lg font-bold">{validation.durationHours.toFixed(1)} Giờ</span>
                                                     </div>
                                                     <div className="text-right">
-                                                        <p className="text-[10px] font-black uppercase font-mono tracking-[0.2em] text-emerald-500 mb-1">TẠM TÍNH</p>
-                                                        <span className="text-emerald-400 font-black font-mono text-2xl drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]">
+                                                        <p className="text-[12px] font-semibold text-emerald-500/80 mb-1 uppercase tracking-wider">Tạm tính</p>
+                                                        <span className="text-emerald-400 font-black text-2xl drop-shadow-md">
                                                             {formatPrice(validation.total)}
                                                         </span>
                                                     </div>
@@ -521,40 +499,34 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                             </motion.div>
                         ) : (
                             <motion.div key="step2" custom={direction} variants={stepVariants} initial="enter" animate="center" exit="exit" className="flex justify-center">
-                                {/* HOLOGRAPHIC E-TICKET */}
+                                {/* MODERN E-TICKET */}
                                 <div 
-                                    className="relative w-full max-w-sm bg-gradient-to-b from-[#15171b]/90 to-[#0c0d10]/90 backdrop-blur-md rounded-3xl border border-emerald-500/30 p-8 shadow-[0_0_50px_rgba(16,185,129,0.15)] overflow-hidden"
+                                    className="relative w-full max-w-sm bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 p-8 shadow-2xl overflow-hidden"
                                 >
-                                    {/* Hologram Lines */}
-                                    <div className="absolute inset-0 pointer-events-none opacity-20" style={{ backgroundImage: "repeating-linear-gradient(transparent, transparent 2px, rgba(16,185,129,0.2) 2px, rgba(16,185,129,0.2) 4px)" }} />
-                                    
                                     <div className="flex flex-col items-center mb-8 relative z-10">
-                                        <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-emerald-500/50 p-1 mb-4 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
-                                            <div className="w-full h-full rounded-xl overflow-hidden relative">
-                                                <img src={mainPhoto} alt="" className="w-full h-full object-cover" />
-                                                <div className="absolute inset-0 bg-emerald-500/20 mix-blend-overlay" />
-                                            </div>
+                                        <div className="w-20 h-20 rounded-2xl overflow-hidden mb-4 shadow-xl border border-white/10">
+                                            <img src={mainPhoto} alt="" className="w-full h-full object-cover" />
                                         </div>
-                                        <h3 className="font-black text-xl text-white text-center font-mono uppercase tracking-wider">{court.name}</h3>
-                                        <p className="text-xs text-emerald-400/80 font-mono flex items-center gap-1 mt-2">
-                                            <MapPin className="w-3.5 h-3.5" /> {court.address?.district}
+                                        <h3 className="font-bold text-xl text-white text-center">{court.name}</h3>
+                                        <p className="text-sm text-gray-400 flex items-center gap-1.5 mt-2 font-medium">
+                                            <MapPin className="w-4 h-4" /> {court.address?.district}
                                         </p>
                                     </div>
 
-                                    {/* Dashed cut line */}
-                                    <div className="w-full border-b-2 border-dashed border-emerald-500/30 my-6 relative z-10" />
+                                    {/* Separator */}
+                                    <div className="w-full border-b border-white/10 my-6 relative z-10" />
 
-                                    <div className="space-y-5 relative z-10">
-                                        <SummaryRow label={bookingType === 'fixed' ? 'GÓI CỐ ĐỊNH' : 'NGÀY CHƠI'} value={bookingType === 'fixed' ? `${fixedMonths} Tháng (${validation.totalSessions} buổi)` : `${dates[selectedDate].date}/${dates[selectedDate].month}/${new Date().getFullYear()}`} />
-                                        <SummaryRow label="THỜI GIAN" value={`${finalStartTime} - ${finalEndTime}`} accent />
-                                        <SummaryRow label="THỜI LƯỢNG" value={`${validation.durationHours} GIỜ`} />
-                                        <SummaryRow label="PHƯƠNG THỨC" value="Thanh toán VNPay" />
+                                    <div className="space-y-4 relative z-10">
+                                        <SummaryRow label={bookingType === 'fixed' ? 'Gói cố định' : 'Ngày chơi'} value={bookingType === 'fixed' ? `${fixedMonths} Tháng (${validation.totalSessions} buổi)` : `${dates[selectedDate].date}/${dates[selectedDate].month}/${new Date().getFullYear()}`} />
+                                        <SummaryRow label="Thời gian" value={`${finalStartTime} - ${finalEndTime}`} accent />
+                                        <SummaryRow label="Thời lượng" value={`${validation.durationHours} Giờ`} />
+                                        <SummaryRow label="Phương thức" value="Thanh toán VNPay" />
                                     </div>
 
-                                    <div className="mt-8 pt-6 border-t border-emerald-500/20 relative z-10">
+                                    <div className="mt-8 pt-6 border-t border-white/10 relative z-10">
                                         <div className="flex justify-between items-end">
-                                            <span className="font-mono text-xs font-black text-gray-500 tracking-[0.2em]">TỔNG THANH TOÁN</span>
-                                            <span className="text-3xl font-black font-mono text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.6)]">
+                                            <span className="text-[13px] font-semibold text-gray-400">Tổng thanh toán</span>
+                                            <span className="text-3xl font-black bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent drop-shadow-sm">
                                                 {formatPrice(validation.total)}
                                             </span>
                                         </div>
@@ -566,32 +538,30 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                     </AnimatePresence>
                 </div>
 
-                {/* Footer HUD CTA */}
-                <div className="px-6 py-6 bg-black/60 border-t border-white/5 relative z-10 backdrop-blur-md rounded-b-3xl">
+                {/* Footer CTA */}
+                <div className="px-6 py-6 border-t border-white/5 relative z-10 bg-white/5 backdrop-blur-xl">
                     {step === 1 ? (
                         <button
                             onClick={() => changeStep(2)}
                             disabled={validation.error !== '' || isLoadingSlots}
-                            className="group relative w-full h-16 bg-emerald-500/10 text-emerald-400 rounded-2xl font-black font-mono text-lg uppercase tracking-widest flex items-center justify-center gap-3 overflow-hidden disabled:opacity-30 disabled:cursor-not-allowed transition-all border border-emerald-500/50"
+                            className="group relative w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-2xl font-bold text-lg flex items-center justify-center gap-3 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-emerald-500/20"
                         >
-                            <div className="absolute inset-0 bg-emerald-500 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-                            <Fingerprint className="w-5 h-5 relative z-10 group-hover:text-black transition-colors duration-300" />
-                            <span className="relative z-10 group-hover:text-black transition-colors duration-300">TIẾP TỤC THANH TOÁN</span>
+                            <span className="relative z-10">Tiếp tục thanh toán</span>
+                            <ChevronRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
                         </button>
                     ) : (
                         <button
                             onClick={handleConfirm}
                             disabled={isBooking}
-                            className="group relative w-full h-16 bg-emerald-500 text-black rounded-2xl font-black font-mono text-lg uppercase tracking-widest flex items-center justify-center gap-3 overflow-hidden disabled:opacity-70 border border-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_50px_rgba(16,185,129,0.5)] transition-all"
+                            className="group relative w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-2xl font-bold text-lg flex items-center justify-center gap-3 overflow-hidden disabled:opacity-70 transition-all shadow-lg shadow-emerald-500/20"
                         >
                             {isBooking && (
-                                <div className="absolute inset-0 bg-black/20 flex items-center justify-center backdrop-blur-sm z-20">
-                                    <Loader2 className="w-6 h-6 animate-spin text-black" />
+                                <div className="absolute inset-0 bg-black/10 flex items-center justify-center z-20">
+                                    <Loader2 className="w-6 h-6 animate-spin" />
                                 </div>
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-shimmer z-0" />
-                            <Check className="w-6 h-6 relative z-10" />
-                            <span className="relative z-10">{isBooking ? 'ĐANG TẠO MÃ...' : 'XÁC NHẬN ĐẶT SÂN'}</span>
+                            <Check className="w-5 h-5 relative z-10" />
+                            <span className="relative z-10">{isBooking ? 'Đang tạo mã...' : 'Xác nhận đặt sân'}</span>
                         </button>
                     )}
                 </div>
@@ -602,9 +572,9 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
 
 function SummaryRow({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
     return (
-        <div className="flex justify-between items-center font-mono">
-            <span className="text-[10px] text-emerald-500/70 font-black tracking-widest">{label}</span>
-            <span className={`text-sm ${accent ? 'text-emerald-400 font-black drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-gray-300 font-bold'}`}>{value}</span>
+        <div className="flex justify-between items-center">
+            <span className="text-[14px] text-gray-400 font-medium">{label}</span>
+            <span className={`text-[15px] font-semibold ${accent ? 'text-emerald-400' : 'text-gray-200'}`}>{value}</span>
         </div>
     );
 }
