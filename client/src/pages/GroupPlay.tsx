@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Users, Search, MapPin, Calendar, Clock, Star,
-    Filter, Plus, Loader2, Zap, Target, Trophy, Leaf,
-    ChevronDown, X, Check, UserPlus, Flame, Settings,
-    MessageSquare
+    Plus, Loader2, Zap, Target, Trophy, Leaf,
+    ChevronDown, ChevronLeft, ChevronRight, X, Check, UserPlus, Flame, Settings,
+    MessageSquare, AlignLeft
 } from 'lucide-react';
-import { theme as t, formatPrice } from '../utils/theme';
+import { formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
 import { useAlertStore } from '../stores/useAlertStore';
 import { groupPlayApi } from '../api/groupPlay.api';
@@ -77,7 +77,7 @@ export default function GroupPlayPage() {
     const [searchVal, setSearchVal] = useState('');
     const [sportFilter, setSportFilter] = useState('all');
     const [skillFilter] = useState('all');
-    const [showFilters, setShowFilters] = useState(false);
+    //const [showFilters, setShowFilters] = useState(false);
     const [showCreate, setShowCreate] = useState(false);
     const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -143,34 +143,40 @@ export default function GroupPlayPage() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto px-4 pb-28 md:pb-8 pt-6">
-            {/* Header MỚI CÓ 2 NÚT QUICK ACTION */}
-            <div className="mb-8">
-                <div className="flex items-center justify-between mb-4">
+        <div className="max-w-4xl mx-auto px-4 pb-28 md:pb-8 pt-6 relative min-h-screen">
+            {/* Background Glows */}
+            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[30%] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute top-[20%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
+
+            {/* Header - Hero Section */}
+            <div className="mb-8 relative z-10">
+                <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h1 className={`text-2xl font-black ${t.text.primary} flex items-center gap-2`}>
-                            <Users className="w-6 h-6 text-emerald-400" /> Cộng đồng Nhóm chơi
+                        <h1 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400 flex items-center gap-2">
+                            <Users className="w-8 h-8 text-emerald-400" /> Nhóm Chơi
                         </h1>
-                        <p className={`text-xs ${t.text.muted} mt-1`}>Nơi những đường cầu kết nối đam mê</p>
+                        <p className="text-sm text-gray-400 mt-2 font-medium">Tìm kiếm đồng đội, kết nối đam mê</p>
                     </div>
                     <button onClick={() => setShowCreate(true)}
-                        className="px-5 py-2.5 rounded-xl bg-emerald-500 text-black text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 transition-all">
-                        <Plus className="w-4 h-4" /> Mở nhóm mới
+                        className="group relative px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 text-black font-black flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] hover:-translate-y-0.5 transition-all duration-300">
+                        <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <Plus className="w-5 h-5" />
+                        <span className="hidden sm:inline">Mở nhóm mới</span>
                     </button>
                 </div>
 
-                {/* KHU VỰC CÔNG CỤ NHANH */}
+                {/* Quick Actions (Glassmorphism Pills) */}
                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
                     <button
                         onClick={() => setPage('match-leaderboard')}
-                        className="flex-1 min-w-max px-4 py-2.5 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-yellow-500 hover:text-black transition-all"
+                        className="flex-1 min-w-max px-5 py-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl text-sm font-bold text-gray-300 flex items-center justify-center gap-2 hover:bg-yellow-500/10 hover:text-yellow-400 hover:border-yellow-500/30 transition-all duration-300"
                     >
                         <Trophy className="w-4 h-4" /> Ghi nhận Trận đấu
                     </button>
 
                     <button
                         onClick={() => setShowPriceModal(true)}
-                        className="flex-1 min-w-max px-4 py-2.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-emerald-500 hover:text-black transition-all"
+                        className="flex-1 min-w-max px-5 py-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl text-sm font-bold text-gray-300 flex items-center justify-center gap-2 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 transition-all duration-300"
                     >
                         <Settings className="w-4 h-4" /> Cấu hình Giá & Thu tiền
                     </button>
@@ -178,32 +184,37 @@ export default function GroupPlayPage() {
             </div>
 
             {/* Search & Filters */}
-            <div className="flex gap-2 mb-6">
-                <div className="relative flex-1">
-                    <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${t.text.muted}`} />
-                    <input
-                        type="text" placeholder="Tìm tên nhóm, sân..." value={searchVal}
-                        onChange={e => setSearchVal(e.target.value)}
-                        className={`w-full h-12 pl-11 pr-4 rounded-2xl ${t.bg.input} border ${t.border.subtle} ${t.text.primary} text-sm outline-none focus:border-emerald-500/40 transition-all`}
-                    />
+            <div className="flex gap-3 mb-6 relative z-10">
+                <div className="relative flex-1 group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500" />
+                    <div className="relative flex items-center bg-[#1a1c23] border border-white/10 rounded-2xl h-14 overflow-hidden">
+                        <Search className="absolute left-4 w-5 h-5 text-gray-400" />
+                        <input
+                            type="text" placeholder="Tìm tên nhóm, sân, khu vực..." value={searchVal}
+                            onChange={e => setSearchVal(e.target.value)}
+                            className="w-full h-full pl-12 pr-4 bg-transparent text-white text-sm outline-none placeholder:text-gray-500"
+                        />
+                    </div>
                 </div>
-                <button onClick={() => setShowFilters(!showFilters)}
-                    className={`px-4 rounded-2xl border transition-all ${showFilters ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' : `${t.bg.elevated} ${t.border.subtle} ${t.text.muted}`}`}>
-                    <Filter className="w-5 h-5" />
-                </button>
             </div>
 
-            {/* Sport Pills */}
-            <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-none">
-                {SPORT_FILTERS.map(f => (
-                    <button key={f.id} onClick={() => setSportFilter(f.id)}
-                        className={`shrink-0 px-5 py-2 rounded-xl text-xs font-bold border transition-all ${sportFilter === f.id
-                            ? 'bg-emerald-500 text-black border-emerald-500'
-                            : `${t.bg.elevated} ${t.border.subtle} ${t.text.secondary}`
-                            }`}>
-                        {f.icon} {f.label}
-                    </button>
-                ))}
+            {/* Sport Pills (Segmented Control Style) */}
+            <div className="flex gap-2 mb-8 overflow-x-auto scrollbar-none relative z-10 p-1 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 w-max max-w-full">
+                {SPORT_FILTERS.map(f => {
+                    const isActive = sportFilter === f.id;
+                    return (
+                        <button key={f.id} onClick={() => setSportFilter(f.id)}
+                            className={`relative px-6 py-2.5 rounded-xl text-sm font-bold transition-colors duration-300 z-10 flex items-center gap-2 ${isActive ? 'text-black' : 'text-gray-400 hover:text-gray-200'}`}>
+                            {isActive && (
+                                <motion.div layoutId="sport-pill-bg"
+                                    className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-xl -z-10 shadow-lg shadow-emerald-500/20"
+                                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                />
+                            )}
+                            {f.icon} {f.label}
+                        </button>
+                    );
+                })}
             </div>
 
             {/* List */}
@@ -217,86 +228,135 @@ export default function GroupPlayPage() {
                     const joined = user && g.participants.some(p => p.userId === user._id);
 
                     return (
-                        <motion.div key={g._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                            className={`${t.bg.card} rounded-3xl border ${t.border.subtle} overflow-hidden hover:border-emerald-500/20 transition-all shadow-sm`}>
+                        <motion.div key={g._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
+                            className="group relative rounded-[28px] bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-white/5 overflow-hidden transition-all duration-500 hover:border-emerald-500/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)] backdrop-blur-xl">
 
-                            <button onClick={() => setExpandedId(expandedId === g._id ? null : g._id)} className="w-full p-5 text-left">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="flex gap-4">
-                                        <div className={`w-12 h-12 rounded-2xl ${t.bg.elevated} flex items-center justify-center text-2xl`}>
+                            {/* Card Background Glow */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+                            <button onClick={() => setExpandedId(expandedId === g._id ? null : g._id)} className="relative w-full p-6 text-left z-10">
+                                {/* Top Row: Sport Icon & Status */}
+                                <div className="flex justify-between items-start mb-5">
+                                    <div className="flex gap-4 items-center">
+                                        <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1e2128] to-[#14151a] border border-white/10 flex items-center justify-center text-3xl shadow-inner shadow-white/5">
                                             {g.sportType === 'pickleball' ? '🏓' : '🏸'}
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-white text-base mb-1">{g.title}</h3>
-                                            <div className="flex gap-2">
-                                                <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold border ${status.bg} ${status.color}`}>{status.label}</span>
-                                                <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${skill.color}`}>{skill.label}</span>
+                                            <h3 className="font-black text-white text-lg mb-1.5 leading-tight">{g.title}</h3>
+                                            <div className="flex gap-2 flex-wrap">
+                                                <span className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border ${status.bg} ${status.color} shadow-sm backdrop-blur-md`}>{status.label}</span>
+                                                <span className={`px-2.5 py-1 rounded-xl text-[11px] font-bold ${skill.color} shadow-sm backdrop-blur-md flex items-center gap-1`}>
+                                                    {skill.icon} {skill.label}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <div className="text-emerald-400 font-black text-lg">{formatPrice(g.pricePerPlayer)}đ</div>
-                                        <div className={`text-[10px] ${t.text.muted} uppercase font-bold tracking-tighter`}>Mỗi người</div>
+                                    <div className="text-right flex flex-col items-end">
+                                        <div className="text-emerald-400 font-black text-xl tracking-tight drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]">
+                                            {formatPrice(g.pricePerPlayer)}<span className="text-sm">đ</span>
+                                        </div>
+                                        <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest mt-0.5">/ Người</div>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-y-2 mb-4">
-                                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                                        <MapPin className="w-3.5 h-3.5 text-emerald-500" /> {typeof g.courtId === 'object' && g.courtId ? g.courtId.name : 'Sân cầu lông'}
+                                {/* Info Grid */}
+                                <div className="grid grid-cols-2 gap-y-3 gap-x-4 mb-5 p-4 rounded-2xl bg-black/20 border border-white/5">
+                                    <div className="flex items-center gap-2.5 text-sm text-gray-300">
+                                        <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                                            <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                                        </div>
+                                        <span className="truncate">{typeof g.courtId === 'object' && g.courtId ? g.courtId.name : 'Sân cầu lông'}</span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                                        <Calendar className="w-3.5 h-3.5 text-emerald-500" /> {formatDate(g.date)}
+                                    <div className="flex items-center gap-2.5 text-sm text-gray-300">
+                                        <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                                            <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+                                        </div>
+                                        <span>{formatDate(g.date)}</span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                                        <Clock className="w-3.5 h-3.5 text-emerald-500" /> {g.startTime} - {g.endTime}
+                                    <div className="flex items-center gap-2.5 text-sm text-gray-300">
+                                        <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                                            <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                                        </div>
+                                        <span>{g.startTime} - {g.endTime}</span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                                        <Users className="w-3.5 h-3.5 text-emerald-500" /> {g.currentPlayers}/{g.maxPlayers} Thành viên
+                                    <div className="flex items-center gap-2.5 text-sm text-gray-300">
+                                        <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                                            <Users className="w-3.5 h-3.5 text-emerald-400" />
+                                        </div>
+                                        <span className={g.currentPlayers >= g.maxPlayers ? 'text-amber-400 font-bold' : ''}>
+                                            {g.currentPlayers}/{g.maxPlayers} slot
+                                        </span>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                                    <div className="flex -space-x-2">
-                                        {g.participants.slice(0, 5).map((p, i) => (
-                                            <div key={i} className="w-7 h-7 rounded-full border-2 border-[#1a1b1e] bg-gray-800 flex items-center justify-center text-[10px] font-bold text-white overflow-hidden">
-                                                {p.avatar ? <img src={p.avatar} alt="avt" className="w-full h-full object-cover" /> : p.displayName.charAt(0)}
-                                            </div>
-                                        ))}
+                                {/* Bottom Row: Avatars & Expand Arrow */}
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex -space-x-3">
+                                            {g.participants.slice(0, 5).map((p, i) => (
+                                                <div key={i} className="w-8 h-8 rounded-full border-2 border-[#16181d] bg-gray-800 flex items-center justify-center text-[10px] font-bold text-white overflow-hidden shadow-sm relative z-10 hover:z-20 transition-all hover:scale-110">
+                                                    {p.avatar ? <img src={p.avatar} alt="avt" className="w-full h-full object-cover" /> : p.displayName.charAt(0)}
+                                                </div>
+                                            ))}
+                                            {g.participants.length > 5 && (
+                                                <div className="w-8 h-8 rounded-full border-2 border-[#16181d] bg-[#1a1c23] flex items-center justify-center text-[10px] font-bold text-emerald-400 relative z-10">
+                                                    +{g.participants.length - 5}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {g.participants.length === 0 && <span className="text-xs text-gray-500 italic">Chưa có ai tham gia</span>}
                                     </div>
-                                    <ChevronDown className={`w-5 h-5 text-gray-600 transition-transform ${expandedId === g._id ? 'rotate-180' : ''}`} />
+                                    <div className={`w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-transform duration-300 ${expandedId === g._id ? 'rotate-180 bg-emerald-500/20 text-emerald-400' : 'text-gray-400'}`}>
+                                        <ChevronDown className="w-4 h-4" />
+                                    </div>
                                 </div>
                             </button>
 
+                            {/* Expanded Content */}
                             <AnimatePresence>
                                 {expandedId === g._id && (
-                                    <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden bg-white/2">
-                                        <div className="px-6 pb-6 space-y-4">
-                                            {g.description && <p className="text-xs text-gray-400 leading-relaxed italic">"{g.description}"</p>}
+                                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: "easeInOut" }} className="overflow-hidden bg-gradient-to-b from-transparent to-black/40 relative z-10">
+                                        <div className="px-6 pb-6 pt-2 space-y-5">
+                                            <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent mb-4" />
+
+                                            {g.description && <p className="text-sm text-gray-300 leading-relaxed bg-white/5 p-4 rounded-2xl border border-white/5">"{g.description}"</p>}
+
                                             {g.requirements && (
-                                                <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/10 text-[11px] text-amber-200/70">
-                                                    <strong className="text-amber-500">Yêu cầu:</strong> {g.requirements}
-                                                </div>
-                                            )}
-                                            {!joined && !isOrg && g.status === 'open' && (
-                                                <button onClick={() => handleJoin(g._id)} disabled={joining === g._id}
-                                                    className="w-full py-3 rounded-2xl bg-emerald-500 text-black font-black text-sm flex items-center justify-center gap-2 hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20">
-                                                    {joining === g._id ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
-                                                    THAM GIA NGAY
-                                                </button>
-                                            )}
-                                            {joined && (
-                                                <div className="flex gap-2">
-                                                    <div className="flex-1 py-3 rounded-2xl bg-white/5 border border-white/10 text-emerald-400 font-bold text-sm flex items-center justify-center gap-2">
-                                                        <Check className="w-4 h-4" /> ĐÃ THAM GIA
+                                                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200/80 flex gap-3 items-start">
+                                                    <div className="mt-0.5"><Flame className="w-4 h-4 text-amber-500" /></div>
+                                                    <div>
+                                                        <strong className="text-amber-500 block mb-1">Yêu cầu tham gia:</strong>
+                                                        {g.requirements}
                                                     </div>
-                                                    <button 
-                                                        onClick={(e) => { e.stopPropagation(); setPage('chat'); }}
-                                                        className="px-6 py-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 font-bold text-sm flex items-center justify-center gap-2 hover:bg-blue-500/20 transition-all"
-                                                    >
-                                                        <MessageSquare className="w-4 h-4" /> CHAT
-                                                    </button>
                                                 </div>
                                             )}
+
+                                            {/* Action Buttons */}
+                                            <div className="pt-2">
+                                                {!joined && !isOrg && g.status === 'open' && (
+                                                    <button onClick={() => handleJoin(g._id)} disabled={joining === g._id}
+                                                        className="relative w-full py-3.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 overflow-hidden group">
+                                                        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-cyan-500 transition-transform group-hover:scale-[1.02]" />
+                                                        <div className="relative flex items-center justify-center gap-2 text-black">
+                                                            {joining === g._id ? <Loader2 className="w-5 h-5 animate-spin" /> : <UserPlus className="w-5 h-5" />}
+                                                            THAM GIA NGAY
+                                                        </div>
+                                                    </button>
+                                                )}
+                                                {joined && (
+                                                    <div className="flex gap-3">
+                                                        <div className="flex-1 py-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-black text-sm flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                                                            <Check className="w-5 h-5" /> ĐÃ THAM GIA
+                                                        </div>
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); setPage('chat'); }}
+                                                            className="flex-1 py-3.5 rounded-2xl bg-blue-500 text-black font-black text-sm flex items-center justify-center gap-2 hover:bg-blue-400 transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)]"
+                                                        >
+                                                            <MessageSquare className="w-5 h-5" /> VÀO NHÓM CHAT
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </motion.div>
                                 )}
@@ -335,6 +395,8 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
     const [myBookings, setMyBookings] = useState<any[]>([]);
     const [fetchingBookings, setFetchingBookings] = useState(true);
     const [selectedBookingId, setSelectedBookingId] = useState('');
+    const [bookingPage, setBookingPage] = useState(0);
+    const [step, setStep] = useState(1);
 
     const [form, setForm] = useState({
         title: '',
@@ -345,6 +407,15 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
         pricePerPlayer: 50000,
         requirements: '',
     });
+
+    // Ngăn chặn cuộn trang nền khi mở modal
+    useEffect(() => {
+        const originalStyle = window.getComputedStyle(document.body).overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = originalStyle;
+        };
+    }, []);
 
     useEffect(() => {
         const loadBookings = async () => {
@@ -362,8 +433,13 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                     const bookingDate = new Date(b.date);
                     bookingDate.setHours(hours, minutes, 0, 0);
 
+                    // Lưu timestamp để sort tiện hơn
+                    b._timestamp = bookingDate.getTime();
                     return bookingDate > now;
                 });
+
+                // Sắp xếp ngày gần nhất -> xa nhất
+                futureBookings.sort((a: any, b: any) => a._timestamp - b._timestamp);
 
                 setMyBookings(futureBookings);
             } catch (err) {
@@ -401,62 +477,206 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
     };
 
     return (
-        <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
-            <motion.div className={`relative w-full max-w-lg bg-[#111113] rounded-4xl border border-white/10 overflow-hidden flex flex-col`} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}>
-                <div className="p-6 border-b border-white/5 flex justify-between items-center">
-                    <h2 className="text-xl font-black text-white italic">MỞ KÈO MỚI <EmojiIcon name="badminton" className="w-6 h-6 inline-block ml-2 text-emerald-400" /></h2>
-                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white transition-all"><X className="w-5 h-5" /></button>
+        <motion.div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+            <motion.div className="relative w-full max-w-2xl bg-gradient-to-b from-[#1a1c23] to-[#111113] rounded-[32px] border border-white/10 overflow-hidden flex flex-col shadow-2xl shadow-emerald-500/10" initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: "spring", damping: 25, stiffness: 300 }}>
+                
+                {/* Decorative background glow */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-emerald-500/20 blur-[80px] pointer-events-none" />
+
+                <div className="relative p-6 border-b border-white/5 flex justify-between items-center z-10">
+                    <div>
+                        <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 tracking-tight flex items-center gap-2">
+                            MỞ KÈO MỚI <EmojiIcon name="badminton" className="w-6 h-6" />
+                        </h2>
+                        <div className="flex items-center gap-2 mt-2">
+                            <div className={`h-1.5 w-8 rounded-full transition-colors ${step >= 1 ? 'bg-emerald-500' : 'bg-white/10'}`} />
+                            <div className={`h-1.5 w-8 rounded-full transition-colors ${step >= 2 ? 'bg-emerald-500' : 'bg-white/10'}`} />
+                            <span className="text-xs text-gray-400 font-medium ml-1">Bước {step}/2</span>
+                        </div>
+                    </div>
+                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 hover:rotate-90 transition-all shadow-sm"><X className="w-5 h-5" /></button>
                 </div>
 
-                <div className="p-6 space-y-5 overflow-y-auto max-h-[70vh] custom-scrollbar">
+                <div className="relative p-6 z-10">
                     {fetchingBookings ? (
-                        <div className="py-10 flex flex-col items-center gap-3"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /><p className="text-xs text-gray-500">Đang tìm lịch đặt sân...</p></div>
+                        <div className="py-12 flex flex-col items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                                <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
+                            </div>
+                            <p className="text-sm font-medium text-gray-400">Đang tìm lịch đặt sân...</p>
+                        </div>
                     ) : myBookings.length === 0 ? (
-                        <div className="text-center py-10 space-y-4">
-                            <p className="text-sm text-gray-400">Bạn chưa có lịch đặt sân nào sắp tới!</p>
-                            <button onClick={() => { onClose(); setPage('search'); }} className="w-full py-3 rounded-2xl bg-emerald-500 text-black font-bold">Đi đặt sân ngay</button>
+                        <div className="text-center py-12 space-y-5">
+                            <div className="w-16 h-16 mx-auto rounded-3xl bg-white/5 flex items-center justify-center border border-white/10">
+                                <Calendar className="w-8 h-8 text-gray-500" />
+                            </div>
+                            <div>
+                                <p className="text-base font-bold text-white mb-1">Chưa có lịch đặt sân nào!</p>
+                                <p className="text-sm text-gray-400 px-4">Bạn cần đặt sân trước mới có thể mở nhóm chơi.</p>
+                            </div>
+                            <button onClick={() => { onClose(); setPage('search'); }} className="px-6 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold hover:bg-emerald-500 hover:text-black transition-colors">
+                                Đi đặt sân ngay
+                            </button>
                         </div>
                     ) : (
-                        <>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">1. Chọn lịch sắp tới</label>
-                                <select value={selectedBookingId} onChange={e => setSelectedBookingId(e.target.value)} className="w-full h-12 bg-white/5 border border-white/10 rounded-2xl px-4 text-sm text-white outline-none focus:border-emerald-500/50">
-                                    <option value="" className="bg-gray-900">-- Chọn lịch sân của bạn --</option>
+                        <AnimatePresence mode="wait">
+                            {step === 1 && (
+                                <motion.div key="step1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }} className="space-y-5">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-7 h-7 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                                                <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+                                            </div>
+                                            <h3 className="text-sm font-black text-white uppercase tracking-wider">Chọn lịch sắp tới</h3>
+                                        </div>
+                                        {/* Pagination Controls */}
+                                        {myBookings.length > 4 && (
+                                            <div className="flex items-center gap-2">
+                                                <button 
+                                                    onClick={() => setBookingPage(p => Math.max(0, p - 1))} 
+                                                    disabled={bookingPage === 0}
+                                                    className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+                                                >
+                                                    <ChevronLeft className="w-4 h-4 text-white" />
+                                                </button>
+                                                <span className="text-xs text-gray-400 font-bold">{bookingPage + 1} / {Math.ceil(myBookings.length / 4)}</span>
+                                                <button 
+                                                    onClick={() => setBookingPage(p => Math.min(Math.ceil(myBookings.length / 4) - 1, p + 1))} 
+                                                    disabled={bookingPage >= Math.ceil(myBookings.length / 4) - 1}
+                                                    className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+                                                >
+                                                    <ChevronRight className="w-4 h-4 text-white" />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 min-h-[96px]">
+                                        {myBookings.slice(bookingPage * 4, (bookingPage + 1) * 4).map(b => {
+                                            const courtName = b.courtId?.name || b.court?.name || 'Sân chưa rõ tên';
+                                            const dateStr = new Date(b.date).toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' });
+                                            const isSelected = selectedBookingId === b._id;
 
-                                    {/* RENDER TÊN SÂN VÀ GIỜ GIẤC ĐẸP MẮT HƠN */}
-                                    {myBookings.map(b => {
-                                        // Bắt đúng biến chứa tên sân (phòng hờ backend populate tên khác nhau)
-                                        const courtName = b.courtId?.name || b.court?.name || 'Sân chưa rõ tên';
-                                        const dateStr = new Date(b.date).toLocaleDateString('vi-VN');
-                                        return (
-                                            <option key={b._id} value={b._id} className="bg-gray-900">
-                                                {courtName} | {dateStr} ({b.startTime} - {b.endTime})
-                                            </option>
-                                        );
-                                    })}
+                                            return (
+                                                <button
+                                                    key={b._id}
+                                                    onClick={() => setSelectedBookingId(b._id)}
+                                                    className={`relative w-full text-left p-4 rounded-2xl border transition-all duration-300 flex flex-col group overflow-hidden ${isSelected ? 'bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]' : 'bg-black/20 border-white/5 hover:border-white/20 hover:bg-white/5 hover:-translate-y-0.5'}`}
+                                                >
+                                                    <div className={`absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent transition-opacity duration-300 ${isSelected ? 'opacity-100' : 'opacity-0'}`} />
 
-                                </select>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">2. Thông tin nhóm</label>
-                                <input type="text" placeholder="Tên nhóm chơi..." className="w-full h-12 bg-white/5 border border-white/10 rounded-2xl px-4 text-sm text-white" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
-                                <textarea placeholder="Mô tả ngắn gọn..." className="w-full h-24 bg-white/5 border border-white/10 rounded-2xl p-4 text-sm text-white resize-none" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-gray-500 uppercase">Sức chứa</label>
-                                    <input type="number" className="w-full h-12 bg-white/5 border border-white/10 rounded-2xl px-4 text-sm text-white" value={form.maxPlayers} onChange={e => setForm({ ...form, maxPlayers: parseInt(e.target.value) })} />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-gray-500 uppercase">Phí/Người</label>
-                                    <input type="number" className="w-full h-12 bg-white/5 border border-white/10 rounded-2xl px-4 text-sm text-white" value={form.pricePerPlayer} onChange={e => setForm({ ...form, pricePerPlayer: parseInt(e.target.value) })} />
-                                </div>
-                            </div>
-                            <button onClick={handleCreate} disabled={creating} className="w-full py-4 mt-4 bg-emerald-500 text-black font-black rounded-2xl shadow-xl shadow-emerald-500/20 hover:bg-emerald-400 transition-all flex items-center justify-center gap-2">
-                                {creating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />} MỞ NHÓM NGAY
-                            </button>
-                        </>
+                                                    <div className={`absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all z-10 ${isSelected ? 'border-emerald-500 bg-emerald-500 scale-100' : 'border-gray-500 scale-0 opacity-0'}`}>
+                                                        <Check className="w-3 h-3 text-black" />
+                                                    </div>
+
+                                                    <div className={`font-black text-sm mb-2 transition-colors pr-6 line-clamp-1 relative z-10 ${isSelected ? 'text-emerald-400' : 'text-white'}`}>
+                                                        {courtName}
+                                                    </div>
+                                                    
+                                                    <div className="space-y-1.5 mt-auto relative z-10">
+                                                        <div className="flex items-center gap-2 text-[11px] text-gray-400 font-medium">
+                                                            <Calendar className="w-3.5 h-3.5 text-emerald-500/80" /> {dateStr}
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-[11px] text-gray-400 font-medium">
+                                                            <Clock className="w-3.5 h-3.5 text-emerald-500/80" /> {b.startTime} - {b.endTime}
+                                                        </div>
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    
+                                    <div className="pt-4">
+                                        <button 
+                                            onClick={() => setStep(2)} 
+                                            disabled={!selectedBookingId} 
+                                            className="relative w-full py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-cyan-500 transition-transform duration-300 group-hover:scale-[1.03]" />
+                                            <div className="relative flex items-center justify-center gap-2 text-black shadow-sm">
+                                                TIẾP TỤC <ChevronRight className="w-5 h-5" />
+                                            </div>
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {step === 2 && (
+                                <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }} className="space-y-5">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-7 h-7 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                                            <AlignLeft className="w-3.5 h-3.5 text-blue-400" />
+                                        </div>
+                                        <h3 className="text-sm font-black text-white uppercase tracking-wider">Thông tin chi tiết</h3>
+                                    </div>
+                                    
+                                    <div className="space-y-3">
+                                        <input type="text" placeholder="Tên nhóm chơi (Ví dụ: Kèo tối thứ 3 vui vẻ...)" className="w-full h-14 bg-black/20 border border-white/5 rounded-2xl px-5 text-sm text-white placeholder-gray-500 focus:border-blue-500/50 focus:bg-blue-500/5 transition-all outline-none" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
+                                        <textarea placeholder="Mô tả ngắn gọn, yêu cầu trình độ, liên hệ..." className="w-full h-24 bg-black/20 border border-white/5 rounded-2xl p-5 text-sm text-white placeholder-gray-500 focus:border-blue-500/50 focus:bg-blue-500/5 transition-all outline-none resize-none custom-scrollbar" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {/* Số lượng Slot */}
+                                        <div className="p-4 bg-black/20 border border-white/5 rounded-2xl flex items-center justify-between transition-colors hover:bg-white/5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                                                    <Users className="w-5 h-5 text-blue-400" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Số lượng Slot</p>
+                                                    <p className="text-sm font-black text-white">{form.maxPlayers} người</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3 bg-white/5 rounded-xl p-1 border border-white/10">
+                                                <button onClick={() => setForm(f => ({ ...f, maxPlayers: Math.max(2, f.maxPlayers - 1) }))} className="w-8 h-8 rounded-lg bg-black/40 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors">-</button>
+                                                <span className="text-sm font-bold w-4 text-center">{form.maxPlayers}</span>
+                                                <button onClick={() => setForm(f => ({ ...f, maxPlayers: Math.min(20, f.maxPlayers + 1) }))} className="w-8 h-8 rounded-lg bg-black/40 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors">+</button>
+                                            </div>
+                                        </div>
+
+                                        {/* Phí/Người */}
+                                        <div className="p-4 bg-black/20 border border-white/5 rounded-2xl space-y-3 flex flex-col justify-center transition-colors hover:bg-white/5">
+                                            <div className="flex items-center gap-2">
+                                                <Zap className="w-4 h-4 text-amber-400" />
+                                                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Phí / Người (VNĐ)</p>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                {[0, 30000, 50000].map(price => (
+                                                    <button
+                                                        key={price}
+                                                        onClick={() => setForm({ ...form, pricePerPlayer: price })}
+                                                        className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${form.pricePerPlayer === price ? 'bg-amber-500/20 border-amber-500/50 text-amber-400' : 'bg-black/40 border-white/10 text-gray-400 hover:text-gray-200 hover:bg-white/10'}`}
+                                                    >
+                                                        {price === 0 ? 'Free' : `${price / 1000}k`}
+                                                    </button>
+                                                ))}
+                                                <input 
+                                                    type="number" 
+                                                    value={form.pricePerPlayer || ''} 
+                                                    onChange={e => setForm({ ...form, pricePerPlayer: parseInt(e.target.value) || 0 })}
+                                                    className="flex-1 min-w-0 bg-black/40 border border-white/10 rounded-xl text-xs font-bold text-center text-white focus:border-amber-500/50 focus:bg-amber-500/5 outline-none transition-all placeholder:text-gray-600"
+                                                    placeholder="Nhập..."
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="pt-4 flex gap-3">
+                                        <button onClick={() => setStep(1)} className="px-5 py-4 rounded-2xl bg-white/5 border border-white/10 font-bold text-sm text-gray-300 hover:bg-white/10 transition-colors flex items-center gap-2">
+                                            <ChevronLeft className="w-5 h-5" />
+                                        </button>
+                                        <button onClick={handleCreate} disabled={creating} className="relative flex-1 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 overflow-hidden group">
+                                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-cyan-500 transition-transform duration-300 group-hover:scale-[1.03]" />
+                                            <div className="relative flex items-center justify-center gap-2 text-black shadow-sm">
+                                                {creating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
+                                                XÁC NHẬN MỞ NHÓM
+                                            </div>
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     )}
                 </div>
             </motion.div>
