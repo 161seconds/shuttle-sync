@@ -8,6 +8,7 @@ import JoinRequestsModal from './JoinRequestsModal';
 import type { ChatRoom, ChatUser } from './mockData';
 import dayjs from 'dayjs';
 import { type ChatMessage } from '../../api/chat.api';
+import { useAlertStore } from '../../stores/useAlertStore';
 
 interface ChatWindowProps {
     room: ChatRoom;
@@ -212,9 +213,9 @@ export default function ChatWindow({
                                         <button 
                                             onClick={() => {
                                                 setShowMenu(false);
-                                                if (window.confirm('Bạn có chắc chắn muốn rời nhóm chat này?')) {
+                                                useAlertStore.getState().showConfirm('Bạn có chắc chắn muốn rời nhóm chat này?', () => {
                                                     onLeaveGroup?.();
-                                                }
+                                                });
                                             }}
                                             className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-3 transition-colors border-t border-white/5"
                                         >
@@ -237,9 +238,9 @@ export default function ChatWindow({
                     </div>
                     <button
                         onClick={() => {
-                            if (window.confirm('Bạn có chắc chắn muốn xóa nhóm chat này? Hành động này không thể hoàn tác.')) {
+                            useAlertStore.getState().showConfirm('Bạn có chắc chắn muốn xóa nhóm chat này? Hành động này không thể hoàn tác.', () => {
                                 onDeleteChat?.();
-                            }
+                            });
                         }}
                         className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-xs font-medium rounded-lg transition-colors border border-red-500/30"
                     >

@@ -137,18 +137,19 @@ export default function GroupPlayPage() {
         }
     };
 
-    const handleLeave = async (groupId: string) => {
-        if (!window.confirm('Bạn có chắc chắn muốn rời nhóm này không?')) return;
-        setLeaving(groupId);
-        try {
-            await groupPlayApi.leaveGroupPlay(groupId);
-            useAlertStore.getState().showAlert('Đã rời nhóm thành công!', 'Thông báo', 'success');
-            await fetchGroups();
-        } catch (err: any) {
-            useAlertStore.getState().showAlert(err.response?.data?.message || 'Lỗi rời nhóm', 'Thông báo', 'error');
-        } finally {
-            setLeaving(null);
-        }
+    const handleLeave = (groupId: string) => {
+        useAlertStore.getState().showConfirm('Bạn có chắc chắn muốn rời nhóm này không?', async () => {
+            setLeaving(groupId);
+            try {
+                await groupPlayApi.leaveGroupPlay(groupId);
+                useAlertStore.getState().showAlert('Đã rời nhóm thành công!', 'Thông báo', 'success');
+                await fetchGroups();
+            } catch (err: any) {
+                useAlertStore.getState().showAlert(err.response?.data?.message || 'Lỗi rời nhóm', 'Thông báo', 'error');
+            } finally {
+                setLeaving(null);
+            }
+        });
     };
 
     const formatDate = (d: string) => {
