@@ -35,6 +35,7 @@ interface GroupPlay {
     isPublic: boolean;
     requirements?: string;
     contactInfo?: string;
+    joinRequests?: { userId: string, requestedAt: string, status: 'pending' | 'rejected', rejectReason?: string }[];
 }
 
 // ═══ Constants ═══
@@ -126,7 +127,7 @@ export default function GroupPlayPage() {
         setJoining(groupId);
         try {
             await groupPlayApi.joinGroupPlay(groupId);
-            useAlertStore.getState().showAlert('🎉 Tham gia thành công!', 'Thông báo', 'success');
+            useAlertStore.getState().showAlert('🎉 Đã gửi yêu cầu tham gia, vui lòng chờ duyệt!', 'Thông báo', 'success');
             await fetchGroups();
         } catch (err: any) {
             useAlertStore.getState().showAlert(err.response?.data?.message || 'Lỗi tham gia', 'Thông báo', 'error');
@@ -226,6 +227,7 @@ export default function GroupPlayPage() {
                     const status = STATUS_MAP[g.status] || STATUS_MAP.open;
                     const isOrg = user && (typeof g.organizerId === 'object' ? g.organizerId._id === user._id : g.organizerId === user._id);
                     const joined = user && g.participants.some(p => p.userId === user._id);
+                    const isPending = user && g.joinRequests?.some(r => r.userId === user._id && r.status === 'pending');
 
                     return (
                         <motion.div key={g._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
@@ -333,7 +335,7 @@ export default function GroupPlayPage() {
 
                                             {/* Action Buttons */}
                                             <div className="pt-2">
-                                                {!joined && !isOrg && g.status === 'open' && (
+                                                {!joined && !isOrg && !isPending && g.status === 'open' && (
                                                     <button onClick={() => handleJoin(g._id)} disabled={joining === g._id}
                                                         className="relative w-full py-3.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 overflow-hidden group">
                                                         <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-cyan-500 transition-transform group-hover:scale-[1.02]" />
@@ -342,6 +344,11 @@ export default function GroupPlayPage() {
                                                             THAM GIA NGAY
                                                         </div>
                                                     </button>
+                                                )}
+                                                {isPending && !joined && !isOrg && (
+                                                    <div className="w-full py-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 font-black text-sm flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
+                                                        <Clock className="w-5 h-5" /> ĐANG CHỜ DUYỆT
+                                                    </div>
                                                 )}
                                                 {joined && (
                                                     <div className="flex gap-3">
@@ -423,10 +430,11 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                 const res = await bookingApi.getMyBookings({ status: 'confirmed' });
                 const allBookings = res.data?.data || [];
 
-                // LỌC BỎ SÂN TRONG QUÁ KHỨ
+                // LỌC BỎ SÂN TRONG QUÁ KHỨ VÀ SÂN ĐÃ TẠO KÈO
                 const now = new Date();
                 const futureBookings = allBookings.filter((b: any) => {
                     if (!b.date || !b.startTime) return false;
+                    if (b.hasGroupPlay) return false; // Không hiển thị sân đã tạo kèo
 
                     // Tách giờ phút từ chuỗi startTime (vd: "14:30")
                     const [hours, minutes] = b.startTime.split(':').map(Number);

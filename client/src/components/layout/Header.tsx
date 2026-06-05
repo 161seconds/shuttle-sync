@@ -6,7 +6,7 @@ import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import axiosClient from '../../api/axiosClient';
 
 export default function Header() {
-    const { setPage, user, isSideBarOpen, toggleSidebar } = useAppStore();
+    const { setPage, user, isSideBarOpen, toggleSidebar, page } = useAppStore();
     const [hasUnread, setHasUnread] = useState(false);
     const [hidden, setHidden] = useState(false);
     const { scrollY } = useScroll();
@@ -106,8 +106,12 @@ export default function Header() {
                         <>
                             <button
                                 onClick={() => {
-                                    setHasUnread(false);
-                                    setPage('notifications');
+                                    if (page === 'notifications') {
+                                        setPage('home');
+                                    } else {
+                                        setHasUnread(false);
+                                        setPage('notifications');
+                                    }
                                 }}
                                 className={`relative w-10 h-10 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-emerald-400 hover:bg-white/5 transition-all`}
                             >

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { theme as t } from '../../utils/theme';
 import axiosClient from '../../api/axiosClient';
+import { useAppStore } from '../../store';
 
 interface Props {
     onBack: () => void;
@@ -28,6 +29,7 @@ const timeAgo = (dateString: string) => {
 };
 
 export default function Notifications({ onBack }: Props) {
+    const { setPage } = useAppStore();
     const [notifications, setNotifications] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -62,7 +64,8 @@ export default function Notifications({ onBack }: Props) {
             case 'SYSTEM': return <Rocket className="w-5 h-5 text-purple-400" />;
             case 'WELCOME': return <Trophy className="w-5 h-5 text-yellow-400" />;
             case 'BOOKING': return <CalendarClock className="w-5 h-5 text-emerald-400" />;
-            case 'GROUP': return <Users className="w-5 h-5 text-blue-400" />;
+            case 'GROUP':
+            case 'group_play': return <Users className="w-5 h-5 text-blue-400" />;
             case 'PAYMENT': return <CreditCard className="w-5 h-5 text-amber-400" />;
             case 'REPUTATION': return <ShieldAlert className="w-5 h-5 text-red-400" />;
             default: return <Info className="w-5 h-5 text-emerald-400" />;
@@ -74,7 +77,8 @@ export default function Notifications({ onBack }: Props) {
             case 'SYSTEM': return 'bg-purple-500/10 border-purple-500/20';
             case 'WELCOME': return 'bg-yellow-500/10 border-yellow-500/20';
             case 'BOOKING': return 'bg-emerald-500/10 border-emerald-500/20';
-            case 'GROUP': return 'bg-blue-500/10 border-blue-500/20';
+            case 'GROUP':
+            case 'group_play': return 'bg-blue-500/10 border-blue-500/20';
             case 'PAYMENT': return 'bg-amber-500/10 border-amber-500/20';
             case 'REPUTATION': return 'bg-red-500/10 border-red-500/20';
             default: return 'bg-emerald-500/10 border-emerald-500/20';
@@ -141,6 +145,11 @@ export default function Notifications({ onBack }: Props) {
                 ) : Array.isArray(notifications) && notifications.map((noti) => (
                     <div
                         key={noti._id}
+                        onClick={() => {
+                            if (noti.type === 'GROUP' || noti.type === 'group_play') {
+                                setPage('chat');
+                            }
+                        }}
                         className={`relative p-5 rounded-3xl border transition-all duration-300 cursor-pointer group hover:shadow-[0_0_20px_rgba(255,255,255,0.05)] overflow-hidden backdrop-blur-md ${noti.isRead
                             ? 'bg-white/5 border-white/5 opacity-70 hover:opacity-100 hover:bg-white/10'
                             : 'bg-white/10 border-white/10 hover:border-emerald-500/30 hover:bg-white/15'

@@ -145,8 +145,18 @@ class BookingService {
             .sort({ createdAt: -1 })
             .populate({ path: 'courtId', model: 'Venue', select: 'name address photos' })
             .lean();
+            
+        const mongoose = require('mongoose');
+        const GroupPlay = mongoose.model('GroupPlay');
 
-        return bookings;
+        const bookingIds = bookings.map(b => b._id);
+        const groupPlays = await GroupPlay.find({ bookingId: { $in: bookingIds } }).select('bookingId').lean();
+        const usedBookingIds = new Set(groupPlays.map((gp: any) => gp.bookingId?.toString()));
+
+        return bookings.map(b => ({
+            ...b,
+            hasGroupPlay: usedBookingIds.has(b._id.toString())
+        }));
     }
 
     async confirmPayment(bookingCode: string, userId: string) {

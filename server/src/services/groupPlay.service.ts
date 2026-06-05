@@ -109,7 +109,7 @@ class GroupPlayService {
             userId: groupPlay.organizerId.toString(),
             title: '👋 Yêu cầu tham gia mới!',
             message: `${user.displayName} muốn tham gia nhóm "${groupPlay.title}" của bạn. Hãy vào duyệt ngay!`,
-            type: 'group_play'
+            type: 'GROUP'
         }).catch(err => console.error(err));
 
         // Note: socket event should be emitted by controller to owner
@@ -178,7 +178,7 @@ class GroupPlayService {
             userId: requesterId,
             title: '✅ Đã được duyệt!',
             message: `Chủ sân đã duyệt bạn vào nhóm "${groupPlay.title}". Vào chat ngay nào!`,
-            type: 'group_play'
+            type: 'GROUP'
         }).catch(err => console.error(err));
 
         return groupPlay;
@@ -215,7 +215,7 @@ class GroupPlayService {
             userId: requesterId,
             title: '❌ Yêu cầu bị từ chối',
             message: `Chủ sân đã từ chối yêu cầu tham gia nhóm "${groupPlay.title}" của bạn. Lý do: ${request.rejectReason}`,
-            type: 'group_play'
+            type: 'GROUP'
         }).catch(err => console.error(err));
 
         return groupPlay;
@@ -260,7 +260,7 @@ class GroupPlayService {
                 userId: groupPlay.organizerId.toString(),
                 title: '😢 Thành viên rời nhóm',
                 message: `${user.displayName} đã rời khỏi nhóm "${groupPlay.title}".`,
-                type: 'group_play'
+                type: 'GROUP'
             }).catch(err => console.error(err));
         }
 
