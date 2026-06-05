@@ -34,7 +34,7 @@ import { useAlertStore } from './stores/useAlertStore';
 
 function PremiumBackground() {
   const lightRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     let rafId: number;
     const handleMouseMove = (e: MouseEvent) => {
@@ -58,16 +58,16 @@ function PremiumBackground() {
       {/* 1. Aurora Gradient Glows (Góc trái trên và góc phải dưới) */}
       <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-emerald-500/10 blur-[150px]" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-500/10 blur-[150px]" />
-      
+
       {/* 2. Micro-dot pattern cực mờ tạo cảm giác tinh tế */}
       <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] bg-[size:32px_32px] opacity-15" />
 
       {/* 3. Mouse Follower Glow (Ánh sáng mềm mại đi theo chuột) */}
-      <div 
+      <div
         ref={lightRef}
         className="absolute top-0 left-0 w-[800px] h-[800px] bg-emerald-400/5 rounded-full blur-[100px] will-change-transform"
       />
-      
+
       {/* 4. Particle Field cũ được làm mờ bớt để không rối mắt */}
       <div className="opacity-20 mix-blend-screen">
         <ParticleField />
@@ -167,7 +167,7 @@ function Shell() {
           </main>
 
           <AnimatePresence>
-            {['home', 'map', 'search', 'groupplay', 'profile'].includes(page) && !isSideBarOpen && (
+            {['home', 'map', 'search', 'profile'].includes(page) && !isSideBarOpen && (
               <BottomNav key="bottom-nav" />
             )}
           </AnimatePresence>

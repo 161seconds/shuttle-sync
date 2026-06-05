@@ -5,6 +5,7 @@ import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
 import GroupInfoModal from './GroupInfoModal';
 import type { ChatRoom, ChatUser } from './mockData';
+import dayjs from 'dayjs';
 import { type ChatMessage } from '../../api/chat.api';
 
 interface ChatWindowProps {
@@ -30,6 +31,7 @@ export default function ChatWindow({
     const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
     const [showMenu, setShowMenu] = useState(false);
     const [showInfo, setShowInfo] = useState(false);
+    const [showDeleteAlert, setShowDeleteAlert] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -133,9 +135,7 @@ export default function ChatWindow({
                                         <button 
                                             onClick={() => {
                                                 setShowMenu(false);
-                                                if (window.confirm('Bạn có chắc chắn muốn xóa nhóm chat này? Hành động này không thể hoàn tác.')) {
-                                                    onDeleteChat?.();
-                                                }
+                                                setShowDeleteAlert(true);
                                             }}
                                             className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-3 transition-colors border-t border-white/5"
                                         >
@@ -216,6 +216,70 @@ export default function ChatWindow({
                         groupId={room.id} 
                         onClose={() => setShowInfo(false)} 
                     />
+                )}
+
+                {showDeleteAlert && (
+                    <div key="delete-alert" className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowDeleteAlert(false)}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative w-full max-w-sm bg-[#1a1d21] border border-white/10 rounded-2xl shadow-2xl p-6 flex flex-col gap-4 text-center"
+                        >
+                            <div className="w-12 h-12 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center mx-auto">
+                                <Trash2 className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-lg font-bold text-white">Xóa nhóm chat?</h3>
+                            
+                            {(() => {
+                                const daysElapsed = room.createdAt ? dayjs().diff(dayjs(room.createdAt), 'day') : 0;
+                                const canDelete = daysElapsed >= 7;
+
+                                return (
+                                    <>
+                                        <p className="text-sm text-gray-300">
+                                            Nhóm chat này đã hoạt động được <span className="font-bold text-white">{daysElapsed} ngày</span>.
+                                        </p>
+                                        {!canDelete ? (
+                                            <p className="text-sm text-red-400 bg-red-500/10 p-3 rounded-lg border border-red-500/20">
+                                                Bạn chỉ có thể xóa nhóm chat sau khi nhóm đã hoạt động ít nhất 1 tuần (7 ngày).
+                                            </p>
+                                        ) : (
+                                            <p className="text-sm text-gray-400">
+                                                Bạn có chắc chắn muốn xóa nhóm chat này? Hành động này không thể hoàn tác.
+                                            </p>
+                                        )}
+                                        
+                                        <div className="flex gap-3 mt-2">
+                                            <button 
+                                                onClick={() => setShowDeleteAlert(false)}
+                                                className="flex-1 py-2.5 rounded-xl font-medium text-white bg-white/5 hover:bg-white/10 transition-colors"
+                                            >
+                                                Hủy
+                                            </button>
+                                            <button 
+                                                onClick={() => {
+                                                    setShowDeleteAlert(false);
+                                                    onDeleteChat?.();
+                                                }}
+                                                disabled={!canDelete}
+                                                className={`flex-1 py-2.5 rounded-xl font-medium text-white transition-colors ${canDelete ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-600 cursor-not-allowed opacity-50'}`}
+                                            >
+                                                Xóa nhóm
+                                            </button>
+                                        </div>
+                                    </>
+                                );
+                            })()}
+                        </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
         </div>
