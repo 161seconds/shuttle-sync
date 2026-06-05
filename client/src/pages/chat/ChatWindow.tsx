@@ -17,6 +17,7 @@ interface ChatWindowProps {
     onSendMessage: (text: string, replyTo?: ChatMessage['replyTo']) => void;
     onAvatarClick?: (userId: string, fallbackName?: string, fallbackAvatar?: string) => void;
     onDeleteChat?: () => void;
+    onLeaveGroup?: () => void;
 }
 
 export default function ChatWindow({
@@ -26,7 +27,8 @@ export default function ChatWindow({
     onBack,
     onSendMessage,
     onAvatarClick,
-    onDeleteChat
+    onDeleteChat,
+    onLeaveGroup
 }: ChatWindowProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
@@ -204,6 +206,20 @@ export default function ChatWindow({
                                         >
                                             <Trash2 className="w-4 h-4" />
                                             Xóa nhóm chat
+                                        </button>
+                                    )}
+                                    {!isOwner && isParticipant && (
+                                        <button 
+                                            onClick={() => {
+                                                setShowMenu(false);
+                                                if (window.confirm('Bạn có chắc chắn muốn rời nhóm chat này?')) {
+                                                    onLeaveGroup?.();
+                                                }
+                                            }}
+                                            className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-3 transition-colors border-t border-white/5"
+                                        >
+                                            <XCircle className="w-4 h-4" />
+                                            Rời nhóm
                                         </button>
                                     )}
                                 </div>
