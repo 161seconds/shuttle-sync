@@ -153,7 +153,7 @@ export default function MyTournaments({ onBack }: Props) {
     return (
         <div className={`min-h-screen w-full${t.bg.base} pb-24 overflow-x-hidden relative`}>
             {/* Header */}
-            <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-white/5`}>
+            <div className={`sticky top-1 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-white/5`}>
                 <div className="flex items-center gap-3 px-4 h-16">
                     <button onClick={onBack} className={`w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center ${t.text.muted} hover:text-white transition-all`}>
                         <ChevronLeft className="w-6 h-6" />
