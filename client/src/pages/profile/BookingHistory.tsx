@@ -70,8 +70,8 @@ export default function BookingHistory({ onBack }: Props) {
     ] as const;
 
     return (
-        <div className={`min-h-screen ${t.bg.base} pb-24`}>
-            <div className={`sticky top-0 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-white/5`}>
+        <div className={`min-h-screen w-full${t.bg.base} pb-24`}>
+            <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-white/5`}>
                 <div className="flex items-center gap-3 px-4 h-16">
                     <button onClick={onBack} className={`w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center ${t.text.muted} hover:text-white transition-all`}>
                         <ChevronLeft className="w-6 h-6" />
@@ -150,7 +150,7 @@ export default function BookingHistory({ onBack }: Props) {
 
                                 {/* Detailed Ticket Stub */}
                                 {isExpanded && (
-                                    <div className={`px-5 pb-5 pt-4 bg-black/40 border-t-2 border-dashed border-white/10 relative z-0`}>
+                                    <div className={`px-5 pb-5 bg-black/40 border-t-2 border-dashed border-white/10 relative z-0`}>
                                         <div className="space-y-2 mb-4">
                                             <DetailRow label="Phương thức thanh toán" value={b.payment?.method === 'qr_code' ? 'QR Code' : b.payment?.method || '—'} />
                                             <DetailRow label="Tổng tiền" value={`${b.totalAmount?.toLocaleString()}đ`} />

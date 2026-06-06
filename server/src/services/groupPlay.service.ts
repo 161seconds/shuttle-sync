@@ -87,10 +87,7 @@ class GroupPlayService {
             if (req.status === 'pending') {
                 throw ApiError.conflict('Bạn đã gửi yêu cầu tham gia và đang chờ duyệt');
             } else if (req.status === 'rejected') {
-                // Nếu từng bị từ chối, cập nhật lại thành pending
-                groupPlay.joinRequests[existingRequestIndex].status = 'pending';
-                groupPlay.joinRequests[existingRequestIndex].requestedAt = new Date();
-                groupPlay.joinRequests[existingRequestIndex].rejectReason = undefined;
+                throw ApiError.forbidden('Bạn đã bị từ chối tham gia nhóm này trước đó và không thể yêu cầu lại');
             }
         } else {
             groupPlay.joinRequests.push({
@@ -350,7 +347,7 @@ class GroupPlayService {
         const filter = {
             $or: [
                 { 'participants.userId': userId },
-                { 'joinRequests.userId': userId }
+                { 'joinRequests': { $elemMatch: { userId: userId, status: 'pending' } } }
             ]
         };
         const total = await GroupPlay.countDocuments(filter);

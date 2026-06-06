@@ -102,9 +102,9 @@ export default function Notifications({ onBack }: Props) {
     };
 
     return (
-        <div className={`min-h-screen ${t.bg.base} pb-24`}>
+        <div className={`min-h-screen w-full${t.bg.base} pb-24`}>
             {/* Header */}
-            <div className={`sticky top-0 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-white/5`}>
+            <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-white/5`}>
                 <div className="flex items-center justify-between px-4 h-16">
                     <div className="flex items-center gap-3">
                         <button onClick={onBack} className={`w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center ${t.text.muted} hover:text-white transition-all`}>
@@ -146,6 +146,7 @@ export default function Notifications({ onBack }: Props) {
                     <div
                         key={noti._id}
                         onClick={() => {
+                            if (noti.title.toLowerCase().includes('từ chối')) return;
                             if (noti.type === 'GROUP' || noti.type === 'group_play') {
                                 setPage('chat');
                             }
@@ -182,6 +183,21 @@ export default function Notifications({ onBack }: Props) {
                                 <p className={`text-[13px] leading-relaxed font-medium ${noti.isRead ? 'text-gray-400 group-hover:text-gray-300 transition-colors' : 'text-gray-300'}`}>
                                     {noti.message}
                                 </p>
+
+                                {noti.title.toLowerCase().includes('từ chối') && (
+                                    <div className="mt-3">
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setNotifications(prev => prev.filter(n => n._id !== noti._id));
+                                            }}
+                                            className="px-4 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-[12px] font-bold transition-colors"
+                                        >
+                                            Đã hiểu
+                                        </button>
+                                    </div>
+                                )}
+
                                 <div className="mt-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
                                     <Clock className="w-3.5 h-3.5" />
                                     {timeAgo(noti.createdAt)}

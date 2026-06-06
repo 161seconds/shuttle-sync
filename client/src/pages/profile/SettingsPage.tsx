@@ -50,9 +50,9 @@ export default function SettingsPage({ onBack }: Props) {
     };
 
     return (
-        <div className={`min-h-screen ${t.bg.base} pb-24`}>
+        <div className={`min-h-screen w-full${t.bg.base} pb-24`}>
             {/* STICKY HEADER */}
-            <div className={`sticky top-0 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-white/5`}>
+            <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-white/5`}>
                 <div className="flex items-center gap-3 px-4 h-16">
                     <button onClick={onBack} className={`w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center ${t.text.muted} hover:text-white transition-all`}>
                         <ChevronLeft className="w-6 h-6" />
@@ -73,11 +73,11 @@ export default function SettingsPage({ onBack }: Props) {
                     <SelectRow icon={<Globe className="w-5 h-5" />} label="Ngôn ngữ"
                         value={settings.language || 'vi'}
                         options={[{ v: 'vi', l: 'Tiếng Việt' }, { v: 'en', l: 'English' }]}
-                        onChange={v => updateSetting('language', v)} />
+                        onChange={(v: string) => updateSetting('language', v)} />
                     <SelectRow icon={<Moon className="w-5 h-5" />} label="Chế độ"
-                        value={settings.theme || 'dark'}
+                        value={'dark'}
                         options={[{ v: 'dark', l: 'Tối' }, { v: 'light', l: 'Sáng' }]}
-                        onChange={v => updateSetting('theme', v)} />
+                        onChange={(v: string) => updateSetting('theme', v)} />
                 </Section>
 
                 {/* Bảo mật */}

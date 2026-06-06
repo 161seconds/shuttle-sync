@@ -86,8 +86,8 @@ export default function MyGroupPlays({ onBack }: Props) {
     const sportIcon = (s: string) => s === 'pickleball' ? (<EmojiIcon name="pickleball" />) : (<EmojiIcon name="badminton" />);
 
     return (
-        <div className={`min-h-screen ${t.bg.base} pb-24`}>
-            <div className={`sticky top-0 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-white/5`}>
+        <div className={`min-h-screen w-full${t.bg.base} pb-24`}>
+            <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-white/5`}>
                 <div className="flex items-center gap-3 px-4 h-16">
                     <button onClick={onBack} className={`w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center ${t.text.muted} hover:text-white transition-all`}>
                         <ChevronLeft className="w-6 h-6" />
@@ -190,7 +190,7 @@ export default function MyGroupPlays({ onBack }: Props) {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between pt-2">
+                                <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2.5 bg-black/30 px-3 py-2 rounded-xl border border-white/5">
                                         <Users className={`w-4 h-4 text-emerald-400`} />
                                         <span className={`text-[13px] font-bold text-white`}>

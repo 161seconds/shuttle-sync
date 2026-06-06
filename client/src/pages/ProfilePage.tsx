@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-    Edit, Bookmark, History, Award, Users, Bell, Settings,
+    Edit, History, Award, Users, Bell, Settings,
     LogOut, ChevronRight, Check, UserCircle, LogIn
 } from 'lucide-react';
 import { theme as t } from '../utils/theme';
@@ -10,7 +10,6 @@ import { socketService } from '../utils/socket';
 
 // Sub-pages
 import EditProfile from './profile/EditProfile';
-import FavoriteCourts from './profile/FavoriteCourts';
 import BookingHistory from './profile/BookingHistory';
 import MyTournaments from './profile/MyTournaments';
 import MyGroupPlays from './profile/MyGroupPlays';
@@ -75,7 +74,6 @@ export default function ProfilePage() {
 
     // Sub-page routing
     if (subPage === 'edit') return <EditProfile onBack={() => setSubPage(null)} />;
-    if (subPage === 'favorites') return <FavoriteCourts onBack={() => setSubPage(null)} />;
     if (subPage === 'history') return <BookingHistory onBack={() => setSubPage(null)} />;
     if (subPage === 'tournaments') return <MyTournaments onBack={() => setSubPage(null)} />;
     if (subPage === 'groups') return <MyGroupPlays onBack={() => setSubPage(null)} />;
@@ -84,7 +82,6 @@ export default function ProfilePage() {
 
     const MENU: { icon: React.ReactNode; label: string; badge: any; action: SubPage }[] = [
         { icon: <Edit className="w-4 h-4" />, label: 'Chỉnh sửa hồ sơ', badge: null, action: 'edit' },
-        { icon: <Bookmark className="w-4 h-4" />, label: 'Sân yêu thích', badge: user.favoriteCourtIds?.length || null, action: 'favorites' },
         { icon: <History className="w-4 h-4" />, label: 'Lịch sử đặt sân', badge: user.stats?.totalBookings || null, action: 'history' },
         { icon: <Award className="w-4 h-4" />, label: 'Giải đấu của tôi', badge: null, action: 'tournaments' },
         { icon: <Users className="w-4 h-4" />, label: 'Quản lý nhóm chơi', badge: (user.stats?.totalGroupsCreated || 0) + (user.stats?.totalGroupsJoined || 0) || null, action: 'groups' },
@@ -94,7 +91,7 @@ export default function ProfilePage() {
 
     return (
         // 🔥 Thêm w-full và flex flex-col items-center để khóa mục tiêu luôn nằm giữa màn hình
-        <div className="w-full flex-1 flex flex-col items-center pt-8 pb-36 md:pb-16 px-4 overflow-y-auto">
+        <div className="w-full flex-1 flex flex-col items-center pt-15 pb-36 md:pb-16 px-4 overflow-y-auto">
 
             {/* 🔥 Ép về max-w-lg (khoảng 512px) để nó thon gọn như thiết kế cũ */}
             <div className="w-full max-w-lg">
