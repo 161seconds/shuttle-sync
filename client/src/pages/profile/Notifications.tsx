@@ -56,6 +56,13 @@ export default function Notifications({ onBack }: Props) {
         };
 
         fetchNotifications();
+
+        const handleRefresh = () => {
+            fetchNotifications();
+        };
+
+        window.addEventListener('refresh_notifications', handleRefresh);
+        return () => window.removeEventListener('refresh_notifications', handleRefresh);
     }, []);
 
     // HÀM CHỌN ICON DỰA TRÊN LOẠI THÔNG BÁO
@@ -146,7 +153,6 @@ export default function Notifications({ onBack }: Props) {
                     <div
                         key={noti._id}
                         onClick={() => {
-                            if (noti.title.toLowerCase().includes('từ chối')) return;
                             if (noti.type === 'GROUP' || noti.type === 'group_play') {
                                 setPage('chat');
                             }
