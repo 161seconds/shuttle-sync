@@ -244,6 +244,7 @@ export default function GroupPlayPage() {
                     const isOrg = user && (typeof g.organizerId === 'object' ? g.organizerId._id === user._id : g.organizerId === user._id);
                     const joined = user && g.participants.some(p => p.userId === user._id);
                     const isPending = user && g.joinRequests?.some(r => r.userId === user._id && r.status === 'pending');
+                    const isRejected = user && g.joinRequests?.some(r => r.userId === user._id && r.status === 'rejected');
 
                     return (
                         <motion.div key={g._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
@@ -351,7 +352,7 @@ export default function GroupPlayPage() {
 
                                             {/* Action Buttons */}
                                             <div className="pt-2">
-                                                {!joined && !isOrg && !isPending && g.status === 'open' && (
+                                                {!joined && !isOrg && !isPending && !isRejected && g.status === 'open' && (
                                                     <button onClick={() => handleJoin(g._id)} disabled={joining === g._id}
                                                         className="relative w-full py-3.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 overflow-hidden group">
                                                         <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-cyan-500 transition-transform group-hover:scale-[1.02]" />
@@ -364,6 +365,11 @@ export default function GroupPlayPage() {
                                                 {isPending && !joined && !isOrg && (
                                                     <div className="w-full py-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 font-black text-sm flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
                                                         <Clock className="w-5 h-5" /> ĐANG CHỜ DUYỆT
+                                                    </div>
+                                                )}
+                                                {isRejected && !joined && !isOrg && (
+                                                    <div className="w-full py-3.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 font-black text-sm flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(239,68,68,0.1)]">
+                                                        <XCircle className="w-5 h-5" /> ĐÃ BỊ TỪ CHỐI
                                                     </div>
                                                 )}
                                                 {joined && (
