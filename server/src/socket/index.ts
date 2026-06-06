@@ -67,6 +67,11 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
     io.on(SOCKET_EVENTS.CONNECTION, (socket: AuthSocket) => {
         logger.debug(`Socket connected: ${socket.id} (user: ${socket.userId || 'guest'})`);
 
+        if (socket.userId) {
+            socket.join(`user:${socket.userId}`);
+            logger.debug(`Socket ${socket.id} joined user room: user:${socket.userId}`);
+        }
+
         // ============================
         // JOIN/LEAVE COURT ROOM
         // ============================

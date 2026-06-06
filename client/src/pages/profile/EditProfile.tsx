@@ -161,7 +161,7 @@ export default function EditProfile({ onBack }: Props) {
                             id="displayName"
                             value={form.displayName}
                             onChange={e => set('displayName', e.target.value)}
-                            className="peer w-full h-14 px-5 rounded-2xl bg-white/5 border border-white/10 text-white text-[15px] font-medium outline-none focus:border-emerald-500/50 focus:bg-white/10 focus:shadow-[0_0_20px_rgba(16,185,129,0.1)] transition-all placeholder-transparent"
+                            className="peer w-full h-14 px-5 pt-4 rounded-2xl bg-white/5 border border-white/10 text-white text-[15px] font-medium outline-none focus:border-emerald-500/50 focus:bg-white/10 focus:shadow-[0_0_20px_rgba(16,185,129,0.1)] transition-all placeholder-transparent"
                             placeholder="Tên hiển thị"
                         />
 
@@ -178,7 +178,7 @@ export default function EditProfile({ onBack }: Props) {
                             id="email"
                             value={user?.email || ''}
                             readOnly
-                            className="peer w-full h-14 px-5 rounded-2xl bg-white/5 border border-transparent text-gray-400 text-[15px] font-medium outline-none cursor-not-allowed"
+                            className="peer w-full h-14 px-5 pt-4 rounded-2xl bg-white/5 border border-transparent text-gray-400 text-[15px] font-medium outline-none cursor-not-allowed"
                             placeholder="Email"
                         />
 
@@ -195,7 +195,7 @@ export default function EditProfile({ onBack }: Props) {
                             id="phone"
                             value={form.phone}
                             onChange={e => set('phone', e.target.value)}
-                            className="peer w-full h-14 px-5 rounded-2xl bg-white/5 border border-white/10 text-white text-[15px] font-medium outline-none focus:border-emerald-500/50 focus:bg-white/10 focus:shadow-[0_0_20px_rgba(16,185,129,0.1)] transition-all placeholder-transparent"
+                            className="peer w-full h-14 px-5 pt-4 rounded-2xl bg-white/5 border border-white/10 text-white text-[15px] font-medium outline-none focus:border-emerald-500/50 focus:bg-white/10 focus:shadow-[0_0_20px_rgba(16,185,129,0.1)] transition-all placeholder-transparent"
                             placeholder="Số điện thoại"
                         />
 

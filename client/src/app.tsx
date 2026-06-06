@@ -31,6 +31,7 @@ import NewsPage from './pages/NewsPage';
 import SupportPage from './pages/SupportPage';
 import GlobalAlert from './components/GlobalAlert';
 import { useAlertStore } from './stores/useAlertStore';
+import { socketService } from './utils/socket';
 
 function PremiumBackground() {
   const lightRef = useRef<HTMLDivElement>(null);
@@ -117,6 +118,35 @@ function Shell() {
       setPage('login');
     }
   }, [user, page, setPage, isCheckingAuth, showAlert]);
+
+  // Global Socket cho Thông báo
+  useEffect(() => {
+    if (!user) return;
+
+    socketService.connect('');
+    const socket = socketService.getSocket();
+    if (!socket) return;
+
+    const handleNoti = (title: string, message: string) => {
+        showAlert(message, title, 'success');
+        window.dispatchEvent(new Event('refresh_notifications'));
+        window.dispatchEvent(new Event('refresh_chat_rooms')); // Update chat rooms too
+    };
+
+    const onJoinReq = () => handleNoti('Yêu cầu tham gia mới', 'Có người vừa xin vào nhóm của bạn!');
+    const onJoinAcc = () => handleNoti('Đã được duyệt!', 'Chủ sân đã đồng ý cho bạn vào nhóm. Vào chat ngay!');
+    const onJoinRej = () => handleNoti('Bị từ chối', 'Rất tiếc, chủ sân đã từ chối yêu cầu của bạn.');
+
+    socket.on('join_request_received', onJoinReq);
+    socket.on('join_request_accepted', onJoinAcc);
+    socket.on('join_request_rejected', onJoinRej);
+
+    return () => {
+        socket.off('join_request_received', onJoinReq);
+        socket.off('join_request_accepted', onJoinAcc);
+        socket.off('join_request_rejected', onJoinRej);
+    };
+  }, [user, showAlert]);
 
   // Gộp chung thời gian check Auth vào Splash Screen để không bị nháy giao diện
 
