@@ -350,6 +350,33 @@ export default function GroupPlayPage() {
                                                 </div>
                                             )}
 
+                                            {/* Participants List */}
+                                            {g.participants.length > 0 && (
+                                                <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+                                                    <h4 className="text-emerald-400 font-bold text-sm mb-3 flex items-center gap-2">
+                                                        <Users className="w-4 h-4" /> Danh sách người chơi ({g.participants.length})
+                                                    </h4>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                                                        {g.participants.map((p, i) => (
+                                                            <div key={i} className="flex items-center gap-3 bg-black/20 p-2 rounded-xl border border-white/5">
+                                                                <div className="w-10 h-10 rounded-full border-2 border-[#16181d] bg-gray-800 flex items-center justify-center text-xs font-bold text-white overflow-hidden shrink-0 shadow-sm">
+                                                                    {p.avatar ? <img src={p.avatar} alt="avt" className="w-full h-full object-cover" /> : p.displayName.charAt(0)}
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <div className="text-sm font-bold text-white truncate flex items-center gap-1">
+                                                                        {p.displayName}
+                                                                        {p.role === 'organizer' && <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />}
+                                                                    </div>
+                                                                    <div className="text-[10px] text-gray-400 uppercase tracking-wider">
+                                                                        {p.role === 'organizer' ? 'Trưởng nhóm' : 'Thành viên'}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
                                             {/* Action Buttons */}
                                             <div className="pt-2">
                                                 {!joined && !isOrg && !isPending && !isRejected && g.status === 'open' && (
