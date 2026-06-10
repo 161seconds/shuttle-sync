@@ -12,6 +12,7 @@ export default function SearchPage() {
     const { filters, setFilters, setBookingCourt } = useAppStore();
     const [loading, setLoading] = useState(true);
     const [courts, setCourts] = useState<Court[]>([]);
+    const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
 
     // Bộ lọc nâng cao
     const [priceMax, setPriceMax] = useState(200000);
@@ -30,17 +31,23 @@ export default function SearchPage() {
                 let currentLng: number | undefined = undefined;
 
                 if (filters.sortBy === 'distance') {
-                    try {
-                        const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
-                            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
-                        });
-                        currentLat = pos.coords.latitude;
-                        currentLng = pos.coords.longitude;
-                    } catch (geoErr) {
-                        console.warn("Bị chặn quyền vị trí.");
-                        useAlertStore.getState().showAlert("Bạn chưa cấp quyền vị trí! Hệ thống sẽ tạm chuyển sang sắp xếp theo Đánh giá.", 'Thông báo', 'info');
-                        setFilters({ sortBy: 'rating' });
-                        return;
+                    if (userLocation) {
+                        currentLat = userLocation.lat;
+                        currentLng = userLocation.lng;
+                    } else {
+                        try {
+                            const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+                                navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+                            });
+                            currentLat = pos.coords.latitude;
+                            currentLng = pos.coords.longitude;
+                            setUserLocation({ lat: currentLat, lng: currentLng });
+                        } catch (geoErr) {
+                            console.warn("Bị chặn quyền vị trí.");
+                            useAlertStore.getState().showAlert("Bạn chưa cấp quyền vị trí! Hệ thống sẽ tạm chuyển sang sắp xếp theo Đánh giá.", 'Thông báo', 'info');
+                            setFilters({ sortBy: 'rating' });
+                            return;
+                        }
                     }
                 }
 
