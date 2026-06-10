@@ -25,7 +25,7 @@ export const bookingApi = {
         return axiosClient.post(`/bookings/${bookingId}/cancel`, { reason });
     },
 
-    getMyBookings: (params?: any) => axiosClient.get('/bookings/my', { params }),
+    getMyBookings: (params?: Record<string, any>) => axiosClient.get('/bookings/my', { params }),
 
     getBookingById(bookingId: string) {
         return axiosClient.get(`/bookings/${bookingId}`);

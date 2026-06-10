@@ -1,11 +1,13 @@
 import axiosClient from './axiosClient';
+import type { AxiosResponse } from 'axios';
+import type { ApiResponse, Court } from '../types';
 
 export const courtApi = {
-    searchCourts(params?: Record<string, any>) {
+    searchCourts(params?: Record<string, any>): Promise<AxiosResponse<ApiResponse<{ courts: Court[], pagination: any }>>> {
         return axiosClient.get('/courts/search', { params });
     },
 
-    getCourtByIdOrSlug(idOrSlug: string) {
+    getCourtByIdOrSlug(idOrSlug: string): Promise<AxiosResponse<ApiResponse<Court>>> {
         return axiosClient.get(`/courts/${idOrSlug}`);
     },
 

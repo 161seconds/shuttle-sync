@@ -5,7 +5,7 @@ import { useAppStore } from '../store';
 import { courtApi } from '../api/court.api';
 import CourtFilter from '../components/court/CourtFilter';
 import { ListCardSkeleton } from '../components/ui/Skeleton';
-import type { Court } from '../types';
+import type { Court, CourtFilters } from '../types';
 import { useAlertStore } from '../stores/useAlertStore';
 
 export default function SearchPage() {
@@ -57,7 +57,7 @@ export default function SearchPage() {
                 });
 
                 if (response.data && response.data.data) {
-                    setCourts(response.data.data);
+                    setCourts(response.data.data.courts || (response.data.data as any));
                     if (response.data.pagination) {
                         setTotalPages(response.data.pagination.totalPages);
                         setTotalRecords(response.data.pagination.total);
@@ -74,7 +74,7 @@ export default function SearchPage() {
         return () => clearTimeout(timeoutId);
     }, [filters, page, priceMax]);
 
-    const handleFilterChange = (partial: any) => {
+    const handleFilterChange = (partial: Partial<CourtFilters>) => {
         setFilters(partial);
         setPage(1);
     };
