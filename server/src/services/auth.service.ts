@@ -161,6 +161,8 @@ class AuthService {
             userId: user._id.toString(),
             role: user.role,
             email: user.email,
+            status: user.status,
+            banInfo: user.banInfo,
         };
 
         const accessToken = jwt.sign(payload, config.jwt.accessSecret, {
