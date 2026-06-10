@@ -1,4 +1,6 @@
 import axiosClient from './axiosClient';
+import type { AxiosResponse } from 'axios';
+import type { ApiResponse, User } from '../types';
 
 export const authApi = {
     register(data: { email: string; password: string; displayName: string; phone?: string; role?: string }) {
@@ -17,11 +19,11 @@ export const authApi = {
         return axiosClient.post('/auth/logout', { refreshToken });
     },
 
-    getMe: () => {
+    getMe: (): Promise<AxiosResponse<ApiResponse<{ user: User }>>> => {
         return axiosClient.get('/auth/profile');
     },
 
-    updateProfile: (data: any) => {
+    updateProfile: (data: Partial<User>): Promise<AxiosResponse<ApiResponse<User>>> => {
         return axiosClient.put('/auth/profile', data);
     },
 

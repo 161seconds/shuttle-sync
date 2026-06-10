@@ -1,4 +1,5 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
+import { ApiError } from '../utils/ApiError';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
@@ -6,7 +7,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const aiCoachController = {
-    askCoach: async (req: Request, res: Response) => {
+    askCoach: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { message } = req.body;
             if (!message) return res.status(400).json({ error: 'Bạn chưa nhập câu hỏi!' });
@@ -69,12 +70,9 @@ export const aiCoachController = {
                 suggestions: responseData.suggestions || []
             });
 
-        } catch (error: any) {
+        } catch (error) {
             console.error('Lỗi AI Coach:', error);
-            res.status(500).json({
-                error: 'Coach đang bận hướng dẫn học viên khác, bạn thử lại sau nhé!',
-                details: error?.message || String(error)
-            });
+            next(ApiError.internal('Coach đang bận hướng dẫn học viên khác, bạn thử lại sau nhé!'));
         }
     }
 };

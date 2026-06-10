@@ -29,27 +29,37 @@ export const authenticate = async (
         const decoded = jwt.verify(token, config.jwt.accessSecret) as any;
 
         const currentUserId = decoded.id || decoded.userId;
-        const user = await User.findById(currentUserId).select('status role banInfo').lean();
+        let status = decoded.status;
+        let banInfo = decoded.banInfo;
+        let role = decoded.role;
 
-        if (!user) {
-            throw ApiError.unauthorized('Tài khoản không tồn tại');
+        // Fallback for old tokens or missing data
+        if (!status) {
+            const user = await User.findById(currentUserId).select('status role banInfo').lean();
+            if (!user) {
+                throw ApiError.unauthorized('Tài khoản không tồn tại');
+            }
+            status = user.status;
+            banInfo = user.banInfo;
+            role = user.role;
         }
 
-        if (user.status === UserStatus.BANNED) {
-            if (user.banInfo?.expiresAt && new Date(user.banInfo.expiresAt) < new Date()) {
-                await User.findByIdAndUpdate(currentUserId, {
+        if (status === UserStatus.BANNED) {
+            if (banInfo?.expiresAt && new Date(banInfo.expiresAt) < new Date()) {
+                // Background update to remove ban
+                User.findByIdAndUpdate(currentUserId, {
                     status: UserStatus.ACTIVE,
                     $unset: { banInfo: 1 },
-                });
+                }).catch(err => console.error("Lỗi xóa ban tự động", err));
             } else {
                 throw ApiError.forbidden(
-                    `Tài khoản đã bị cấm${user.banInfo?.reason ? `: ${user.banInfo.reason}` : ''}`
+                    `Tài khoản đã bị cấm${banInfo?.reason ? `: ${banInfo.reason}` : ''}`
                 );
             }
         }
 
         req.userId = currentUserId;
-        req.userRole = user.role;
+        req.userRole = role;
         req.userEmail = decoded.email;
         next();
     } catch (error) {

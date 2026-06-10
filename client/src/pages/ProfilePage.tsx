@@ -28,8 +28,12 @@ export default function ProfilePage() {
             try {
                 setIsSyncing(true);
                 const res = await authApi.getMe();
-                const userData = res.data?.data?.user || res.data?.data || res.data?.user || res.data;
-                setUser(userData);
+                const userData = res.data?.data?.user;
+                if (userData) {
+                    setUser(userData as any);
+                } else {
+                    setUser(null);
+                }
             } catch (error) {
                 console.error("Lỗi đồng bộ dữ liệu Profile:", error);
                 setUser(null);
@@ -80,7 +84,7 @@ export default function ProfilePage() {
     if (subPage === 'notifications') return <Notifications onBack={() => setSubPage(null)} />;
     if (subPage === 'settings') return <SettingsPage onBack={() => setSubPage(null)} />;
 
-    const MENU: { icon: React.ReactNode; label: string; badge: any; action: SubPage }[] = [
+    const MENU: { icon: React.ReactNode; label: string; badge: number | null; action: SubPage }[] = [
         { icon: <Edit className="w-4 h-4" />, label: 'Chỉnh sửa hồ sơ', badge: null, action: 'edit' },
         { icon: <History className="w-4 h-4" />, label: 'Lịch sử đặt sân', badge: user.stats?.totalBookings || null, action: 'history' },
         { icon: <Award className="w-4 h-4" />, label: 'Giải đấu của tôi', badge: null, action: 'tournaments' },

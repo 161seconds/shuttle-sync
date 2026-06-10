@@ -3,6 +3,7 @@ import cors from 'cors';
 import compression from 'compression';
 import morgan from 'morgan';
 import path from 'path';
+import helmet from 'helmet';
 import { config } from './config';
 import routes from './routes';
 import { errorHandler, notFoundHandler, apiLimiter, searchCourtLimiter } from './middlewares';
@@ -20,6 +21,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Security
+app.use(helmet());
 app.use(cors({
     origin: [
         config.client.url,

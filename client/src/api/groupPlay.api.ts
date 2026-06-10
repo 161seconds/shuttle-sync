@@ -12,7 +12,7 @@ export const groupPlayApi = {
     },
 
     // Tạo kèo giao lưu mới
-    createGroupPlay(data: any) {
+    createGroupPlay(data: Record<string, any>) {
         return axiosClient.post('/group-plays', data);
     },
 

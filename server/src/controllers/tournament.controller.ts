@@ -1,57 +1,55 @@
 import { Response, NextFunction } from 'express';
+import { AuthRequest } from '../middlewares/auth';
 import { tournamentService } from '../services/tournament.service';
 
 class TournamentController {
-    async getMyTournaments(req: any, res: Response, next: NextFunction) {
+    async getMyTournaments(req: AuthRequest, res: Response, next: NextFunction) {
         try {
-            const userId = req.user?._id || req.user?.id || req.userId;
+            const userId = req.userId!;
             const tours = await tournamentService.getMyTournaments(userId);
             res.status(200).json({ success: true, data: tours });
-        } catch (error: any) {
-            res.status(500).json({ success: false, message: error.message });
+        } catch (error) {
+            next(error);
         }
     }
 
-    async getTournament(req: any, res: Response, next: NextFunction) {
+    async getTournament(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             const tour = await tournamentService.getTournament(req.params.id);
             res.status(200).json({ success: true, data: tour });
-        } catch (error: any) {
-            res.status(404).json({ success: false, message: error.message });
+        } catch (error) {
+            next(error);
         }
     }
 
     // API Tạo nhanh
-    async createQuickTournament(req: any, res: Response, next: NextFunction) {
+    async createQuickTournament(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             const { title } = req.body;
             const newTour = await tournamentService.createQuickTournament(title);
             res.status(201).json({ success: true, message: 'Tạo và chia nhánh thành công!', data: newTour });
-        } catch (error: any) {
-            console.error("Lỗi tạo giải nhanh:", error);
-            res.status(500).json({ success: false, message: error.message });
+        } catch (error) {
+            next(error);
         }
     }
 
-    async startTournament(req: any, res: Response, next: NextFunction) {
+    async startTournament(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
             const updatedTour = await tournamentService.generateBracket(id);
             res.status(200).json({ success: true, message: 'Bốc thăm chia nhánh thành công!', data: updatedTour });
-        } catch (error: any) {
-            console.error("Lỗi bắt đầu giải đấu:", error);
-            res.status(400).json({ success: false, message: error.message });
+        } catch (error) {
+            next(error);
         }
     }
 
-    async updateMatch(req: any, res: Response, next: NextFunction) {
+    async updateMatch(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             const { id, matchId } = req.params;
             const updatedTour = await tournamentService.updateMatch(id, matchId, req.body);
             res.status(200).json({ success: true, message: 'Cập nhật trận đấu thành công!', data: updatedTour });
-        } catch (error: any) {
-            console.error("Lỗi cập nhật trận đấu:", error);
-            res.status(400).json({ success: false, message: error.message });
+        } catch (error) {
+            next(error);
         }
     }
 }
