@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { Booking } from '../models/Booking';
 import { notificationService } from './other.service';
+import { logger } from '../utils/logger';
 import {
     BookingStatus,
     PaymentStatus,
@@ -124,9 +125,9 @@ class BookingService {
         setTimeout(async () => {
             try {
                 await this.confirmPayment(paymentCode, userId);
-                console.log(`[Auto-Confirm] Đã tự động xác nhận thanh toán đơn ${paymentCode} sau 5 giây`);
+                logger.info(`[Auto-Confirm] Đã tự động xác nhận thanh toán đơn ${paymentCode} sau 5 giây`);
             } catch (error) {
-                console.error(`[Auto-Confirm] Lỗi khi xác nhận đơn ${paymentCode}:`, error);
+                logger.error(`[Auto-Confirm] Lỗi khi xác nhận đơn ${paymentCode}:`, error);
             }
         }, 5000);
 
@@ -182,7 +183,7 @@ class BookingService {
                 title: '🎉 Thanh toán gói cố định thành công!',
                 message: `Bạn đã thanh toán thành công ${bookings.length} buổi tại ${courtName} từ ngày ${bookings[0].date.toLocaleDateString('vi-VN')}.`,
                 type: 'booking'
-            }).catch(err => console.error("Lỗi tạo thông báo:", err));
+            }).catch(err => logger.error("Lỗi tạo thông báo:", err));
 
             return bookings[0];
         } else {
@@ -202,7 +203,7 @@ class BookingService {
                 title: '🎉 Thanh toán thành công!',
                 message: `Bạn đã thanh toán thành công đơn đặt ${courtName} lúc ${booking.startTime} ngày ${booking.date.toLocaleDateString('vi-VN')}.`,
                 type: 'booking'
-            }).catch(err => console.error("Lỗi tạo thông báo:", err));
+            }).catch(err => logger.error("Lỗi tạo thông báo:", err));
 
             return booking;
         }

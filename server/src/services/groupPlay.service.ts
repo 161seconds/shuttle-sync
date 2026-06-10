@@ -44,7 +44,7 @@ class GroupPlayService {
             title: '🏸 Tạo nhóm thành công',
             message: `Bạn đã tạo thành công nhóm "${groupPlay.title}". Chúc bạn có một buổi giao lưu vui vẻ!`,
             type: 'group_play'
-        }).catch(err => console.error(err));
+        }).catch(err => logger.error('Lỗi tạo thông báo (GroupPlay):', err));
 
         logger.info(`GroupPlay created: ${groupPlay.title} by ${organizer.displayName}`);
         return groupPlay;
@@ -107,7 +107,7 @@ class GroupPlayService {
             title: '👋 Yêu cầu tham gia mới!',
             message: `${user.displayName} muốn tham gia nhóm "${groupPlay.title}" của bạn. Hãy vào duyệt ngay!`,
             type: 'GROUP'
-        }).catch(err => console.error(err));
+        }).catch(err => logger.error('Lỗi tạo thông báo (GroupPlay):', err));
 
         // Note: socket event should be emitted by controller to owner
         
@@ -176,7 +176,7 @@ class GroupPlayService {
             title: '✅ Đã được duyệt!',
             message: `Chủ sân đã duyệt bạn vào nhóm "${groupPlay.title}". Vào chat ngay nào!`,
             type: 'GROUP'
-        }).catch(err => console.error(err));
+        }).catch(err => logger.error('Lỗi tạo thông báo (GroupPlay):', err));
 
         return groupPlay;
     }
@@ -213,7 +213,7 @@ class GroupPlayService {
             title: '❌ Yêu cầu bị từ chối',
             message: `Chủ sân đã từ chối yêu cầu tham gia nhóm "${groupPlay.title}" của bạn. Lý do: ${request.rejectReason}`,
             type: 'GROUP'
-        }).catch(err => console.error(err));
+        }).catch(err => logger.error('Lỗi tạo thông báo (GroupPlay):', err));
 
         return groupPlay;
     }
@@ -258,7 +258,7 @@ class GroupPlayService {
                 title: '😢 Thành viên rời nhóm',
                 message: `${user.displayName} đã rời khỏi nhóm "${groupPlay.title}".`,
                 type: 'GROUP'
-            }).catch(err => console.error(err));
+            }).catch(err => logger.error('Lỗi tạo thông báo (GroupPlay):', err));
         }
 
         return groupPlay;

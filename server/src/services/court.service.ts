@@ -6,9 +6,7 @@ import { createSlug, calculatePagination, generateTimeSlots } from '../utils/hel
 import { logger } from '../utils/logger';
 
 class CourtService {
-    private async formatVenueForFrontend(venue: any) {
-        const subCourts = await Court.find({ venueId: venue._id, status: 'AVAILABLE' }).lean();
-
+    private formatVenueForFrontend(venue: any, subCourts: any[]) {
         const formattedSubCourts = subCourts.map(c => ({
             ...c,
             sportType: c.sportType.toLowerCase()
@@ -102,7 +100,8 @@ class CourtService {
             throw ApiError.notFound('Không tìm thấy cơ sở sân này');
         }
 
-        return await this.formatVenueForFrontend(venue);
+        const subCourts = await Court.find({ venueId: (venue as any)._id, status: 'AVAILABLE' }).lean();
+        return this.formatVenueForFrontend(venue, subCourts);
     }
 
     // ============================================================================
@@ -173,12 +172,22 @@ class CourtService {
 
         const venues = await query.lean();
 
-        // CHẠY QUA BỘ CHUYỂN ĐỔI FRONTEND
-        const formattedVenues = await Promise.all(venues.map(v => this.formatVenueForFrontend(v)));
+        // CHẠY QUA BỘ CHUYỂN ĐỔI FRONTEND (Tối ưu N+1 Query)
+        const venueIds = venues.map(v => (v as any)._id);
+        const allSubCourts = await Court.find({ venueId: { $in: venueIds }, status: 'AVAILABLE' }).lean();
+        
+        const subCourtsByVenueId = allSubCourts.reduce((acc: any, court: any) => {
+            const vId = court.venueId.toString();
+            if (!acc[vId]) acc[vId] = [];
+            acc[vId].push(court);
+            return acc;
+        }, {});
+
+        const formattedVenues = venues.map((v: any) => this.formatVenueForFrontend(v, subCourtsByVenueId[v._id.toString()] || []));
 
         // Tính khoảng cách
         if (lat && lng) {
-            formattedVenues.forEach(venue => {
+            formattedVenues.forEach((venue: any) => {
                 if (venue.location && venue.location.coordinates) {
                     const [vLng, vLat] = venue.location.coordinates;
                     const R = 6371;
@@ -188,7 +197,7 @@ class CourtService {
                         Math.cos(lat * Math.PI / 180) * Math.cos(vLat * Math.PI / 180) *
                         Math.sin(dLng / 2) * Math.sin(dLng / 2);
                     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                    (venue as any).distance = R * c;
+                    venue.distance = R * c;
                 }
             });
         }
@@ -209,20 +218,23 @@ class CourtService {
         const openTime = '06:00';
         const closeTime = '22:00';
 
+        // Lấy tất cả các slot đã tồn tại trong ngày để check nhanh (Optimize N+1 Query)
+        const existingSlots = await TimeSlot.find({
+            courtId: venueId,
+            date,
+        }).lean();
+        const existingSet = new Set(existingSlots.map(s => `${s.subCourtId.toString()}_${s.startTime}`));
+
+        const newSlotsToInsert: any[] = [];
+
         for (const subCourt of activeCourts) {
             const slots = generateTimeSlots(openTime, closeTime, 60);
 
             for (const slot of slots) {
-                const exists = await TimeSlot.findOne({
-                    courtId: venueId,
-                    subCourtId: subCourt._id,
-                    date,
-                    startTime: slot.start,
-                });
-
-                if (!exists) {
+                const slotKey = `${subCourt._id.toString()}_${slot.start}`;
+                if (!existingSet.has(slotKey)) {
                     const price = subCourt.pricePerHour || 100000;
-                    await TimeSlot.create({
+                    newSlotsToInsert.push({
                         courtId: venueId,
                         subCourtId: subCourt._id,
                         date,
@@ -233,6 +245,10 @@ class CourtService {
                     });
                 }
             }
+        }
+
+        if (newSlotsToInsert.length > 0) {
+            await TimeSlot.insertMany(newSlotsToInsert, { ordered: false });
         }
     }
 
@@ -283,8 +299,18 @@ class CourtService {
             .populate('ownerId', 'displayName avatar')
             .lean();
 
-        // CHẠY QUA BỘ CHUYỂN ĐỔI FRONTEND
-        const formattedVenues = await Promise.all(venues.map(v => this.formatVenueForFrontend(v)));
+        // CHẠY QUA BỘ CHUYỂN ĐỔI FRONTEND (Tối ưu N+1 Query)
+        const venueIds = venues.map(v => (v as any)._id);
+        const allSubCourts = await Court.find({ venueId: { $in: venueIds }, status: 'AVAILABLE' }).lean();
+        
+        const subCourtsByVenueId = allSubCourts.reduce((acc: any, court: any) => {
+            const vId = court.venueId.toString();
+            if (!acc[vId]) acc[vId] = [];
+            acc[vId].push(court);
+            return acc;
+        }, {});
+
+        const formattedVenues = venues.map((v: any) => this.formatVenueForFrontend(v, subCourtsByVenueId[v._id.toString()] || []));
 
         return {
             courts: formattedVenues,
