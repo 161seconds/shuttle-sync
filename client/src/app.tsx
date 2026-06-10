@@ -1,34 +1,35 @@
 import './app.css';
-import { useState, useEffect, useRef } from 'react';
+import { lazy, Suspense, useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AppProvider, useAppStore } from './store';
 import Header from './components/layout/Header';
 import BottomNav from './components/layout/BottomNav';
-import Dashboard from './pages/Dashboard';
-import MapPage from './pages/MapPage';
-import SearchPage from './pages/SearchPage';
-import ProfilePage from './pages/ProfilePage';
-import CourtDetail from './pages/CourtDetail';
-import Login from './pages/Login';
-import BookingSheet from './features/booking/BookingSheet';
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const MapPage = lazy(() => import('./pages/MapPage'));
+const SearchPage = lazy(() => import('./pages/SearchPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const CourtDetail = lazy(() => import('./pages/CourtDetail'));
+const Login = lazy(() => import('./pages/Login'));
+const BookingSheet = lazy(() => import('./features/booking/BookingSheet'));
+const GroupPlayPage = lazy(() => import('./pages/GroupPlay'));
+const AiCoach = lazy(() => import('./pages/AiCoach'));
+const Notifications = lazy(() => import('./pages/profile/Notifications'));
+const EditProfile = lazy(() => import('./pages/profile/EditProfile'));
+const AdminDashboard = lazy(() => import('./features/admin/AdminDashboard'));
+const MatchLeaderboard = lazy(() => import('./components/groups/MatchLeaderboard'));
+const RulesPage = lazy(() => import('./pages/RulesPage'));
+const SupplementaryPage = lazy(() => import('./pages/SupplementaryPage'));
+const ChatPage = lazy(() => import('./pages/chat/ChatPage'));
+const NewsPage = lazy(() => import('./pages/NewsPage'));
+const SupportPage = lazy(() => import('./pages/SupportPage'));
+
 import { useOnboarding, OnboardingModal, GuidedTourOverlay } from './features/onboarding';
 import { ParticleField } from './components/onboarding/Shared';
 import { theme as DS } from './utils/theme';
 import type { Court } from './types';
 import { authApi } from './api/auth.api';
-import GroupPlayPage from './pages/GroupPlay';
-import AiCoach from './pages/AiCoach';
 import SplashScreen from './components/SplashScreen';
-import Notifications from './pages/profile/Notifications';
-import EditProfile from './pages/profile/EditProfile';
 import AppSidebar from './components/layout/Sidebar';
-import AdminDashboard from './features/admin/AdminDashboard';
-import MatchLeaderboard from './components/groups/MatchLeaderboard';
-import RulesPage from './pages/RulesPage';
-import SupplementaryPage from './pages/SupplementaryPage';
-import ChatPage from './pages/chat/ChatPage';
-import NewsPage from './pages/NewsPage';
-import SupportPage from './pages/SupportPage';
 import GlobalAlert from './components/GlobalAlert';
 import { useAlertStore } from './stores/useAlertStore';
 import { socketService } from './utils/socket';
@@ -176,24 +177,30 @@ function Shell() {
             className={`flex-1 transition-all duration-300 ease-in-out ${page !== 'login' ? 'pt-16' : ''} ${(isSideBarOpen && page !== 'login' && page !== 'map') ? 'md:pl-64 pl-0' : 'pl-0'
               } w-full min-h-screen`}
           >
-            <AnimatePresence mode="wait">
-              {page === 'login' && <motion.div key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Login /></motion.div>}
-              {page === 'home' && <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Dashboard /></motion.div>}
-              {page === 'map' && <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MapPage /></motion.div>}
-              {page === 'search' && <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SearchPage /></motion.div>}
-              {page === 'profile' && <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ProfilePage /></motion.div>}
-              {page === 'edit-profile' && <motion.div key="edit-profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><EditProfile onBack={() => setPage('profile')} /></motion.div>}
-              {page === 'groupplay' && <motion.div key="group-play" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><GroupPlayPage /></motion.div>}
-              {page === 'aicoach' && <motion.div key="aicoach" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AiCoach /></motion.div>}
-              {page === 'admin' && <motion.div key="admin" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AdminDashboard /></motion.div>}
-              {page === 'notifications' && <motion.div key="noti" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Notifications onBack={() => setPage('home')} /></motion.div>}
-              {page === 'match-leaderboard' && <motion.div key="leaderboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MatchLeaderboard onBack={() => setPage('groupplay')} /></motion.div>}
-              {page === 'rules' && <motion.div key="rules" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><RulesPage /></motion.div>}
-              {page === 'supplementary' && <motion.div key="supplementary" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SupplementaryPage /></motion.div>}
-              {page === 'chat' && <motion.div key="chat" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ChatPage /></motion.div>}
-              {page === 'news' && <motion.div key="news" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><NewsPage /></motion.div>}
-              {page === 'support' && <motion.div key="support" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SupportPage /></motion.div>}
-            </AnimatePresence>
+            <Suspense fallback={
+              <div className="flex-1 flex flex-col items-center justify-center min-h-[50vh]">
+                <div className="w-8 h-8 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin"></div>
+              </div>
+            }>
+              <AnimatePresence mode="wait">
+                {page === 'login' && <motion.div key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Login /></motion.div>}
+                {page === 'home' && <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Dashboard /></motion.div>}
+                {page === 'map' && <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MapPage /></motion.div>}
+                {page === 'search' && <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SearchPage /></motion.div>}
+                {page === 'profile' && <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ProfilePage /></motion.div>}
+                {page === 'edit-profile' && <motion.div key="edit-profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><EditProfile onBack={() => setPage('profile')} /></motion.div>}
+                {page === 'groupplay' && <motion.div key="group-play" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><GroupPlayPage /></motion.div>}
+                {page === 'aicoach' && <motion.div key="aicoach" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AiCoach /></motion.div>}
+                {page === 'admin' && <motion.div key="admin" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AdminDashboard /></motion.div>}
+                {page === 'notifications' && <motion.div key="noti" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Notifications onBack={() => setPage('home')} /></motion.div>}
+                {page === 'match-leaderboard' && <motion.div key="leaderboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MatchLeaderboard onBack={() => setPage('groupplay')} /></motion.div>}
+                {page === 'rules' && <motion.div key="rules" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><RulesPage /></motion.div>}
+                {page === 'supplementary' && <motion.div key="supplementary" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SupplementaryPage /></motion.div>}
+                {page === 'chat' && <motion.div key="chat" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ChatPage /></motion.div>}
+                {page === 'news' && <motion.div key="news" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><NewsPage /></motion.div>}
+                {page === 'support' && <motion.div key="support" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SupportPage /></motion.div>}
+              </AnimatePresence>
+            </Suspense>
           </main>
 
           <AnimatePresence>

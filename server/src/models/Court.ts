@@ -20,4 +20,6 @@ const CourtSchema = new Schema<ICourtDocument>({
     createdAt: { type: Date, default: Date.now }
 });
 
+CourtSchema.index({ venueId: 1, status: 1 });
+
 export const Court = mongoose.models.Court || mongoose.model<ICourtDocument>('Court', CourtSchema);
