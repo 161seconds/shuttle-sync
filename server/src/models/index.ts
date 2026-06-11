@@ -14,3 +14,6 @@ export {
     Notification, INotificationDocument,
 } from './Others';
 export * from './Notification';
+export { Friendship, IFriendshipDocument } from './Friendship';
+export { Conversation, IConversationDocument } from './Conversation';
+export { Message, IMessageDocument } from './Message';

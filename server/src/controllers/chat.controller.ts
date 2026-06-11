@@ -68,3 +68,101 @@ export const deleteGroupChat = async (req: AuthRequest, res: Response): Promise<
         });
     }
 };
+
+// ============================
+// P2P CHAT / DIRECT MESSAGES
+// ============================
+
+export const getConversations = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.userId;
+
+        const { Conversation } = await import('../models/Conversation');
+        const conversations = await Conversation.find({ participants: userId })
+            .populate('participants', 'displayName avatar')
+            .populate('lastMessage')
+            .sort({ updatedAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            message: 'Conversations fetched',
+            data: conversations,
+        });
+    } catch (error) {
+        logger.error('Error fetching conversations:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
+export const getMessages = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.userId;
+        const { conversationId } = req.params;
+
+        const { Conversation } = await import('../models/Conversation');
+        const { Message } = await import('../models/Message');
+
+        const conversation = await Conversation.findOne({
+            _id: conversationId,
+            participants: userId,
+        });
+
+        if (!conversation) {
+            res.status(404).json({ success: false, message: 'Conversation not found' });
+            return;
+        }
+
+        const messages = await Message.find({ conversationId }).sort({ createdAt: 1 });
+
+        // Reset unread count
+        if (conversation.unreadCount.get(userId as string) && conversation.unreadCount.get(userId as string)! > 0) {
+            conversation.unreadCount.set(userId as string, 0);
+            await conversation.save();
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Messages fetched',
+            data: messages,
+        });
+    } catch (error) {
+        logger.error('Error fetching messages:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
+export const createConversation = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.userId;
+        const { recipientId } = req.body;
+
+        if (userId === recipientId) {
+            res.status(400).json({ success: false, message: 'Cannot create conversation with yourself' });
+            return;
+        }
+
+        const { Conversation } = await import('../models/Conversation');
+
+        let conversation = await Conversation.findOne({
+            participants: { $all: [userId, recipientId], $size: 2 }
+        });
+
+        if (!conversation) {
+            conversation = await Conversation.create({
+                participants: [userId, recipientId],
+                unreadCount: new Map([[userId as string, 0], [recipientId, 0]]),
+            });
+        }
+
+        const populated = await conversation.populate('participants', 'displayName avatar');
+
+        res.status(200).json({
+            success: true,
+            message: 'Conversation fetched or created',
+            data: populated,
+        });
+    } catch (error) {
+        logger.error('Error creating conversation:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};

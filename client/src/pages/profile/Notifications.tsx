@@ -7,6 +7,11 @@ import {
 import { theme as t } from '../../utils/theme';
 import axiosClient from '../../api/axiosClient';
 import { useAppStore } from '../../store';
+import { useSocialStore } from '../../stores/useSocialStore';
+import UserProfileModal from '../chat/UserProfileModal';
+import type { ChatUser } from '../chat/mockData';
+import { friendApi } from '../../api/friend.api';
+import { AnimatePresence } from 'framer-motion';
 
 interface Props {
     onBack: () => void;
@@ -30,8 +35,23 @@ const timeAgo = (dateString: string) => {
 
 export default function Notifications({ onBack }: Props) {
     const { setPage } = useAppStore();
+    const { pendingRequests, fetchPendingRequests, fetchFriends } = useSocialStore();
     const [notifications, setNotifications] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null);
+
+    const handleAvatarClick = (u: any) => {
+        setSelectedUser({
+            id: u._id,
+            name: u.displayName,
+            avatar: u.avatar || '',
+            skillLevel: u.skillLevel || 'Chưa cập nhật',
+            status: 'active',
+            matchesPlayed: (u.stats?.totalGroupsJoined || 0) + (u.stats?.totalGroupsCreated || 0),
+            favoriteCourt: 'Chưa cập nhật',
+            joinedDate: new Date().toISOString()
+        });
+    };
 
     useEffect(() => {
         const fetchNotifications = async () => {
@@ -62,6 +82,7 @@ export default function Notifications({ onBack }: Props) {
         };
 
         window.addEventListener('refresh_notifications', handleRefresh);
+        fetchPendingRequests();
         return () => window.removeEventListener('refresh_notifications', handleRefresh);
     }, []);
 
@@ -133,6 +154,47 @@ export default function Notifications({ onBack }: Props) {
 
             {/* Danh sách thông báo */}
             <div className="max-w-lg mx-auto p-5 space-y-4">
+                
+                {/* Lời mời kết bạn */}
+                {pendingRequests.length > 0 && (
+                    <div className="mb-6 space-y-3">
+                        <h2 className="text-[11px] font-black text-gray-500 uppercase tracking-widest pl-2">Lời mời kết bạn ({pendingRequests.length})</h2>
+                        {pendingRequests.map(req => (
+                            <div key={req._id} className="relative p-5 rounded-3xl border bg-white/10 border-white/10 hover:border-emerald-500/30 transition-all backdrop-blur-md">
+                                <div className="flex gap-4">
+                                    <div 
+                                        className="w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-500/30 shrink-0 cursor-pointer hover:scale-105 transition-transform bg-white/5 flex items-center justify-center text-emerald-400 font-bold"
+                                        onClick={() => handleAvatarClick(req.requesterId)}
+                                    >
+                                        {req.requesterId.avatar ? <img src={req.requesterId.avatar || undefined} alt="avatar" className="w-full h-full object-cover" /> : req.requesterId.displayName.charAt(0)}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-[15px] font-black text-white">{req.requesterId.displayName}</h3>
+                                        <p className="text-[13px] text-gray-300">Đã gửi cho bạn một lời mời kết bạn</p>
+                                        <div className="mt-3 flex gap-2">
+                                            <button 
+                                                className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black text-[12px] font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                                                onClick={async () => {
+                                                    try {
+                                                        await friendApi.acceptRequest(req._id);
+                                                        fetchPendingRequests();
+                                                        fetchFriends();
+                                                    } catch (e) {
+                                                        console.error(e);
+                                                    }
+                                                }}
+                                            >
+                                                Chấp nhận
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                <h2 className="text-[11px] font-black text-gray-500 uppercase tracking-widest pl-2 mb-2">Hoạt động</h2>
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-24 text-center">
                         <Loader2 className="w-10 h-10 text-emerald-500 animate-spin mb-5 drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
@@ -214,6 +276,15 @@ export default function Notifications({ onBack }: Props) {
                 ))
                 }
             </div>
+
+            <AnimatePresence>
+                {selectedUser && (
+                    <UserProfileModal
+                        user={selectedUser}
+                        onClose={() => setSelectedUser(null)}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 }

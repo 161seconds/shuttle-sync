@@ -88,7 +88,7 @@ export default function GroupChat({ groupPlayId, onClose }: GroupChatProps) {
                 {!isMine && showAvatar && (
                     <div className="w-8 h-8 rounded-full bg-gray-700 overflow-hidden flex-shrink-0 mr-2 border border-gray-600 flex items-center justify-center text-xs font-bold text-white">
                         {msg.senderAvatar ? (
-                            <img src={msg.senderAvatar} alt="avatar" className="w-full h-full object-cover" />
+                            <img src={msg.senderAvatar || undefined} alt="avatar" className="w-full h-full object-cover" />
                         ) : (
                             msg.senderName.charAt(0)
                         )}

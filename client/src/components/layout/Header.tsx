@@ -1,5 +1,6 @@
-import { Calendar, Search, Bell, Menu, Zap } from 'lucide-react';
+import { Calendar, Search, Bell, Menu, Zap, MessageCircle } from 'lucide-react';
 import { useAppStore } from '../../store';
+import { useSocialStore } from '../../stores/useSocialStore';
 import { theme as t } from '../../utils/theme';
 import { useState, useEffect } from 'react';
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
@@ -7,7 +8,9 @@ import axiosClient from '../../api/axiosClient';
 
 export default function Header() {
     const { setPage, user, isSideBarOpen, toggleSidebar, page } = useAppStore();
+    const { toggleDrawer, messages } = useSocialStore();
     const [hasUnread, setHasUnread] = useState(false);
+    const [hasUnreadMsg, setHasUnreadMsg] = useState(false);
     const [hidden, setHidden] = useState(false);
     const { scrollY } = useScroll();
 
@@ -38,6 +41,16 @@ export default function Header() {
         window.addEventListener('notificationsRead', onRead);
         return () => window.removeEventListener('notificationsRead', onRead);
     }, [user]);
+
+    useEffect(() => {
+        let unread = false;
+        Object.values(messages).forEach(msgs => {
+            if (msgs.some(m => !m.isRead && m.senderId !== user?._id)) {
+                unread = true;
+            }
+        });
+        setHasUnreadMsg(unread);
+    }, [messages, user]);
 
     return (
         <motion.header
@@ -99,6 +112,16 @@ export default function Header() {
                 <div className="flex items-center justify-end gap-3">
                     {user ? (
                         <>
+                            <button
+                                onClick={toggleDrawer}
+                                className={`relative w-10 h-10 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-emerald-400 hover:bg-white/5 transition-all`}
+                            >
+                                <MessageCircle className="w-5 h-5" />
+                                {hasUnreadMsg && (
+                                    <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-500 ring-2 ring-[#0a0a0a]" />
+                                )}
+                            </button>
+
                             <button
                                 onClick={() => {
                                     if (page === 'notifications') {

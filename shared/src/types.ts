@@ -5,6 +5,7 @@ import {
     TournamentStatus, TournamentFormat,
     OwnerApplicationStatus, EventType, VoucherType,
     ReportReason, ReportStatus, AuthProvider,
+    FriendshipStatus,
 } from './constants';
 
 // ========================
@@ -463,6 +464,41 @@ export interface INotification extends ITimestamps {
     data?: Record<string, unknown>;
     isRead: boolean;
     readAt?: Date;
+}
+
+// ========================
+// FRIENDSHIP & CHAT
+// ========================
+export interface IFriendship extends ITimestamps {
+    _id: string;
+    requesterId: string;
+    recipientId: string;
+    status: FriendshipStatus;
+    requester?: IUserPublic;
+    recipient?: IUserPublic;
+}
+
+export interface IConversation extends ITimestamps {
+    _id: string;
+    participants: string[];         // userIds
+    participantDetails?: IUserPublic[];
+    lastMessage?: IMessage;
+    unreadCount: Record<string, number>; // userId -> count
+}
+
+export interface IMessage extends ITimestamps {
+    _id: string;
+    conversationId: string;
+    senderId: string;
+    senderName?: string;
+    senderAvatar?: string;
+    content: string;
+    isRead: boolean;
+    replyTo?: {
+        messageId: string;
+        senderName: string;
+        content: string;
+    };
 }
 
 // ========================
