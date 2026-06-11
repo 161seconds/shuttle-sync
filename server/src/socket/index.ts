@@ -70,6 +70,9 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
         if (socket.userId) {
             socket.join(`user:${socket.userId}`);
             logger.debug(`Socket ${socket.id} joined user room: user:${socket.userId}`);
+            
+            // Broadcast online status to all users
+            io.emit(SOCKET_EVENTS.USER_ONLINE, { userId: socket.userId });
         }
 
         // ============================
@@ -249,10 +252,60 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
 
                 await newMessage.save();
 
-                // Broadcast to everyone in the room (including sender)
                 io.to(`group_play:${data.groupPlayId}`).emit('chat:message', newMessage);
             } catch (error) {
                 logger.error('Chat send error:', error);
+            }
+        });
+
+        // ============================
+        // P2P CHAT (Direct Message)
+        // ============================
+        socket.on(SOCKET_EVENTS.DIRECT_MESSAGE, async (data: {
+            conversationId: string;
+            recipientId: string;
+            content: string;
+            senderName?: string;
+            senderAvatar?: string;
+            replyTo?: {
+                messageId: string;
+                senderName: string;
+                content: string;
+            };
+        }) => {
+            if (!socket.userId) return;
+
+            try {
+                const { Message } = await import('../models/Message');
+                const { Conversation } = await import('../models/Conversation');
+
+                const newMessage = new Message({
+                    conversationId: data.conversationId,
+                    senderId: socket.userId,
+                    senderName: data.senderName,
+                    senderAvatar: data.senderAvatar,
+                    content: data.content,
+                    replyTo: data.replyTo,
+                });
+
+                await newMessage.save();
+
+                // Increment unread count for recipient
+                const conversation = await Conversation.findById(data.conversationId);
+                if (conversation) {
+                    const currentCount = conversation.unreadCount.get(data.recipientId) || 0;
+                    conversation.unreadCount.set(data.recipientId, currentCount + 1);
+                    conversation.lastMessage = newMessage._id;
+                    await conversation.save();
+                }
+
+                // Emit to recipient
+                io.to(`user:${data.recipientId}`).emit(SOCKET_EVENTS.DIRECT_MESSAGE, newMessage);
+                
+                // Emit back to sender so their UI updates if they have multiple tabs open
+                io.to(`user:${socket.userId}`).emit(SOCKET_EVENTS.DIRECT_MESSAGE, newMessage);
+            } catch (error) {
+                logger.error('Direct message error:', error);
             }
         });
 
@@ -297,6 +350,9 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
                 } catch (error) {
                     logger.error('Disconnect cleanup error:', error);
                 }
+
+                // Broadcast offline status
+                io.emit(SOCKET_EVENTS.USER_OFFLINE, { userId: socket.userId });
             }
 
             // Remove from court viewer sets

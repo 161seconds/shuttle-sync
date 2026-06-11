@@ -18,7 +18,7 @@ export default function ChatRoomItem({ room, isActive, onClick }: ChatRoomItemPr
         >
             <div className="relative">
                 <div className={`w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 ${isActive ? 'border-emerald-500' : 'border-transparent'}`}>
-                    <img src={room.avatar} alt={room.name} className="w-full h-full object-cover" />
+                    <img src={room.avatar || undefined} alt={room.name} className="w-full h-full object-cover" />
                 </div>
                 {room.unreadCount > 0 && (
                     <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white border-2 border-[#141617]">

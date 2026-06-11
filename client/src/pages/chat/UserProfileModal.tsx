@@ -1,6 +1,10 @@
-import { X, Award, MapPin, Calendar, Activity, AlertTriangle } from 'lucide-react';
+import { useState } from 'react';
+import { X, Award, MapPin, Calendar, Activity, AlertTriangle, UserPlus, UserCheck, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { ChatUser } from './mockData';
+import { useAppStore } from '../../store';
+import { useSocialStore } from '../../stores/useSocialStore';
+import { friendApi } from '../../api/friend.api';
 
 interface UserProfileModalProps {
     user: ChatUser;
@@ -9,6 +13,22 @@ interface UserProfileModalProps {
 
 export default function UserProfileModal({ user, onClose }: UserProfileModalProps) {
     const isBanned = user.status === 'banned';
+    const { user: currentUser } = useAppStore();
+    const { friends, pendingRequests } = useSocialStore();
+    const [requestSent, setRequestSent] = useState(false);
+
+    const isMe = currentUser?._id === user.id || (currentUser as any)?.id === user.id;
+    const isFriend = friends.some(f => f._id === user.id);
+    const isPending = pendingRequests.some(r => r.requesterId._id === user.id); // Họ gửi cho mình
+
+    const handleAddFriend = async () => {
+        try {
+            await friendApi.sendRequest(user.id);
+            setRequestSent(true);
+        } catch (error) {
+            console.error('Failed to send friend request', error);
+        }
+    };
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -32,7 +52,7 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                 <div className="flex justify-center -mt-12 mb-4 relative z-10">
                     <div className="relative">
                         <div className="w-24 h-24 rounded-full border-4 border-[#1a1b1e] bg-gray-800 overflow-hidden">
-                            <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                            <img src={user.avatar || undefined} alt={user.name} className="w-full h-full object-cover" />
                         </div>
                         {isBanned && (
                             <div className="absolute -bottom-2 -right-2 bg-[#1a1b1e] rounded-full p-1">
@@ -54,6 +74,37 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Hoạt động</span>
                         )}
                     </h2>
+
+                    {/* Nút kết bạn */}
+                    {!isMe && (
+                        <div className="flex justify-center mt-3">
+                            {isFriend ? (
+                                <button disabled className="px-4 py-1.5 rounded-full bg-white/10 text-white text-[13px] font-bold flex items-center gap-1.5 opacity-70">
+                                    <UserCheck className="w-4 h-4" /> Bạn bè
+                                </button>
+                            ) : isPending ? (
+                                <button disabled className="px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[13px] font-bold flex items-center gap-1.5">
+                                    <Clock className="w-4 h-4" /> Đã gửi cho bạn
+                                </button>
+                            ) : (
+                                <button 
+                                    onClick={handleAddFriend}
+                                    disabled={requestSent}
+                                    className={`px-4 py-1.5 rounded-full text-[13px] font-bold flex items-center gap-1.5 transition-all ${
+                                        requestSent 
+                                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                                            : 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+                                    }`}
+                                >
+                                    {requestSent ? (
+                                        <><Clock className="w-4 h-4" /> Đã gửi yêu cầu</>
+                                    ) : (
+                                        <><UserPlus className="w-4 h-4" /> Kết bạn</>
+                                    )}
+                                </button>
+                            )}
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-2 gap-3 mt-6 text-left">
                         <div className="bg-white/5 rounded-2xl p-4 border border-white/5">

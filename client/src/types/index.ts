@@ -171,3 +171,49 @@ export type AppPage = 'home' | 'map' | 'search' | 'profile' | 'court-detail' | '
     | 'edit-profile' | 'favorites' | 'history' | 'tournaments'
     | 'groups' | 'notifications' | 'settings' | 'owner-dashboard'
     | 'groupplay' | 'aicoach' | 'match-leaderboard' | 'rules' | 'supplementary' | 'chat' | 'news' | 'support';
+
+// ========================
+// SOCIAL (P2P CHAT & FRIENDS)
+// ========================
+export type FriendshipStatus = 'pending' | 'accepted' | 'rejected' | 'blocked';
+
+export interface IUserPublic {
+    _id: string;
+    displayName: string;
+    avatar?: string;
+    skillLevel?: string;
+    stats?: any;
+}
+
+export interface IFriendship {
+    _id: string;
+    requesterId: IUserPublic;
+    recipientId: IUserPublic;
+    status: FriendshipStatus;
+    createdAt: string;
+}
+
+export interface IMessage {
+    _id: string;
+    conversationId: string;
+    senderId: string;
+    senderName?: string;
+    senderAvatar?: string;
+    content: string;
+    replyTo?: {
+        messageId: string;
+        senderName: string;
+        content: string;
+    };
+    isRead: boolean;
+    createdAt: string;
+}
+
+export interface IConversation {
+    _id: string;
+    participants: string[];
+    participantDetails?: IUserPublic[];
+    lastMessage?: IMessage;
+    unreadCount: Record<string, number>;
+    updatedAt: string;
+}

@@ -222,10 +222,13 @@ function Shell() {
   );
 }
 
+import ChatDrawer from './components/social/ChatDrawer';
+
 export default function App() {
   return (
     <AppProvider>
       <Shell />
+      <ChatDrawer />
       <GlobalAlert />
     </AppProvider>
   );

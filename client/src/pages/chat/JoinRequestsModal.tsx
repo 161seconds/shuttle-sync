@@ -89,7 +89,7 @@ export default function JoinRequestsModal({ groupId, requests, onClose, onUpdate
                                         <div className="flex items-center gap-3 cursor-pointer" onClick={() => onAvatarClick?.(req.userId)}>
                                             <div className="w-10 h-10 rounded-full bg-white/10 overflow-hidden border border-white/20 shrink-0">
                                                 {req.avatar ? (
-                                                    <img src={req.avatar} alt={req.displayName} className="w-full h-full object-cover" />
+                                                    <img src={req.avatar || undefined} alt={req.displayName} className="w-full h-full object-cover" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm font-bold">
                                                         {req.displayName?.charAt(0).toUpperCase()}

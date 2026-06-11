@@ -144,7 +144,7 @@ export default function ChatWindow({
                     </button>
 
                     <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-white/10">
-                        <img src={room.avatar} alt={room.name} className="w-full h-full object-cover" />
+                        <img src={room.avatar || undefined} alt={room.name} className="w-full h-full object-cover" />
                     </div>
 
                     <div>

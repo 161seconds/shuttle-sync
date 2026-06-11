@@ -169,6 +169,16 @@ export enum ReportStatus {
 }
 
 // ========================
+// FRIENDSHIP & CHAT
+// ========================
+export enum FriendshipStatus {
+    PENDING = 'pending',
+    ACCEPTED = 'accepted',
+    REJECTED = 'rejected',
+    BLOCKED = 'blocked',
+}
+
+// ========================
 // SOCKET EVENTS
 // ========================
 export const SOCKET_EVENTS = {
@@ -197,6 +207,13 @@ export const SOCKET_EVENTS = {
     GROUP_PLAY_LEFT: 'group_play:left',
     GROUP_PLAY_FULL: 'group_play:full',
     GROUP_PLAY_UPDATED: 'group_play:updated',
+
+    // Friendship & Chat
+    FRIEND_REQUEST: 'friend:request',
+    FRIEND_ACCEPTED: 'friend:accepted',
+    USER_ONLINE: 'user:online',
+    USER_OFFLINE: 'user:offline',
+    DIRECT_MESSAGE: 'chat:direct_message',
 
     // Notifications
     NOTIFICATION: 'notification',

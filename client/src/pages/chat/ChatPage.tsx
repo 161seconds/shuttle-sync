@@ -218,7 +218,7 @@ export default function ChatPage() {
                 const mappedUser: ChatUser = {
                     id: publicUser._id,
                     name: publicUser.displayName,
-                    avatar: publicUser.avatar || '',
+                    avatar: publicUser.avatar || undefined,
                     skillLevel: publicUser.skillLevel || 'Chưa cập nhật',
                     status: publicUser.status === 'banned' ? 'banned' : 'active',
                     matchesPlayed: (publicUser.stats?.totalGroupsJoined || 0) + (publicUser.stats?.totalGroupsCreated || 0),
@@ -247,7 +247,7 @@ export default function ChatPage() {
     const chatCurrentUser: ChatUser = user ? {
         id: user._id || (user as any).id || '',
         name: user.displayName || user.name || 'Bạn',
-        avatar: user.avatar || '',
+        avatar: user.avatar || undefined,
         skillLevel: '',
         status: 'active',
         matchesPlayed: 0,
