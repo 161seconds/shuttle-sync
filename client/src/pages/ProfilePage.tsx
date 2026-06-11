@@ -27,8 +27,8 @@ export default function ProfilePage() {
         const syncData = async () => {
             try {
                 setIsSyncing(true);
-                const res = await authApi.getMe();
-                const userData = res.data?.data?.user;
+                const res: any = await authApi.getMe();
+                const userData = res.data?.data?.user || res.data?.data || res.data?.user || res.data;
                 if (userData) {
                     setUser(userData as any);
                 } else {
