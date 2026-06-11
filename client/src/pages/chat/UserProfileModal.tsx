@@ -25,8 +25,13 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
         try {
             await friendApi.sendRequest(user.id);
             setRequestSent(true);
-        } catch (error) {
-            console.error('Failed to send friend request', error);
+        } catch (error: any) {
+            if (error.response?.status === 400 && error.response?.data?.message?.includes('already exists')) {
+                setRequestSent(true);
+            } else {
+                console.error('Failed to send friend request', error);
+                alert(error.response?.data?.message || 'Có lỗi xảy ra khi gửi lời mời kết bạn');
+            }
         }
     };
 

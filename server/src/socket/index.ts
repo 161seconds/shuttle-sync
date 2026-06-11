@@ -11,8 +11,8 @@ interface AuthSocket extends Socket {
     userRole?: UserRole;
 }
 
-const courtViewers = new Map<string, Set<string>>(); 
-const slotLockTimers = new Map<string, NodeJS.Timeout>(); 
+const courtViewers = new Map<string, Set<string>>();
+const slotLockTimers = new Map<string, NodeJS.Timeout>();
 
 export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
     const io = new SocketIOServer(httpServer, {
@@ -70,7 +70,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
         if (socket.userId) {
             socket.join(`user:${socket.userId}`);
             logger.debug(`Socket ${socket.id} joined user room: user:${socket.userId}`);
-            
+
             // Broadcast online status to all users
             io.emit(SOCKET_EVENTS.USER_ONLINE, { userId: socket.userId });
         }
@@ -290,18 +290,23 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
 
                 await newMessage.save();
 
+                // Ensure recipientId is a string (handle case where frontend accidentally sent an object)
+                const recipientStrId = typeof data.recipientId === 'object' && data.recipientId !== null
+                    ? ((data.recipientId as any)._id?.toString() || (data.recipientId as any).id?.toString())
+                    : String(data.recipientId);
+
                 // Increment unread count for recipient
                 const conversation = await Conversation.findById(data.conversationId);
                 if (conversation) {
-                    const currentCount = conversation.unreadCount.get(data.recipientId) || 0;
-                    conversation.unreadCount.set(data.recipientId, currentCount + 1);
+                    const currentCount = conversation.unreadCount.get(recipientStrId) || 0;
+                    conversation.unreadCount.set(recipientStrId, currentCount + 1);
                     conversation.lastMessage = newMessage._id;
                     await conversation.save();
                 }
 
                 // Emit to recipient
-                io.to(`user:${data.recipientId}`).emit(SOCKET_EVENTS.DIRECT_MESSAGE, newMessage);
-                
+                io.to(`user:${recipientStrId}`).emit(SOCKET_EVENTS.DIRECT_MESSAGE, newMessage);
+
                 // Emit back to sender so their UI updates if they have multiple tabs open
                 io.to(`user:${socket.userId}`).emit(SOCKET_EVENTS.DIRECT_MESSAGE, newMessage);
             } catch (error) {

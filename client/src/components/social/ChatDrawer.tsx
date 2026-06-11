@@ -89,7 +89,10 @@ export default function ChatDrawer() {
         const conv = conversations.find(c => c._id === activeConversationId);
         if (!socket || !conv) return;
 
-        const recipientId = conv.participants.find(p => p !== user._id);
+        const recipient = conv.participants.find(p => (p as any)._id !== user._id);
+        const recipientId = recipient ? (recipient as any)._id : null;
+
+        if (!recipientId) return;
 
         socket.emit('chat:direct_message', {
             conversationId: activeConversationId,
@@ -120,8 +123,13 @@ export default function ChatDrawer() {
         try {
             await friendApi.sendRequest(recipientId);
             alert('Đã gửi lời mời kết bạn');
-        } catch(error) {
-            console.error('Failed to send request', error);
+        } catch(error: any) {
+            if (error.response?.status === 400 && error.response?.data?.message?.includes('already exists')) {
+                alert('Đã gửi lời mời kết bạn từ trước');
+            } else {
+                console.error('Failed to send request', error);
+                alert(error.response?.data?.message || 'Có lỗi xảy ra khi gửi lời mời kết bạn');
+            }
         }
     };
 
