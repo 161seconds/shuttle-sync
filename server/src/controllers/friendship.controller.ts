@@ -1,12 +1,16 @@
-import { Response } from 'express';
+import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middlewares/auth';
 import { Friendship, User } from '../models';
 import { FriendshipStatus, IApiResponse } from '@shuttle-sync/shared';
 
-export const sendFriendRequest = async (req: AuthRequest, res: Response) => {
+export const sendFriendRequest = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const requesterId = req.userId;
         const { recipientId } = req.body;
+
+        if (!recipientId) {
+            return res.status(400).json({ success: false, message: 'Recipient ID is required' });
+        }
 
         if (requesterId === recipientId) {
             return res.status(400).json({ success: false, message: 'Cannot send request to yourself' });
@@ -35,11 +39,11 @@ export const sendFriendRequest = async (req: AuthRequest, res: Response) => {
             data: friendship,
         } as IApiResponse);
     } catch (error) {
-        return res.status(500).json({ success: false, message: 'Internal server error' });
+        next(error);
     }
 };
 
-export const acceptFriendRequest = async (req: AuthRequest, res: Response) => {
+export const acceptFriendRequest = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const userId = req.userId;
         const { id } = req.params; // friendship id
@@ -60,11 +64,11 @@ export const acceptFriendRequest = async (req: AuthRequest, res: Response) => {
             data: friendship,
         } as IApiResponse);
     } catch (error) {
-        return res.status(500).json({ success: false, message: 'Internal server error' });
+        next(error);
     }
 };
 
-export const getFriendsList = async (req: AuthRequest, res: Response) => {
+export const getFriendsList = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const userId = req.userId;
 
@@ -84,11 +88,11 @@ export const getFriendsList = async (req: AuthRequest, res: Response) => {
             data: friends,
         } as IApiResponse);
     } catch (error) {
-        return res.status(500).json({ success: false, message: 'Internal server error' });
+        next(error);
     }
 };
 
-export const getPendingRequests = async (req: AuthRequest, res: Response) => {
+export const getPendingRequests = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const userId = req.userId;
 
@@ -103,11 +107,11 @@ export const getPendingRequests = async (req: AuthRequest, res: Response) => {
             data: requests,
         } as IApiResponse);
     } catch (error) {
-        return res.status(500).json({ success: false, message: 'Internal server error' });
+        next(error);
     }
 };
 
-export const searchUsers = async (req: AuthRequest, res: Response) => {
+export const searchUsers = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const { query } = req.query;
         if (!query || typeof query !== 'string') {
@@ -128,6 +132,6 @@ export const searchUsers = async (req: AuthRequest, res: Response) => {
             data: users,
         } as IApiResponse);
     } catch (error) {
-        return res.status(500).json({ success: false, message: 'Internal server error' });
+        next(error);
     }
 };
