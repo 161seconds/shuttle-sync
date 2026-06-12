@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Users, Clock, Shield } from 'lucide-react';
+import { X, Users, Clock, Shield, UserPlus, Check } from 'lucide-react';
 import { groupPlayApi } from '../../api/groupPlay.api';
+import { useAppStore } from '../../store';
+import { useSocialStore } from '../../stores/useSocialStore';
+import { friendApi } from '../../api/friend.api';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
@@ -18,6 +21,23 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
     const [groupData, setGroupData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const { user } = useAppStore();
+    const { friends } = useSocialStore();
+    const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
+
+    const handleSendFriendRequest = async (userId: string) => {
+        try {
+            await friendApi.sendRequest(userId);
+            setSentRequests(prev => new Set(prev).add(userId));
+        } catch (error: any) {
+            if (error.response?.status === 400 && error.response?.data?.message?.includes('already exists')) {
+                setSentRequests(prev => new Set(prev).add(userId));
+            } else {
+                console.error('Failed to send friend request', error);
+            }
+        }
+    };
 
     useEffect(() => {
         const fetchGroupData = async () => {
@@ -151,6 +171,31 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
                                                     Tham gia lúc {participant.joinedAt ? dayjs(participant.joinedAt).format('HH:mm - DD/MM/YYYY') : ''}
                                                 </p>
                                             </div>
+                                            {user && String(participant.userId) !== String(user._id) && (() => {
+                                                const isFriend = friends.some(f => f._id === participant.userId);
+                                                const isSent = sentRequests.has(participant.userId);
+
+                                                if (isFriend) {
+                                                    return (
+                                                        <span className="text-xs text-emerald-500 font-medium px-2 shrink-0">Bạn bè</span>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <button
+                                                        onClick={() => handleSendFriendRequest(participant.userId)}
+                                                        disabled={isSent}
+                                                        className={`p-2 rounded-lg transition-colors flex items-center justify-center shrink-0 ${
+                                                            isSent
+                                                                ? 'bg-emerald-500/20 text-emerald-400'
+                                                                : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
+                                                        }`}
+                                                        title={isSent ? 'Đã gửi lời mời' : 'Kết bạn'}
+                                                    >
+                                                        {isSent ? <Check className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+                                                    </button>
+                                                );
+                                            })()}
                                         </div>
                                     ))}
                                 </div>
