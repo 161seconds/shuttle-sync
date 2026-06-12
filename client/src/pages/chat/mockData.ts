@@ -31,6 +31,8 @@ export interface ChatRoom {
     isChatDeleted?: boolean;
     participants?: any[];
     joinRequests?: any[];
+    type?: 'group' | 'friend';
+    otherParticipant?: any;
 }
 
 // 1. Mock Users (including the logged in user)
