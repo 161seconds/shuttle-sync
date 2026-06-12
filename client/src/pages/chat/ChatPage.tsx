@@ -3,7 +3,9 @@ import { AnimatePresence } from 'framer-motion';
 import ChatSidebar from './ChatSidebar';
 import ChatWindow from './ChatWindow';
 import UserProfileModal from './UserProfileModal';
+import FriendsConnectModal from './FriendsConnectModal';
 import { useAppStore } from '../../store';
+import { useSocialStore } from '../../stores/useSocialStore';
 import { groupPlayApi } from '../../api/groupPlay.api';
 import { userApi } from '../../api/user.api';
 import { chatApi, type ChatMessage } from '../../api/chat.api';
@@ -18,9 +20,52 @@ export default function ChatPage() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null);
     const [loadingRooms, setLoadingRooms] = useState(true);
+    const [activeTab, setActiveTab] = useState<'group' | 'friend'>('group');
+    const [showConnectModal, setShowConnectModal] = useState(false);
     const sentTimestampsRef = useRef<number[]>([]);
 
-    const activeRoom = rooms.find(r => r.id === activeRoomId) || null;
+    const { 
+        conversations: friendConversations, 
+        messages: friendMessagesMap, 
+        fetchConversations, 
+        fetchMessages: fetchP2PMessages,
+        addMessage: addP2PMessage,
+        fetchPendingRequests,
+        fetchFriends
+    } = useSocialStore();
+
+    // Fetch friend data
+    useEffect(() => {
+        if (user) {
+            fetchConversations();
+            fetchPendingRequests();
+            fetchFriends();
+        }
+    }, [user]);
+
+    const mappedFriendRooms: ChatRoom[] = friendConversations.map((conv: any) => {
+        const otherParticipant = conv.participantDetails?.find((p: any) => p._id !== user?._id);
+        const unreadCount = conv.unreadCount?.[String(user?._id)] || 0;
+        
+        return {
+            id: conv._id,
+            name: otherParticipant?.displayName || 'Bạn bè',
+            avatar: otherParticipant?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(otherParticipant?.displayName || 'F')}`,
+            statusText: 'Bạn bè',
+            unreadCount: unreadCount,
+            lastMessage: conv.lastMessage?.content || 'Chưa có tin nhắn',
+            organizerId: 'friend',
+            date: new Date().toISOString(),
+            createdAt: conv.updatedAt || new Date().toISOString(),
+            isChatDeleted: false,
+            participants: conv.participants.map((id: string) => ({ userId: id })),
+            joinRequests: [],
+            type: 'friend',
+        };
+    });
+
+    const displayedRooms = activeTab === 'group' ? rooms : mappedFriendRooms;
+    const activeRoom = displayedRooms.find(r => r.id === activeRoomId) || null;
 
     // Fetch user's group plays as chat rooms
     useEffect(() => {
@@ -88,67 +133,79 @@ export default function ChatPage() {
     useEffect(() => {
         if (!activeRoomId) return;
 
-        const fetchHistory = async () => {
-            try {
-                const res = await chatApi.getHistory(activeRoomId);
-                setMessages(res.data.data || []);
-            } catch (error) {
-                console.error('Error fetching chat history:', error);
+        if (activeTab === 'group') {
+            const fetchHistory = async () => {
+                try {
+                    const res = await chatApi.getHistory(activeRoomId);
+                    setMessages(res.data.data || []);
+                } catch (error) {
+                    console.error('Error fetching chat history:', error);
+                }
+            };
+            fetchHistory();
+        } else {
+            if (!friendMessagesMap[activeRoomId]) {
+                fetchP2PMessages(activeRoomId);
             }
-        };
-
-        fetchHistory();
+        }
 
         // Connect socket if not connected
         socketService.connect('');
         const socket = socketService.getSocket();
 
         if (socket) {
-            socket.emit('group_play:join', activeRoomId);
+            if (activeTab === 'group') {
+                socket.emit('group_play:join', activeRoomId);
 
-            socket.on('chat:message', (message: ChatMessage) => {
-                if (message.groupPlayId === activeRoomId) {
-                    setMessages((prev) => {
-                        // Prevent duplicates
-                        if (prev.some(m => m._id === message._id)) return prev;
-                        return [...prev, message];
-                    });
+                socket.on('chat:message', (message: ChatMessage) => {
+                    if (message.groupPlayId === activeRoomId) {
+                        setMessages((prev) => {
+                            if (prev.some(m => m._id === message._id)) return prev;
+                            return [...prev, message];
+                        });
 
-                    // Update room last message conceptually
-                    setRooms(prevRooms => prevRooms.map(room => {
-                        if (room.id === activeRoomId) {
-                            return {
-                                ...room,
-                                lastMessage: message.content,
-                                lastMessageTime: 'Vừa xong'
-                            };
-                        }
-                        return room;
-                    }));
-                } else {
-                    // Message for a different room, increment unread count
-                    setRooms(prevRooms => prevRooms.map(room => {
-                        if (room.id === message.groupPlayId) {
-                            return {
-                                ...room,
-                                lastMessage: message.content,
-                                lastMessageTime: 'Vừa xong',
-                                unreadCount: (room.unreadCount || 0) + 1
-                            };
-                        }
-                        return room;
-                    }));
-                }
-            });
+                        setRooms(prevRooms => prevRooms.map(room => {
+                            if (room.id === activeRoomId) {
+                                return { ...room, lastMessage: message.content, lastMessageTime: 'Vừa xong' };
+                            }
+                            return room;
+                        }));
+                    } else {
+                        setRooms(prevRooms => prevRooms.map(room => {
+                            if (room.id === message.groupPlayId) {
+                                return { ...room, lastMessage: message.content, lastMessageTime: 'Vừa xong', unreadCount: (room.unreadCount || 0) + 1 };
+                            }
+                            return room;
+                        }));
+                    }
+                });
+            } else {
+                // P2P Chat socket listeners are global, but we can ensure active Room marks as read
+                // The actual `chat:receive_message` listener should probably be set globally or here
+            }
         }
 
         return () => {
-            if (socket) {
+            if (socket && activeTab === 'group') {
                 socket.emit('group_play:leave', activeRoomId);
                 socket.off('chat:message');
             }
         };
-    }, [activeRoomId]);
+    }, [activeRoomId, activeTab]);
+
+    // Global P2P listener
+    useEffect(() => {
+        const socket = socketService.getSocket();
+        if (socket) {
+            const handleReceive = (message: any) => {
+                addP2PMessage(message);
+            };
+            socket.on('chat:receive_message', handleReceive);
+            return () => {
+                socket.off('chat:receive_message', handleReceive);
+            };
+        }
+    }, [addP2PMessage]);
 
     const handleSendMessage = (text: string, replyTo?: ChatMessage['replyTo']) => {
         if (!activeRoomId || !user) return;
@@ -165,13 +222,26 @@ export default function ChatPage() {
 
         const socket = socketService.getSocket();
         if (socket) {
-            socket.emit('chat:send', {
-                groupPlayId: activeRoomId,
-                content: text,
-                senderName: user.displayName || user.name || 'Người dùng',
-                senderAvatar: user.avatar,
-                replyTo,
-            });
+            if (activeTab === 'group') {
+                socket.emit('chat:send', {
+                    groupPlayId: activeRoomId,
+                    content: text,
+                    senderName: user.displayName || user.name || 'Người dùng',
+                    senderAvatar: user.avatar,
+                    replyTo,
+                });
+            } else {
+                const recipientId = activeRoom?.participants?.find((p: any) => String(p.userId) !== String(user._id))?.userId;
+                if (recipientId) {
+                    socket.emit('chat:direct_message', {
+                        conversationId: activeRoomId,
+                        recipientId,
+                        content: text,
+                        senderName: user.displayName,
+                        senderAvatar: user.avatar,
+                    });
+                }
+            }
         }
     };
 
@@ -271,10 +341,16 @@ export default function ChatPage() {
                         </div>
                     ) : (
                         <ChatSidebar
-                            rooms={rooms}
+                            rooms={displayedRooms}
                             activeRoomId={activeRoomId}
                             onSelectRoom={handleSelectRoom}
                             onBack={() => setPage('home')}
+                            activeTab={activeTab}
+                            onTabChange={(tab) => {
+                                setActiveTab(tab);
+                                setActiveRoomId(null);
+                            }}
+                            onConnectClick={() => setShowConnectModal(true)}
                             className="h-full"
                         />
                     )}
@@ -288,7 +364,7 @@ export default function ChatPage() {
                     {activeRoom ? (
                         <ChatWindow
                             room={activeRoom}
-                            messages={messages}
+                            messages={activeTab === 'group' ? messages : (friendMessagesMap[activeRoomId] as any[] || [])}
                             currentUser={chatCurrentUser}
                             onBack={() => setActiveRoomId(null)}
                             onSendMessage={handleSendMessage}
@@ -313,6 +389,12 @@ export default function ChatPage() {
                     <UserProfileModal
                         user={selectedUser}
                         onClose={() => setSelectedUser(null)}
+                    />
+                )}
+                {showConnectModal && (
+                    <FriendsConnectModal 
+                        onClose={() => setShowConnectModal(false)}
+                        onAvatarClick={(u) => handleAvatarClick(u._id, u.displayName, u.avatar)}
                     />
                 )}
             </AnimatePresence>

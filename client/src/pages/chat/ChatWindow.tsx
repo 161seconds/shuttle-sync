@@ -79,9 +79,10 @@ export default function ChatWindow({
     }
     const shouldShowDeleteBanner = isOwner && daysPassed >= 7;
 
-    const isParticipant = isOwner || room.participants?.some((p: any) => p.userId === currentUser.id);
-    const myRequest = room.joinRequests?.find((r: any) => String(r.userId) === String(currentUser.id));
-    const pendingRequests = room.joinRequests?.filter((r: any) => r.status === 'pending') || [];
+    const isFriend = room.type === 'friend';
+    const isParticipant = isFriend || isOwner || room.participants?.some((p: any) => p.userId === currentUser.id);
+    const myRequest = isFriend ? null : room.joinRequests?.find((r: any) => String(r.userId) === String(currentUser.id));
+    const pendingRequests = isFriend ? [] : (room.joinRequests?.filter((r: any) => r.status === 'pending') || []);
 
     if (!isParticipant && myRequest?.status === 'pending') {
         return (
@@ -164,17 +165,25 @@ export default function ChatWindow({
                         </button>
                     )}
                     <button 
-                        onClick={() => setShowInfo(true)}
+                        onClick={() => {
+                            if (isFriend && room.otherParticipant) {
+                                onAvatarClick?.(room.otherParticipant._id || room.otherParticipant.id);
+                            } else {
+                                setShowInfo(true);
+                            }
+                        }}
                         className="p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/5"
                     >
                         <Info className="w-5 h-5" />
                     </button>
-                    <button 
-                        onClick={() => setShowMenu(!showMenu)}
-                        className={`p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/5 ${showMenu ? 'bg-white/5 text-white' : ''}`}
-                    >
-                        <MoreVertical className="w-5 h-5" />
-                    </button>
+                    {!isFriend && (
+                        <button 
+                            onClick={() => setShowMenu(!showMenu)}
+                            className={`p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/5 ${showMenu ? 'bg-white/5 text-white' : ''}`}
+                        >
+                            <MoreVertical className="w-5 h-5" />
+                        </button>
+                    )}
 
                     <AnimatePresence>
                         {showMenu && (
@@ -230,7 +239,7 @@ export default function ChatWindow({
                 </div>
             </div>
 
-            {shouldShowDeleteBanner && (
+            {shouldShowDeleteBanner && !isFriend && (
                 <div className="bg-red-500/10 border-b border-red-500/20 px-4 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-red-400">
                         <Info className="w-5 h-5" />
@@ -290,7 +299,7 @@ export default function ChatWindow({
             />
 
             <AnimatePresence>
-                {showInfo && (
+                {showInfo && !isFriend && (
                     <GroupInfoModal 
                         key="group-info-modal"
                         groupId={room.id} 
