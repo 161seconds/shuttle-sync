@@ -26,4 +26,16 @@ export const friendApi = {
         const response = await axiosClient.get<ApiResponse<IUserPublic[]>>(`/friends/search`, { params: { query } });
         return response.data.data!;
     },
+
+    deleteFriend: async (friendId: string): Promise<void> => {
+        await axiosClient.delete(`/friends/${friendId}`);
+    },
+
+    cancelRequest: async (requestId: string): Promise<void> => {
+        await axiosClient.delete(`/friends/request/${requestId}`);
+    },
+
+    declineRequest: async (requestId: string): Promise<void> => {
+        await axiosClient.delete(`/friends/request/${requestId}/decline`);
+    },
 };
