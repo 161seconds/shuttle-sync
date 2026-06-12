@@ -13,7 +13,7 @@ import type { ChatUser } from '../../pages/chat/mockData';
 export default function ChatDrawer() {
     const { user } = useAppStore();
     const { 
-        isDrawerOpen, toggleDrawer, 
+        isDrawerOpen, toggleDrawer, setDrawerOpen,
         friends, pendingRequests, conversations, messages, activeConversationId, onlineUsers,
         fetchFriends, fetchPendingRequests, fetchConversations, fetchMessages, setActiveConversation,
         addMessage, updateOnlineUsers
@@ -49,6 +49,13 @@ export default function ChatDrawer() {
             fetchConversations();
         }
     }, [isDrawerOpen, user]);
+
+    useEffect(() => {
+        if (!user && isDrawerOpen) {
+            setDrawerOpen(false);
+            setActiveConversation(null);
+        }
+    }, [user, isDrawerOpen, setDrawerOpen, setActiveConversation]);
 
     useEffect(() => {
         if (activeConversationId) {
@@ -143,6 +150,15 @@ export default function ChatDrawer() {
         }
     };
 
+    const handleDeclineRequest = async (requestId: string) => {
+        try {
+            await friendApi.declineRequest(requestId);
+            fetchPendingRequests();
+        } catch(error) {
+            console.error('Failed to decline', error);
+        }
+    };
+
     const handleChatWithUser = async (friendId: string) => {
         try {
             const conv = await chatApi.createConversation(friendId);
@@ -219,6 +235,14 @@ export default function ChatDrawer() {
                             {tab === 'chat' && conversations.map(conv => {
                                 const otherParticipant = conv.participantDetails?.find((p: any) => p._id !== user?._id);
                                 const isOnline = onlineUsers.has(otherParticipant?._id || '');
+                                
+                                let displayMessage = 'Chưa có tin nhắn';
+                                if (conv.lastMessage) {
+                                    const isMe = conv.lastMessage.senderId === user?._id;
+                                    const senderName = isMe ? 'Bạn' : (conv.lastMessage.senderName || otherParticipant?.displayName || 'Họ');
+                                    displayMessage = `${senderName}: ${conv.lastMessage.content}`;
+                                }
+
                                 return (
                                     <div 
                                         key={conv._id} 
@@ -233,7 +257,7 @@ export default function ChatDrawer() {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <h4 className="text-white font-medium truncate">{otherParticipant?.displayName}</h4>
-                                            <p className="text-gray-400 text-sm truncate">{conv.lastMessage?.content || 'Chưa có tin nhắn'}</p>
+                                            <p className="text-gray-400 text-sm truncate">{displayMessage}</p>
                                         </div>
                                     </div>
                                 );
@@ -287,12 +311,20 @@ export default function ChatDrawer() {
                                                     <div className="flex-1 min-w-0">
                                                         <h4 className="text-white font-medium truncate">{req.requesterId.displayName}</h4>
                                                     </div>
-                                                    <button 
-                                                        onClick={() => handleAcceptRequest(req._id)}
-                                                        className="p-1.5 bg-emerald-500 text-black rounded-lg hover:bg-emerald-400 transition-all flex items-center gap-1 text-xs font-bold"
-                                                    >
-                                                        <Check className="w-3 h-3" /> Chấp nhận
-                                                    </button>
+                                                    <div className="flex items-center gap-1.5 shrink-0">
+                                                        <button 
+                                                            onClick={() => handleAcceptRequest(req._id)}
+                                                            className="px-2 py-1.5 bg-emerald-500 text-black rounded-lg hover:bg-emerald-400 transition-all flex items-center gap-1 text-xs font-bold"
+                                                        >
+                                                            <Check className="w-3 h-3" /> Chấp nhận
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleDeclineRequest(req._id)}
+                                                            className="px-2 py-1.5 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-all flex items-center gap-1 text-xs font-bold"
+                                                        >
+                                                            <X className="w-3 h-3" /> Từ chối
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>

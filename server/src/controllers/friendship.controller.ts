@@ -135,3 +135,27 @@ export const searchUsers = async (req: AuthRequest, res: Response, next: NextFun
         next(error);
     }
 };
+
+export const declineFriendRequest = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const userId = req.userId;
+        const { id } = req.params;
+
+        const request = await Friendship.findOneAndDelete({
+            _id: id,
+            recipientId: userId,
+            status: FriendshipStatus.PENDING
+        });
+
+        if (!request) {
+            return res.status(404).json({ success: false, message: 'Request not found or already processed' });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Friend request declined',
+        } as IApiResponse);
+    } catch (error) {
+        next(error);
+    }
+};

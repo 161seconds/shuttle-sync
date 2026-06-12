@@ -20,6 +20,7 @@ interface SocialState {
     
     setActiveConversation: (id: string | null) => void;
     toggleDrawer: () => void;
+    setDrawerOpen: (isOpen: boolean) => void;
     
     // Socket handlers
     addMessage: (message: IMessage) => void;
@@ -78,6 +79,7 @@ export const useSocialStore = create<SocialState>((set) => ({
 
     setActiveConversation: (id) => set({ activeConversationId: id }),
     toggleDrawer: () => set((state) => ({ isDrawerOpen: !state.isDrawerOpen })),
+    setDrawerOpen: (isOpen) => set({ isDrawerOpen: isOpen }),
 
     addMessage: (message) => {
         set((state) => {
