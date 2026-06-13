@@ -10,7 +10,7 @@ export interface IConversationDocument extends Document {
 
 const conversationSchema = new Schema<IConversationDocument>(
     {
-        participants: [{ type: Schema.Types.ObjectId, ref: 'User', required: true, index: true }],
+        participants: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
         lastMessage: { type: Schema.Types.ObjectId, ref: 'Message' },
         unreadCount: {
             type: Map,

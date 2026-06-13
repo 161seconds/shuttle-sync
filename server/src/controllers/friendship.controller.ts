@@ -24,7 +24,27 @@ export const sendFriendRequest = async (req: AuthRequest, res: Response, next: N
         });
 
         if (existing) {
-            return res.status(400).json({ success: false, message: 'Friendship or request already exists' });
+            if (existing.status === FriendshipStatus.ACCEPTED) {
+                return res.status(400).json({ success: false, message: 'Already friends' });
+            }
+            if (existing.status === FriendshipStatus.PENDING) {
+                return res.status(400).json({ success: false, message: 'Request already pending' });
+            }
+            if (existing.status === FriendshipStatus.REJECTED) {
+                if (existing.rejectionCount >= 3) {
+                    return res.status(400).json({ success: false, message: 'Cannot send request anymore. Rejection limit reached.' });
+                }
+                existing.status = FriendshipStatus.PENDING;
+                existing.requesterId = requesterId as any;
+                existing.recipientId = recipientId;
+                await existing.save();
+                
+                return res.status(200).json({
+                    success: true,
+                    message: 'Friend request sent',
+                    data: existing,
+                } as IApiResponse);
+            }
         }
 
         const friendship = await Friendship.create({
@@ -56,6 +76,21 @@ export const acceptFriendRequest = async (req: AuthRequest, res: Response, next:
 
         if (!friendship) {
             return res.status(404).json({ success: false, message: 'Request not found or already processed' });
+        }
+
+        try {
+            const { Conversation } = await import('../models/Conversation');
+            let conversation = await Conversation.findOne({
+                participants: { $all: [friendship.requesterId, friendship.recipientId] },
+            });
+            if (!conversation) {
+                await Conversation.create({
+                    participants: [friendship.requesterId, friendship.recipientId],
+                    unreadCount: new Map(),
+                });
+            }
+        } catch (err) {
+            console.error('Error auto-creating conversation:', err);
         }
 
         return res.status(200).json({
@@ -124,12 +159,32 @@ export const searchUsers = async (req: AuthRequest, res: Response, next: NextFun
                 { displayName: { $regex: query, $options: 'i' } }
             ],
             _id: { $ne: req.userId } // Exclude self
-        }).select('displayName avatar skillLevel stats').limit(10);
+        }).select('displayName avatar skillLevel stats').limit(10).lean();
+
+        const userIds = users.map(u => u._id);
+        const friendships = await Friendship.find({
+            $or: [
+                { requesterId: req.userId, recipientId: { $in: userIds } },
+                { requesterId: { $in: userIds }, recipientId: req.userId }
+            ]
+        }).lean();
+
+        const result = users.map(user => {
+            const f = friendships.find(fr => String(fr.requesterId) === String(user._id) || String(fr.recipientId) === String(user._id));
+            return {
+                ...user,
+                friendship: f ? {
+                    status: f.status,
+                    rejectionCount: f.rejectionCount || 0,
+                    isRequester: String(f.requesterId) === String(req.userId)
+                } : null
+            };
+        });
 
         return res.status(200).json({
             success: true,
             message: 'Users fetched',
-            data: users,
+            data: result,
         } as IApiResponse);
     } catch (error) {
         next(error);
@@ -141,11 +196,18 @@ export const declineFriendRequest = async (req: AuthRequest, res: Response, next
         const userId = req.userId;
         const { id } = req.params;
 
-        const request = await Friendship.findOneAndDelete({
-            _id: id,
-            recipientId: userId,
-            status: FriendshipStatus.PENDING
-        });
+        const request = await Friendship.findOneAndUpdate(
+            {
+                _id: id,
+                recipientId: userId,
+                status: FriendshipStatus.PENDING
+            },
+            {
+                $set: { status: FriendshipStatus.REJECTED },
+                $inc: { rejectionCount: 1 }
+            },
+            { new: true }
+        );
 
         if (!request) {
             return res.status(404).json({ success: false, message: 'Request not found or already processed' });
