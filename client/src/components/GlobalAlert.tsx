@@ -22,19 +22,19 @@ export default function GlobalAlert() {
     };
 
     const COLORS = {
-        success: 'border-emerald-500/30 bg-emerald-500/10 shadow-[0_0_30px_rgba(16,185,129,0.15)]',
+        success: 'border-emerald-500/30 bg-emerald-500/10 shadow-glow',
         error: 'border-red-500/30 bg-red-500/10 shadow-[0_0_30px_rgba(239,68,68,0.15)]',
         warning: 'border-amber-500/30 bg-amber-500/10 shadow-[0_0_30px_rgba(245,158,11,0.15)]',
         info: 'border-blue-500/30 bg-blue-500/10 shadow-[0_0_30px_rgba(59,130,246,0.15)]',
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-card backdrop-blur-md animate-in fade-in duration-200">
             <div className={`relative w-full max-w-sm rounded-3xl border border-border bg-card p-6 shadow-2xl flex flex-col items-center text-center animate-in zoom-in-95 duration-300`}>
                 
                 {/* Nút Đóng (Góc trên phải) */}
                 {!isConfirm && (
-                    <button onClick={closeAlert} className="absolute top-4 right-4 p-1.5 rounded-full bg-white/5 hover:bg-muted text-foreground/40 hover:text-foreground transition-colors">
+                    <button onClick={closeAlert} className="absolute top-4 right-4 p-1.5 rounded-full bg-card hover:bg-muted text-foreground/40 hover:text-foreground transition-colors">
                         <X className="w-5 h-5" />
                     </button>
                 )}
@@ -52,12 +52,12 @@ export default function GlobalAlert() {
                 <div className="w-full flex gap-3">
                     {isConfirm ? (
                         <>
-                            <button onClick={closeAlert} className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-muted text-foreground font-bold transition-all">
+                            <button onClick={closeAlert} className="flex-1 py-3 rounded-xl bg-card hover:bg-muted text-foreground font-bold transition-all">
                                 Hủy
                             </button>
                             <button 
                                 onClick={() => { onConfirm?.(); closeAlert(); }} 
-                                className="flex-1 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all"
+                                className="flex-1 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold shadow-glow-lg transition-all"
                             >
                                 Đồng ý
                             </button>

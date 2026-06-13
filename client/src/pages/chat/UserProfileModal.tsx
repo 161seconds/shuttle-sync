@@ -36,7 +36,7 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-card backdrop-blur-sm">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -47,7 +47,7 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                 <div className="h-24 bg-linear-to-r from-emerald-600 to-teal-500 relative">
                     <button
                         onClick={onClose}
-                        className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/30 hover:bg-black/50 flex items-center justify-center text-foreground transition-colors"
+                        className="absolute top-4 right-4 w-8 h-8 rounded-full bg-muted hover:bg-card flex items-center justify-center text-foreground transition-colors"
                     >
                         <X className="w-4 h-4" />
                     </button>
@@ -56,7 +56,7 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                 {/* Avatar */}
                 <div className="flex justify-center -mt-12 mb-4 relative z-10">
                     <div className="relative">
-                        <div className="w-24 h-24 rounded-full border-4 border-border bg-gray-800 overflow-hidden">
+                        <div className="w-24 h-24 rounded-full border-4 border-border bg-card overflow-hidden">
                             <img src={user.avatar || undefined} alt={user.name} className="w-full h-full object-cover" />
                         </div>
                         {isBanned && (
@@ -84,7 +84,7 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                     {!isMe && (
                         <div className="flex justify-center mt-3">
                             {isFriend ? (
-                                <button disabled className="px-4 py-1.5 rounded-full bg-white/10 text-foreground text-[13px] font-bold flex items-center gap-1.5 opacity-70">
+                                <button disabled className="px-4 py-1.5 rounded-full bg-card text-foreground text-[13px] font-bold flex items-center gap-1.5 opacity-70">
                                     <UserCheck className="w-4 h-4" /> Bạn bè
                                 </button>
                             ) : isPending ? (
@@ -98,7 +98,7 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                                     className={`px-4 py-1.5 rounded-full text-[13px] font-bold flex items-center gap-1.5 transition-all ${
                                         requestSent 
                                             ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-                                            : 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+                                            : 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-glow-lg'
                                     }`}
                                 >
                                     {requestSent ? (
@@ -112,21 +112,21 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                     )}
 
                     <div className="grid grid-cols-2 gap-3 mt-6 text-left">
-                        <div className="bg-white/5 rounded-2xl p-4 border border-border">
+                        <div className="bg-card rounded-2xl p-4 border border-border">
                             <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                                 <Award className="w-3.5 h-3.5" /> Trình độ
                             </div>
                             <div className="text-emerald-400 font-bold text-sm">{user.skillLevel}</div>
                         </div>
                         
-                        <div className="bg-white/5 rounded-2xl p-4 border border-border">
+                        <div className="bg-card rounded-2xl p-4 border border-border">
                             <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                                 <Activity className="w-3.5 h-3.5" /> Số trận
                             </div>
                             <div className="text-foreground font-bold text-sm">{user.matchesPlayed} trận</div>
                         </div>
 
-                        <div className="bg-white/5 rounded-2xl p-4 border border-border col-span-2 flex items-center gap-3">
+                        <div className="bg-card rounded-2xl p-4 border border-border col-span-2 flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0">
                                 <MapPin className="w-5 h-5" />
                             </div>
@@ -136,7 +136,7 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                             </div>
                         </div>
                         
-                        <div className="bg-white/5 rounded-2xl p-4 border border-border col-span-2 flex items-center gap-3">
+                        <div className="bg-card rounded-2xl p-4 border border-border col-span-2 flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 shrink-0">
                                 <Calendar className="w-5 h-5" />
                             </div>

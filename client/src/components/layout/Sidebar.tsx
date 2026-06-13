@@ -29,7 +29,7 @@ export default function AppSidebar() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={toggleSidebar}
-                        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+                        className="fixed inset-0 z-40 bg-card backdrop-blur-sm lg:hidden"
                     />
                 )}
             </AnimatePresence>
@@ -79,7 +79,7 @@ export default function AppSidebar() {
                             onClick={() => setPage('admin')}
                             className={`w-full flex items-center gap-3 px-4 py-3 mb-1 rounded-xl transition-all duration-200 ${page === 'admin'
                                 ? `bg-emerald-500/10 border ${t.border.accent} ${t.text.accent} font-bold shadow-[0_0_15px_rgba(16,185,129,0.05)]`
-                                : `text-muted-foreground hover:bg-muted hover:text-gray-200 font-semibold border border-transparent`
+                                : `text-muted-foreground hover:bg-muted hover:text-foreground font-semibold border border-transparent`
                                 }`}
                         >
                             <div className={`${page === 'admin' ? 'scale-110' : 'opacity-70'} transition-transform`}>
@@ -95,7 +95,7 @@ export default function AppSidebar() {
                             onClick={() => setPage(item.id as any)}
                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${page === item.id
                                 ? `bg-emerald-500/10 border ${t.border.accent} ${t.text.accent} font-bold shadow-[0_0_15px_rgba(16,185,129,0.05)]`
-                                : `text-muted-foreground hover:bg-muted hover:text-gray-200 font-semibold border border-transparent`
+                                : `text-muted-foreground hover:bg-muted hover:text-foreground font-semibold border border-transparent`
                                 }`}
                         >
                             <div className={`${page === item.id ? 'scale-110' : 'opacity-70'} transition-transform`}>
@@ -111,7 +111,7 @@ export default function AppSidebar() {
                     {/* Ánh sáng hắt sau lưng (Glow effect) */}
                     <div className="absolute inset-0 top-6 w-[80%] mx-auto h-12 bg-emerald-500/20 blur-[20px] rounded-full pointer-events-none" />
 
-                    <div className="relative flex items-center justify-around bg-card/90 backdrop-blur-3xl border border-border rounded-3xl p-2 shadow-[0_10px_40px_rgba(0,0,0,0.5)] hover:border-emerald-500/30 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all duration-500">
+                    <div className="relative flex items-center justify-around bg-card/90 backdrop-blur-3xl border border-border rounded-3xl p-2 shadow-card hover:border-emerald-500/30 hover:shadow-glow transition-all duration-500">
                         <button
                             onClick={() => { setPage('edit-profile'); if (isSideBarOpen) toggleSidebar(); }}
                             className="p-3 rounded-[1.2rem] text-muted-foreground hover:text-foreground hover:bg-muted transition-all group"

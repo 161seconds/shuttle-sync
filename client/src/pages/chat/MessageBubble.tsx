@@ -26,7 +26,7 @@ export default function MessageBubble({ message, isMine, showAvatar, onAvatarCli
                     {showAvatar && (
                         <button 
                             onClick={() => onAvatarClick && onAvatarClick(message.senderId)}
-                            className="w-10 h-10 rounded-full overflow-hidden border border-gray-700 bg-gray-800 hover:border-emerald-500 transition-colors focus:outline-none shadow-sm flex items-center justify-center font-bold text-xs"
+                            className="w-10 h-10 rounded-full overflow-hidden border border-gray-700 bg-card hover:border-emerald-500 transition-colors focus:outline-none shadow-sm flex items-center justify-center font-bold text-xs"
                         >
                             <img src={avatarUrl} alt={message.senderName} className="w-full h-full object-cover" />
                         </button>
@@ -57,7 +57,7 @@ export default function MessageBubble({ message, isMine, showAvatar, onAvatarCli
                     
                     <div className="flex flex-col">
                         {message.replyTo && (
-                            <div className={`mb-1 p-2 rounded-lg text-xs border-l-2 ${isMine ? 'bg-black/20 border-emerald-300 text-emerald-100/80' : 'bg-black/20 border-emerald-500 text-muted-foreground'} cursor-pointer hover:opacity-80 transition-opacity`}>
+                            <div className={`mb-1 p-2 rounded-lg text-xs border-l-2 ${isMine ? 'bg-card border-emerald-300 text-emerald-100/80' : 'bg-card border-emerald-500 text-muted-foreground'} cursor-pointer hover:opacity-80 transition-opacity`}>
                                 <div className="font-bold mb-0.5 opacity-90">{message.replyTo.senderName}</div>
                                 <div className="truncate max-w-[200px] sm:max-w-[300px] opacity-75">{message.replyTo.content}</div>
                             </div>

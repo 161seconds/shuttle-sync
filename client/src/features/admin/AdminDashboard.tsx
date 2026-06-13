@@ -142,7 +142,7 @@ export default function AdminDashboard() {
                 {/* ================= HÀNG 1: WELCOME & IDEAS ================= */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                    <div className="lg:col-span-2 rounded-2xl p-8 bg-linear-to-r from-[#064e3b] via-[#047857] to-[#10b981] flex flex-col justify-center relative overflow-hidden shadow-[0_4px_30px_rgba(16,185,129,0.15)]">
+                    <div className="lg:col-span-2 rounded-2xl p-8 bg-linear-to-r from-[#064e3b] via-[#047857] to-[#10b981] flex flex-col justify-center relative overflow-hidden shadow-glow">
                         <div className="absolute -right-10 -top-20 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
                         <div className="absolute right-32 -bottom-20 w-48 h-48 bg-emerald-900 opacity-20 rounded-full blur-2xl"></div>
 
@@ -152,7 +152,7 @@ export default function AdminDashboard() {
                         </p>
                         <button
                             onClick={handleScrollToStats}
-                            className="bg-background text-emerald-400 font-bold px-6 py-2.5 rounded-lg w-max hover:bg-black transition-colors shadow-sm relative z-10 border border-emerald-800 active:scale-95"
+                            className="bg-background text-emerald-400 font-bold px-6 py-2.5 rounded-lg w-max hover:bg-foreground hover:text-background transition-colors shadow-sm relative z-10 border border-emerald-800 active:scale-95"
                         >
                             Khám phá ngay
                         </button>
@@ -236,8 +236,8 @@ export default function AdminDashboard() {
                                     <XAxis dataKey="name" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
                                     <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `${val / 1000}K`} />
                                     <RechartsTooltip
-                                        contentStyle={{ backgroundColor: '#141b22', borderColor: '#262f3d', borderRadius: '8px', color: '#fff' }}
-                                        itemStyle={{ color: '#fff' }}
+                                        contentStyle={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)', borderRadius: '8px', color: 'var(--color-foreground)' }}
+                                        itemStyle={{ color: 'var(--color-foreground)' }}
                                         formatter={(value: any) => [`${value?.toLocaleString()} VND`, 'Số tiền']} />
                                     <Area type="monotone" dataKey="income" stroke="none" fillOpacity={1} fill="url(#colorIncome)" />
                                     <Line type="monotone" dataKey="income" stroke="#10b981" strokeWidth={3} dot={false} activeDot={{ r: 6, fill: '#1a222c', stroke: '#10b981', strokeWidth: 2 }} isAnimationActive={true} animationDuration={2000} animationEasing="ease-in-out" />
@@ -268,8 +268,8 @@ export default function AdminDashboard() {
                                         ))}
                                     </Pie>
                                     <RechartsTooltip
-                                        contentStyle={{ backgroundColor: '#141b22', borderColor: '#262f3d', borderRadius: '8px', color: '#fff' }}
-                                        itemStyle={{ color: '#fff' }}
+                                        contentStyle={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)', borderRadius: '8px', color: 'var(--color-foreground)' }}
+                                        itemStyle={{ color: 'var(--color-foreground)' }}
                                         formatter={(value: any) => [value, 'Số lượng']} />
                                 </PieChart>
                             </ResponsiveContainer>
@@ -319,7 +319,7 @@ export default function AdminDashboard() {
                                     <th className="pb-4 font-semibold text-right">Thao tác</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#262f3d]">
+                            <tbody className="divide-y divide-border">
                                 {recentBookings?.map((booking: any) => (
                                     <TableRow 
                                         key={booking._id}
@@ -431,7 +431,7 @@ function TopCourt({ name, bookings, revenue, status, statusColor, onClick }: any
             <div className="flex items-center gap-4">
                 <div className="w-11 h-11 rounded-lg bg-surface flex items-center justify-center text-xl shadow-sm border border-border group-hover:border-emerald-500/30 transition-colors"><EmojiIcon name="badminton" className="w-6 h-6 text-emerald-400" /></div>
                 <div>
-                    <p className="text-sm font-bold text-gray-200 group-hover:text-emerald-400 transition-colors">{name}</p>
+                    <p className="text-sm font-bold text-foreground group-hover:text-emerald-400 transition-colors">{name}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{bookings} lượt đặt</p>
                 </div>
             </div>
@@ -444,7 +444,7 @@ function TopCourt({ name, bookings, revenue, status, statusColor, onClick }: any
 }
 function ModalWrapper({ title, onClose, children, maxWidth = "max-w-2xl" }: { title: string, onClose: () => void, children: React.ReactNode, maxWidth?: string }) {
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-card backdrop-blur-sm animate-in fade-in duration-200">
             <div className={`w-full ${maxWidth} bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]`}>
                 <div className="flex items-center justify-between p-5 border-b border-border">
                     <h2 className="text-lg font-bold text-foreground">{title}</h2>
@@ -597,7 +597,7 @@ function AllBookingsModal({ onClose }: { onClose: () => void }) {
                                 <th className="pb-4 font-semibold">Trạng thái</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#262f3d]">
+                        <tbody className="divide-y divide-border">
                             {bookings.map((booking: any) => (
                                 <tr key={booking._id} className="hover:bg-muted transition-colors">
                                     <td className="py-4 text-muted-foreground font-medium">#{booking.bookingCode}</td>

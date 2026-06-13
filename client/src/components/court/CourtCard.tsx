@@ -95,7 +95,7 @@ export default function CourtCard({ court, index = 0 }: CourtCardProps) {
                 {/* Favorite */}
                 <button
                     onClick={handleLike}
-                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors"
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-card backdrop-blur-sm flex items-center justify-center hover:bg-card transition-colors"
                     aria-label="Yêu thích"
                 >
                     {loadingLike ? (
@@ -113,7 +113,7 @@ export default function CourtCard({ court, index = 0 }: CourtCardProps) {
                             {court.sportTypes?.join(' · ')}
                         </span>
                     </div>
-                    <div className="flex items-center gap-1 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-lg">
+                    <div className="flex items-center gap-1 bg-card backdrop-blur-sm px-2 py-1 rounded-lg">
                         <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                         <span className="text-foreground text-xs font-bold">{court.averageRating?.toFixed(1) || '0.0'}</span>
                         <span className="text-foreground/40 text-[10px]">({court.reviewCount || 0})</span>

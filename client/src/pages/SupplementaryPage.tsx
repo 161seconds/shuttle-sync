@@ -18,7 +18,7 @@ const CATEGORIES = [
     },
     { 
         id: 'recovery', label: 'Phục Hồi', icon: <ShieldPlus className="w-4 h-4" />, 
-        color: 'text-emerald-500', activeBorder: 'border-emerald-500/50', activeBg: 'bg-emerald-500/20', activeShadow: 'shadow-[0_0_30px_rgba(16,185,129,0.2)]'
+        color: 'text-emerald-500', activeBorder: 'border-emerald-500/50', activeBg: 'bg-emerald-500/20', activeShadow: 'shadow-glow-md'
     },
 ];
 
@@ -122,7 +122,7 @@ export default function SupplementaryPage() {
                 <motion.div 
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="relative rounded-[2.5rem] p-8 md:p-12 bg-white/5 border border-border backdrop-blur-2xl overflow-hidden shadow-2xl group"
+                    className="relative rounded-[2.5rem] p-8 md:p-12 bg-card border border-border backdrop-blur-2xl overflow-hidden shadow-2xl group"
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-700"></div>
                     <div className="absolute -right-20 -top-20 w-[400px] h-[400px] bg-emerald-500/20 blur-[100px] rounded-full group-hover:bg-emerald-500/30 transition-colors duration-700"></div>
@@ -130,7 +130,7 @@ export default function SupplementaryPage() {
                     <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
                         <div className="max-w-3xl">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+                                <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shadow-glow-lg">
                                     <HeartPulse className="w-7 h-7 text-emerald-400" />
                                 </div>
                                 <span className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-black uppercase tracking-widest text-emerald-400">
@@ -160,11 +160,11 @@ export default function SupplementaryPage() {
                             onClick={() => handleTabChange(cat.id)}
                             className={`flex-1 min-w-[150px] p-5 rounded-[2rem] border backdrop-blur-xl transition-all duration-300 flex flex-col items-center justify-center gap-3 group ${
                                 activeTab === cat.id
-                                ? `bg-white/10 ${cat.activeBorder} ${cat.activeShadow}`
-                                : `bg-white/5 border-border text-muted-foreground hover:bg-muted hover:border-border`
+                                ? `bg-card ${cat.activeBorder} ${cat.activeShadow}`
+                                : `bg-card border-border text-muted-foreground hover:bg-muted hover:border-border`
                             }`}
                         >
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${activeTab === cat.id ? `${cat.activeBg} ${cat.color} scale-110` : 'bg-white/5 text-muted-foreground group-hover:scale-110 group-hover:text-foreground'}`}>
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${activeTab === cat.id ? `${cat.activeBg} ${cat.color} scale-110` : 'bg-card text-muted-foreground group-hover:scale-110 group-hover:text-foreground'}`}>
                                 {cat.icon}
                             </div>
                             <span className={`text-sm font-black uppercase tracking-widest ${activeTab === cat.id ? cat.color : 'text-muted-foreground group-hover:text-foreground'}`}>
@@ -178,12 +178,12 @@ export default function SupplementaryPage() {
                 <div className="mt-8">
                     <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
                         <h2 className="text-2xl font-black text-foreground flex items-center gap-3 uppercase tracking-wider">
-                            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-xl bg-card flex items-center justify-center">
                                 {CATEGORIES.find(c => c.id === activeTab)?.icon}
                             </div>
                             Danh sách bài tập ({currentExercises.length} bài)
                         </h2>
-                        <span className="text-sm font-medium text-muted-foreground px-4 py-2 bg-white/5 rounded-full backdrop-blur-md border border-border">💡 Bấm vào từng bài tập để xem chi tiết</span>
+                        <span className="text-sm font-medium text-muted-foreground px-4 py-2 bg-card rounded-full backdrop-blur-md border border-border">💡 Bấm vào từng bài tập để xem chi tiết</span>
                     </div>
 
                     <motion.div
@@ -197,7 +197,7 @@ export default function SupplementaryPage() {
                             const isExpanded = expandedId === workout.id;
 
                             return (
-                                <div key={idx} className={`rounded-[2rem] bg-white/5 border backdrop-blur-xl transition-all duration-500 overflow-hidden ${isExpanded ? 'border-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.1)]' : 'border-border hover:border-border hover:bg-muted'}`}>
+                                <div key={idx} className={`rounded-[2rem] bg-card border backdrop-blur-xl transition-all duration-500 overflow-hidden ${isExpanded ? 'border-emerald-500/50 shadow-glow' : 'border-border hover:border-border hover:bg-muted'}`}>
                                     <button
                                         onClick={() => setExpandedId(isExpanded ? null : workout.id)}
                                         className="w-full text-left p-6 md:p-8 flex flex-col gap-4"
@@ -209,7 +209,7 @@ export default function SupplementaryPage() {
                                                     {workout.title}
                                                 </h3>
                                             </div>
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors ${isExpanded ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/5 text-muted-foreground'}`}>
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors ${isExpanded ? 'bg-emerald-500/20 text-emerald-400' : 'bg-card text-muted-foreground'}`}>
                                                 <ChevronDown className={`w-5 h-5 transition-transform duration-500 ${isExpanded ? 'rotate-180' : ''}`} />
                                             </div>
                                         </div>
@@ -219,7 +219,7 @@ export default function SupplementaryPage() {
                                         </p>
 
                                         <div className="flex items-center gap-3 mt-2">
-                                            <span className="flex items-center gap-2 text-xs font-bold text-muted-foreground bg-white/5 px-4 py-2 rounded-xl border border-border backdrop-blur-md">
+                                            <span className="flex items-center gap-2 text-xs font-bold text-muted-foreground bg-card px-4 py-2 rounded-xl border border-border backdrop-blur-md">
                                                 <Timer className="w-4 h-4 text-emerald-400" /> {workout.duration}
                                             </span>
                                             <span className={`flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-xl border backdrop-blur-md ${
@@ -239,7 +239,7 @@ export default function SupplementaryPage() {
                                                 initial={{ height: 0, opacity: 0 }}
                                                 animate={{ height: 'auto', opacity: 1 }}
                                                 exit={{ height: 0, opacity: 0 }}
-                                                className="bg-white/5"
+                                                className="bg-card"
                                             >
                                                 <div className="p-6 md:p-8 border-t border-border relative overflow-hidden">
                                                     <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-emerald-500/10 blur-[50px] rounded-full"></div>
@@ -253,8 +253,8 @@ export default function SupplementaryPage() {
                                                         <ul className="space-y-4">
                                                             {workout.steps.map((step, i) => (
                                                                 <li key={i} className="flex items-start gap-4">
-                                                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/10 text-muted-foreground text-xs font-black flex items-center justify-center mt-0.5">{i + 1}</span>
-                                                                    <span className="text-base text-gray-200 font-medium leading-relaxed">{step}</span>
+                                                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-card text-muted-foreground text-xs font-black flex items-center justify-center mt-0.5">{i + 1}</span>
+                                                                    <span className="text-base text-foreground font-medium leading-relaxed">{step}</span>
                                                                 </li>
                                                             ))}
                                                         </ul>

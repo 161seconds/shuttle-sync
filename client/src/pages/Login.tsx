@@ -49,7 +49,7 @@ function FloatingCards() {
             >
                 <motion.div 
                     whileHover={{ scale: 1.08, rotate: -2, y: -5, boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.15)" }}
-                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-5 py-4 shadow-2xl shadow-black/50 w-48 cursor-pointer transition-colors hover:border-emerald-500/30 hover:bg-card/90"
+                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-5 py-4 shadow-card w-48 cursor-pointer transition-colors hover:border-emerald-500/30 hover:bg-card/90"
                 >
                     <div className="flex items-center justify-between mb-2">
                         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center border border-emerald-500/10">
@@ -61,7 +61,7 @@ function FloatingCards() {
                     </div>
                     <p className="text-foreground font-black text-xl tracking-tight">1,247</p>
                     <p className="text-[#5f656d] text-[11px] mt-0.5">Lượt đặt sân</p>
-                    <div className="mt-3 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                    <div className="mt-3 h-1 w-full bg-card rounded-full overflow-hidden">
                         <div className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 w-[70%]" />
                     </div>
                 </motion.div>
@@ -73,7 +73,7 @@ function FloatingCards() {
             >
                 <motion.div 
                     whileHover={{ scale: 1.08, rotate: 2, y: -5, boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.15)" }}
-                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-5 py-4 shadow-2xl shadow-black/50 w-44 cursor-pointer transition-colors hover:border-blue-500/30 hover:bg-card/90"
+                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-5 py-4 shadow-card w-44 cursor-pointer transition-colors hover:border-blue-500/30 hover:bg-card/90"
                 >
                     <div className="flex items-center justify-between mb-2">
                         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center border border-blue-500/10">
@@ -94,7 +94,7 @@ function FloatingCards() {
             >
                 <motion.div 
                     whileHover={{ scale: 1.05, y: -5, boxShadow: "0 25px 50px -12px rgba(251, 191, 36, 0.15)" }}
-                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-5 py-4 shadow-2xl shadow-black/50 w-52 cursor-pointer transition-colors hover:border-amber-400/20 hover:bg-card/90"
+                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-5 py-4 shadow-card w-52 cursor-pointer transition-colors hover:border-amber-400/20 hover:bg-card/90"
                 >
                     <div className="flex items-center gap-2 mb-1">
                         <p className="text-foreground font-black text-lg tracking-tight">4.8</p>
@@ -126,7 +126,7 @@ function FloatingCards() {
             >
                 <motion.div 
                     whileHover={{ scale: 1.1, rotate: -3, y: -5, boxShadow: "0 25px 50px -12px rgba(168, 85, 247, 0.15)" }}
-                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-5 py-4 shadow-2xl shadow-black/50 w-40 cursor-pointer transition-colors hover:border-purple-500/30 hover:bg-card/90"
+                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-5 py-4 shadow-card w-40 cursor-pointer transition-colors hover:border-purple-500/30 hover:bg-card/90"
                 >
                     <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 flex items-center justify-center border border-purple-500/10 mb-2">
                         <Zap className="w-4 h-4 text-purple-400" />
@@ -143,10 +143,10 @@ function FloatingCards() {
             >
                 <motion.div 
                     whileHover={{ scale: 1.1, rotate: 3, y: -5, boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.15)" }}
-                    className="bg-card/70 backdrop-blur-xl border border-border rounded-full px-4 py-2 shadow-2xl shadow-black/50 cursor-pointer transition-colors hover:border-emerald-500/30 hover:bg-card/90 flex items-center gap-3"
+                    className="bg-card/70 backdrop-blur-xl border border-border rounded-full px-4 py-2 shadow-card cursor-pointer transition-colors hover:border-emerald-500/30 hover:bg-card/90 flex items-center gap-3"
                 >
                     <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center p-0.5 shadow-inner">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" className="w-full h-full rounded-full bg-black/20" />
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" className="w-full h-full rounded-full bg-card" />
                     </div>
                     <div>
                         <p className="text-foreground text-xs font-bold">Thành viên mới</p>
@@ -162,7 +162,7 @@ function FloatingCards() {
             >
                 <motion.div 
                     whileHover={{ scale: 1.1, rotate: -4, y: -5, boxShadow: "0 25px 50px -12px rgba(239, 68, 68, 0.15)" }}
-                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-4 py-3 shadow-2xl shadow-black/50 cursor-pointer transition-colors hover:border-red-500/30 hover:bg-card/90 flex items-center gap-3"
+                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-4 py-3 shadow-card cursor-pointer transition-colors hover:border-red-500/30 hover:bg-card/90 flex items-center gap-3"
                 >
                     <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-red-500/10 border border-red-500/20">
                         <div className="absolute w-2 h-2 bg-red-500 rounded-full animate-ping" />
@@ -182,7 +182,7 @@ function FloatingCards() {
             >
                 <motion.div 
                     whileHover={{ scale: 1.05, y: -5, boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.15)" }}
-                    className="bg-card/70 backdrop-blur-xl border border-border rounded-full px-4 py-2 shadow-2xl shadow-black/50 cursor-pointer transition-colors hover:border-blue-500/30 hover:bg-card/90 flex items-center gap-2"
+                    className="bg-card/70 backdrop-blur-xl border border-border rounded-full px-4 py-2 shadow-card cursor-pointer transition-colors hover:border-blue-500/30 hover:bg-card/90 flex items-center gap-2"
                 >
                     <Lock className="w-3.5 h-3.5 text-blue-400" />
                     <span className="text-[#5f656d] text-[11px] font-medium">Bảo mật thông tin 100%</span>
@@ -309,7 +309,7 @@ export default function Login() {
 
                     {/* 🔥 BIỂU TƯỢNG LOGO MỚI PHÁT QUANG ĐỒNG BỘ HEADER */}
                     <div className="relative flex items-center justify-center w-20 h-20 mx-auto mb-6">
-                        <div className="w-20 h-20 rounded-3xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-[0_0_40px_rgba(16,185,129,0.2)] group-hover:scale-105 group-hover:border-emerald-500/40 group-hover:shadow-[0_0_50px_rgba(16,185,129,0.35)] transition-all duration-300">
+                        <div className="w-20 h-20 rounded-3xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-glow-md group-hover:scale-105 group-hover:border-emerald-500/40 group-hover:shadow-[0_0_50px_rgba(16,185,129,0.35)] transition-all duration-300">
                             <Zap className="w-10 h-10 text-emerald-400 fill-emerald-400/10 group-hover:scale-110 transition-transform duration-300" />
                         </div>
                         <div className="absolute top-0 right-0 w-4 h-4 bg-emerald-400 rounded-full border-4 border-[#0a0d0f] animate-pulse"></div>
@@ -342,7 +342,7 @@ export default function Login() {
                 />
                 
                 <div className="absolute top-0 right-0 w-72 h-72 rounded-full blur-[100px] opacity-[0.06] bg-emerald-400 pointer-events-none" />
-                <div className="w-full max-w-[420px] relative z-10 p-8 sm:p-10 rounded-[2.5rem] bg-card/40 border border-border backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.3)] hover:border-border transition-colors">
+                <div className="w-full max-w-[420px] relative z-10 p-8 sm:p-10 rounded-[2.5rem] bg-card/40 border border-border backdrop-blur-2xl shadow-card hover:border-border transition-colors">
                     <div className="mb-8">
                         <h1 className="text-2xl font-black text-foreground tracking-tight">
                             {otpSent ? 'Xác thực Gmail' : mode === 'login' ? 'Welcome back!' : 'Create new account'}
@@ -360,7 +360,7 @@ export default function Login() {
                         {!otpSent ? (
                             <>
                                 {mode === 'register' && (
-                                    <div className="flex gap-1.5 p-1 bg-white/5 rounded-xl border border-border mb-2">
+                                    <div className="flex gap-1.5 p-1 bg-card rounded-xl border border-border mb-2">
                                         <button type="button" onClick={() => set('role', 'USER')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${form.role === 'USER' ? 'bg-emerald-500 text-black shadow-md' : 'text-foreground/50 hover:text-foreground'}`}><EmojiIcon name="badminton" className="w-4 h-4 inline-block mr-1" /> Người chơi</button>
                                         <button type="button" onClick={() => set('role', 'OWNER')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${form.role === 'OWNER' ? 'bg-emerald-500 text-black shadow-md' : 'text-foreground/50 hover:text-foreground'}`}>🏪 Chủ sân</button>
                                     </div>
@@ -403,11 +403,11 @@ export default function Login() {
                             </>
                         ) : (
                             <div className="py-2">
-                                <input type="text" maxLength={6} value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ""))} className="w-full h-14 text-center text-3xl tracking-[0.5em] font-black rounded-xl bg-white/5 border-2 border-emerald-500/30 text-emerald-400 outline-none focus:border-emerald-500" placeholder="000000" autoFocus />
+                                <input type="text" maxLength={6} value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ""))} className="w-full h-14 text-center text-3xl tracking-[0.5em] font-black rounded-xl bg-card border-2 border-emerald-500/30 text-emerald-400 outline-none focus:border-emerald-500" placeholder="000000" autoFocus />
                             </div>
                         )}
 
-                        <button type="submit" disabled={loading} className="relative w-full mt-6 py-4 rounded-xl bg-emerald-500 text-black font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] hover:bg-emerald-400 active:scale-[0.98] transition-all overflow-hidden group/btn disabled:opacity-50">
+                        <button type="submit" disabled={loading} className="relative w-full mt-6 py-4 rounded-xl bg-emerald-500 text-black font-bold text-sm flex items-center justify-center gap-2 shadow-glow-lg hover:shadow-glow-lg hover:bg-emerald-400 active:scale-[0.98] transition-all overflow-hidden group/btn disabled:opacity-50">
                             <div className="absolute top-0 bottom-0 -left-[100%] w-full bg-gradient-to-r from-transparent via-white/50 to-transparent group-hover/btn:animate-[slide-shimmer_1.5s_infinite]" />
                             <span className="relative z-10 flex items-center gap-2">
                                 {loading ? <span className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : <>{otpSent ? 'Xác nhận OTP' : mode === 'login' ? 'Đăng nhập' : 'Đăng ký'} <ChevronRight className="w-4 h-4" /></>}
@@ -461,7 +461,7 @@ function FormField({ icon, label, placeholder, type = 'text', value, onChange, e
                 <label className={`absolute left-10 transition-all duration-200 pointer-events-none z-10 ${isActive ? '-top-2 text-[11px] px-1 bg-background' : 'top-3.5 text-sm'} ${error ? 'text-red-400' : focused ? 'text-emerald-400' : 'text-[#5f656d] group-hover:text-foreground/70'}`}>{label}</label>
                 <span className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200 ${error ? 'text-red-400' : focused ? 'text-emerald-400' : 'text-[#5f656d] group-hover:text-emerald-400/50'}`}>{icon}</span>
                 <input type={type} placeholder={isActive ? placeholder : ''} value={value} onChange={e => onChange(e.target.value)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
-                    className={`w-full h-12 pl-11 ${rightElement ? 'pr-12' : 'pr-4'} rounded-xl bg-transparent border-2 text-foreground text-sm outline-none transition-all duration-300 ${error ? 'border-red-500/50 focus:border-red-400/70 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : focused ? 'border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.15)]' : 'border-border hover:border-border hover:bg-muted'}`} />
+                    className={`w-full h-12 pl-11 ${rightElement ? 'pr-12' : 'pr-4'} rounded-xl bg-transparent border-2 text-foreground text-sm outline-none transition-all duration-300 ${error ? 'border-red-500/50 focus:border-red-400/70 shadow-glow' : 'border-border hover:border-border hover:bg-muted'}`} />
                 {rightElement && <div className="absolute right-0 top-1/2 -translate-y-1/2 h-full flex items-center">{rightElement}</div>}
             </div>
             {error && <p className="text-red-400 text-[10px] mt-1 ml-1">{error}</p>}

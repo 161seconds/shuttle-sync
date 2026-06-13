@@ -71,7 +71,7 @@ export default function GuidedTourOverlay({ onComplete }: Props) {
             )}
 
             <motion.div
-                className="absolute z-10 w-72 bg-gray-900/95 backdrop-blur-xl border border-emerald-500/20 rounded-2xl p-5 shadow-2xl shadow-emerald-500/10"
+                className="absolute z-10 w-72 bg-card backdrop-blur-xl border border-emerald-500/20 rounded-2xl p-5 shadow-2xl shadow-emerald-500/10"
                 style={rect ? {
                     left: tooltipLeft,
                     // Nếu là mục tiêu ở trên cùng (như cái Cup), ta ép nó hiện ở dưới (bottom)
@@ -86,7 +86,7 @@ export default function GuidedTourOverlay({ onComplete }: Props) {
                 {/* 🚨 MŨI TÊN: Bây giờ sẽ tự động bám theo tâm mục tiêu */}
                 {rect && (
                     <motion.div
-                        className={`absolute w-3 h-3 bg-gray-900/95 border border-emerald-500/20 rotate-45 ${(step.position === 'bottom' || spotY < 200) ? '-top-1.5 border-b-0 border-r-0' : '-bottom-1.5 border-t-0 border-l-0'
+                        className={`absolute w-3 h-3 bg-card border border-emerald-500/20 rotate-45 ${(step.position === 'bottom' || spotY < 200) ? '-top-1.5 border-b-0 border-r-0' : '-bottom-1.5 border-t-0 border-l-0'
                             }`}
                         style={{ left: arrowLeft - 6 }} // 6 là một nửa chiều rộng mũi tên
                     />

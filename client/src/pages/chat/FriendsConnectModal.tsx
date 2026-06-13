@@ -79,7 +79,7 @@ export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageC
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={onClose}
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                className="absolute inset-0 bg-card backdrop-blur-sm"
             />
             
             <motion.div
@@ -89,7 +89,7 @@ export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageC
                 className="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
             >
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-border bg-black/20">
+                <div className="flex items-center justify-between p-4 border-b border-border bg-card">
                     <h2 className="text-lg font-bold text-foreground">Kết nối bạn bè</h2>
                     <button 
                         onClick={onClose}
@@ -109,7 +109,7 @@ export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageC
                             </h3>
                             <div className="space-y-2">
                                 {pendingRequests.map(req => (
-                                    <div key={req._id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-border">
+                                    <div key={req._id} className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border">
                                         <div 
                                             className="w-10 h-10 rounded-full bg-blue-500/20 overflow-hidden flex items-center justify-center text-blue-400 font-bold cursor-pointer hover:scale-105 transition-transform shrink-0"
                                             onClick={() => onAvatarClick?.(req.requesterId)}
@@ -152,7 +152,7 @@ export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageC
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyDown={handleSearchUsers}
                                 placeholder="Tìm theo tên hoặc email (Nhấn Enter)"
-                                className="w-full bg-black/20 border border-border rounded-xl py-2.5 pl-9 pr-4 text-sm text-foreground placeholder-gray-500 outline-none focus:border-emerald-500/50 transition-colors"
+                                className="w-full bg-card border border-border rounded-xl py-2.5 pl-9 pr-4 text-sm text-foreground placeholder-gray-500 outline-none focus:border-emerald-500/50 transition-colors"
                             />
                         </div>
 
@@ -168,7 +168,7 @@ export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageC
                                     const isBlocked = isRejected && u.friendship?.rejectionCount >= 3;
 
                                     return (
-                                        <div key={u._id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-muted transition-all border border-border hover:border-emerald-500/30 group">
+                                        <div key={u._id} className="flex items-center gap-3 p-3 rounded-xl bg-card hover:bg-muted transition-all border border-border hover:border-emerald-500/30 group">
                                             <div 
                                                 className="w-10 h-10 rounded-full bg-emerald-500/20 overflow-hidden flex items-center justify-center text-emerald-400 font-bold cursor-pointer hover:scale-105 transition-transform shrink-0"
                                                 onClick={() => onAvatarClick?.(u)}
@@ -191,7 +191,7 @@ export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageC
                                                 ) : (
                                                     <button 
                                                         onClick={() => handleSendRequest(u._id)}
-                                                        className="p-2 bg-white/10 text-foreground rounded-lg hover:bg-emerald-500 hover:text-black transition-all"
+                                                        className="p-2 bg-card text-foreground rounded-lg hover:bg-emerald-500 hover:text-black transition-all"
                                                         title="Thêm bạn"
                                                     >
                                                         <UserPlus className="w-4 h-4" />
@@ -199,7 +199,7 @@ export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageC
                                                 )}
                                                 <button
                                                     onClick={() => onMessageClick?.(u._id)}
-                                                    className="p-2 bg-white/10 text-foreground rounded-lg hover:bg-blue-500 hover:text-foreground transition-all"
+                                                    className="p-2 bg-card text-foreground rounded-lg hover:bg-blue-500 hover:text-foreground transition-all"
                                                     title="Nhắn tin"
                                                 >
                                                     <MessageCircle className="w-4 h-4" />

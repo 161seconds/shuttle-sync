@@ -60,7 +60,7 @@ export default function ProfilePage() {
         return (
             <div className="w-full flex-1 flex flex-col items-center justify-center min-h-[75vh] px-6 pt-20 pb-24 text-center">
                 <div className="max-w-md w-full flex flex-col items-center">
-                    <div className="relative w-28 h-28 bg-card rounded-full flex items-center justify-center mb-6 border border-border shadow-[0_0_40px_rgba(16,185,129,0.15)]">
+                    <div className="relative w-28 h-28 bg-card rounded-full flex items-center justify-center mb-6 border border-border shadow-glow">
                         <div className="absolute inset-0 rounded-full border border-emerald-500/20 animate-ping" style={{ animationDuration: '3s' }}></div>
                         <UserCircle className="w-14 h-14 text-emerald-500/80" />
                     </div>
@@ -68,7 +68,7 @@ export default function ProfilePage() {
                     <p className="text-muted-foreground text-[14px] leading-relaxed mb-10 px-2">
                         Vui lòng đăng nhập để xem thông tin cá nhân và quản lý lịch đặt sân.
                     </p>
-                    <button onClick={() => setPage('login')} className="w-full flex items-center justify-center gap-2 bg-linear-to-r from-emerald-500 to-emerald-400 hover:opacity-90 text-black font-bold py-4 px-6 rounded-2xl transition-all shadow-[0_8px_25px_rgba(16,185,129,0.3)] active:scale-[0.98]">
+                    <button onClick={() => setPage('login')} className="w-full flex items-center justify-center gap-2 bg-linear-to-r from-emerald-500 to-emerald-400 hover:opacity-90 text-black font-bold py-4 px-6 rounded-2xl transition-all shadow-glow-lg active:scale-[0.98]">
                         <LogIn className="w-5 h-5" /> Đăng nhập ngay
                     </button>
                 </div>
@@ -116,7 +116,7 @@ export default function ProfilePage() {
                         {/* Avatar */}
                         <div className="relative inline-block mb-5 group-hover:scale-105 transition-transform duration-500">
                             <div className="absolute inset-0 bg-emerald-500/40 rounded-[28px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                            <div className="relative w-24 h-24 rounded-[28px] bg-linear-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-4xl font-black text-black shadow-[0_0_40px_rgba(16,185,129,0.3)] overflow-hidden border border-border">
+                            <div className="relative w-24 h-24 rounded-[28px] bg-linear-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-4xl font-black text-black shadow-glow-lg overflow-hidden border border-border">
                                 {user.avatar ? (
                                     <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
                                 ) : (
@@ -153,8 +153,8 @@ export default function ProfilePage() {
                 <div className="space-y-2.5">
                     {MENU.map((item) => (
                         <button key={item.label} onClick={() => setSubPage(item.action)}
-                            className={`w-full flex items-center gap-4 px-5 py-4 rounded-[20px] bg-white/5 border border-border hover:bg-muted hover:border-emerald-500/30 hover:shadow-[0_0_20px_rgba(16,185,129,0.1)] transition-all duration-300 group`}>
-                            <div className={`w-10 h-10 rounded-xl bg-black/30 flex items-center justify-center ${t.text.muted} group-hover:text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/10 transition-all duration-300`}>
+                            className={`w-full flex items-center gap-4 px-5 py-4 rounded-[20px] bg-card border border-border hover:bg-muted hover:border-emerald-500/30 hover:shadow-glow transition-all duration-300 group`}>
+                            <div className={`w-10 h-10 rounded-xl bg-muted flex items-center justify-center ${t.text.muted} group-hover:text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/10 transition-all duration-300`}>
                                 {item.icon}
                             </div>
                             <span className={`flex-1 text-left text-[15px] font-bold text-muted-foreground group-hover:text-foreground transition-colors duration-300`}>

@@ -103,7 +103,7 @@ export default function GroupChat({ groupPlayId, onClose }: GroupChatProps) {
                         className={`px-4 py-2 rounded-2xl text-sm ${
                             isMine
                                 ? 'bg-emerald-500 text-black rounded-tr-sm'
-                                : 'bg-white/10 text-foreground rounded-tl-sm border border-border'
+                                : 'bg-card text-foreground rounded-tl-sm border border-border'
                         }`}
                         style={{ wordBreak: 'break-word' }}
                     >
@@ -123,7 +123,7 @@ export default function GroupChat({ groupPlayId, onClose }: GroupChatProps) {
             className="fixed inset-0 md:inset-auto md:bottom-24 md:right-6 md:w-96 md:h-[500px] z-[60] bg-card md:rounded-3xl border border-border shadow-2xl flex flex-col overflow-hidden"
         >
             {/* Header */}
-            <div className="h-14 bg-white/5 border-b border-border flex items-center justify-between px-4">
+            <div className="h-14 bg-card border-b border-border flex items-center justify-between px-4">
                 <div className="flex items-center gap-2">
                     <span className="text-xl">💬</span>
                     <h3 className="font-bold text-foreground text-sm">Chat Phòng</h3>
@@ -157,14 +157,14 @@ export default function GroupChat({ groupPlayId, onClose }: GroupChatProps) {
             </div>
 
             {/* Input Area */}
-            <div className="p-3 bg-white/5 border-t border-border">
+            <div className="p-3 bg-card border-t border-border">
                 <form onSubmit={handleSend} className="flex gap-2">
                     <input
                         type="text"
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         placeholder="Nhập tin nhắn..."
-                        className="flex-1 h-10 bg-black/40 border border-border rounded-xl px-4 text-sm text-foreground focus:outline-none focus:border-emerald-500/50 transition-colors"
+                        className="flex-1 h-10 bg-card border border-border rounded-xl px-4 text-sm text-foreground focus:outline-none focus:border-emerald-500/50 transition-colors"
                     />
                     <button
                         type="submit"

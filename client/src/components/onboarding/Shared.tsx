@@ -38,7 +38,7 @@ export function ProgressBar({ current, total }: { current: number; total: number
             <span className="text-xs font-mono tracking-wider text-emerald-400/70">
                 {String(current).padStart(2, '0')}/{String(total).padStart(2, '0')}
             </span>
-            <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
+            <div className="flex-1 h-1 bg-card rounded-full overflow-hidden">
                 <motion.div
                     className="h-full rounded-full bg-linear-to-r from-emerald-400 to-green-300"
                     initial={{ width: 0 }}
@@ -50,7 +50,7 @@ export function ProgressBar({ current, total }: { current: number; total: number
                 {Array.from({ length: total }).map((_, i) => (
                     <motion.div
                         key={i}
-                        className={`w-1.5 h-1.5 rounded-full ${i < current ? 'bg-emerald-400' : 'bg-white/15'}`}
+                        className={`w-1.5 h-1.5 rounded-full ${i < current ? 'bg-emerald-400' : 'bg-card'}`}
                         animate={i === current - 1 ? { scale: [1, 1.4, 1] } : {}}
                         transition={{ duration: 0.4 }}
                     />

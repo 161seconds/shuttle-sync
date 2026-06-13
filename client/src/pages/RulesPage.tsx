@@ -140,12 +140,12 @@ export default function RulesPage() {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="flex flex-wrap gap-2 p-1.5 bg-white/5 backdrop-blur-xl border border-border rounded-2xl w-fit"
+                        className="flex flex-wrap gap-2 p-1.5 bg-card backdrop-blur-xl border border-border rounded-2xl w-fit"
                     >
                         <button
                             onClick={() => setActiveTab('badminton')}
                             className={`px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${activeTab === 'badminton'
-                                    ? 'bg-gradient-to-r from-emerald-600 to-emerald-400 text-foreground shadow-[0_0_20px_rgba(16,185,129,0.4)]'
+                                    ? 'bg-gradient-to-r from-emerald-600 to-emerald-400 text-foreground shadow-glow-lg'
                                     : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                                 }`}
                         >
@@ -188,7 +188,7 @@ export default function RulesPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: idx * 0.1 }}
                                         key={idx}
-                                        className="group relative p-6 md:p-8 rounded-[2rem] bg-white/5 border border-border backdrop-blur-xl hover:bg-muted hover:border-border transition-all duration-500 overflow-hidden cursor-default"
+                                        className="group relative p-6 md:p-8 rounded-[2rem] bg-card border border-border backdrop-blur-xl hover:bg-muted hover:border-border transition-all duration-500 overflow-hidden cursor-default"
                                     >
                                         <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/5 group-hover:to-transparent transition-colors duration-500 z-0"></div>
                                         <div className="relative z-10 flex flex-col md:flex-row md:items-start gap-5">
@@ -196,7 +196,7 @@ export default function RulesPage() {
                                                 {rule.icon}
                                             </div>
                                             <div className="flex-1">
-                                                <h3 className={`text-xl font-black mb-4 transition-colors ${activeTab === 'badminton' ? 'group-hover:text-emerald-400' : 'group-hover:text-orange-400'} text-gray-100`}>{rule.title}</h3>
+                                                <h3 className={`text-xl font-black mb-4 transition-colors ${activeTab === 'badminton' ? 'group-hover:text-emerald-400' : 'group-hover:text-orange-400'} text-foreground`}>{rule.title}</h3>
                                                 <ul className="space-y-3">
                                                     {rule.items.map((item, i) => (
                                                         <li key={i} className="text-base text-muted-foreground flex items-start gap-3 leading-relaxed font-medium">
@@ -227,13 +227,13 @@ export default function RulesPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: idx * 0.1 }}
                                         key={idx}
-                                        className="group p-6 md:p-8 rounded-[2rem] bg-white/5 border border-border backdrop-blur-xl hover:bg-muted hover:border-border transition-all duration-500 relative overflow-hidden"
+                                        className="group p-6 md:p-8 rounded-[2rem] bg-card border border-border backdrop-blur-xl hover:bg-muted hover:border-border transition-all duration-500 relative overflow-hidden"
                                     >
                                         <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                                             <span className="text-8xl font-black italic">{idx + 1}</span>
                                         </div>
                                         <div className="relative z-10">
-                                            <h3 className={`text-xl font-black mb-3 transition-colors ${activeTab === 'badminton' ? 'group-hover:text-emerald-400' : 'group-hover:text-orange-400'} text-gray-100`}>
+                                            <h3 className={`text-xl font-black mb-3 transition-colors ${activeTab === 'badminton' ? 'group-hover:text-emerald-400' : 'group-hover:text-orange-400'} text-foreground`}>
                                                 {tech.title}
                                             </h3>
                                             <p className="text-base text-muted-foreground leading-relaxed font-medium">

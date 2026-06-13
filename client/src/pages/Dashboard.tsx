@@ -78,7 +78,7 @@ export default function Dashboard() {
             {/* 2. Widget: Trận đấu sắp tới */}
             <motion.div
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                className="w-full rounded-2xl bg-gradient-to-br from-emerald-900/30 to-[#0a0d0f] border border-emerald-500/20 p-4 relative overflow-hidden shadow-lg shadow-emerald-500/5"
+                className="w-full rounded-2xl bg-gradient-to-br from-emerald-500/10 to-card border border-emerald-500/20 p-4 relative overflow-hidden shadow-lg shadow-emerald-500/5"
             >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-2xl rounded-full"></div>
                 <div className="relative z-10 flex justify-between items-center mb-3">
@@ -90,7 +90,7 @@ export default function Dashboard() {
                     </span>
                 </div>
                 <div className="relative z-10 bg-background/60 rounded-xl p-3 border border-border flex gap-3 items-center backdrop-blur-sm">
-                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-border">
+                    <div className="w-12 h-12 rounded-xl bg-card flex items-center justify-center shrink-0 border border-border">
                         <EmojiIcon name="badminton" className="w-6 h-6 text-emerald-400" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -153,7 +153,7 @@ export default function Dashboard() {
                             <p className="text-xs text-muted-foreground mt-0.5">Tối nay 19:30 • Còn 1 slot</p>
                         </div>
                     </div>
-                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-muted transition-colors text-foreground">
+                    <div className="w-8 h-8 rounded-full bg-card flex items-center justify-center hover:bg-muted transition-colors text-foreground">
                         <ChevronRight className="w-4 h-4" />
                     </div>
                 </div>
@@ -175,9 +175,9 @@ export default function Dashboard() {
                         /* Skeleton Loading */
                         Array.from({ length: 3 }).map((_, i) => (
                             <div key={i} className={`w-64 shrink-0 snap-start rounded-2xl ${t.bg.card} border ${t.border.subtle} p-3 animate-pulse`}>
-                                <div className="w-full h-32 bg-white/5 rounded-xl mb-3"></div>
-                                <div className="h-4 bg-white/5 rounded w-3/4 mb-2"></div>
-                                <div className="h-3 bg-white/5 rounded w-1/2"></div>
+                                <div className="w-full h-32 bg-card rounded-xl mb-3"></div>
+                                <div className="h-4 bg-card rounded w-3/4 mb-2"></div>
+                                <div className="h-3 bg-card rounded w-1/2"></div>
                             </div>
                         ))
                     ) : (
@@ -194,7 +194,7 @@ export default function Dashboard() {
                                         alt={court.name}
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     />
-                                    <div className="absolute top-2 right-2 px-2 py-1 bg-black/60 backdrop-blur-md rounded-lg flex items-center gap-1">
+                                    <div className="absolute top-2 right-2 px-2 py-1 bg-card backdrop-blur-md rounded-lg flex items-center gap-1">
                                         <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
                                         <span className="text-xs font-bold text-foreground">{court.averageRating?.toFixed(1) || '5.0'}</span>
                                     </div>
@@ -225,9 +225,9 @@ export default function Dashboard() {
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
                 className="w-full rounded-2xl bg-linear-to-r from-emerald-500 to-teal-600 p-5 relative overflow-hidden shadow-xl shadow-emerald-500/20"
             >
-                <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full blur-2xl translate-x-1/2 -translate-y-1/2"></div>
+                <div className="absolute right-0 top-0 w-32 h-32 bg-card rounded-full blur-2xl translate-x-1/2 -translate-y-1/2"></div>
                 <div className="relative z-10 w-2/3">
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-black/20 text-foreground text-[10px] font-bold uppercase tracking-wider mb-2">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-card text-foreground text-[10px] font-bold uppercase tracking-wider mb-2">
                         <Zap className="w-3 h-3" /> Khuyến mãi
                     </span>
                     <h3 className="text-xl font-black text-foreground mb-1 leading-tight">Giảm 20% khung giờ vàng</h3>

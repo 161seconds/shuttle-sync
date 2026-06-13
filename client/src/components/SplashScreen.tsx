@@ -111,7 +111,7 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
           transition={{ duration: 0.6, delay: 0.2, type: "spring", bounce: 0.5 }}
           className="relative mb-6"
         >
-          <div className="w-24 h-24 bg-gradient-to-br from-emerald-400/20 to-emerald-900/40 rounded-[2rem] border border-emerald-500/30 flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.3)] backdrop-blur-xl relative overflow-hidden">
+          <div className="w-24 h-24 bg-gradient-to-br from-emerald-400/20 to-emerald-900/40 rounded-[2rem] border border-emerald-500/30 flex items-center justify-center shadow-glow-lg backdrop-blur-xl relative overflow-hidden">
             {/* Shimmer sweep effect */}
             <motion.div
               initial={{ x: '-100%' }}
@@ -156,9 +156,9 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
             <span>Đang tải dữ liệu</span>
             <span>{Math.floor(progress)}%</span>
           </div>
-          <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden border border-border relative">
+          <div className="w-full h-1 bg-card rounded-full overflow-hidden border border-border relative">
             <div
-              className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-emerald-500 to-cyan-400 shadow-[0_0_15px_rgba(16,185,129,0.8)]"
+              className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-emerald-500 to-cyan-400 shadow-glow-lg"
               style={{ width: `${progress}%`, transition: 'width 0.1s linear' }}
             />
           </div>

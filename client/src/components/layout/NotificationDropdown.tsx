@@ -129,7 +129,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="absolute right-0 top-[110%] w-[90vw] md:w-[420px] bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-50 overflow-hidden"
+                    className="absolute right-0 top-[110%] w-[90vw] md:w-[420px] bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-card z-50 overflow-hidden"
                 >
                     {/* Header */}
                     <div className="flex items-center justify-between px-5 py-4 border-b border-border">
@@ -152,7 +152,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
                             </div>
                         ) : notifications.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-10 text-center px-4">
-                                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-border mb-4">
+                                <div className="w-16 h-16 rounded-full bg-card flex items-center justify-center border border-border mb-4">
                                     <CheckCheck className="w-8 h-8 text-emerald-500" />
                                 </div>
                                 <p className="text-foreground font-bold mb-1">Không có thông báo mới</p>

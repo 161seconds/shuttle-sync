@@ -35,7 +35,7 @@ export default function MatchLeaderboard({ onBack }: Props) {
                     <div className="flex items-center gap-4 mb-4">
                         <button
                             onClick={onBack}
-                            className="w-10 h-10 rounded-full bg-white/5 border border-border flex items-center justify-center hover:bg-muted hover:border-emerald-500/50 transition-all group shadow-sm"
+                            className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted hover:border-emerald-500/50 transition-all group shadow-sm"
                         >
                             <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-emerald-400 transition-colors" />
                         </button>
@@ -47,7 +47,7 @@ export default function MatchLeaderboard({ onBack }: Props) {
                 )}
 
                 {/* Ghi nhận nhanh */}
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="relative p-6 rounded-[24px] bg-gradient-to-b from-[#1a1c23] to-[#111113] border border-border overflow-hidden shadow-xl shadow-emerald-500/5">
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="relative p-6 rounded-[24px] bg-gradient-to-b from-card to-background border border-border overflow-hidden shadow-xl shadow-emerald-500/5">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[50px] pointer-events-none" />
                     
                     <h3 className="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -60,7 +60,7 @@ export default function MatchLeaderboard({ onBack }: Props) {
                                 value={quickInput}
                                 onChange={(e) => setQuickInput(e.target.value)}
                                 placeholder="Nhập theo cú pháp: bao minh hai nam; 21-15; 50k&#10;(Bảo, Minh - Hải, Nam; Tỉ số 21-15; Kèo 50k)"
-                                className="w-full h-28 bg-black/40 border border-border rounded-2xl p-4 text-foreground text-sm focus:border-blue-500/50 focus:bg-blue-500/5 outline-none resize-none mb-4 placeholder-gray-600 transition-all custom-scrollbar"
+                                className="w-full h-28 bg-card border border-border rounded-2xl p-4 text-foreground text-sm focus:border-blue-500/50 focus:bg-blue-500/5 outline-none resize-none mb-4 placeholder-gray-600 transition-all custom-scrollbar"
                             />
                         </div>
                         <button
@@ -81,14 +81,14 @@ export default function MatchLeaderboard({ onBack }: Props) {
                         </div>
                         <ul className="text-[11px] text-blue-200/70 space-y-1.5 ml-6 list-disc">
                             <li>Dấu cách để ngăn cách tên người chơi.</li>
-                            <li>Dấu <code className="bg-black/40 px-1.5 py-0.5 rounded-md text-foreground font-mono shadow-sm border border-border">;</code> để nhập tỉ số và tiền kèo (nếu có).</li>
-                            <li>Ví dụ: <span className="text-foreground font-mono bg-black/20 px-1.5 py-0.5 rounded-md border border-border">bao minh ; 21-15</span></li>
+                            <li>Dấu <code className="bg-card px-1.5 py-0.5 rounded-md text-foreground font-mono shadow-sm border border-border">;</code> để nhập tỉ số và tiền kèo (nếu có).</li>
+                            <li>Ví dụ: <span className="text-foreground font-mono bg-card px-1.5 py-0.5 rounded-md border border-border">bao minh ; 21-15</span></li>
                         </ul>
                     </div>
                 </motion.div>
 
                 {/* Leaderboard */}
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="relative p-6 rounded-[24px] bg-gradient-to-b from-[#1a1c23] to-[#111113] border border-border overflow-hidden shadow-xl shadow-yellow-500/5">
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="relative p-6 rounded-[24px] bg-gradient-to-b from-card to-background border border-border overflow-hidden shadow-xl shadow-yellow-500/5">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/10 blur-[50px] pointer-events-none" />
 
                     <div className="flex items-center justify-between mb-5 relative z-10">
@@ -97,10 +97,10 @@ export default function MatchLeaderboard({ onBack }: Props) {
                         </h3>
                     </div>
 
-                    <div className="overflow-hidden rounded-2xl border border-border bg-black/20 relative z-10">
+                    <div className="overflow-hidden rounded-2xl border border-border bg-card relative z-10">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-border bg-black/40">
+                                <tr className="border-b border-border bg-card">
                                     <th className="py-3 px-4 text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Vợt thủ</th>
                                     <th className="py-3 px-4 text-[10px] text-muted-foreground uppercase font-bold tracking-wider text-center">Đã Đánh</th>
                                     <th className="py-3 px-4 text-[10px] text-muted-foreground uppercase font-bold tracking-wider text-center">Thắng/Thua</th>
@@ -120,7 +120,7 @@ export default function MatchLeaderboard({ onBack }: Props) {
                                                         isTop1 ? 'bg-gradient-to-br from-yellow-300 to-yellow-600 text-black' :
                                                         isTop2 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-black' :
                                                         isTop3 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-foreground' :
-                                                        'bg-white/5 text-muted-foreground'
+                                                        'bg-card text-muted-foreground'
                                                     }`}>
                                                         {isTop1 ? <Crown className="w-3.5 h-3.5" /> : index + 1}
                                                     </div>

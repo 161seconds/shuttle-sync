@@ -161,7 +161,7 @@ export default function NewsPage() {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="flex flex-wrap gap-2 p-1.5 bg-white/5 backdrop-blur-xl border border-border rounded-2xl w-fit"
+                        className="flex flex-wrap gap-2 p-1.5 bg-card backdrop-blur-xl border border-border rounded-2xl w-fit"
                     >
                         {[
                             { id: 'all', label: 'Tất cả', icon: null },
@@ -211,7 +211,7 @@ export default function NewsPage() {
                                     onClick={() => { if (paginatedNews[0].link) window.open(paginatedNews[0].link, '_blank'); }}
                                 >
                                     {/* Glass Frame */}
-                                    <div className="absolute inset-0 bg-white/5 border border-border rounded-[2rem] z-20 pointer-events-none group-hover:border-blue-500/50 transition-colors duration-500"></div>
+                                    <div className="absolute inset-0 bg-card border border-border rounded-[2rem] z-20 pointer-events-none group-hover:border-blue-500/50 transition-colors duration-500"></div>
 
                                     <img src={paginatedNews[0].imageUrl} alt={paginatedNews[0].title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.5s] ease-out" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10" />
@@ -249,7 +249,7 @@ export default function NewsPage() {
                                     className="lg:col-span-1 lg:row-span-2 group relative rounded-[2rem] overflow-hidden cursor-pointer"
                                     onClick={() => { if (paginatedNews[1].link) window.open(paginatedNews[1].link, '_blank'); }}
                                 >
-                                    <div className="absolute inset-0 bg-white/5 border border-border rounded-[2rem] z-20 pointer-events-none group-hover:border-purple-500/50 transition-colors duration-500"></div>
+                                    <div className="absolute inset-0 bg-card border border-border rounded-[2rem] z-20 pointer-events-none group-hover:border-purple-500/50 transition-colors duration-500"></div>
 
                                     <img src={paginatedNews[1].imageUrl} alt={paginatedNews[1].title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent z-10" />
@@ -271,7 +271,7 @@ export default function NewsPage() {
                             {paginatedNews[2] && (
                                 <motion.div
                                     layout
-                                    className="lg:col-span-1 lg:row-span-1 group relative rounded-[2rem] overflow-hidden cursor-pointer bg-white/5 border border-border hover:border-emerald-500/50 transition-colors duration-500 p-2"
+                                    className="lg:col-span-1 lg:row-span-1 group relative rounded-[2rem] overflow-hidden cursor-pointer bg-card border border-border hover:border-emerald-500/50 transition-colors duration-500 p-2"
                                     onClick={() => { if (paginatedNews[2].link) window.open(paginatedNews[2].link, '_blank'); }}
                                 >
                                     <div className="w-full h-full relative rounded-3xl overflow-hidden">
@@ -290,7 +290,7 @@ export default function NewsPage() {
                             {paginatedNews[3] && (
                                 <motion.div
                                     layout
-                                    className="lg:col-span-1 lg:row-span-1 group relative rounded-[2rem] overflow-hidden cursor-pointer bg-white/5 border border-border hover:border-orange-500/50 transition-colors duration-500 p-2"
+                                    className="lg:col-span-1 lg:row-span-1 group relative rounded-[2rem] overflow-hidden cursor-pointer bg-card border border-border hover:border-orange-500/50 transition-colors duration-500 p-2"
                                     onClick={() => { if (paginatedNews[3].link) window.open(paginatedNews[3].link, '_blank'); }}
                                 >
                                     <div className="w-full h-full relative rounded-3xl overflow-hidden">
@@ -320,7 +320,7 @@ export default function NewsPage() {
                                             exit={{ opacity: 0, scale: 0.9 }}
                                             transition={{ duration: 0.5, delay: (idx % 3) * 0.1 }}
                                             onClick={() => { if (article.link) window.open(article.link, '_blank'); }}
-                                            className="group relative bg-white/5 border border-border backdrop-blur-xl rounded-[2rem] hover:bg-muted hover:border-blue-500/40 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-all duration-500 cursor-pointer flex flex-col overflow-hidden"
+                                            className="group relative bg-card border border-border backdrop-blur-xl rounded-[2rem] hover:bg-muted hover:border-blue-500/40 hover:shadow-card transition-all duration-500 cursor-pointer flex flex-col overflow-hidden"
                                         >
                                             {/* Glowing background blob on hover */}
                                             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-purple-500/0 to-blue-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-colors duration-500 z-0"></div>
@@ -333,7 +333,7 @@ export default function NewsPage() {
                                                         alt={article.title}
                                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                                                     />
-                                                    <div className="absolute top-3 right-3 z-20 bg-black/50 backdrop-blur-md border border-border text-foreground text-[10px] font-black uppercase px-3 py-1.5 rounded-full shadow-lg">
+                                                    <div className="absolute top-3 right-3 z-20 bg-card backdrop-blur-md border border-border text-foreground text-[10px] font-black uppercase px-3 py-1.5 rounded-full shadow-lg">
                                                         {article.category}
                                                     </div>
                                                 </div>
@@ -341,7 +341,7 @@ export default function NewsPage() {
 
                                             {/* Content */}
                                             <div className="p-6 md:p-8 flex flex-col flex-1 z-10">
-                                                <h3 className="text-xl md:text-2xl font-black text-gray-100 mb-3 line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 transition-all leading-snug">
+                                                <h3 className="text-xl md:text-2xl font-black text-foreground mb-3 line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 transition-all leading-snug">
                                                     {article.title}
                                                 </h3>
                                                 <p className="text-sm text-muted-foreground line-clamp-3 mb-6 flex-1 font-medium leading-relaxed group-hover:text-muted-foreground transition-colors">
@@ -368,7 +368,7 @@ export default function NewsPage() {
                                 <button
                                     onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                                     disabled={currentPage === 1}
-                                    className="p-3 rounded-xl bg-white/5 border border-border text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+                                    className="p-3 rounded-xl bg-card border border-border text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
                                 >
                                     <ChevronLeft className="w-5 h-5" />
                                 </button>
@@ -389,7 +389,7 @@ export default function NewsPage() {
                                             className={`w-11 h-11 rounded-xl font-bold transition-all ${
                                                 currentPage === i + 1
                                                     ? 'bg-gradient-to-r from-blue-600 to-blue-400 text-foreground shadow-[0_0_15px_rgba(59,130,246,0.4)]'
-                                                    : 'bg-white/5 border border-border text-muted-foreground hover:bg-muted hover:text-foreground'
+                                                    : 'bg-card border border-border text-muted-foreground hover:bg-muted hover:text-foreground'
                                             }`}
                                         >
                                             {i + 1}
@@ -400,7 +400,7 @@ export default function NewsPage() {
                                 <button
                                     onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="p-3 rounded-xl bg-white/5 border border-border text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+                                    className="p-3 rounded-xl bg-card border border-border text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
                                 >
                                     <ChevronRight className="w-5 h-5" />
                                 </button>
@@ -409,7 +409,7 @@ export default function NewsPage() {
                     </motion.div>
                 ) : (
                     <div className="flex flex-col items-center justify-center h-64 text-muted-foreground relative z-10">
-                        <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-border">
+                        <div className="w-24 h-24 bg-card rounded-full flex items-center justify-center mb-6 border border-border">
                             <Newspaper className="w-10 h-10 opacity-50" />
                         </div>
                         <p className="text-xl font-bold">Không có bài báo nào trong danh mục này.</p>

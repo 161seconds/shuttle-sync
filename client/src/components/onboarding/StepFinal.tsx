@@ -29,7 +29,7 @@ export default function StepFinal({ preferences, onComplete, onBack }: Props) {
                     <motion.div key="summary" className="w-full max-w-sm" exit={{ opacity: 0, y: -30 }}>
                         {/* Summary Card */}
                         <motion.div
-                            className="bg-gradient-to-br from-white/10 to-transparent backdrop-blur-md border border-border rounded-[1.5rem] p-6 mb-8 shadow-[0_0_30px_rgba(16,185,129,0.1)] relative overflow-hidden"
+                            className="bg-gradient-to-br from-white/10 to-transparent backdrop-blur-md border border-border rounded-[1.5rem] p-6 mb-8 shadow-glow relative overflow-hidden"
                             initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
                         >
                             {/* Inner shine */}
@@ -49,14 +49,14 @@ export default function StepFinal({ preferences, onComplete, onBack }: Props) {
                                         }
                                     </div>
                                 </div>
-                                <div className="h-px bg-white/5" />
+                                <div className="h-px bg-card" />
                                 <div className="flex items-center justify-between">
                                     <span className="text-foreground/40 text-sm">Trình độ</span>
                                     <span className="text-emerald-300 text-sm font-medium">
                                         {SKILLS.find((s: { id: string; }) => s.id === preferences.skillLevel)?.label || 'Chưa chọn'}
                                     </span>
                                 </div>
-                                <div className="h-px bg-white/5" />
+                                <div className="h-px bg-card" />
                                 <div className="flex items-center justify-between">
                                     <span className="text-foreground/40 text-sm">Khu vực</span>
                                     <span className="text-emerald-300 text-sm font-medium flex items-center gap-1">
@@ -108,7 +108,7 @@ export default function StepFinal({ preferences, onComplete, onBack }: Props) {
                         ))}
 
                         <motion.div
-                            className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-emerald-400/20 to-emerald-900/40 border border-emerald-500/30 flex items-center justify-center mb-6 shadow-[0_0_50px_rgba(16,185,129,0.3)] backdrop-blur-xl relative overflow-hidden"
+                            className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-emerald-400/20 to-emerald-900/40 border border-emerald-500/30 flex items-center justify-center mb-6 shadow-glow-lg backdrop-blur-xl relative overflow-hidden"
                             initial={{ scale: 0 }} animate={{ scale: [0, 1.2, 1] }} transition={{ delay: 0.2, duration: 0.6 }}>
                             {/* Shimmer sweep effect */}
                             <motion.div

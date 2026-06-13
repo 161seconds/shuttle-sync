@@ -28,7 +28,7 @@ const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> =
     open: { label: 'Đang mở', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border border-emerald-500/20' },
     full: { label: 'Đã đủ', color: 'text-amber-400', bg: 'bg-amber-500/10 border border-amber-500/20' },
     in_progress: { label: 'Đang diễn ra', color: 'text-blue-400', bg: 'bg-blue-500/10 border border-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.2)]' },
-    completed: { label: 'Hoàn thành', color: 'text-muted-foreground', bg: 'bg-white/5 border border-border' },
+    completed: { label: 'Hoàn thành', color: 'text-muted-foreground', bg: 'bg-card border border-border' },
     cancelled: { label: 'Đã hủy', color: 'text-red-400', bg: 'bg-red-500/10 border border-red-500/20' },
 };
 
@@ -110,7 +110,7 @@ export default function MyGroupPlays({ onBack }: Props) {
             {/* Header */}
             <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-border`}>
                 <div className="flex items-center gap-3 px-4 h-16">
-                    <button onClick={onBack} className={`w-10 h-10 rounded-full bg-white/5 hover:bg-muted flex items-center justify-center ${t.text.muted} hover:text-foreground transition-all`}>
+                    <button onClick={onBack} className={`w-10 h-10 rounded-full bg-card hover:bg-muted flex items-center justify-center ${t.text.muted} hover:text-foreground transition-all`}>
                         <ChevronLeft className="w-6 h-6" />
                     </button>
                     <h1 className={`font-black text-lg text-foreground tracking-wide`}>Quản lý nhóm chơi</h1>
@@ -120,7 +120,7 @@ export default function MyGroupPlays({ onBack }: Props) {
             <div className="w-full mx-auto px-4 lg:px-8 py-6">
                 
                 {/* Premium Animated Tabs */}
-                <div className="relative flex p-1.5 bg-white/5 backdrop-blur-xl border border-border rounded-2xl mb-6 shadow-inner">
+                <div className="relative flex p-1.5 bg-card backdrop-blur-xl border border-border rounded-2xl mb-6 shadow-inner">
                     {['organizer', 'participant'].map((tab) => (
                         <button
                             key={tab}
@@ -162,7 +162,7 @@ export default function MyGroupPlays({ onBack }: Props) {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {loading ? (
                         Array.from({ length: 4 }).map((_, i) => (
-                            <div key={i} className={`h-64 rounded-[2rem] bg-white/5 border border-border animate-pulse`} />
+                            <div key={i} className={`h-64 rounded-[2rem] bg-card border border-border animate-pulse`} />
                         ))
                     ) : displayedGroups.length === 0 ? (
                         <motion.div 
@@ -172,7 +172,7 @@ export default function MyGroupPlays({ onBack }: Props) {
                         >
                             <div className="relative mb-10 group">
                                 <div className="absolute inset-0 bg-emerald-500/20 blur-3xl rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-700 animate-pulse-slow"></div>
-                                <div className="relative w-40 h-40 rounded-full bg-white/5 flex items-center justify-center backdrop-blur-md border border-border shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                                <div className="relative w-40 h-40 rounded-full bg-card flex items-center justify-center backdrop-blur-md border border-border shadow-card">
                                     {activeTab === 'organizer' ? <Crown className="w-20 h-20 text-emerald-500/50" /> : <Users className="w-20 h-20 text-emerald-500/50" />}
                                 </div>
                             </div>
@@ -221,7 +221,7 @@ export default function MyGroupPlays({ onBack }: Props) {
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, scale: 0.9 }}
                                         key={g._id} 
-                                        className={`relative flex flex-col h-full bg-white/5 rounded-[2rem] border border-border p-6 overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.15)] hover:border-emerald-500/30 group ${opacityClass}`}
+                                        className={`relative flex flex-col h-full bg-card rounded-[2rem] border border-border p-6 overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-glow hover:border-emerald-500/30 group ${opacityClass}`}
                                     >
                                         {/* Subtle background glow effect on hover */}
                                         <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -230,7 +230,7 @@ export default function MyGroupPlays({ onBack }: Props) {
                                             {/* Top row: Icon + Title + Price */}
                                             <div className="flex justify-between items-start mb-6">
                                                 <div className="flex items-start gap-4 pr-4">
-                                                    <div className="w-16 h-16 shrink-0 rounded-2xl bg-white/5 border border-border flex items-center justify-center shadow-inner group-hover:scale-105 group-hover:bg-emerald-500/10 transition-all duration-300">
+                                                    <div className="w-16 h-16 shrink-0 rounded-2xl bg-card border border-border flex items-center justify-center shadow-inner group-hover:scale-105 group-hover:bg-emerald-500/10 transition-all duration-300">
                                                         <span className="text-4xl drop-shadow-md">{sportIcon(g.sportType)}</span>
                                                     </div>
                                                     <div>
@@ -239,7 +239,7 @@ export default function MyGroupPlays({ onBack }: Props) {
                                                             <span className={`px-3 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider ${s.bg} ${s.color}`}>
                                                                 {s.label}
                                                             </span>
-                                                            <span className="text-[11px] text-muted-foreground font-bold bg-white/5 px-3 py-1 rounded-lg border border-border tracking-wider">
+                                                            <span className="text-[11px] text-muted-foreground font-bold bg-card px-3 py-1 rounded-lg border border-border tracking-wider">
                                                                 {SKILL_LABEL[g.skillLevel] || g.skillLevel || 'Mọi trình độ'}
                                                             </span>
                                                         </div>
@@ -254,7 +254,7 @@ export default function MyGroupPlays({ onBack }: Props) {
                                             </div>
 
                                             {/* Middle row: Info Grid */}
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 p-5 rounded-2xl bg-black/20 border border-border">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 p-5 rounded-2xl bg-card border border-border">
                                                 <div className="flex items-center gap-3 font-medium col-span-1 sm:col-span-2">
                                                     <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
                                                         <MapPin className="w-4 h-4 text-emerald-400" /> 
@@ -278,7 +278,7 @@ export default function MyGroupPlays({ onBack }: Props) {
                                             {/* Bottom row: Players & Actions */}
                                             <div className="mt-auto flex items-center justify-between pt-2">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-border">
+                                                    <div className="flex items-center gap-2 bg-card px-3 py-1.5 rounded-xl border border-border">
                                                         <Users className="w-4 h-4 text-emerald-400" />
                                                         <span className="text-[14px] font-black text-foreground">
                                                             {g.currentPlayers || 0} <span className="text-muted-foreground font-bold">/ {g.maxPlayers || 0}</span>
@@ -291,7 +291,7 @@ export default function MyGroupPlays({ onBack }: Props) {
                                                             </div>
                                                         ))}
                                                         {(g.participants || []).length > 4 && (
-                                                            <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md border-2 border-border flex items-center justify-center text-[11px] font-bold text-foreground shadow-sm z-0">
+                                                            <div className="w-8 h-8 rounded-full bg-card backdrop-blur-md border-2 border-border flex items-center justify-center text-[11px] font-bold text-foreground shadow-sm z-0">
                                                                 +{(g.participants || []).length - 4}
                                                             </div>
                                                         )}

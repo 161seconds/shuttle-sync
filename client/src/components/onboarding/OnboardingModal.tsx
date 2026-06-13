@@ -43,7 +43,7 @@ export default function OnboardingModal({ onComplete, onSkip }: Props) {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         >
             {/* Dark glass backdrop */}
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <div className="absolute inset-0 bg-card backdrop-blur-sm" />
             
             {/* Aurora Background Glows */}
             <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-emerald-500/20 blur-[120px] rounded-full pointer-events-none" />
@@ -54,7 +54,7 @@ export default function OnboardingModal({ onComplete, onSkip }: Props) {
             />
 
             <motion.div
-                className="relative w-full h-[85vh] max-h-[700px] sm:max-w-md sm:h-[650px] bg-background/80 backdrop-blur-2xl sm:rounded-[2rem] border border-border shadow-[0_0_100px_rgba(16,185,129,0.15)] overflow-hidden flex flex-col"
+                className="relative w-full h-[85vh] max-h-[700px] sm:max-w-md sm:h-[650px] bg-background/80 backdrop-blur-2xl sm:rounded-[2rem] border border-border shadow-glow overflow-hidden flex flex-col"
                 layout
             >
                 {/* Inner glass shine */}

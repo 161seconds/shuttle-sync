@@ -60,7 +60,7 @@ const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> =
     open: { label: 'Đang mở', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
     full: { label: 'Đã đủ', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
     in_progress: { label: 'Đang chơi', color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
-    completed: { label: 'Đã xong', color: 'text-muted-foreground', bg: 'bg-white/5 border-border' },
+    completed: { label: 'Đã xong', color: 'text-muted-foreground', bg: 'bg-card border-border' },
     cancelled: { label: 'Đã hủy', color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20' },
 };
 
@@ -175,8 +175,8 @@ export default function GroupPlayPage() {
                         <p className="text-sm text-muted-foreground mt-2 font-medium">Tìm kiếm đồng đội, kết nối đam mê</p>
                     </div>
                     <button onClick={() => setShowCreate(true)}
-                        className="group relative px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 text-black font-black flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] hover:-translate-y-0.5 transition-all duration-300">
-                        <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                        className="group relative px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 text-black font-black flex items-center gap-2 shadow-glow-lg hover:shadow-glow-lg hover:-translate-y-0.5 transition-all duration-300">
+                        <div className="absolute inset-0 bg-card rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                         <Plus className="w-5 h-5" />
                         <span className="hidden sm:inline">Mở nhóm mới</span>
                     </button>
@@ -186,14 +186,14 @@ export default function GroupPlayPage() {
                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
                     <button
                         onClick={() => setPage('match-leaderboard')}
-                        className="flex-1 min-w-max px-5 py-3 bg-white/5 backdrop-blur-md border border-border rounded-2xl text-sm font-bold text-muted-foreground flex items-center justify-center gap-2 hover:bg-yellow-500/10 hover:text-yellow-400 hover:border-yellow-500/30 transition-all duration-300"
+                        className="flex-1 min-w-max px-5 py-3 bg-card backdrop-blur-md border border-border rounded-2xl text-sm font-bold text-muted-foreground flex items-center justify-center gap-2 hover:bg-yellow-500/10 hover:text-yellow-400 hover:border-yellow-500/30 transition-all duration-300"
                     >
                         <Trophy className="w-4 h-4" /> Ghi nhận Trận đấu
                     </button>
 
                     <button
                         onClick={() => setShowPriceModal(true)}
-                        className="flex-1 min-w-max px-5 py-3 bg-white/5 backdrop-blur-md border border-border rounded-2xl text-sm font-bold text-muted-foreground flex items-center justify-center gap-2 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 transition-all duration-300"
+                        className="flex-1 min-w-max px-5 py-3 bg-card backdrop-blur-md border border-border rounded-2xl text-sm font-bold text-muted-foreground flex items-center justify-center gap-2 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 transition-all duration-300"
                     >
                         <Settings className="w-4 h-4" /> Cấu hình Giá & Thu tiền
                     </button>
@@ -216,12 +216,12 @@ export default function GroupPlayPage() {
             </div>
 
             {/* Sport Pills (Segmented Control Style) */}
-            <div className="flex gap-2 mb-8 overflow-x-auto scrollbar-none relative z-10 p-1 bg-white/5 backdrop-blur-md rounded-2xl border border-border w-max max-w-full">
+            <div className="flex gap-2 mb-8 overflow-x-auto scrollbar-none relative z-10 p-1 bg-card backdrop-blur-md rounded-2xl border border-border w-max max-w-full">
                 {SPORT_FILTERS.map(f => {
                     const isActive = sportFilter === f.id;
                     return (
                         <button key={f.id} onClick={() => setSportFilter(f.id)}
-                            className={`relative px-6 py-2.5 rounded-xl text-sm font-bold transition-colors duration-300 z-10 flex items-center gap-2 ${isActive ? 'text-black' : 'text-muted-foreground hover:text-gray-200'}`}>
+                            className={`relative px-6 py-2.5 rounded-xl text-sm font-bold transition-colors duration-300 z-10 flex items-center gap-2 ${isActive ? 'text-black' : 'text-muted-foreground hover:text-foreground'}`}>
                             {isActive && (
                                 <motion.div layoutId="sport-pill-bg"
                                     className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-xl -z-10 shadow-lg shadow-emerald-500/20"
@@ -257,7 +257,7 @@ export default function GroupPlayPage() {
                                 {/* Top Row: Sport Icon & Status */}
                                 <div className="flex justify-between items-start mb-5">
                                     <div className="flex gap-4 items-center">
-                                        <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1e2128] to-[#14151a] border border-border flex items-center justify-center text-3xl shadow-inner shadow-white/5">
+                                        <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-card to-background border border-border flex items-center justify-center text-3xl shadow-inner shadow-white/5">
                                             {g.sportType === 'pickleball' ? '🏓' : '🏸'}
                                         </div>
                                         <div>
@@ -271,7 +271,7 @@ export default function GroupPlayPage() {
                                         </div>
                                     </div>
                                     <div className="text-right flex flex-col items-end">
-                                        <div className="text-emerald-400 font-black text-xl tracking-tight drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]">
+                                        <div className="text-emerald-400 font-black text-xl tracking-tight drop-shadow-glow-lg">
                                             {formatPrice(g.pricePerPlayer)}<span className="text-sm">đ</span>
                                         </div>
                                         <div className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mt-0.5">/ Người</div>
@@ -279,7 +279,7 @@ export default function GroupPlayPage() {
                                 </div>
 
                                 {/* Info Grid */}
-                                <div className="grid grid-cols-2 gap-y-3 gap-x-4 mb-5 p-4 rounded-2xl bg-black/20 border border-border">
+                                <div className="grid grid-cols-2 gap-y-3 gap-x-4 mb-5 p-4 rounded-2xl bg-card border border-border">
                                     <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
                                         <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
                                             <MapPin className="w-3.5 h-3.5 text-emerald-400" />
@@ -313,7 +313,7 @@ export default function GroupPlayPage() {
                                     <div className="flex items-center gap-3">
                                         <div className="flex -space-x-3">
                                             {g.participants.slice(0, 5).map((p, i) => (
-                                                <div key={i} className="w-8 h-8 rounded-full border-2 border-border bg-gray-800 flex items-center justify-center text-[10px] font-bold text-foreground overflow-hidden shadow-sm relative z-10 hover:z-20 transition-all hover:scale-110">
+                                                <div key={i} className="w-8 h-8 rounded-full border-2 border-border bg-card flex items-center justify-center text-[10px] font-bold text-foreground overflow-hidden shadow-sm relative z-10 hover:z-20 transition-all hover:scale-110">
                                                     {p.avatar ? <img src={p.avatar} alt="avt" className="w-full h-full object-cover" /> : p.displayName.charAt(0)}
                                                 </div>
                                             ))}
@@ -325,7 +325,7 @@ export default function GroupPlayPage() {
                                         </div>
                                         {g.participants.length === 0 && <span className="text-xs text-muted-foreground italic">Chưa có ai tham gia</span>}
                                     </div>
-                                    <div className={`w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-transform duration-300 ${expandedId === g._id ? 'rotate-180 bg-emerald-500/20 text-emerald-400' : 'text-muted-foreground'}`}>
+                                    <div className={`w-8 h-8 rounded-full bg-card flex items-center justify-center transition-transform duration-300 ${expandedId === g._id ? 'rotate-180 bg-emerald-500/20 text-emerald-400' : 'text-muted-foreground'}`}>
                                         <ChevronDown className="w-4 h-4" />
                                     </div>
                                 </div>
@@ -338,7 +338,7 @@ export default function GroupPlayPage() {
                                         <div className="px-6 pb-6 pt-2 space-y-5">
                                             <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent mb-4" />
 
-                                            {g.description && <p className="text-sm text-muted-foreground leading-relaxed bg-white/5 p-4 rounded-2xl border border-border">"{g.description}"</p>}
+                                            {g.description && <p className="text-sm text-muted-foreground leading-relaxed bg-card p-4 rounded-2xl border border-border">"{g.description}"</p>}
 
                                             {g.requirements && (
                                                 <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200/80 flex gap-3 items-start">
@@ -352,14 +352,14 @@ export default function GroupPlayPage() {
 
                                             {/* Participants List */}
                                             {g.participants.length > 0 && (
-                                                <div className="bg-white/5 p-4 rounded-2xl border border-border">
+                                                <div className="bg-card p-4 rounded-2xl border border-border">
                                                     <h4 className="text-emerald-400 font-bold text-sm mb-3 flex items-center gap-2">
                                                         <Users className="w-4 h-4" /> Danh sách người chơi ({g.participants.length})
                                                     </h4>
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
                                                         {g.participants.map((p, i) => (
-                                                            <div key={i} className="flex items-center gap-3 bg-black/20 p-2 rounded-xl border border-border">
-                                                                <div className="w-10 h-10 rounded-full border-2 border-border bg-gray-800 flex items-center justify-center text-xs font-bold text-foreground overflow-hidden shrink-0 shadow-sm">
+                                                            <div key={i} className="flex items-center gap-3 bg-card p-2 rounded-xl border border-border">
+                                                                <div className="w-10 h-10 rounded-full border-2 border-border bg-card flex items-center justify-center text-xs font-bold text-foreground overflow-hidden shrink-0 shadow-sm">
                                                                     {p.avatar ? <img src={p.avatar} alt="avt" className="w-full h-full object-cover" /> : p.displayName.charAt(0)}
                                                                 </div>
                                                                 <div className="flex-1 min-w-0">
@@ -541,8 +541,8 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
 
     return (
         <motion.div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-            <motion.div className="relative w-full max-w-2xl max-h-[90vh] bg-gradient-to-b from-[#1a1c23] to-[#111113] rounded-[32px] border border-border flex flex-col shadow-2xl shadow-emerald-500/10" initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: "spring", damping: 25, stiffness: 300 }}>
+            <div className="absolute inset-0 bg-card backdrop-blur-sm" onClick={onClose} />
+            <motion.div className="relative w-full max-w-2xl max-h-[90vh] bg-gradient-to-b from-card to-background rounded-[32px] border border-border flex flex-col shadow-2xl shadow-emerald-500/10" initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: "spring", damping: 25, stiffness: 300 }}>
                 
                 {/* Decorative background glow */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-emerald-500/20 blur-[80px] pointer-events-none" />
@@ -553,12 +553,12 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                             MỞ KÈO MỚI <EmojiIcon name="badminton" className="w-6 h-6" />
                         </h2>
                         <div className="flex items-center gap-2 mt-2">
-                            <div className={`h-1.5 w-8 rounded-full transition-colors ${step >= 1 ? 'bg-emerald-500' : 'bg-white/10'}`} />
-                            <div className={`h-1.5 w-8 rounded-full transition-colors ${step >= 2 ? 'bg-emerald-500' : 'bg-white/10'}`} />
+                            <div className={`h-1.5 w-8 rounded-full transition-colors ${step >= 1 ? 'bg-emerald-500' : 'bg-card'}`} />
+                            <div className={`h-1.5 w-8 rounded-full transition-colors ${step >= 2 ? 'bg-emerald-500' : 'bg-card'}`} />
                             <span className="text-xs text-muted-foreground font-medium ml-1">Bước {step}/2</span>
                         </div>
                     </div>
-                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted hover:rotate-90 transition-all shadow-sm"><X className="w-5 h-5" /></button>
+                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted hover:rotate-90 transition-all shadow-sm"><X className="w-5 h-5" /></button>
                 </div>
 
                 <div className="relative p-6 flex-1 overflow-y-auto custom-scrollbar z-10">
@@ -571,7 +571,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                         </div>
                     ) : myBookings.length === 0 ? (
                         <div className="text-center py-12 space-y-5">
-                            <div className="w-16 h-16 mx-auto rounded-3xl bg-white/5 flex items-center justify-center border border-border">
+                            <div className="w-16 h-16 mx-auto rounded-3xl bg-card flex items-center justify-center border border-border">
                                 <Calendar className="w-8 h-8 text-muted-foreground" />
                             </div>
                             <div>
@@ -599,7 +599,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                 <button 
                                                     onClick={() => setBookingPage(p => Math.max(0, p - 1))} 
                                                     disabled={bookingPage === 0}
-                                                    className="w-7 h-7 rounded-lg bg-white/5 border border-border flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+                                                    className="w-7 h-7 rounded-lg bg-card border border-border flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-muted transition-colors"
                                                 >
                                                     <ChevronLeft className="w-4 h-4 text-foreground" />
                                                 </button>
@@ -607,7 +607,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                 <button 
                                                     onClick={() => setBookingPage(p => Math.min(Math.ceil(myBookings.length / 4) - 1, p + 1))} 
                                                     disabled={bookingPage >= Math.ceil(myBookings.length / 4) - 1}
-                                                    className="w-7 h-7 rounded-lg bg-white/5 border border-border flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+                                                    className="w-7 h-7 rounded-lg bg-card border border-border flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-muted transition-colors"
                                                 >
                                                     <ChevronRight className="w-4 h-4 text-foreground" />
                                                 </button>
@@ -626,7 +626,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                     whileTap={{ scale: 0.96 }}
                                                     key={b._id}
                                                     onClick={() => setSelectedBookingId(b._id)}
-                                                    className={`relative w-full text-left p-5 rounded-[24px] border transition-all duration-300 flex flex-col group overflow-hidden ${isSelected ? 'bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]' : 'bg-black/20 border-border hover:border-border hover:bg-muted hover:-translate-y-0.5'}`}
+                                                    className={`relative w-full text-left p-5 rounded-[24px] border transition-all duration-300 flex flex-col group overflow-hidden ${isSelected ? 'bg-emerald-500/10 border-emerald-500 shadow-glow' : 'bg-card border-border hover:border-border hover:bg-muted hover:-translate-y-0.5'}`}
                                                 >
                                                     <div className={`absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent transition-opacity duration-300 ${isSelected ? 'opacity-100' : 'opacity-0'}`} />
 
@@ -639,7 +639,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                         {courtName}
                                                     </div>
                                                     
-                                                    <div className="space-y-2 mt-auto relative z-10 bg-black/20 p-2.5 rounded-xl border border-border">
+                                                    <div className="space-y-2 mt-auto relative z-10 bg-card p-2.5 rounded-xl border border-border">
                                                         <div className="flex items-center gap-2 text-[11px] text-muted-foreground font-medium">
                                                             <Calendar className="w-3.5 h-3.5 text-emerald-400" /> {dateStr}
                                                         </div>
@@ -684,7 +684,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                     
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {/* Số lượng Slot */}
-                                        <div className="p-4 bg-black/20 border border-border rounded-2xl flex items-center justify-between transition-colors hover:bg-muted">
+                                        <div className="p-4 bg-card border border-border rounded-2xl flex items-center justify-between transition-colors hover:bg-muted">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
                                                     <Users className="w-5 h-5 text-blue-400" />
@@ -694,8 +694,8 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                     <p className="text-sm font-black text-foreground">{form.maxPlayers} người</p>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1 border border-border">
-                                                <button onClick={() => setForm(f => ({ ...f, maxPlayers: Math.max(2, f.maxPlayers - 1) }))} className="w-8 h-8 rounded-lg bg-black/40 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">-</button>
+                                            <div className="flex items-center gap-1 bg-card rounded-xl p-1 border border-border">
+                                                <button onClick={() => setForm(f => ({ ...f, maxPlayers: Math.max(2, f.maxPlayers - 1) }))} className="w-8 h-8 rounded-lg bg-card hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">-</button>
                                                 <input 
                                                     type="number" 
                                                     className="text-sm font-bold w-10 bg-transparent text-center text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
@@ -711,12 +711,12 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                         setForm(f => ({ ...f, maxPlayers: val }));
                                                     }}
                                                 />
-                                                <button onClick={() => setForm(f => ({ ...f, maxPlayers: Math.min(20, f.maxPlayers + 1) }))} className="w-8 h-8 rounded-lg bg-black/40 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">+</button>
+                                                <button onClick={() => setForm(f => ({ ...f, maxPlayers: Math.min(20, f.maxPlayers + 1) }))} className="w-8 h-8 rounded-lg bg-card hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">+</button>
                                             </div>
                                         </div>
 
                                         {/* Tổng Tiền */}
-                                        <div className="p-4 bg-black/20 border border-border rounded-2xl space-y-3 flex flex-col justify-center transition-colors hover:bg-muted">
+                                        <div className="p-4 bg-card border border-border rounded-2xl space-y-3 flex flex-col justify-center transition-colors hover:bg-muted">
                                             <div className="flex items-center gap-2">
                                                 <Zap className="w-4 h-4 text-amber-400" />
                                                 <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Tổng tiền / Người</p>
@@ -749,7 +749,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                     </div>
                                     
                                     <div className="pt-4 flex gap-3">
-                                        <motion.button whileTap={{ scale: 0.95 }} onClick={() => setStep(1)} className="px-5 py-4 rounded-2xl bg-white/10 border border-border font-bold text-sm text-foreground hover:bg-muted transition-colors flex items-center gap-2 shadow-sm">
+                                        <motion.button whileTap={{ scale: 0.95 }} onClick={() => setStep(1)} className="px-5 py-4 rounded-2xl bg-card border border-border font-bold text-sm text-foreground hover:bg-muted transition-colors flex items-center gap-2 shadow-sm">
                                             <ChevronLeft className="w-5 h-5" />
                                         </motion.button>
                                         <motion.button whileTap={{ scale: 0.98 }} onClick={handleCreate} disabled={creating} className="relative flex-1 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 overflow-hidden group shadow-lg shadow-emerald-500/10">

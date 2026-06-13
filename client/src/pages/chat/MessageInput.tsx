@@ -99,7 +99,7 @@ export default function MessageInput({ onSend, disabled, replyingTo, onCancelRep
                     <button 
                         type="button" 
                         onClick={onCancelReply}
-                        className="p-1 text-muted-foreground hover:text-foreground bg-white/5 hover:bg-muted rounded-full transition-colors flex-shrink-0"
+                        className="p-1 text-muted-foreground hover:text-foreground bg-card hover:bg-muted rounded-full transition-colors flex-shrink-0"
                     >
                         <X className="w-4 h-4" />
                     </button>
@@ -140,7 +140,7 @@ export default function MessageInput({ onSend, disabled, replyingTo, onCancelRep
                                 <span className="text-xs text-muted-foreground truncate max-w-[150px]">{selectedFile.name}</span>
                                 <span className="text-[10px] text-muted-foreground">({(selectedFile.size / 1024 / 1024).toFixed(1)} MB)</span>
                             </div>
-                            <button type="button" onClick={() => setSelectedFile(null)} className="p-1 text-muted-foreground hover:text-red-400 bg-white/5 rounded-full">
+                            <button type="button" onClick={() => setSelectedFile(null)} className="p-1 text-muted-foreground hover:text-red-400 bg-card rounded-full">
                                 <X className="w-3 h-3" />
                             </button>
                         </div>

@@ -58,8 +58,8 @@ export default function StepPersonalization({ preferences, onChange, onNext, onB
                             return (
                                 <motion.button key={s.id} onClick={() => toggleSport(s.id)}
                                     className={`relative p-4 rounded-2xl border transition-all flex flex-col items-center gap-2 overflow-hidden ${selected
-                                        ? 'border-emerald-400/80 bg-gradient-to-b from-emerald-500/20 to-transparent shadow-[0_0_30px_rgba(16,185,129,0.15)]'
-                                        : 'border-border bg-white/5 hover:bg-muted hover:border-border'
+                                        ? 'border-emerald-400/80 bg-gradient-to-b from-emerald-500/20 to-transparent shadow-glow'
+                                        : 'border-border bg-card hover:bg-muted hover:border-border'
                                         }`}
                                     whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}
                                 >
@@ -96,12 +96,12 @@ export default function StepPersonalization({ preferences, onChange, onNext, onB
                                 <motion.button key={s.id}
                                     onClick={() => onChange({ ...preferences, skillLevel: s.id })}
                                     className={`w-full p-4 rounded-xl border flex items-center gap-4 transition-all text-left overflow-hidden relative ${selected
-                                        ? 'border-emerald-400/80 bg-gradient-to-r from-emerald-500/20 to-transparent shadow-[0_0_20px_rgba(16,185,129,0.1)]'
-                                        : 'border-border bg-white/5 hover:bg-muted hover:border-border'
+                                        ? 'border-emerald-400/80 bg-gradient-to-r from-emerald-500/20 to-transparent shadow-glow'
+                                        : 'border-border bg-card hover:bg-muted hover:border-border'
                                         }`}
                                     whileTap={{ scale: 0.98 }}
                                 >
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selected ? 'bg-emerald-400/20 text-emerald-400' : 'bg-white/5 text-foreground/40'
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selected ? 'bg-emerald-400/20 text-emerald-400' : 'bg-card text-foreground/40'
                                         }`}>
                                         {SKILL_ICONS[s.iconName]}
                                     </div>
@@ -136,7 +136,7 @@ export default function StepPersonalization({ preferences, onChange, onNext, onB
                             value={locSearch}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setLocSearch(e.currentTarget.value); setShowLocDropdown(true); }}
                             onFocus={() => setShowLocDropdown(true)}
-                            className="w-full py-4 pl-12 pr-4 rounded-xl bg-white/5 border border-border text-foreground placeholder-white/30 text-sm outline-none focus:bg-white/10 focus:border-emerald-400/50 focus:shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all"
+                            className="w-full py-4 pl-12 pr-4 rounded-xl bg-card border border-border text-foreground placeholder-white/30 text-sm outline-none focus:bg-card focus:border-emerald-400/50 focus:shadow-glow transition-all"
                         />
 
                         {/* Drop-up: Nổi lên trên input */}
@@ -144,7 +144,7 @@ export default function StepPersonalization({ preferences, onChange, onNext, onB
                             {showLocDropdown && filteredDistricts.length > 0 && (
                                 <motion.div
                                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                                    className="absolute bottom-full mb-2 left-0 right-0 z-20 bg-gray-900/95 backdrop-blur-xl border border-border rounded-xl shadow-2xl max-h-48 overflow-y-auto scrollbar-thin"
+                                    className="absolute bottom-full mb-2 left-0 right-0 z-20 bg-card backdrop-blur-xl border border-border rounded-xl shadow-2xl max-h-48 overflow-y-auto scrollbar-thin"
                                 >
                                     {filteredDistricts.map((d: string) => (
                                         <button key={d}

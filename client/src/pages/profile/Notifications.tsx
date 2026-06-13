@@ -135,7 +135,7 @@ export default function Notifications({ onBack }: Props) {
             <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-border`}>
                 <div className="flex items-center justify-between px-4 h-16">
                     <div className="flex items-center gap-3">
-                        <button onClick={onBack} className={`w-10 h-10 rounded-full bg-white/5 hover:bg-muted flex items-center justify-center ${t.text.muted} hover:text-foreground transition-all`}>
+                        <button onClick={onBack} className={`w-10 h-10 rounded-full bg-card hover:bg-muted flex items-center justify-center ${t.text.muted} hover:text-foreground transition-all`}>
                             <ChevronLeft className="w-6 h-6" />
                         </button>
                         <h1 className={`font-black text-lg text-foreground tracking-wide`}>Thông báo</h1>
@@ -168,7 +168,7 @@ export default function Notifications({ onBack }: Props) {
                                 <div key={req._id} className={`flex flex-col sm:flex-row gap-4 p-4 ${index !== pendingRequests.length - 1 ? 'border-b border-border' : ''} hover:bg-muted transition-colors`}>
                                     <div className="flex gap-4 flex-1">
                                         <div 
-                                            className="w-12 h-12 rounded-full overflow-hidden border border-emerald-500/30 shrink-0 cursor-pointer bg-white/5 flex items-center justify-center text-emerald-400 font-bold"
+                                            className="w-12 h-12 rounded-full overflow-hidden border border-emerald-500/30 shrink-0 cursor-pointer bg-card flex items-center justify-center text-emerald-400 font-bold"
                                             onClick={() => handleAvatarClick(req.requesterId)}
                                         >
                                             {req.requesterId.avatar ? <img src={req.requesterId.avatar || undefined} alt="avatar" className="w-full h-full object-cover" /> : req.requesterId.displayName.charAt(0)}
@@ -212,7 +212,7 @@ export default function Notifications({ onBack }: Props) {
                             </div>
                         ) : notifications.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-20 text-center px-4">
-                                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-border mb-4">
+                                <div className="w-16 h-16 rounded-full bg-card flex items-center justify-center border border-border mb-4">
                                     <CheckCheck className="w-8 h-8 text-emerald-500" />
                                 </div>
                                 <p className="text-foreground font-bold text-[15px] mb-1">Không có thông báo nào</p>
@@ -244,7 +244,7 @@ export default function Notifications({ onBack }: Props) {
                                                     {noti.title}
                                                 </h3>
                                                 {!noti.isRead && (
-                                                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 mt-1 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                                                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 mt-1 shadow-glow-lg" />
                                                 )}
                                             </div>
                                             <p className={`text-[13px] leading-relaxed ${noti.isRead ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
@@ -258,7 +258,7 @@ export default function Notifications({ onBack }: Props) {
                                                             e.stopPropagation();
                                                             setNotifications(prev => prev.filter(n => n._id !== noti._id));
                                                         }}
-                                                        className="px-3 py-1.5 bg-white/5 hover:bg-muted border border-border text-muted-foreground rounded-lg text-[12px] font-medium transition-colors"
+                                                        className="px-3 py-1.5 bg-card hover:bg-muted border border-border text-muted-foreground rounded-lg text-[12px] font-medium transition-colors"
                                                     >
                                                         Đã hiểu
                                                     </button>
