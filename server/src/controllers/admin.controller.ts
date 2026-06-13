@@ -131,6 +131,19 @@ class AdminController {
             next(error);
         }
     }
+
+    async getAllBookings(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const { bookings, pagination } = await adminService.getAllBookings({
+                status: req.query.status as any,
+                page: req.query.page ? Number(req.query.page) : undefined,
+                limit: req.query.limit ? Number(req.query.limit) : undefined,
+            });
+            sendPaginated(res, bookings, pagination);
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export const adminController = new AdminController();

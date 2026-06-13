@@ -107,6 +107,7 @@ class AdminService {
             .sort({ createdAt: -1 })
             .limit(10)
             .populate('courtId', 'name sportType')
+            .populate('userId', 'displayName email')
             .lean();
 
         // Booking ratio by sport
@@ -417,6 +418,35 @@ class AdminService {
             .lean();
 
         return { courts, pagination: { page, limit, total, totalPages } };
+    }
+
+    /**
+     * Get all bookings for admin
+     */
+    async getAllBookings(params: {
+        status?: BookingStatus;
+        page?: number;
+        limit?: number;
+    }) {
+        const filter: any = {};
+        if (params.status) filter.status = params.status;
+
+        const total = await Booking.countDocuments(filter);
+        const { page, limit, totalPages, skip } = calculatePagination(
+            params.page || 1,
+            params.limit || 20,
+            total
+        );
+
+        const bookings = await Booking.find(filter)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .populate('courtId', 'name sportType')
+            .populate('userId', 'displayName email phone')
+            .lean();
+
+        return { bookings, pagination: { page, limit, total, totalPages } };
     }
 }
 
