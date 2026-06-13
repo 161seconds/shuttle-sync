@@ -44,7 +44,7 @@ export default function ChatPage() {
     }, [user]);
 
     const mappedFriendRooms: ChatRoom[] = friendConversations.map((conv: any) => {
-        const otherParticipant = conv.participantDetails?.find((p: any) => p._id !== user?._id);
+        const otherParticipant = conv.participants?.find((p: any) => String(p._id) !== String(user?._id));
         const unreadCount = conv.unreadCount?.[String(user?._id)] || 0;
         
         return {
@@ -58,7 +58,8 @@ export default function ChatPage() {
             date: new Date().toISOString(),
             createdAt: conv.updatedAt || new Date().toISOString(),
             isChatDeleted: false,
-            participants: conv.participants.map((id: string) => ({ userId: id })),
+            participants: conv.participants.map((p: any) => ({ userId: typeof p === 'object' ? p._id : p })),
+            otherParticipant: otherParticipant,
             joinRequests: [],
             type: 'friend',
         };
@@ -364,7 +365,11 @@ export default function ChatPage() {
                     {activeRoom ? (
                         <ChatWindow
                             room={activeRoom}
-                            messages={activeTab === 'group' ? messages : (friendMessagesMap[activeRoomId] as any[] || [])}
+                            messages={activeTab === 'group' ? messages : ((friendMessagesMap[activeRoomId] as any[] || []).map(msg => ({
+                                ...msg,
+                                senderName: msg.senderName || (String(msg.senderId) === String(user?._id) ? user?.displayName : (activeRoom as any).otherParticipant?.displayName || 'Bạn bè'),
+                                senderAvatar: msg.senderAvatar || (String(msg.senderId) === String(user?._id) ? user?.avatar : (activeRoom as any).otherParticipant?.avatar)
+                            })))}
                             currentUser={chatCurrentUser}
                             onBack={() => setActiveRoomId(null)}
                             onSendMessage={handleSendMessage}

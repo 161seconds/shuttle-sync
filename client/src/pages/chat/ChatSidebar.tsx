@@ -56,21 +56,9 @@ export default function ChatSidebar({
                 </button>
             </div>
 
-            {/* Actions for Friend Tab */}
-            {activeTab === 'friend' && (
-                <div className="px-4 pt-4 shrink-0 flex justify-end">
-                    <button 
-                        onClick={onConnectClick}
-                        className="text-sm flex items-center gap-1.5 font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 py-2 px-3 rounded-lg transition-colors"
-                    >
-                        <UserPlus className="w-4 h-4" /> Kết nối
-                    </button>
-                </div>
-            )}
-
-            {/* Search */}
-            <div className={`p-4 shrink-0 ${activeTab === 'friend' ? 'pt-2' : ''}`}>
-                <div className="relative">
+            {/* Search and Connect */}
+            <div className="p-4 shrink-0 flex gap-2 items-center">
+                <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <input
                         type="text"
@@ -78,6 +66,14 @@ export default function ChatSidebar({
                         className="w-full bg-[#1e2023] border border-[#33363a] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-colors"
                     />
                 </div>
+                {activeTab === 'friend' && (
+                    <button 
+                        onClick={onConnectClick}
+                        className="text-sm flex items-center gap-1.5 font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 py-2.5 px-3 rounded-xl transition-colors shrink-0 border border-emerald-500/20"
+                    >
+                        <UserPlus className="w-4 h-4" /> Kết nối
+                    </button>
+                )}
             </div>
 
             {/* Room List */}
