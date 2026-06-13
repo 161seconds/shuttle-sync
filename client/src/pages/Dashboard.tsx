@@ -19,12 +19,12 @@ export default function Dashboard() {
                 setLoading(true);
                 const response = await courtApi.searchCourts({
                     page: 1,
-                    limit: 5,
+                    limit: 4,
                     sortBy: 'rating'
                 });
 
-                if (response.data && response.data.data && response.data.data.courts) {
-                    setPopularCourts(response.data.data.courts);
+                if (response.data && response.data.data) {
+                    setPopularCourts(response.data.data.courts || (response.data.data as any));
                 }
             } catch (error) {
                 console.error('Lỗi khi lấy dữ liệu trang chủ:', error);

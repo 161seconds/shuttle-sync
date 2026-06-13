@@ -4,11 +4,13 @@ import { theme as t } from '../../utils/theme';
 import { useState, useEffect } from 'react';
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import axiosClient from '../../api/axiosClient';
+import NotificationDropdown from './NotificationDropdown';
 
 export default function Header() {
-    const { setPage, user, isSideBarOpen, toggleSidebar, page } = useAppStore();
+    const { setPage, user, isSideBarOpen, toggleSidebar } = useAppStore();
     const [hasUnread, setHasUnread] = useState(false);
     const [hidden, setHidden] = useState(false);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const { scrollY } = useScroll();
 
     useMotionValueEvent(scrollY, "change", () => {
@@ -99,22 +101,22 @@ export default function Header() {
                 <div className="flex items-center justify-end gap-3">
                     {user ? (
                         <>
-                            <button
-                                onClick={() => {
-                                    if (page === 'notifications') {
-                                        setPage('home');
-                                    } else {
-                                        setHasUnread(false);
-                                        setPage('notifications');
-                                    }
-                                }}
-                                className={`relative w-10 h-10 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-emerald-400 hover:bg-white/5 transition-all`}
-                            >
-                                <Bell className="w-5 h-5" />
-                                {hasUnread && (
-                                    <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0a0a0a]" />
-                                )}
-                            </button>
+                            <div className="relative flex items-center">
+                                <button
+                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                    className={`relative w-10 h-10 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-emerald-400 hover:bg-white/5 transition-all`}
+                                >
+                                    <Bell className="w-5 h-5" />
+                                    {hasUnread && (
+                                        <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0a0a0a]" />
+                                    )}
+                                </button>
+
+                                <NotificationDropdown
+                                    isOpen={isDropdownOpen}
+                                    onClose={() => setIsDropdownOpen(false)}
+                                />
+                            </div>
 
                             <button
                                 onClick={() => setPage('profile')}
