@@ -16,14 +16,14 @@ interface SocialState {
     fetchFriends: () => Promise<void>;
     fetchPendingRequests: () => Promise<void>;
     fetchConversations: () => Promise<void>;
-    fetchMessages: (conversationId: string) => Promise<void>;
+    fetchMessages: (conversationId: string, currentUserId?: string) => Promise<void>;
     
     setActiveConversation: (id: string | null) => void;
     toggleDrawer: () => void;
     setDrawerOpen: (isOpen: boolean) => void;
     
     // Socket handlers
-    addMessage: (message: IMessage) => void;
+    addMessage: (message: IMessage, currentUserId?: string) => void;
     updateOnlineUsers: (userId: string, isOnline: boolean) => void;
 }
 
@@ -63,15 +63,31 @@ export const useSocialStore = create<SocialState>((set) => ({
         }
     },
 
-    fetchMessages: async (conversationId: string) => {
+    fetchMessages: async (conversationId: string, currentUserId?: string) => {
         try {
             const messagesList = await chatApi.getMessages(conversationId);
-            set((state) => ({
-                messages: {
-                    ...state.messages,
-                    [conversationId]: messagesList,
-                },
-            }));
+            set((state) => {
+                let updatedConversations = state.conversations;
+                
+                if (currentUserId) {
+                    updatedConversations = state.conversations.map(conv => {
+                        if (conv._id === conversationId && conv.unreadCount) {
+                            const newUnread = { ...conv.unreadCount };
+                            newUnread[currentUserId] = 0;
+                            return { ...conv, unreadCount: newUnread };
+                        }
+                        return conv;
+                    });
+                }
+
+                return {
+                    messages: {
+                        ...state.messages,
+                        [conversationId]: messagesList,
+                    },
+                    conversations: updatedConversations,
+                };
+            });
         } catch (error) {
             console.error('Failed to fetch messages', error);
         }
@@ -81,16 +97,28 @@ export const useSocialStore = create<SocialState>((set) => ({
     toggleDrawer: () => set((state) => ({ isDrawerOpen: !state.isDrawerOpen })),
     setDrawerOpen: (isOpen) => set({ isDrawerOpen: isOpen }),
 
-    addMessage: (message) => {
+    addMessage: (message, currentUserId?: string) => {
         set((state) => {
             const currentMessages = state.messages[message.conversationId] || [];
             
+            // Check for duplicates
+            if (currentMessages.some(m => m._id === message._id)) {
+                return state;
+            }
+
             // Move conversation to top
             const updatedConversations = [...state.conversations];
             const convIndex = updatedConversations.findIndex(c => c._id === message.conversationId);
             if (convIndex > -1) {
                 const [conv] = updatedConversations.splice(convIndex, 1);
                 conv.lastMessage = message;
+                
+                if (currentUserId && message.senderId !== currentUserId && state.activeConversationId !== message.conversationId) {
+                    const newUnread = { ...conv.unreadCount };
+                    newUnread[currentUserId] = (newUnread[currentUserId] || 0) + 1;
+                    conv.unreadCount = newUnread;
+                }
+
                 updatedConversations.unshift(conv);
             }
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Search, Check, UserPlus } from 'lucide-react';
+import { X, Search, Check, UserPlus, MessageCircle } from 'lucide-react';
 import { useSocialStore } from '../../stores/useSocialStore';
 import { friendApi } from '../../api/friend.api';
 import { useAlertStore } from '../../stores/useAlertStore';
@@ -9,12 +9,13 @@ import type { IUserPublic } from '../../types';
 interface FriendsConnectModalProps {
     onClose: () => void;
     onAvatarClick?: (user: IUserPublic) => void;
+    onMessageClick?: (userId: string) => void;
 }
 
-export default function FriendsConnectModal({ onClose, onAvatarClick }: FriendsConnectModalProps) {
-    const { pendingRequests, friends } = useSocialStore();
+export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageClick }: FriendsConnectModalProps) {
+    const { pendingRequests, friends, fetchPendingRequests, fetchFriends, fetchConversations } = useSocialStore();
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState<IUserPublic[]>([]);
+    const [searchResults, setSearchResults] = useState<any[]>([]);
     const [isSearching, setIsSearching] = useState(false);
 
     const handleSearchUsers = async (e: React.KeyboardEvent) => {
@@ -35,6 +36,10 @@ export default function FriendsConnectModal({ onClose, onAvatarClick }: FriendsC
         try {
             await friendApi.sendRequest(recipientId);
             useAlertStore.getState().showAlert('Đã gửi lời mời kết bạn', 'Thành công', 'success');
+            setSearchResults(prev => prev.map(u => u._id === recipientId ? { 
+                ...u, 
+                friendship: { status: 'pending', isRequester: true, rejectionCount: u.friendship?.rejectionCount || 0 } 
+            } : u));
         } catch(error: any) {
             if (error.response?.status === 400 && error.response?.data?.message?.includes('already exists')) {
                 useAlertStore.getState().showAlert('Đã gửi lời mời kết bạn từ trước', 'Thông báo', 'info');
@@ -49,6 +54,7 @@ export default function FriendsConnectModal({ onClose, onAvatarClick }: FriendsC
         try {
             await friendApi.acceptRequest(requestId);
             useAlertStore.getState().showAlert('Đã chấp nhận lời mời', 'Thành công', 'success');
+            await Promise.all([fetchFriends(), fetchPendingRequests(), fetchConversations()]);
         } catch(error) {
             console.error('Failed to accept request', error);
             useAlertStore.getState().showAlert('Không thể chấp nhận lời mời', 'Lỗi', 'error');
@@ -59,6 +65,7 @@ export default function FriendsConnectModal({ onClose, onAvatarClick }: FriendsC
         try {
             await friendApi.declineRequest(requestId);
             useAlertStore.getState().showAlert('Đã từ chối lời mời', 'Thành công', 'success');
+            await fetchPendingRequests();
         } catch(error) {
             console.error('Failed to decline request', error);
             useAlertStore.getState().showAlert('Không thể từ chối lời mời', 'Lỗi', 'error');
@@ -154,7 +161,12 @@ export default function FriendsConnectModal({ onClose, onAvatarClick }: FriendsC
                         ) : (
                             <div className="space-y-2">
                                 {searchResults.map(u => {
-                                    const isFriend = friends.some(f => f._id === u._id);
+                                    const isFriend = friends.some(f => f._id === u._id) || u.friendship?.status === 'accepted';
+                                    const isPendingUs = u.friendship?.status === 'pending' && u.friendship?.isRequester;
+                                    const isPendingThem = u.friendship?.status === 'pending' && !u.friendship?.isRequester;
+                                    const isRejected = u.friendship?.status === 'rejected';
+                                    const isBlocked = isRejected && u.friendship?.rejectionCount >= 3;
+
                                     return (
                                         <div key={u._id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 hover:border-emerald-500/30 group">
                                             <div 
@@ -167,17 +179,32 @@ export default function FriendsConnectModal({ onClose, onAvatarClick }: FriendsC
                                                 <h4 className="text-white font-medium truncate">{u.displayName}</h4>
                                                 <p className="text-xs text-gray-400">Level: {u.skillLevel || 'Chưa xác định'}</p>
                                             </div>
-                                            {isFriend ? (
-                                                <span className="text-xs text-emerald-500 font-medium px-2">Bạn bè</span>
-                                            ) : (
-                                                <button 
-                                                    onClick={() => handleSendRequest(u._id)}
-                                                    className="p-2 bg-white/10 text-white rounded-lg hover:bg-emerald-500 hover:text-black transition-all"
-                                                    title="Thêm bạn"
+                                            <div className="flex items-center gap-2">
+                                                {isFriend ? (
+                                                    <span className="text-xs text-emerald-500 font-medium px-2">Bạn bè</span>
+                                                ) : isBlocked ? (
+                                                    <span className="text-[10px] text-red-500 font-medium px-2 text-center max-w-[60px] leading-tight">Không thể kết bạn</span>
+                                                ) : isPendingUs ? (
+                                                    <span className="text-xs text-gray-400 font-medium px-2">Đã gửi</span>
+                                                ) : isPendingThem ? (
+                                                    <span className="text-xs text-emerald-400 font-medium px-2">Kéo lên để TL</span>
+                                                ) : (
+                                                    <button 
+                                                        onClick={() => handleSendRequest(u._id)}
+                                                        className="p-2 bg-white/10 text-white rounded-lg hover:bg-emerald-500 hover:text-black transition-all"
+                                                        title="Thêm bạn"
+                                                    >
+                                                        <UserPlus className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                                <button
+                                                    onClick={() => onMessageClick?.(u._id)}
+                                                    className="p-2 bg-white/10 text-white rounded-lg hover:bg-blue-500 hover:text-white transition-all"
+                                                    title="Nhắn tin"
                                                 >
-                                                    <UserPlus className="w-4 h-4" />
+                                                    <MessageCircle className="w-4 h-4" />
                                                 </button>
-                                            )}
+                                            </div>
                                         </div>
                                     );
                                 })}

@@ -35,7 +35,7 @@ const timeAgo = (dateString: string) => {
 
 export default function Notifications({ onBack }: Props) {
     const { setPage } = useAppStore();
-    const { pendingRequests, fetchPendingRequests, fetchFriends } = useSocialStore();
+    const { pendingRequests, fetchPendingRequests, fetchFriends, fetchConversations } = useSocialStore();
     const [notifications, setNotifications] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null);
@@ -177,8 +177,7 @@ export default function Notifications({ onBack }: Props) {
                                                 onClick={async () => {
                                                     try {
                                                         await friendApi.acceptRequest(req._id);
-                                                        fetchPendingRequests();
-                                                        fetchFriends();
+                                                        await Promise.all([fetchPendingRequests(), fetchFriends(), fetchConversations()]);
                                                     } catch (e) {
                                                         console.error(e);
                                                     }

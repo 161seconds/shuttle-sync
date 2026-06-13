@@ -7,6 +7,7 @@ export interface IFriendshipDocument extends Document {
     status: FriendshipStatus;
     createdAt: Date;
     updatedAt: Date;
+    rejectionCount: number;
 }
 
 const friendshipSchema = new Schema<IFriendshipDocument>(
@@ -18,6 +19,7 @@ const friendshipSchema = new Schema<IFriendshipDocument>(
             enum: Object.values(FriendshipStatus),
             default: FriendshipStatus.PENDING,
         },
+        rejectionCount: { type: Number, default: 0 },
     },
     { timestamps: true }
 );

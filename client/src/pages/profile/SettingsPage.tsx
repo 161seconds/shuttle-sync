@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeft, Bell, Globe, Moon, Lock, Shield, Trash2, Loader2, Check, ChevronRight } from 'lucide-react';
+import { ChevronLeft, Bell, Lock, Shield, Trash2, Loader2, Check, ChevronRight } from 'lucide-react';
 import { theme as t } from '../../utils/theme';
 import { useAppStore } from '../../store';
 import axiosClient from '../../api/axiosClient';
@@ -68,17 +68,7 @@ export default function SettingsPage({ onBack }: Props) {
                         checked={settings.notifications} onChange={v => updateSetting('notifications', v)} />
                 </Section>
 
-                {/* Ngôn ngữ & Giao diện */}
-                <Section title="Giao diện">
-                    <SelectRow icon={<Globe className="w-5 h-5" />} label="Ngôn ngữ"
-                        value={settings.language || 'vi'}
-                        options={[{ v: 'vi', l: 'Tiếng Việt' }, { v: 'en', l: 'English' }]}
-                        onChange={(v: string) => updateSetting('language', v)} />
-                    <SelectRow icon={<Moon className="w-5 h-5" />} label="Chế độ"
-                        value={'dark'}
-                        options={[{ v: 'dark', l: 'Tối' }, { v: 'light', l: 'Sáng' }]}
-                        onChange={(v: string) => updateSetting('theme', v)} />
-                </Section>
+
 
                 {/* Bảo mật */}
                 <Section title="Bảo mật">
@@ -152,38 +142,7 @@ function ToggleRow({ icon, label, checked, onChange }: {
     );
 }
 
-function SelectRow({ icon, label, value, options, onChange }: {
-    icon: React.ReactNode; label: string; value: string;
-    options: { v: string; l: string }[]; onChange: (v: string) => void;
-}) {
-    return (
-        <div className={`flex items-center justify-between gap-4 px-5 py-3 rounded-2xl bg-white/5 border border-white/5`}>
-            <div className="flex items-center gap-4">
-                <span className="text-gray-400">{icon}</span>
-                <span className="text-[15px] font-bold text-gray-300">{label}</span>
-            </div>
 
-            {/* Khung bọc ngoài dạng viên thuốc */}
-            <div className="flex p-1 rounded-xl bg-black/40 border border-white/5">
-                {options.map((opt) => {
-                    const isSelected = value === opt.v;
-                    return (
-                        <button
-                            key={opt.v}
-                            onClick={() => onChange(opt.v)}
-                            className={`px-4 py-2 rounded-lg text-xs font-black transition-all duration-300 ${isSelected
-                                    ? 'bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.4)] scale-105'
-                                    : 'text-gray-500 hover:text-gray-300'
-                                }`}
-                        >
-                            {opt.l}
-                        </button>
-                    );
-                })}
-            </div>
-        </div>
-    );
-}
 
 function PwInput({ placeholder, value, onChange }: { placeholder: string; value: string; onChange: (v: string) => void }) {
     return (

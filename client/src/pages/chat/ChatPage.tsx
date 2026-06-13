@@ -146,7 +146,7 @@ export default function ChatPage() {
             fetchHistory();
         } else {
             if (!friendMessagesMap[activeRoomId]) {
-                fetchP2PMessages(activeRoomId);
+                fetchP2PMessages(activeRoomId, user?._id);
             }
         }
 
@@ -199,11 +199,11 @@ export default function ChatPage() {
         const socket = socketService.getSocket();
         if (socket) {
             const handleReceive = (message: any) => {
-                addP2PMessage(message);
+                addP2PMessage(message, user?._id);
             };
-            socket.on('chat:receive_message', handleReceive);
+            socket.on('chat:direct_message', handleReceive);
             return () => {
-                socket.off('chat:receive_message', handleReceive);
+                socket.off('chat:direct_message', handleReceive);
             };
         }
     }, [addP2PMessage]);
@@ -248,6 +248,7 @@ export default function ChatPage() {
 
     const handleSelectRoom = (roomId: string) => {
         setActiveRoomId(roomId);
+        useSocialStore.getState().setActiveConversation(roomId);
         setRooms(prev => prev.map(room => {
             if (room.id === roomId) {
                 return { ...room, unreadCount: 0 };
@@ -350,6 +351,7 @@ export default function ChatPage() {
                             onTabChange={(tab) => {
                                 setActiveTab(tab);
                                 setActiveRoomId(null);
+                                useSocialStore.getState().setActiveConversation(null);
                             }}
                             onConnectClick={() => setShowConnectModal(true)}
                             className="h-full"
@@ -371,7 +373,10 @@ export default function ChatPage() {
                                 senderAvatar: msg.senderAvatar || (String(msg.senderId) === String(user?._id) ? user?.avatar : (activeRoom as any).otherParticipant?.avatar)
                             })))}
                             currentUser={chatCurrentUser}
-                            onBack={() => setActiveRoomId(null)}
+                            onBack={() => {
+                                setActiveRoomId(null);
+                                useSocialStore.getState().setActiveConversation(null);
+                            }}
                             onSendMessage={handleSendMessage}
                             onAvatarClick={handleAvatarClick}
                             onDeleteChat={() => handleDeleteChat(activeRoom.id)}
@@ -400,6 +405,25 @@ export default function ChatPage() {
                     <FriendsConnectModal 
                         onClose={() => setShowConnectModal(false)}
                         onAvatarClick={(u) => handleAvatarClick(u._id, u.displayName, u.avatar)}
+                        onMessageClick={async (userId) => {
+                            try {
+                                setShowConnectModal(false);
+                                setActiveTab('friend');
+                                const existingConv = friendConversations.find((c: any) => c.participants.some((p: any) => (p._id || p) === userId));
+                                if (existingConv) {
+                                    setActiveRoomId(existingConv._id);
+                                    useSocialStore.getState().setActiveConversation(existingConv._id);
+                                } else {
+                                    const res = await chatApi.createConversation(userId);
+                                    await fetchConversations();
+                                    setActiveRoomId(res._id);
+                                    useSocialStore.getState().setActiveConversation(res._id);
+                                }
+                            } catch (e) {
+                                console.error('Error starting chat:', e);
+                                useAlertStore.getState().showAlert('Không thể mở tin nhắn', 'Lỗi', 'error');
+                            }
+                        }}
                     />
                 )}
             </AnimatePresence>

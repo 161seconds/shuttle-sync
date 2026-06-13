@@ -217,11 +217,11 @@ class AuthController {
                 }
 
                 if (GroupPlayModel) {
-                    totalGroupsCreated = await GroupPlayModel.countDocuments({ creatorId: userId });
+                    totalGroupsCreated = await GroupPlayModel.countDocuments({ organizerId: userId });
 
                     totalGroupsJoined = await GroupPlayModel.countDocuments({
-                        members: userId,
-                        creatorId: { $ne: userId }
+                        'participants.userId': userId,
+                        organizerId: { $ne: userId }
                     });
                 }
             } catch (dbError) {
