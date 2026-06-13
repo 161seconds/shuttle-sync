@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
-    ChevronLeft, Bell, CheckCheck, Rocket,
+    ChevronLeft, CheckCheck, Rocket,
     Trophy, Users, CalendarClock, CreditCard,
-    ShieldAlert, Info, Loader2, Clock
+    ShieldAlert, Info, Loader2
 } from 'lucide-react';
 import { theme as t } from '../../utils/theme';
 import axiosClient from '../../api/axiosClient';
@@ -153,127 +153,130 @@ export default function Notifications({ onBack }: Props) {
             </div>
 
             {/* Danh sách thông báo */}
-            <div className="max-w-lg mx-auto p-5 space-y-4">
+            <div className="max-w-3xl mx-auto px-4 py-6">
                 
                 {/* Lời mời kết bạn */}
                 {pendingRequests.length > 0 && (
-                    <div className="mb-6 space-y-3">
-                        <h2 className="text-[11px] font-black text-gray-500 uppercase tracking-widest pl-2">Lời mời kết bạn ({pendingRequests.length})</h2>
-                        {pendingRequests.map(req => (
-                            <div key={req._id} className="relative p-5 rounded-3xl border bg-white/10 border-white/10 hover:border-emerald-500/30 transition-all backdrop-blur-md">
-                                <div className="flex gap-4">
-                                    <div 
-                                        className="w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-500/30 shrink-0 cursor-pointer hover:scale-105 transition-transform bg-white/5 flex items-center justify-center text-emerald-400 font-bold"
-                                        onClick={() => handleAvatarClick(req.requesterId)}
-                                    >
-                                        {req.requesterId.avatar ? <img src={req.requesterId.avatar || undefined} alt="avatar" className="w-full h-full object-cover" /> : req.requesterId.displayName.charAt(0)}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="text-[15px] font-black text-white">{req.requesterId.displayName}</h3>
-                                        <p className="text-[13px] text-gray-300">Đã gửi cho bạn một lời mời kết bạn</p>
-                                        <div className="mt-3 flex gap-2">
-                                            <button 
-                                                className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black text-[12px] font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)]"
-                                                onClick={async () => {
-                                                    try {
-                                                        await friendApi.acceptRequest(req._id);
-                                                        await Promise.all([fetchPendingRequests(), fetchFriends(), fetchConversations()]);
-                                                    } catch (e) {
-                                                        console.error(e);
-                                                    }
-                                                }}
-                                            >
-                                                Chấp nhận
-                                            </button>
+                    <div className="mb-8">
+                        <div className="flex items-center justify-between mb-3 px-1">
+                            <h2 className="text-[13px] font-bold text-gray-400 uppercase tracking-wider">
+                                Lời mời kết bạn ({pendingRequests.length})
+                            </h2>
+                        </div>
+                        <div className="bg-[#151515] border border-white/10 rounded-2xl overflow-hidden">
+                            {pendingRequests.map((req, index) => (
+                                <div key={req._id} className={`flex flex-col sm:flex-row gap-4 p-4 ${index !== pendingRequests.length - 1 ? 'border-b border-white/5' : ''} hover:bg-white/5 transition-colors`}>
+                                    <div className="flex gap-4 flex-1">
+                                        <div 
+                                            className="w-12 h-12 rounded-full overflow-hidden border border-emerald-500/30 shrink-0 cursor-pointer bg-white/5 flex items-center justify-center text-emerald-400 font-bold"
+                                            onClick={() => handleAvatarClick(req.requesterId)}
+                                        >
+                                            {req.requesterId.avatar ? <img src={req.requesterId.avatar || undefined} alt="avatar" className="w-full h-full object-cover" /> : req.requesterId.displayName.charAt(0)}
+                                        </div>
+                                        <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                            <h3 className="text-[14px] font-bold text-white">{req.requesterId.displayName}</h3>
+                                            <p className="text-[13px] text-gray-400 mt-0.5">Đã gửi lời mời kết bạn</p>
                                         </div>
                                     </div>
+                                    <div className="flex items-center gap-2 sm:ml-auto">
+                                        <button 
+                                            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-[13px] font-bold rounded-xl transition-all w-full sm:w-auto"
+                                            onClick={async () => {
+                                                try {
+                                                    await friendApi.acceptRequest(req._id);
+                                                    await Promise.all([fetchPendingRequests(), fetchFriends(), fetchConversations()]);
+                                                } catch (e) {
+                                                    console.error(e);
+                                                }
+                                            }}
+                                        >
+                                            Chấp nhận
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
                 )}
 
-                <h2 className="text-[11px] font-black text-gray-500 uppercase tracking-widest pl-2 mb-2">Hoạt động</h2>
-                {loading ? (
-                    <div className="flex flex-col items-center justify-center py-24 text-center">
-                        <Loader2 className="w-10 h-10 text-emerald-500 animate-spin mb-5 drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                        <p className="text-gray-400 font-bold">Đang tải thông báo...</p>
+                <div>
+                    <div className="flex items-center justify-between mb-3 px-1">
+                        <h2 className="text-[13px] font-bold text-gray-400 uppercase tracking-wider">Hoạt động</h2>
                     </div>
-                ) : notifications.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-24 text-center">
-                        <div className="relative mb-6 group">
-                            <div className="absolute inset-0 bg-white/5 blur-2xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-700"></div>
-                            <div className="relative w-24 h-24 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform duration-500 backdrop-blur-md">
-                                <Bell className="w-10 h-10 text-gray-500 group-hover:text-white transition-colors" />
-                            </div>
-                        </div>
-                        <p className={`text-white font-black text-xl mb-2`}>Không có thông báo nào</p>
-                        <p className={`text-[15px] text-gray-400`}>Bạn đã đọc hết tất cả thông báo.</p>
-                    </div>
-                ) : Array.isArray(notifications) && notifications.map((noti) => (
-                    <div
-                        key={noti._id}
-                        onClick={() => {
-                            if (noti.type === 'GROUP' || noti.type === 'group_play') {
-                                setPage('chat');
-                            }
-                        }}
-                        className={`relative p-5 rounded-3xl border transition-all duration-300 cursor-pointer group hover:shadow-[0_0_20px_rgba(255,255,255,0.05)] overflow-hidden backdrop-blur-md ${noti.isRead
-                            ? 'bg-white/5 border-white/5 opacity-70 hover:opacity-100 hover:bg-white/10'
-                            : 'bg-white/10 border-white/10 hover:border-emerald-500/30 hover:bg-white/15'
-                            }`}
-                    >
-                        {/* Dải màu đánh dấu chưa đọc */}
-                        {!noti.isRead && (
-                            <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.8)]" />
-                        )}
 
-                        <div className="flex gap-4">
-                            {/* Icon */}
-                            <div className={`w-14 h-14 shrink-0 rounded-[1rem] border flex items-center justify-center ${getIconBackground(noti.type)} shadow-inner`}>
-                                {getNotificationIcon(noti.type)}
+                    <div className="bg-[#151515] border border-white/10 rounded-2xl overflow-hidden">
+                        {loading ? (
+                            <div className="flex flex-col items-center justify-center py-20 text-center">
+                                <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-4" />
+                                <p className="text-gray-400 text-sm font-medium">Đang tải thông báo...</p>
                             </div>
-
-                            {/* Content */}
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between gap-3 mb-1.5">
-                                    <h3 className={`text-[15px] font-black truncate ${noti.isRead ? 'text-gray-300 group-hover:text-white transition-colors' : 'text-white'}`}>
-                                        {noti.title}
-                                    </h3>
-                                    {!noti.isRead && (
-                                        <div className="relative flex h-3 w-3 shrink-0 mt-1">
-                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                        ) : notifications.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-20 text-center px-4">
+                                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-white/10 mb-4">
+                                    <CheckCheck className="w-8 h-8 text-emerald-500" />
+                                </div>
+                                <p className="text-white font-bold text-[15px] mb-1">Không có thông báo nào</p>
+                                <p className="text-sm text-gray-500">Bạn đã cập nhật mọi thông tin.</p>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col">
+                                {Array.isArray(notifications) && notifications.map((noti, index) => (
+                                    <div
+                                        key={noti._id}
+                                        onClick={() => {
+                                            if (noti.type === 'GROUP' || noti.type === 'group_play') {
+                                                setPage('chat');
+                                            }
+                                        }}
+                                        className={`group relative flex gap-4 px-4 py-4 cursor-pointer transition-colors ${
+                                            noti.isRead ? 'hover:bg-white/5' : 'bg-emerald-500/5 hover:bg-emerald-500/10'
+                                        } ${index !== notifications.length - 1 ? 'border-b border-white/5' : ''}`}
+                                    >
+                                        {/* Icon */}
+                                        <div className={`w-11 h-11 shrink-0 rounded-xl border flex items-center justify-center ${getIconBackground(noti.type)}`}>
+                                            {getNotificationIcon(noti.type)}
                                         </div>
-                                    )}
-                                </div>
-                                <p className={`text-[13px] leading-relaxed font-medium ${noti.isRead ? 'text-gray-400 group-hover:text-gray-300 transition-colors' : 'text-gray-300'}`}>
-                                    {noti.message}
-                                </p>
 
-                                {noti.title.toLowerCase().includes('từ chối') && (
-                                    <div className="mt-3">
-                                        <button 
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setNotifications(prev => prev.filter(n => n._id !== noti._id));
-                                            }}
-                                            className="px-4 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-[12px] font-bold transition-colors"
-                                        >
-                                            Đã hiểu
-                                        </button>
+                                        {/* Content */}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex justify-between items-start mb-1">
+                                                <h3 className={`text-[14px] font-bold leading-tight ${noti.isRead ? 'text-gray-300' : 'text-white'}`}>
+                                                    {noti.title}
+                                                </h3>
+                                                {!noti.isRead && (
+                                                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 mt-1 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                                                )}
+                                            </div>
+                                            <p className={`text-[13px] leading-relaxed ${noti.isRead ? 'text-gray-500' : 'text-gray-300'}`}>
+                                                {noti.message}
+                                            </p>
+
+                                            {noti.title.toLowerCase().includes('từ chối') && (
+                                                <div className="mt-3">
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setNotifications(prev => prev.filter(n => n._id !== noti._id));
+                                                        }}
+                                                        className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 rounded-lg text-[12px] font-medium transition-colors"
+                                                    >
+                                                        Đã hiểu
+                                                    </button>
+                                                </div>
+                                            )}
+
+                                            <div className="mt-2.5 text-[11px] font-bold text-gray-500 flex items-center gap-1.5">
+                                                <span>Hệ thống</span>
+                                                <span className="w-1 h-1 rounded-full bg-gray-600" />
+                                                <span>{timeAgo(noti.createdAt)}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                )}
-
-                                <div className="mt-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
-                                    <Clock className="w-3.5 h-3.5" />
-                                    {timeAgo(noti.createdAt)}
-                                </div>
+                                ))}
                             </div>
-                        </div>
+                        )}
                     </div>
-                ))
-                }
+                </div>
             </div>
 
             <AnimatePresence>
