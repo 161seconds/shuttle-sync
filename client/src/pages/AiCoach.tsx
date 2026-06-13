@@ -115,7 +115,7 @@ export default function AiCoach() {
     const formatTime = (d: Date) => d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
     return (
-        <div className="flex flex-col h-[calc(100vh-64px)] bg-[#060a08] relative overflow-hidden">
+        <div className="flex flex-col h-[calc(100vh-64px)] bg-background relative overflow-hidden">
             {/* Ambient bg - breathing orbs */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-[120px] transition-all duration-[3000ms] ${isTyping ? 'bg-emerald-500/15 scale-125' : 'bg-emerald-500/5 scale-100'}`} />
@@ -125,22 +125,22 @@ export default function AiCoach() {
             </div>
 
             {/* Header */}
-            <div className="relative z-20 flex items-center justify-between px-5 py-5.5 bg-[#0a100d]/80 backdrop-blur-xl border-b border-white/5 shadow-sm">
+            <div className="relative z-20 flex items-center justify-between px-5 py-5.5 bg-background/80 backdrop-blur-xl border-b border-border shadow-sm">
                 <div className="flex items-center gap-3">
                     <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
                         <Bot size={20} className="text-emerald-400" />
-                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-[#0a100d] rounded-full flex items-center justify-center">
+                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-background rounded-full flex items-center justify-center">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
                         </div>
                     </div>
                     <div className="flex flex-col">
-                        <h1 className="text-sm font-bold tracking-wider text-white uppercase font-display">ShuttleSync Coach</h1>
+                        <h1 className="text-sm font-bold tracking-wider text-foreground uppercase font-display">ShuttleSync Coach</h1>
                         <p className="text-[9px] tracking-[0.2em] uppercase text-emerald-500/70 mt-0.5 flex items-center gap-1">
                             <Activity size={10} /> Online
                         </p>
                     </div>
                 </div>
-                <div className="flex items-center justify-center w-10 h-10 border rounded-xl bg-white/5 border-white/5">
+                <div className="flex items-center justify-center w-10 h-10 border rounded-xl bg-white/5 border-border">
                     <Sparkles size={16} className="text-emerald-400/60" />
                 </div>
             </div>
@@ -159,8 +159,8 @@ export default function AiCoach() {
                                         </div>
                                     )}
                                     <div className={`relative max-w-[85%] p-4 rounded-2xl shadow-xl ${isAI
-                                        ? 'bg-[#0a100d]/80 backdrop-blur-xl border border-white/5 text-gray-200 rounded-tl-sm'
-                                        : 'bg-gradient-to-br from-emerald-600/30 via-emerald-600/20 to-emerald-600/10 backdrop-blur-xl border border-emerald-500/30 text-white rounded-tr-sm'
+                                        ? 'bg-background/80 backdrop-blur-xl border border-border text-gray-200 rounded-tl-sm'
+                                        : 'bg-gradient-to-br from-emerald-600/30 via-emerald-600/20 to-emerald-600/10 backdrop-blur-xl border border-emerald-500/30 text-foreground rounded-tr-sm'
                                         }`}>
                                         <div className="text-sm leading-relaxed whitespace-pre-wrap">
                                             {isAI ? (
@@ -217,12 +217,12 @@ export default function AiCoach() {
                             <div className="flex items-center justify-center w-8 h-8 mt-1 border rounded-full bg-emerald-500/10 text-emerald-400 shrink-0 border-emerald-500/20">
                                 <Loader2 size={14} className="animate-spin" />
                             </div>
-                            <div className="bg-[#0a100d]/70 backdrop-blur-xl px-5 py-3.5 rounded-2xl rounded-tl-sm border border-white/5 shadow-lg">
+                            <div className="bg-background/70 backdrop-blur-xl px-5 py-3.5 rounded-2xl rounded-tl-sm border border-border shadow-lg">
                                 <div className="flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 bg-emerald-400/70 rounded-full animate-bounce" />
                                     <div className="w-1.5 h-1.5 bg-emerald-400/70 rounded-full animate-bounce [animation-delay:150ms]" />
                                     <div className="w-1.5 h-1.5 bg-emerald-400/70 rounded-full animate-bounce [animation-delay:300ms]" />
-                                    <span className="text-[10px] text-gray-400/60 ml-2 italic font-medium">Coach đang phân tích...</span>
+                                    <span className="text-[10px] text-muted-foreground/60 ml-2 italic font-medium">Coach đang phân tích...</span>
                                 </div>
                             </div>
                         </div>
@@ -242,16 +242,16 @@ export default function AiCoach() {
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyDown={handleKeyDown}
                             placeholder="Nhập câu hỏi về cầu lông..."
-                            className="w-full bg-[#121614]/80 backdrop-blur-xl border border-white/10 rounded-2xl py-4 pl-5 pr-14 text-sm text-white focus:outline-none focus:border-emerald-500/50 focus:bg-[#121614] focus:shadow-[0_0_25px_rgba(16,185,129,0.15)] transition-all placeholder:text-gray-500 shadow-2xl"
+                            className="w-full bg-card/80 backdrop-blur-xl border border-border rounded-2xl py-4 pl-5 pr-14 text-sm text-foreground focus:outline-none focus:border-emerald-500/50 focus:bg-card focus:shadow-[0_0_25px_rgba(16,185,129,0.15)] transition-all placeholder:text-muted-foreground shadow-2xl"
                         />
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 pointer-events-none">
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground pointer-events-none">
                             {inputValue.length}/100
                         </div>
                     </div>
                     <button
                         onClick={() => handleSendMessage()}
                         disabled={!inputValue.trim() || isTyping}
-                        className="p-4 transition-all rounded-2xl bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed border border-emerald-500/30 hover:border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.1)] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+                        className="p-4 transition-all rounded-2xl bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed border border-emerald-500/30 hover:border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.1)] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)]"
                     >
                         <Send size={18} />
                     </button>

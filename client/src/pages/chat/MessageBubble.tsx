@@ -37,7 +37,7 @@ export default function MessageBubble({ message, isMine, showAvatar, onAvatarCli
             <div className={`max-w-[70%] flex flex-col ${isMine ? 'items-end' : 'items-start'} relative`}>
                 {!isMine && showAvatar && (
                     <span 
-                        className="text-xs text-gray-400 font-medium mb-1 ml-1 cursor-pointer hover:text-white transition-colors" 
+                        className="text-xs text-muted-foreground font-medium mb-1 ml-1 cursor-pointer hover:text-foreground transition-colors" 
                         onClick={() => onAvatarClick && onAvatarClick(message.senderId)}
                     >
                         {message.senderName}
@@ -48,7 +48,7 @@ export default function MessageBubble({ message, isMine, showAvatar, onAvatarCli
                     {isMine && onReply && (
                         <button 
                             onClick={() => onReply(message)}
-                            className="p-1.5 text-gray-500 hover:text-white hover:bg-white/10 rounded-full transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
+                            className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
                             title="Trả lời"
                         >
                             <Reply className="w-4 h-4" />
@@ -57,7 +57,7 @@ export default function MessageBubble({ message, isMine, showAvatar, onAvatarCli
                     
                     <div className="flex flex-col">
                         {message.replyTo && (
-                            <div className={`mb-1 p-2 rounded-lg text-xs border-l-2 ${isMine ? 'bg-black/20 border-emerald-300 text-emerald-100/80' : 'bg-black/20 border-emerald-500 text-gray-300'} cursor-pointer hover:opacity-80 transition-opacity`}>
+                            <div className={`mb-1 p-2 rounded-lg text-xs border-l-2 ${isMine ? 'bg-black/20 border-emerald-300 text-emerald-100/80' : 'bg-black/20 border-emerald-500 text-muted-foreground'} cursor-pointer hover:opacity-80 transition-opacity`}>
                                 <div className="font-bold mb-0.5 opacity-90">{message.replyTo.senderName}</div>
                                 <div className="truncate max-w-[200px] sm:max-w-[300px] opacity-75">{message.replyTo.content}</div>
                             </div>
@@ -66,7 +66,7 @@ export default function MessageBubble({ message, isMine, showAvatar, onAvatarCli
                             className={`px-4 py-2.5 rounded-2xl text-[15px] leading-relaxed shadow-sm ${
                                 isMine
                                     ? 'bg-emerald-500 text-black rounded-tr-sm'
-                                    : 'bg-[#222428] text-white rounded-tl-sm border border-white/5'
+                                    : 'bg-surface text-foreground rounded-tl-sm border border-border'
                             }`}
                             style={{ wordBreak: 'break-word' }}
                         >
@@ -77,7 +77,7 @@ export default function MessageBubble({ message, isMine, showAvatar, onAvatarCli
                     {!isMine && onReply && (
                         <button 
                             onClick={() => onReply(message)}
-                            className="p-1.5 text-gray-500 hover:text-white hover:bg-white/10 rounded-full transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
+                            className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
                             title="Trả lời"
                         >
                             <Reply className="w-4 h-4" />
@@ -85,7 +85,7 @@ export default function MessageBubble({ message, isMine, showAvatar, onAvatarCli
                     )}
                 </div>
                 
-                <span className={`text-[10px] text-gray-500 mt-1 flex items-center gap-1 ${isMine ? 'mr-1' : 'ml-1'}`}>
+                <span className={`text-[10px] text-muted-foreground mt-1 flex items-center gap-1 ${isMine ? 'mr-1' : 'ml-1'}`}>
                     {timeString} 
                     {isMine && <span className="text-emerald-500/50">✓</span>}
                 </span>

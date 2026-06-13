@@ -89,13 +89,13 @@ export default function Dashboard() {
                         Hôm nay
                     </span>
                 </div>
-                <div className="relative z-10 bg-[#060809]/60 rounded-xl p-3 border border-white/5 flex gap-3 items-center backdrop-blur-sm">
-                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-white/5">
+                <div className="relative z-10 bg-background/60 rounded-xl p-3 border border-border flex gap-3 items-center backdrop-blur-sm">
+                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-border">
                         <EmojiIcon name="badminton" className="w-6 h-6 text-emerald-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-white text-sm truncate">SÂN CẦU LÔNG LÊ ĐỨC SPORT</h4>
-                        <p className="text-xs text-gray-400 truncate mt-0.5">Sân số 3 • 20:00 - 22:00</p>
+                        <h4 className="font-bold text-foreground text-sm truncate">SÂN CẦU LÔNG LÊ ĐỨC SPORT</h4>
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">Sân số 3 • 20:00 - 22:00</p>
                     </div>
                     <button onClick={() => setPage('map')} className="px-3 py-1.5 bg-emerald-500 text-black text-xs font-bold rounded-lg shrink-0 hover:bg-emerald-400 active:scale-95 transition-all shadow-md shadow-emerald-500/20">
                         Bản đồ
@@ -112,7 +112,7 @@ export default function Dashboard() {
             >
                 <Search className={`w-5 h-5 ${t.text.muted} mr-3`} />
                 <span className={`text-sm ${t.text.muted}`}>Tìm kiếm sân cầu lông, pickleball...</span>
-                <div className="absolute right-2 px-3 py-1.5 rounded-lg bg-[#1e2023] text-emerald-400 border border-emerald-500/20 text-xs font-bold hover:bg-emerald-500/10 transition-colors">
+                <div className="absolute right-2 px-3 py-1.5 rounded-lg bg-card text-emerald-400 border border-emerald-500/20 text-xs font-bold hover:bg-emerald-500/10 transition-colors">
                     Tìm ngay
                 </div>
             </motion.div>
@@ -149,11 +149,11 @@ export default function Dashboard() {
                             <span className="text-lg">🏸</span>
                         </div>
                         <div>
-                            <h4 className="font-bold text-sm text-white">Giao lưu trình độ TB</h4>
-                            <p className="text-xs text-gray-400 mt-0.5">Tối nay 19:30 • Còn 1 slot</p>
+                            <h4 className="font-bold text-sm text-foreground">Giao lưu trình độ TB</h4>
+                            <p className="text-xs text-muted-foreground mt-0.5">Tối nay 19:30 • Còn 1 slot</p>
                         </div>
                     </div>
-                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors text-white">
+                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-muted transition-colors text-foreground">
                         <ChevronRight className="w-4 h-4" />
                     </div>
                 </div>
@@ -196,7 +196,7 @@ export default function Dashboard() {
                                     />
                                     <div className="absolute top-2 right-2 px-2 py-1 bg-black/60 backdrop-blur-md rounded-lg flex items-center gap-1">
                                         <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-                                        <span className="text-xs font-bold text-white">{court.averageRating?.toFixed(1) || '5.0'}</span>
+                                        <span className="text-xs font-bold text-foreground">{court.averageRating?.toFixed(1) || '5.0'}</span>
                                     </div>
                                 </div>
 
@@ -206,7 +206,7 @@ export default function Dashboard() {
                                     <MapPin className="w-3 h-3 shrink-0" /> {court.address.district}
                                 </p>
 
-                                <div className="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
+                                <div className="flex items-center justify-between mt-auto pt-2 border-t border-border">
                                     <span className="text-emerald-400 text-sm font-black">
                                         {formatPrice(court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0)}/h
                                     </span>
@@ -227,11 +227,11 @@ export default function Dashboard() {
             >
                 <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full blur-2xl translate-x-1/2 -translate-y-1/2"></div>
                 <div className="relative z-10 w-2/3">
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-black/20 text-white text-[10px] font-bold uppercase tracking-wider mb-2">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-black/20 text-foreground text-[10px] font-bold uppercase tracking-wider mb-2">
                         <Zap className="w-3 h-3" /> Khuyến mãi
                     </span>
-                    <h3 className="text-xl font-black text-white mb-1 leading-tight">Giảm 20% khung giờ vàng</h3>
-                    <p className="text-white/80 text-xs mb-3">Áp dụng cho các sân đặt từ 9h-15h</p>
+                    <h3 className="text-xl font-black text-foreground mb-1 leading-tight">Giảm 20% khung giờ vàng</h3>
+                    <p className="text-foreground/80 text-xs mb-3">Áp dụng cho các sân đặt từ 9h-15h</p>
                     <button onClick={() => setPage('search')} className="px-4 py-2 bg-white text-emerald-600 text-sm font-bold rounded-xl shadow-sm active:scale-95 transition-transform">
                         Đặt ngay
                     </button>

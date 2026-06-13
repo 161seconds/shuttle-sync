@@ -29,36 +29,36 @@ export default function StepFinal({ preferences, onComplete, onBack }: Props) {
                     <motion.div key="summary" className="w-full max-w-sm" exit={{ opacity: 0, y: -30 }}>
                         {/* Summary Card */}
                         <motion.div
-                            className="bg-gradient-to-br from-white/10 to-transparent backdrop-blur-md border border-white/10 rounded-[1.5rem] p-6 mb-8 shadow-[0_0_30px_rgba(16,185,129,0.1)] relative overflow-hidden"
+                            className="bg-gradient-to-br from-white/10 to-transparent backdrop-blur-md border border-border rounded-[1.5rem] p-6 mb-8 shadow-[0_0_30px_rgba(16,185,129,0.1)] relative overflow-hidden"
                             initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
                         >
                             {/* Inner shine */}
-                            <div className="absolute inset-0 rounded-[1.5rem] border-t border-white/20 pointer-events-none" />
-                            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <div className="absolute inset-0 rounded-[1.5rem] border-t border-border pointer-events-none" />
+                            <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
                                 <Sparkles className="w-5 h-5 text-emerald-400" /> Lựa chọn của bạn
                             </h3>
                             <div className="space-y-3 text-left">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-white/40 text-sm">Môn thể thao</span>
+                                    <span className="text-foreground/40 text-sm">Môn thể thao</span>
                                     <div className="flex gap-1.5">
                                         {preferences.sports.length > 0
                                             ? preferences.sports.map((s: string) => (
                                                 <span key={s} className="text-lg">{SPORTS.find((x: { id: string }) => x.id === s)?.icon}</span>
                                             ))
-                                            : <span className="text-white/20 text-sm">Chưa chọn</span>
+                                            : <span className="text-foreground/20 text-sm">Chưa chọn</span>
                                         }
                                     </div>
                                 </div>
                                 <div className="h-px bg-white/5" />
                                 <div className="flex items-center justify-between">
-                                    <span className="text-white/40 text-sm">Trình độ</span>
+                                    <span className="text-foreground/40 text-sm">Trình độ</span>
                                     <span className="text-emerald-300 text-sm font-medium">
                                         {SKILLS.find((s: { id: string; }) => s.id === preferences.skillLevel)?.label || 'Chưa chọn'}
                                     </span>
                                 </div>
                                 <div className="h-px bg-white/5" />
                                 <div className="flex items-center justify-between">
-                                    <span className="text-white/40 text-sm">Khu vực</span>
+                                    <span className="text-foreground/40 text-sm">Khu vực</span>
                                     <span className="text-emerald-300 text-sm font-medium flex items-center gap-1">
                                         <MapPin className="w-3 h-3" />
                                         {preferences.location || 'Chưa chọn'}
@@ -67,11 +67,11 @@ export default function StepFinal({ preferences, onComplete, onBack }: Props) {
                             </div>
                         </motion.div>
 
-                        <motion.h2 className="text-2xl font-bold text-white mb-2 tracking-tight"
+                        <motion.h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight"
                             initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }}>
                             Sẵn sàng ra sân!
                         </motion.h2>
-                        <motion.p className="text-white/40 text-sm mb-8"
+                        <motion.p className="text-foreground/40 text-sm mb-8"
                             initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }}>
                             ShuttleSync sẽ gợi ý sân và nhóm chơi phù hợp với bạn
                         </motion.p>
@@ -85,7 +85,7 @@ export default function StepFinal({ preferences, onComplete, onBack }: Props) {
                         </motion.button>
 
                         <motion.button onClick={onBack}
-                            className="mt-4 text-sm text-white/30 hover:text-white/60 transition-colors"
+                            className="mt-4 text-sm text-foreground/30 hover:text-foreground/60 transition-colors"
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
                             ← Quay lại chỉnh sửa
                         </motion.button>
@@ -119,12 +119,12 @@ export default function StepFinal({ preferences, onComplete, onBack }: Props) {
                             <Gift className="w-12 h-12 text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)] relative z-10" />
                         </motion.div>
 
-                        <motion.h2 className="text-3xl font-black text-white mb-2"
+                        <motion.h2 className="text-3xl font-black text-foreground mb-2"
                             initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }}>
                             Chào mừng bạn!
                         </motion.h2>
 
-                        <motion.p className="text-white/40 text-sm mt-2"
+                        <motion.p className="text-foreground/40 text-sm mt-2"
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}>
                             Bắt đầu hành trình của bạn ngay bây giờ
                         </motion.p>

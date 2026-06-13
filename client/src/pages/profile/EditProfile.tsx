@@ -97,16 +97,16 @@ export default function EditProfile({ onBack }: Props) {
     return (
         <div className={`min-h-screen w-full${t.bg.base} pb-24`}>
             {/* Header */}
-            <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-white/5`}>
+            <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-border`}>
                 <div className="flex items-center gap-3 px-4 h-16">
                     <button
                         onClick={onBack}
-                        className={`w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center ${t.text.muted} hover:text-white transition-all`}
+                        className={`w-10 h-10 rounded-full bg-white/5 hover:bg-muted flex items-center justify-center ${t.text.muted} hover:text-foreground transition-all`}
                     >
                         <ChevronLeft className="w-6 h-6" />
                     </button>
 
-                    <h1 className="font-black text-lg text-white tracking-wide">
+                    <h1 className="font-black text-lg text-foreground tracking-wide">
                         Hồ sơ của bạn
                     </h1>
 
@@ -134,21 +134,21 @@ export default function EditProfile({ onBack }: Props) {
                     {/* Avatar */}
                     <div className="relative group cursor-pointer shrink-0">
                         <div className="absolute inset-0 bg-emerald-500/30 rounded-2xl blur-xl opacity-50 group-hover:opacity-100 transition-opacity" />
-                        <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-4xl font-black text-black shadow-xl overflow-hidden border-2 border-white/10 group-hover:scale-105 transition-transform">
+                        <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-4xl font-black text-black shadow-xl overflow-hidden border-2 border-border group-hover:scale-105 transition-transform">
                             {user?.avatar ? (
                                 <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
                             ) : (
                                 user?.displayName?.charAt(0).toUpperCase() || 'U'
                             )}
                             <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <span className="text-white text-[10px] font-bold tracking-widest uppercase">Đổi ảnh</span>
+                                <span className="text-foreground text-[10px] font-bold tracking-widest uppercase">Đổi ảnh</span>
                             </div>
                         </div>
                     </div>
                     {/* Email info */}
                     <div className="flex-1">
-                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 block">Email cố định</label>
-                        <div className="w-full h-12 px-4 rounded-xl bg-white/5 border border-transparent text-gray-400 text-[13px] font-medium flex items-center cursor-not-allowed truncate">
+                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 block">Email cố định</label>
+                        <div className="w-full h-12 px-4 rounded-xl bg-white/5 border border-transparent text-muted-foreground text-[13px] font-medium flex items-center cursor-not-allowed truncate">
                             {user?.email || 'Chưa cập nhật email'}
                         </div>
                     </div>
@@ -161,10 +161,10 @@ export default function EditProfile({ onBack }: Props) {
                             id="displayName"
                             value={form.displayName}
                             onChange={e => set('displayName', e.target.value)}
-                            className="peer w-full h-14 px-4 pt-4 rounded-xl bg-white/5 border border-white/10 text-white text-[14px] font-medium outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-all placeholder-transparent"
+                            className="peer w-full h-14 px-4 pt-4 rounded-xl bg-white/5 border border-border text-foreground text-[14px] font-medium outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-all placeholder-transparent"
                             placeholder="Tên hiển thị"
                         />
-                        <label htmlFor="displayName" className="absolute left-4 top-2 text-[10px] text-gray-400 font-bold uppercase tracking-wider transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-500 peer-focus:top-2 peer-focus:text-[10px] peer-focus:text-emerald-400 cursor-text">
+                        <label htmlFor="displayName" className="absolute left-4 top-2 text-[10px] text-muted-foreground font-bold uppercase tracking-wider transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-4 peer-placeholder-shown:text-muted-foreground peer-focus:top-2 peer-focus:text-[10px] peer-focus:text-emerald-400 cursor-text">
                             Tên hiển thị
                         </label>
                     </div>
@@ -174,10 +174,10 @@ export default function EditProfile({ onBack }: Props) {
                             id="phone"
                             value={form.phone}
                             onChange={e => set('phone', e.target.value)}
-                            className="peer w-full h-14 px-4 pt-4 rounded-xl bg-white/5 border border-white/10 text-white text-[14px] font-medium outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-all placeholder-transparent"
+                            className="peer w-full h-14 px-4 pt-4 rounded-xl bg-white/5 border border-border text-foreground text-[14px] font-medium outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-all placeholder-transparent"
                             placeholder="Số điện thoại"
                         />
-                        <label htmlFor="phone" className="absolute left-4 top-2 text-[10px] text-gray-400 font-bold uppercase tracking-wider transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-500 peer-focus:top-2 peer-focus:text-[10px] peer-focus:text-emerald-400 cursor-text">
+                        <label htmlFor="phone" className="absolute left-4 top-2 text-[10px] text-muted-foreground font-bold uppercase tracking-wider transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-4 peer-placeholder-shown:text-muted-foreground peer-focus:top-2 peer-focus:text-[10px] peer-focus:text-emerald-400 cursor-text">
                             Số điện thoại
                         </label>
                     </div>
@@ -196,11 +196,11 @@ export default function EditProfile({ onBack }: Props) {
                                         onClick={() => toggleSport(sport.id)}
                                         className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2.5 transition-all ${active
                                             ? 'border-emerald-500/50 bg-emerald-500/10'
-                                            : 'border-white/5 bg-white/5 hover:bg-white/10'
+                                            : 'border-border bg-white/5 hover:bg-muted'
                                             }`}
                                     >
                                         <span className="flex items-center justify-center scale-110">{sport.icon}</span>
-                                        <span className={`text-[13px] font-bold ${active ? 'text-emerald-400' : 'text-gray-400'}`}>{sport.label}</span>
+                                        <span className={`text-[13px] font-bold ${active ? 'text-emerald-400' : 'text-muted-foreground'}`}>{sport.label}</span>
                                     </button>
                                 );
                             })}
@@ -218,10 +218,10 @@ export default function EditProfile({ onBack }: Props) {
                                         onClick={() => set('skillLevel', skill.id)}
                                         className={`w-full px-4 py-3.5 rounded-xl border flex items-center justify-between transition-all ${active
                                             ? 'border-emerald-500/50 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.1)]'
-                                            : 'border-white/5 bg-white/5 hover:bg-white/10'
+                                            : 'border-border bg-white/5 hover:bg-muted'
                                             }`}
                                     >
-                                        <span className={`text-[13px] font-bold ${active ? 'text-emerald-400' : 'text-gray-300'}`}>
+                                        <span className={`text-[13px] font-bold ${active ? 'text-emerald-400' : 'text-muted-foreground'}`}>
                                             {skill.label}
                                         </span>
                                         {active && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}
@@ -245,7 +245,7 @@ function FieldGroup({
 }) {
     return (
         <div>
-            <label className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3 block ml-1">
+            <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-3 block ml-1">
                 {label}
             </label>
 

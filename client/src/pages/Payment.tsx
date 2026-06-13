@@ -63,7 +63,7 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
                     </div>
                     <h2 className={`text-2xl font-black ${DS.text.primary} mb-2 tracking-tight`}>Thanh toán thành công!</h2>
                     <p className={`text-sm ${DS.text.muted} mb-8`}>Mã đặt sân: <span className="text-emerald-400 font-mono font-bold tracking-wider">{bookingCode}</span></p>
-                    <p className="text-xs text-gray-500 flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin" /> Đang chuyển hướng...</p>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin" /> Đang chuyển hướng...</p>
                 </motion.div>
             </Wrapper>
         );
@@ -80,7 +80,7 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
                     </div>
                     <h2 className={`text-2xl font-black ${DS.text.primary} mb-2 tracking-tight`}>Hết hạn thanh toán</h2>
                     <p className={`text-sm ${DS.text.muted} mb-8 text-center max-w-62.5`}>Lịch đặt sân đã bị hủy do quá thời gian chờ thanh toán.</p>
-                    <button onClick={onBack} className="w-full py-3.5 rounded-2xl bg-[#1e1e1e] hover:bg-[#2a2a2a] border border-[#333] text-white font-bold text-sm transition-all active:scale-95">
+                    <button onClick={onBack} className="w-full py-3.5 rounded-2xl bg-card hover:bg-surface border border-border text-foreground font-bold text-sm transition-all active:scale-95">
                         Quay lại đặt sân
                     </button>
                 </motion.div>
@@ -92,7 +92,7 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
         <Wrapper>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full">
                 <div className="flex items-center justify-between mb-8 relative">
-                    <button onClick={onBack} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors border border-white/5 absolute left-0">
+                    <button onClick={onBack} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors border border-border absolute left-0">
                         <ChevronLeft className="w-5 h-5" />
                     </button>
                     <div className="w-full text-center">
@@ -110,8 +110,8 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
                         <div className="absolute -bottom-1 -right-1 w-8 h-8 border-b-4 border-r-4 border-emerald-500 rounded-br-[20px]" />
 
                         <div className="w-full h-full border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center bg-gray-50/50">
-                            <QrCode className="w-14 h-14 text-gray-800 mb-2" strokeWidth={1.5} />
-                            <p className="text-gray-800 text-[10px] font-mono font-bold text-center uppercase tracking-widest leading-relaxed">
+                            <QrCode className="w-14 h-14 text-muted-foreground mb-2" strokeWidth={1.5} />
+                            <p className="text-muted-foreground text-[10px] font-mono font-bold text-center uppercase tracking-widest leading-relaxed">
                                 Mã QR Demo<br />MoMo / VNPay
                             </p>
                         </div>
@@ -127,14 +127,14 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
                     </div>
                 </div>
 
-                <div className="bg-[#141617]/80 backdrop-blur-xl rounded-2xl p-5 mb-6 border border-white/10 shadow-xl relative overflow-hidden">
-                    <ShieldCheck className="absolute -right-4 -bottom-4 w-24 h-24 text-white/2 -rotate-12 pointer-events-none" />
+                <div className="bg-card/80 backdrop-blur-xl rounded-2xl p-5 mb-6 border border-border shadow-xl relative overflow-hidden">
+                    <ShieldCheck className="absolute -right-4 -bottom-4 w-24 h-24 text-foreground/2 -rotate-12 pointer-events-none" />
                     <div className="space-y-3.5 relative z-10">
                         <DetailRow label="Mã đơn" value={bookingCode} copyable onCopy={copy} copied={copied} />
                         <DetailRow label="Sân" value={courtName} />
                         <DetailRow label="Ngày" value={date} />
                         <DetailRow label="Giờ" value={slots.join(', ')} accent />
-                        <div className="w-full h-px border-t border-dashed border-white/10 my-4" />
+                        <div className="w-full h-px border-t border-dashed border-border my-4" />
                         <div className="flex justify-between items-end">
                             <span className={`text-xs font-semibold ${DS.text.muted} uppercase tracking-wider`}>Tổng thanh toán</span>
                             <span className="text-2xl font-black text-emerald-400">{amount.toLocaleString()}<span className="text-sm font-bold text-emerald-400/60 ml-0.5">đ</span></span>
@@ -155,8 +155,8 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
                 </button>
 
                 <div className="mt-5 text-center flex items-center justify-center gap-1.5 opacity-60">
-                    <ShieldCheck className="w-3.5 h-3.5 text-gray-400" />
-                    <span className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">Giao dịch được mã hóa an toàn</span>
+                    <ShieldCheck className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Giao dịch được mã hóa an toàn</span>
                 </div>
             </motion.div>
         </Wrapper>
@@ -170,8 +170,8 @@ function DetailRow({ label, value, accent, copyable, onCopy, copied }: { label: 
             <span className={`font-semibold flex items-center gap-2 ${accent ? 'text-emerald-400' : 'text-gray-200'}`}>
                 {value}
                 {copyable && (
-                    <button onClick={onCopy} className="w-6 h-6 rounded-md bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors">
-                        {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-gray-400" />}
+                    <button onClick={onCopy} className="w-6 h-6 rounded-md bg-white/5 hover:bg-muted flex items-center justify-center transition-colors">
+                        {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-muted-foreground" />}
                     </button>
                 )}
             </span>
@@ -181,7 +181,7 @@ function DetailRow({ label, value, accent, copyable, onCopy, copied }: { label: 
 
 function Wrapper({ children }: { children: React.ReactNode }) {
     return (
-        <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center px-6 py-8 relative overflow-hidden">
+        <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/5 blur-[100px] rounded-full pointer-events-none" />
             <div className="w-full max-w-sm relative z-10 flex flex-col">

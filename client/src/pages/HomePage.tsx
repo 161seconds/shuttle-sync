@@ -111,7 +111,7 @@ export default function Home() {
 
                 {/* THANH PHÂN TRANG  */}
                 {!loading && totalPages > 1 && (
-                    <div className="flex flex-wrap items-center justify-end gap-6 pt-4 border-t border-[#1e1e1e] mt-4">
+                    <div className="flex flex-wrap items-center justify-end gap-6 pt-4 border-t border-border mt-4">
 
                         {/* Go to page */}
                         <div className="flex items-center gap-2 text-sm sm:flex">
@@ -122,11 +122,11 @@ export default function Home() {
                                 value={inputPage}
                                 onChange={(e) => setInputPage((e.target as HTMLInputElement).value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleGoToPage()}
-                                className={`w-14 h-9 rounded-lg ${DS.bg.input} border ${DS.border.subtle} text-center outline-none text-[#eaeaea] focus:border-emerald-500/40 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
+                                className={`w-14 h-9 rounded-lg ${DS.bg.input} border ${DS.border.subtle} text-center outline-none text-foreground focus:border-emerald-500/40 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
                             />
                             <button
                                 onClick={handleGoToPage}
-                                className={`px-3 h-9 rounded-lg ${DS.bg.elevated} border ${DS.border.subtle} text-[#999] hover:text-emerald-400 transition-colors`}
+                                className={`px-3 h-9 rounded-lg ${DS.bg.elevated} border ${DS.border.subtle} text-muted-foreground hover:text-emerald-400 transition-colors`}
                             >
                                 Go
                             </button>

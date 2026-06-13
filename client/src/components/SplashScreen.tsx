@@ -71,7 +71,7 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
       initial={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
       transition={{ duration: 0.8, ease: "easeInOut" }}
-      className="fixed inset-0 z-[9999] bg-[#000000] flex items-center justify-center overflow-hidden"
+      className="fixed inset-0 z-[9999] bg-background flex items-center justify-center overflow-hidden"
     >
       {/* Background Aurora / Glow */}
       <motion.div
@@ -130,7 +130,7 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
           transition={{ duration: 0.8, delay: 0.4, ease: "circOut" }}
           className="flex flex-col items-center"
         >
-          <h1 className="text-5xl font-black tracking-tight text-white mb-2 flex items-center">
+          <h1 className="text-5xl font-black tracking-tight text-foreground mb-2 flex items-center">
             Shuttle<span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Sync</span>
           </h1>
           <motion.div
@@ -156,7 +156,7 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
             <span>Đang tải dữ liệu</span>
             <span>{Math.floor(progress)}%</span>
           </div>
-          <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden border border-white/5 relative">
+          <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden border border-border relative">
             <div
               className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-emerald-500 to-cyan-400 shadow-[0_0_15px_rgba(16,185,129,0.8)]"
               style={{ width: `${progress}%`, transition: 'width 0.1s linear' }}

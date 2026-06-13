@@ -87,18 +87,18 @@ export default function ChatWindow({
     if (!isParticipant && myRequest?.status === 'pending') {
         return (
             <div className="flex flex-col h-full bg-transparent">
-                <div className="h-[85px] shrink-0 px-4 flex items-center border-b border-white/5 bg-black/20 backdrop-blur-sm relative z-20">
-                    <button onClick={onBack} className="p-2 -ml-2 text-gray-400 hover:text-white transition-colors">
+                <div className="h-[85px] shrink-0 px-4 flex items-center border-b border-border bg-black/20 backdrop-blur-sm relative z-20">
+                    <button onClick={onBack} className="p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors">
                         <ChevronLeft className="w-6 h-6" />
                     </button>
-                    <h3 className="font-bold text-white text-base leading-tight ml-2">Phòng chờ: {room.name}</h3>
+                    <h3 className="font-bold text-foreground text-base leading-tight ml-2">Phòng chờ: {room.name}</h3>
                 </div>
                 <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
                     <div className="w-20 h-20 bg-amber-500/10 rounded-full flex items-center justify-center mb-6 border border-amber-500/20">
                         <Clock className="w-10 h-10 text-amber-500" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2">Đang chờ phê duyệt</h3>
-                    <p className="text-gray-400 max-w-sm">
+                    <h3 className="text-xl font-bold text-foreground mb-2">Đang chờ phê duyệt</h3>
+                    <p className="text-muted-foreground max-w-sm">
                         Yêu cầu tham gia của bạn đã được gửi đến chủ sân. Bạn sẽ có thể trò chuyện và xem chi tiết ngay khi được duyệt.
                     </p>
                 </div>
@@ -109,23 +109,23 @@ export default function ChatWindow({
     if (!isParticipant && myRequest?.status === 'rejected') {
         return (
             <div className="flex flex-col h-full bg-transparent">
-                <div className="h-[85px] shrink-0 px-4 flex items-center border-b border-white/5 bg-black/20 backdrop-blur-sm relative z-20">
-                    <button onClick={onBack} className="p-2 -ml-2 text-gray-400 hover:text-white transition-colors">
+                <div className="h-[85px] shrink-0 px-4 flex items-center border-b border-border bg-black/20 backdrop-blur-sm relative z-20">
+                    <button onClick={onBack} className="p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors">
                         <ChevronLeft className="w-6 h-6" />
                     </button>
-                    <h3 className="font-bold text-white text-base leading-tight ml-2">{room.name}</h3>
+                    <h3 className="font-bold text-foreground text-base leading-tight ml-2">{room.name}</h3>
                 </div>
                 <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
                     <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6 border border-red-500/20">
                         <XCircle className="w-10 h-10 text-red-500" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2">Yêu cầu bị từ chối</h3>
-                    <p className="text-gray-400 max-w-sm mb-6">
+                    <h3 className="text-xl font-bold text-foreground mb-2">Yêu cầu bị từ chối</h3>
+                    <p className="text-muted-foreground max-w-sm mb-6">
                         Rất tiếc, chủ sân đã từ chối yêu cầu tham gia của bạn.
                     </p>
-                    <div className="bg-white/5 p-4 rounded-xl border border-white/10 w-full max-w-sm text-left">
-                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Lý do từ chối:</p>
-                        <p className="text-white text-sm font-medium">{myRequest.rejectReason || 'Không có lý do'}</p>
+                    <div className="bg-white/5 p-4 rounded-xl border border-border w-full max-w-sm text-left">
+                        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider mb-1">Lý do từ chối:</p>
+                        <p className="text-foreground text-sm font-medium">{myRequest.rejectReason || 'Không có lý do'}</p>
                     </div>
                 </div>
             </div>
@@ -135,21 +135,21 @@ export default function ChatWindow({
     return (
         <div className="flex flex-col h-full bg-transparent">
             {/* Header */}
-            <div className="h-[85px] shrink-0 px-4 flex items-center justify-between border-b border-white/5 bg-black/20 backdrop-blur-sm relative z-20">
+            <div className="h-[85px] shrink-0 px-4 flex items-center justify-between border-b border-border bg-black/20 backdrop-blur-sm relative z-20">
                 <div className="flex items-center gap-3">
                     <button
                         onClick={onBack}
-                        className="md:hidden p-2 -ml-2 text-gray-400 hover:text-white transition-colors"
+                        className="md:hidden p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors"
                     >
                         <ChevronLeft className="w-6 h-6" />
                     </button>
 
-                    <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-white/10">
+                    <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-border">
                         <img src={room.avatar || undefined} alt={room.name} className="w-full h-full object-cover" />
                     </div>
 
                     <div>
-                        <h3 className="font-bold text-white text-base leading-tight">{room.name}</h3>
+                        <h3 className="font-bold text-foreground text-base leading-tight">{room.name}</h3>
                         <p className="text-xs text-emerald-400 font-medium">{room.statusText}</p>
                     </div>
                 </div>
@@ -158,10 +158,10 @@ export default function ChatWindow({
                     {isOwner && pendingRequests.length > 0 && (
                         <button 
                             onClick={() => setShowRequestsModal(true)}
-                            className="relative p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/5"
+                            className="relative p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted"
                         >
                             <Users className="w-5 h-5 text-amber-400" />
-                            <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#111113]"></span>
+                            <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-border"></span>
                         </button>
                     )}
                     <button 
@@ -172,14 +172,14 @@ export default function ChatWindow({
                                 setShowInfo(true);
                             }
                         }}
-                        className="p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/5"
+                        className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted"
                     >
                         <Info className="w-5 h-5" />
                     </button>
                     {!isFriend && (
                         <button 
                             onClick={() => setShowMenu(!showMenu)}
-                            className={`p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/5 ${showMenu ? 'bg-white/5 text-white' : ''}`}
+                            className={`p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted ${showMenu ? 'bg-white/5 text-foreground' : ''}`}
                         >
                             <MoreVertical className="w-5 h-5" />
                         </button>
@@ -192,7 +192,7 @@ export default function ChatWindow({
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
                                 transition={{ duration: 0.15, ease: "easeOut" }}
-                                className="absolute top-full right-0 mt-2 w-56 bg-gray-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-50"
+                                className="absolute top-full right-0 mt-2 w-56 bg-gray-900 border border-border rounded-xl shadow-xl overflow-hidden z-50"
                             >
                                 <div className="py-1">
                                     <button 
@@ -200,9 +200,9 @@ export default function ChatWindow({
                                             setShowMenu(false);
                                             setShowInfo(true);
                                         }}
-                                        className="w-full text-left px-4 py-3 text-sm text-white hover:bg-white/5 flex items-center gap-3 transition-colors"
+                                        className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted flex items-center gap-3 transition-colors"
                                     >
-                                        <Info className="w-4 h-4 text-gray-400" />
+                                        <Info className="w-4 h-4 text-muted-foreground" />
                                         Thông tin nhóm
                                     </button>
                                     
@@ -212,7 +212,7 @@ export default function ChatWindow({
                                                 setShowMenu(false);
                                                 setShowDeleteAlert(true);
                                             }}
-                                            className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-3 transition-colors border-t border-white/5"
+                                            className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-3 transition-colors border-t border-border"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                             Xóa nhóm chat
@@ -226,7 +226,7 @@ export default function ChatWindow({
                                                     onLeaveGroup?.();
                                                 });
                                             }}
-                                            className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-3 transition-colors border-t border-white/5"
+                                            className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-3 transition-colors border-t border-border"
                                         >
                                             <XCircle className="w-4 h-4" />
                                             Rời nhóm
@@ -261,11 +261,11 @@ export default function ChatWindow({
             {/* Message List */}
             <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar flex flex-col">
                 {messages.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center text-gray-500">
+                    <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
                         <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
                             <span className="text-3xl">👋</span>
                         </div>
-                        <p className="text-sm font-medium text-white mb-1">Chưa có tin nhắn nào</p>
+                        <p className="text-sm font-medium text-foreground mb-1">Chưa có tin nhắn nào</p>
                         <p className="text-xs">Hãy gửi tin nhắn đầu tiên để bắt đầu trò chuyện</p>
                     </div>
                 ) : (
@@ -337,12 +337,12 @@ export default function ChatWindow({
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-sm bg-[#1a1d21] border border-white/10 rounded-2xl shadow-2xl p-6 flex flex-col gap-4 text-center"
+                            className="relative w-full max-w-sm bg-card border border-border rounded-2xl shadow-2xl p-6 flex flex-col gap-4 text-center"
                         >
                             <div className="w-12 h-12 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center mx-auto">
                                 <Trash2 className="w-6 h-6" />
                             </div>
-                            <h3 className="text-lg font-bold text-white">Xóa nhóm chat?</h3>
+                            <h3 className="text-lg font-bold text-foreground">Xóa nhóm chat?</h3>
                             
                             {(() => {
                                 const daysElapsed = room.createdAt ? dayjs().diff(dayjs(room.createdAt), 'day') : 0;
@@ -350,15 +350,15 @@ export default function ChatWindow({
 
                                 return (
                                     <>
-                                        <p className="text-sm text-gray-300">
-                                            Nhóm chat này đã hoạt động được <span className="font-bold text-white">{daysElapsed} ngày</span>.
+                                        <p className="text-sm text-muted-foreground">
+                                            Nhóm chat này đã hoạt động được <span className="font-bold text-foreground">{daysElapsed} ngày</span>.
                                         </p>
                                         {!canDelete ? (
                                             <p className="text-sm text-red-400 bg-red-500/10 p-3 rounded-lg border border-red-500/20">
                                                 Bạn chỉ có thể xóa nhóm chat sau khi nhóm đã hoạt động ít nhất 1 tuần (7 ngày).
                                             </p>
                                         ) : (
-                                            <p className="text-sm text-gray-400">
+                                            <p className="text-sm text-muted-foreground">
                                                 Bạn có chắc chắn muốn xóa nhóm chat này? Hành động này không thể hoàn tác.
                                             </p>
                                         )}
@@ -366,7 +366,7 @@ export default function ChatWindow({
                                         <div className="flex gap-3 mt-2">
                                             <button 
                                                 onClick={() => setShowDeleteAlert(false)}
-                                                className="flex-1 py-2.5 rounded-xl font-medium text-white bg-white/5 hover:bg-white/10 transition-colors"
+                                                className="flex-1 py-2.5 rounded-xl font-medium text-foreground bg-white/5 hover:bg-muted transition-colors"
                                             >
                                                 Hủy
                                             </button>
@@ -376,7 +376,7 @@ export default function ChatWindow({
                                                     onDeleteChat?.();
                                                 }}
                                                 disabled={!canDelete}
-                                                className={`flex-1 py-2.5 rounded-xl font-medium text-white transition-colors ${canDelete ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-600 cursor-not-allowed opacity-50'}`}
+                                                className={`flex-1 py-2.5 rounded-xl font-medium text-foreground transition-colors ${canDelete ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-600 cursor-not-allowed opacity-50'}`}
                                             >
                                                 Xóa nhóm
                                             </button>

@@ -134,13 +134,13 @@ export default function SearchPage() {
 
                 {/* 1. Smart Sort Tags */}
                 <div className="flex items-center gap-2 mt-4 overflow-x-auto custom-scrollbar pb-2">
-                    <button onClick={() => handleFilterChange({ sortBy: 'distance' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'distance' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}>
+                    <button onClick={() => handleFilterChange({ sortBy: 'distance' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'distance' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-muted-foreground hover:bg-muted'}`}>
                         Gần tôi nhất
                     </button>
-                    <button onClick={() => handleFilterChange({ sortBy: 'price_asc' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'price_asc' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}>
+                    <button onClick={() => handleFilterChange({ sortBy: 'price_asc' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'price_asc' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-muted-foreground hover:bg-muted'}`}>
                         Giá rẻ nhất
                     </button>
-                    <button onClick={() => handleFilterChange({ sortBy: 'rating' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'rating' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}>
+                    <button onClick={() => handleFilterChange({ sortBy: 'rating' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'rating' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-muted-foreground hover:bg-muted'}`}>
                         Đánh giá cao
                     </button>
                 </div>
@@ -161,12 +161,12 @@ export default function SearchPage() {
                             <div className="col-span-full flex flex-col items-center justify-center py-20 px-4 text-center">
                                 <div className="w-24 h-24 mb-6 relative">
                                     <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl animate-pulse"></div>
-                                    <div className="relative w-full h-full bg-[#1e1e1e] border border-white/10 rounded-full flex items-center justify-center shadow-lg">
+                                    <div className="relative w-full h-full bg-card border border-border rounded-full flex items-center justify-center shadow-lg">
                                         <span className="text-4xl">{filters.sport === 'pickleball' ? '🏓' : '🏸'}</span>
                                     </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-white mb-2">Không tìm thấy sân nào</h3>
-                                <p className="text-sm text-gray-400 mb-6 max-w-sm">
+                                <h3 className="text-xl font-bold text-foreground mb-2">Không tìm thấy sân nào</h3>
+                                <p className="text-sm text-muted-foreground mb-6 max-w-sm">
                                     Thử điều chỉnh lại bộ lọc hoặc nới lỏng khoảng giá để tìm được sân phù hợp nhé!
                                 </p>
                                 <button
@@ -184,7 +184,7 @@ export default function SearchPage() {
                                     className={`flex flex-col gap-2.5 p-2.5 rounded-[20px] ${t.bg.card} border ${t.border.subtle} hover:border-emerald-500/50 hover:shadow-[0_0_30px_rgba(16,185,129,0.1)] transition-all cursor-pointer group`}
                                 >
                                     {/* Ảnh nằm trên, tỷ lệ 16/9 cho gọn hơn */}
-                                    <div className="relative w-full aspect-video shrink-0 overflow-hidden rounded-2xl bg-[#1e1e1e]">
+                                    <div className="relative w-full aspect-video shrink-0 overflow-hidden rounded-2xl bg-card">
                                         <img
                                             src={mainPhoto(court)}
                                             alt={court.name}
@@ -193,7 +193,7 @@ export default function SearchPage() {
                                         />
                                         {/* Khoảng cách */}
                                         {court.distance !== undefined && (
-                                            <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-semibold px-2 py-1 rounded-lg border border-white/10">
+                                            <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-foreground text-[10px] font-semibold px-2 py-1 rounded-lg border border-border">
                                                 {court.distance < 1 ? `${(court.distance * 1000).toFixed(0)}m` : `${court.distance.toFixed(1)}km`}
                                             </div>
                                         )}
@@ -214,7 +214,7 @@ export default function SearchPage() {
                                             </p>
                                         </div>
                                         <div className="flex items-center justify-between mt-3">
-                                            <span className="flex items-center gap-1 text-[11px] bg-white/5 px-2 py-1 rounded-md border border-white/5">
+                                            <span className="flex items-center gap-1 text-[11px] bg-white/5 px-2 py-1 rounded-md border border-border">
                                                 <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                                                 <span className={`${t.text.primary} font-bold`}>{court.averageRating?.toFixed(1) || '5.0'}</span>
                                                 <span className={t.text.muted}>({court.reviewCount || 0})</span>
@@ -242,11 +242,11 @@ export default function SearchPage() {
                                         value={inputPage}
                                         onChange={(e) => setInputPage(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && handleGoToPage()}
-                                        className={`w-14 h-9 rounded-lg ${t.bg.input} border ${t.border.subtle} text-center outline-none text-[#eaeaea] focus:border-emerald-500/40 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
+                                        className={`w-14 h-9 rounded-lg ${t.bg.input} border ${t.border.subtle} text-center outline-none text-foreground focus:border-emerald-500/40 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
                                     />
                                     <button
                                         onClick={handleGoToPage}
-                                        className={`px-3 h-9 rounded-lg ${t.bg.elevated} border ${t.border.subtle} text-[#999] hover:text-emerald-400 transition-colors`}
+                                        className={`px-3 h-9 rounded-lg ${t.bg.elevated} border ${t.border.subtle} text-muted-foreground hover:text-emerald-400 transition-colors`}
                                     >
                                         Đi
                                     </button>

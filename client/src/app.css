@@ -1,6 +1,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import 'tailwindcss';
 
+@theme {
+  --color-background: #f8fafc;
+  --color-foreground: #020617;
+  --color-card: #ffffff;
+  --color-surface: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  .dark {
+    --color-background: #060809;
+    --color-foreground: #eaeaea;
+    --color-card: #151515;
+    --color-surface: #1e1e1e;
+    --color-border: #262f3d;
+    --color-muted: #1e1e1e;
+    --color-muted-foreground: #9ca3af;
+  }
+}
+
 /* ═══ Base ═══ */
 * {
   font-family: 'Inter', sans-serif;
@@ -12,8 +36,8 @@
 }
 
 body {
-  background: #0a0a0a;
-  color: #eaeaea;
+  background: var(--color-background);
+  color: var(--color-foreground);
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -21,7 +45,7 @@ body {
 
 ::selection {
   background: rgba(16, 185, 129, 0.3);
-  color: white;
+  color: var(--color-foreground);
 }
 
 /* ═══ Scrollbar ═══ */

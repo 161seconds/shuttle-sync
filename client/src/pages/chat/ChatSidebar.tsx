@@ -25,21 +25,21 @@ export default function ChatSidebar({
     className = '' 
 }: ChatSidebarProps) {
     return (
-        <div className={`flex flex-col bg-[#0a0a0a]/30 backdrop-blur-md border-r border-white/5 ${className}`}>
+        <div className={`flex flex-col bg-background/30 backdrop-blur-md border-r border-border ${className}`}>
             {/* Sidebar Header */}
-            <div className="h-[85px] shrink-0 px-4 flex items-center gap-3 border-b border-[#2a2d30]">
+            <div className="h-[85px] shrink-0 px-4 flex items-center gap-3 border-b border-border">
                 <button 
                     onClick={onBack}
-                    className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all shrink-0"
+                    className="w-10 h-10 rounded-full bg-white/5 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-all shrink-0"
                 >
                     <ChevronLeft className="w-6 h-6" />
                 </button>
-                <h2 className="text-2xl font-black text-white">Shuttle Chat</h2>
+                <h2 className="text-2xl font-black text-foreground">Shuttle Chat</h2>
             </div>
 
-            <div className="flex border-b border-white/5">
+            <div className="flex border-b border-border">
                 <button 
-                    className={`flex-1 py-3 text-sm font-semibold transition-all relative ${activeTab === 'group' ? 'text-emerald-400' : 'text-gray-400 hover:text-white'}`}
+                    className={`flex-1 py-3 text-sm font-semibold transition-all relative ${activeTab === 'group' ? 'text-emerald-400' : 'text-muted-foreground hover:text-foreground'}`}
                     onClick={() => onTabChange('group')}
                 >
                     <Users className="w-4 h-4 mx-auto mb-1" />
@@ -47,7 +47,7 @@ export default function ChatSidebar({
                     {activeTab === 'group' && <motion.div layoutId="activeTabSidebar" className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500" />}
                 </button>
                 <button 
-                    className={`flex-1 py-3 text-sm font-semibold transition-all relative ${activeTab === 'friend' ? 'text-emerald-400' : 'text-gray-400 hover:text-white'}`}
+                    className={`flex-1 py-3 text-sm font-semibold transition-all relative ${activeTab === 'friend' ? 'text-emerald-400' : 'text-muted-foreground hover:text-foreground'}`}
                     onClick={() => onTabChange('friend')}
                 >
                     <UserPlus className="w-4 h-4 mx-auto mb-1" />
@@ -59,11 +59,11 @@ export default function ChatSidebar({
             {/* Search and Connect */}
             <div className="p-4 shrink-0 flex gap-2 items-center">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <input
                         type="text"
                         placeholder="Tìm kiếm..."
-                        className="w-full bg-[#1e2023] border border-[#33363a] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-colors"
+                        className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-emerald-500/50 transition-colors"
                     />
                 </div>
                 {activeTab === 'friend' && (
@@ -79,7 +79,7 @@ export default function ChatSidebar({
             {/* Room List */}
             <div className="flex-1 overflow-y-auto px-2 pb-2 custom-scrollbar">
                 {rooms.length === 0 ? (
-                    <div className="text-center text-gray-500 text-sm mt-10">
+                    <div className="text-center text-muted-foreground text-sm mt-10">
                         {activeTab === 'group' ? 'Không có nhóm chat nào' : 'Chưa có đoạn chat nào'}
                     </div>
                 ) : (

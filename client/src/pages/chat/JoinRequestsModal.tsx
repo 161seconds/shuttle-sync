@@ -64,13 +64,13 @@ export default function JoinRequestsModal({ groupId, requests, onClose, onUpdate
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative w-full max-w-lg bg-[#111113] border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden max-h-[80vh]"
+                className="relative w-full max-w-lg bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden max-h-[80vh]"
             >
-                <div className="flex items-center justify-between p-4 border-b border-white/10 bg-white/5">
-                    <h3 className="font-bold text-white text-lg">Yêu cầu tham gia</h3>
+                <div className="flex items-center justify-between p-4 border-b border-border bg-white/5">
+                    <h3 className="font-bold text-foreground text-lg">Yêu cầu tham gia</h3>
                     <button
                         onClick={onClose}
-                        className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/10 transition-colors"
+                        className="p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -78,27 +78,27 @@ export default function JoinRequestsModal({ groupId, requests, onClose, onUpdate
 
                 <div className="overflow-y-auto p-4 custom-scrollbar">
                     {requests.length === 0 ? (
-                        <div className="text-center text-gray-400 py-8">
+                        <div className="text-center text-muted-foreground py-8">
                             Không có yêu cầu tham gia nào.
                         </div>
                     ) : (
                         <div className="flex flex-col gap-3">
                             {requests.map(req => (
-                                <div key={req._id} className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-3">
+                                <div key={req._id} className="bg-white/5 border border-border rounded-xl p-3 flex flex-col gap-3">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3 cursor-pointer" onClick={() => onAvatarClick?.(req.userId)}>
-                                            <div className="w-10 h-10 rounded-full bg-white/10 overflow-hidden border border-white/20 shrink-0">
+                                            <div className="w-10 h-10 rounded-full bg-white/10 overflow-hidden border border-border shrink-0">
                                                 {req.avatar ? (
                                                     <img src={req.avatar || undefined} alt={req.displayName} className="w-full h-full object-cover" />
                                                 ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm font-bold">
+                                                    <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm font-bold">
                                                         {req.displayName?.charAt(0).toUpperCase()}
                                                     </div>
                                                 )}
                                             </div>
                                             <div>
-                                                <h4 className="font-bold text-white text-sm hover:underline">{req.displayName}</h4>
-                                                <p className="text-xs text-gray-400">{dayjs(req.requestedAt).format('HH:mm DD/MM/YYYY')}</p>
+                                                <h4 className="font-bold text-foreground text-sm hover:underline">{req.displayName}</h4>
+                                                <p className="text-xs text-muted-foreground">{dayjs(req.requestedAt).format('HH:mm DD/MM/YYYY')}</p>
                                             </div>
                                         </div>
 
@@ -130,13 +130,13 @@ export default function JoinRequestsModal({ groupId, requests, onClose, onUpdate
                                                 exit={{ height: 0, opacity: 0 }}
                                                 className="overflow-hidden"
                                             >
-                                                <div className="pt-3 border-t border-white/5 flex flex-col gap-2">
+                                                <div className="pt-3 border-t border-border flex flex-col gap-2">
                                                     <input
                                                         type="text"
                                                         value={rejectReason}
                                                         onChange={(e) => setRejectReason(e.target.value)}
                                                         placeholder="Nhập lý do từ chối..."
-                                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 outline-none focus:border-red-500/50"
+                                                        className="w-full bg-black/40 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder-gray-500 outline-none focus:border-red-500/50"
                                                         autoFocus
                                                     />
                                                     <div className="flex justify-end gap-2 mt-1">
@@ -145,14 +145,14 @@ export default function JoinRequestsModal({ groupId, requests, onClose, onUpdate
                                                                 setRejectingId(null);
                                                                 setRejectReason('');
                                                             }}
-                                                            className="px-3 py-1.5 text-xs text-gray-400 hover:text-white transition-colors"
+                                                            className="px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
                                                         >
                                                             Hủy
                                                         </button>
                                                         <button
                                                             disabled={loadingId === req.userId}
                                                             onClick={() => handleReject(req.userId)}
-                                                            className="px-3 py-1.5 text-xs bg-red-500 hover:bg-red-600 text-white font-medium rounded-md transition-colors disabled:opacity-50"
+                                                            className="px-3 py-1.5 text-xs bg-red-500 hover:bg-red-600 text-foreground font-medium rounded-md transition-colors disabled:opacity-50"
                                                         >
                                                             Xác nhận từ chối
                                                         </button>

@@ -88,7 +88,7 @@ export default function AdminDashboard() {
 
     if (loading) {
         return (
-            <div className="w-full h-[calc(100vh-76px)] flex items-center justify-center bg-[#0f141a]">
+            <div className="w-full h-[calc(100vh-76px)] flex items-center justify-center bg-background">
                 <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
             </div>
         );
@@ -136,7 +136,7 @@ export default function AdminDashboard() {
     const totalPieValue = pieData.reduce((acc: number, cur: any) => acc + cur.value, 0);
 
     return (
-        <div className="w-full h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar p-6 bg-[#0f141a] text-gray-300 font-sans">
+        <div className="w-full h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar p-6 bg-background text-muted-foreground font-sans">
             <div className="max-w-400 mx-auto space-y-6 pb-12">
 
                 {/* ================= HÀNG 1: WELCOME & IDEAS ================= */}
@@ -146,39 +146,39 @@ export default function AdminDashboard() {
                         <div className="absolute -right-10 -top-20 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
                         <div className="absolute right-32 -bottom-20 w-48 h-48 bg-emerald-900 opacity-20 rounded-full blur-2xl"></div>
 
-                        <h2 className="text-3xl font-bold text-white mb-2 relative z-10">Xin chào {user?.displayName || 'Admin'},</h2>
+                        <h2 className="text-3xl font-bold text-foreground mb-2 relative z-10">Xin chào {user?.displayName || 'Admin'},</h2>
                         <p className="text-emerald-50 max-w-lg text-sm leading-relaxed mb-6 relative z-10">
                             Chào mừng đến với Bảng điều khiển ShuttleSync! Theo dõi doanh thu, quản lý sân và nắm bắt mọi thông tin chi tiết về hệ thống một cách trực quan.
                         </p>
                         <button
                             onClick={handleScrollToStats}
-                            className="bg-[#0f141a] text-emerald-400 font-bold px-6 py-2.5 rounded-lg w-max hover:bg-black transition-colors shadow-sm relative z-10 border border-emerald-800 active:scale-95"
+                            className="bg-background text-emerald-400 font-bold px-6 py-2.5 rounded-lg w-max hover:bg-black transition-colors shadow-sm relative z-10 border border-emerald-800 active:scale-95"
                         >
                             Khám phá ngay
                         </button>
                     </div>
 
                     {/* Thẻ Ideas for You */}
-                    <div className="rounded-2xl p-6 bg-[#1a222c] border border-[#262f3d] flex flex-col justify-between shadow-sm">
+                    <div className="rounded-2xl p-6 bg-card border border-border flex flex-col justify-between shadow-sm">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-sm font-semibold text-gray-400">Gợi ý cho bạn ({currentIdea + 1}/{IDEAS.length})</h3>
+                            <h3 className="text-sm font-semibold text-muted-foreground">Gợi ý cho bạn ({currentIdea + 1}/{IDEAS.length})</h3>
                             <div className="flex gap-2">
-                                <button onClick={prevIdea} className="w-7 h-7 rounded bg-[#262f3d] text-gray-400 flex items-center justify-center hover:bg-[#323d4f] hover:text-white transition-colors active:scale-90">
+                                <button onClick={prevIdea} className="w-7 h-7 rounded bg-surface text-muted-foreground flex items-center justify-center hover:bg-surface hover:text-foreground transition-colors active:scale-90">
                                     <ChevronLeft className="w-4 h-4" />
                                 </button>
-                                <button onClick={nextIdea} className="w-7 h-7 rounded bg-[#262f3d] text-gray-400 flex items-center justify-center hover:bg-[#323d4f] hover:text-white transition-colors active:scale-90">
+                                <button onClick={nextIdea} className="w-7 h-7 rounded bg-surface text-muted-foreground flex items-center justify-center hover:bg-surface hover:text-foreground transition-colors active:scale-90">
                                     <ChevronRight className="w-4 h-4" />
                                 </button>
                             </div>
                         </div>
                         <div className="animate-in fade-in slide-in-from-right-4 duration-300" key={currentIdea}>
-                            <h2 className="text-lg font-bold text-white mb-2">{IDEAS[currentIdea].title}</h2>
-                            <p className="text-sm text-gray-400 mb-5 line-clamp-3 leading-relaxed min-h-15">
+                            <h2 className="text-lg font-bold text-foreground mb-2">{IDEAS[currentIdea].title}</h2>
+                            <p className="text-sm text-muted-foreground mb-5 line-clamp-3 leading-relaxed min-h-15">
                                 {IDEAS[currentIdea].desc}
                             </p>
                             <button
                                 onClick={handleActionIdea}
-                                className="px-5 py-2 bg-transparent border border-[#323d4f] rounded-lg text-sm font-medium text-emerald-400 hover:bg-[#262f3d] transition-colors active:scale-95"
+                                className="px-5 py-2 bg-transparent border border-border rounded-lg text-sm font-medium text-emerald-400 hover:bg-surface transition-colors active:scale-95"
                             >
                                 {IDEAS[currentIdea].btn}
                             </button>
@@ -200,15 +200,15 @@ export default function AdminDashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                     {/* Biểu đồ Doanh thu (Recharts AreaChart) */}
-                    <div className="lg:col-span-2 rounded-2xl p-6 bg-[#1a222c] border border-[#262f3d] shadow-sm flex flex-col">
-                        <h3 className="text-base font-bold text-white mb-6">Biến động Doanh thu</h3>
+                    <div className="lg:col-span-2 rounded-2xl p-6 bg-card border border-border shadow-sm flex flex-col">
+                        <h3 className="text-base font-bold text-foreground mb-6">Biến động Doanh thu</h3>
                         <div className="flex gap-6 mb-8">
-                            <div className="p-4 rounded-xl bg-[#141b22] border border-[#262f3d] flex-1">
+                            <div className="p-4 rounded-xl bg-card border border-border flex-1">
                                 <div className="flex items-center gap-2 mb-1">
                                     <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                                    <span className="text-xs font-semibold text-gray-400">Tổng doanh thu</span>
+                                    <span className="text-xs font-semibold text-muted-foreground">Tổng doanh thu</span>
                                 </div>
-                                <p className="text-2xl font-bold text-white">{(totalRevenue / 1000)?.toLocaleString() || '0'}K</p>
+                                <p className="text-2xl font-bold text-foreground">{(totalRevenue / 1000)?.toLocaleString() || '0'}K</p>
                             </div>
                         </div>
 
@@ -247,8 +247,8 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* Biểu đồ Tròn (Recharts Donut Chart) - Chỉ Cầu lông và Pickleball */}
-                    <div className="rounded-2xl p-6 bg-[#1a222c] border border-[#262f3d] shadow-sm flex flex-col">
-                        <h3 className="text-base font-bold text-white mb-2">Tỉ trọng đặt sân</h3>
+                    <div className="rounded-2xl p-6 bg-card border border-border shadow-sm flex flex-col">
+                        <h3 className="text-base font-bold text-foreground mb-2">Tỉ trọng đặt sân</h3>
 
                         <div className="w-full flex-1 min-h-55 relative">
                             <ResponsiveContainer width="100%" height="100%">
@@ -275,8 +275,8 @@ export default function AdminDashboard() {
                             </ResponsiveContainer>
                             {/* Chữ hiển thị ở giữa Donut */}
                             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                <span className="text-gray-400 text-xs">Tổng số</span>
-                                <span className="text-2xl font-bold text-white">{totalPieValue}</span>
+                                <span className="text-muted-foreground text-xs">Tổng số</span>
+                                <span className="text-2xl font-bold text-foreground">{totalPieValue}</span>
                             </div>
                         </div>
 
@@ -286,9 +286,9 @@ export default function AdminDashboard() {
                                 <div key={index} className="flex justify-between items-center text-sm">
                                     <div className="flex items-center gap-3">
                                         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
-                                        <span className="text-gray-400 font-medium">{item.name}</span>
+                                        <span className="text-muted-foreground font-medium">{item.name}</span>
                                     </div>
-                                    <span className="text-white font-bold">{item.value.toLocaleString()} <span className="text-gray-500 text-xs font-normal ml-1">{((item.value / (totalPieValue || 1)) * 100).toFixed(1)}%</span></span>
+                                    <span className="text-foreground font-bold">{item.value.toLocaleString()} <span className="text-muted-foreground text-xs font-normal ml-1">{((item.value / (totalPieValue || 1)) * 100).toFixed(1)}%</span></span>
                                 </div>
                             ))}
                         </div>
@@ -297,9 +297,9 @@ export default function AdminDashboard() {
 
                 {/* ================= HÀNG 4: BẢNG DỮ LIỆU VÀ SÂN HOT ================= */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 rounded-2xl p-6 bg-[#1a222c] border border-[#262f3d] shadow-sm flex flex-col min-w-0">
+                    <div className="lg:col-span-2 rounded-2xl p-6 bg-card border border-border shadow-sm flex flex-col min-w-0">
                         <div className="flex items-center justify-between mb-6 shrink-0">
-                            <h3 className="text-base font-bold text-white">Đơn đặt gần đây</h3>
+                            <h3 className="text-base font-bold text-foreground">Đơn đặt gần đây</h3>
                             <button 
                                 onClick={() => setActiveModal('allBookings')}
                                 className="text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
@@ -309,7 +309,7 @@ export default function AdminDashboard() {
                         </div>
                         <div className="overflow-x-auto flex-1">
                             <table className="w-full text-left text-sm whitespace-nowrap">
-                                <thead className="text-gray-400 border-b border-[#262f3d]">
+                                <thead className="text-muted-foreground border-b border-border">
                                 <tr>
                                     <th className="pb-4 font-semibold">Mã đơn</th>
                                     <th className="pb-4 font-semibold">Khách</th>
@@ -334,7 +334,7 @@ export default function AdminDashboard() {
                                 ))}
                                 {(!recentBookings || recentBookings.length === 0) && (
                                     <tr>
-                                        <td colSpan={6} className="py-8 text-center text-gray-500">Không có đơn đặt sân nào gần đây</td>
+                                        <td colSpan={6} className="py-8 text-center text-muted-foreground">Không có đơn đặt sân nào gần đây</td>
                                     </tr>
                                 )}
                             </tbody>
@@ -342,8 +342,8 @@ export default function AdminDashboard() {
                         </div>
                     </div>
 
-                    <div className="rounded-2xl p-6 bg-[#1a222c] border border-[#262f3d] shadow-sm min-w-0">
-                        <h3 className="text-base font-bold text-white mb-6">Sân Hot Nhất</h3>
+                    <div className="rounded-2xl p-6 bg-card border border-border shadow-sm min-w-0">
+                        <h3 className="text-base font-bold text-foreground mb-6">Sân Hot Nhất</h3>
                         <div className="space-y-5">
                             {topCourts?.map((court: any) => (
                                 <TopCourt
@@ -357,7 +357,7 @@ export default function AdminDashboard() {
                                 />
                             ))}
                             {(!topCourts || topCourts.length === 0) && (
-                                <p className="text-gray-400 text-center text-sm py-4">Chưa có dữ liệu sân hot</p>
+                                <p className="text-muted-foreground text-center text-sm py-4">Chưa có dữ liệu sân hot</p>
                             )}
                         </div>
                     </div>
@@ -383,15 +383,15 @@ export default function AdminDashboard() {
 
 function StatCard({ title, value, trend, isPositive, icon, iconBg }: any) {
     return (
-        <div className="rounded-2xl p-6 bg-[#1a222c] border border-[#262f3d] flex flex-col justify-between shadow-sm hover:border-[#323d4f] transition-colors">
+        <div className="rounded-2xl p-6 bg-card border border-border flex flex-col justify-between shadow-sm hover:border-border transition-colors">
             <div className="flex items-center gap-4 mb-5">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center ${iconBg}`}>
                     {icon}
                 </div>
-                <span className="text-sm font-semibold text-gray-400">{title}</span>
+                <span className="text-sm font-semibold text-muted-foreground">{title}</span>
             </div>
             <div className="flex items-end justify-between">
-                <span className="text-[28px] font-bold text-white leading-none">{value}</span>
+                <span className="text-[28px] font-bold text-foreground leading-none">{value}</span>
                 <span className={`text-sm font-bold flex items-center gap-0.5 ${isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
                     {trend} {isPositive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                 </span>
@@ -408,16 +408,16 @@ function TableRow({ id, amount, type, date, status, color, onView }: any) {
         emerald: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
     };
     return (
-        <tr className="hover:bg-white/5 transition-colors">
-            <td className="py-4 text-gray-300 font-medium">{id}</td>
-            <td className="py-4 text-gray-400">{type}</td>
+        <tr className="hover:bg-muted transition-colors">
+            <td className="py-4 text-muted-foreground font-medium">{id}</td>
+            <td className="py-4 text-muted-foreground">{type}</td>
             <td className="py-4 text-emerald-400 font-bold">{amount}</td>
-            <td className="py-4 text-gray-400">{date}</td>
+            <td className="py-4 text-muted-foreground">{date}</td>
             <td className="py-4">
                 <span className={`px-2.5 py-1 rounded text-[10px] font-bold tracking-wide uppercase ${bgMap[color]}`}>{status}</span>
             </td>
             <td className="py-4 text-right">
-                <button onClick={onView} className="px-3.5 py-1.5 rounded-lg bg-[#262f3d] text-gray-300 text-xs font-bold hover:bg-emerald-500/20 hover:text-emerald-400 transition-colors active:scale-95">
+                <button onClick={onView} className="px-3.5 py-1.5 rounded-lg bg-surface text-muted-foreground text-xs font-bold hover:bg-emerald-500/20 hover:text-emerald-400 transition-colors active:scale-95">
                     Xem
                 </button>
             </td>
@@ -427,16 +427,16 @@ function TableRow({ id, amount, type, date, status, color, onView }: any) {
 
 function TopCourt({ name, bookings, revenue, status, statusColor, onClick }: any) {
     return (
-        <div className="flex items-center justify-between group p-2 -m-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer" onClick={onClick}>
+        <div className="flex items-center justify-between group p-2 -m-2 rounded-xl hover:bg-muted transition-colors cursor-pointer" onClick={onClick}>
             <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-lg bg-[#262f3d] flex items-center justify-center text-xl shadow-sm border border-[#323d4f] group-hover:border-emerald-500/30 transition-colors"><EmojiIcon name="badminton" className="w-6 h-6 text-emerald-400" /></div>
+                <div className="w-11 h-11 rounded-lg bg-surface flex items-center justify-center text-xl shadow-sm border border-border group-hover:border-emerald-500/30 transition-colors"><EmojiIcon name="badminton" className="w-6 h-6 text-emerald-400" /></div>
                 <div>
                     <p className="text-sm font-bold text-gray-200 group-hover:text-emerald-400 transition-colors">{name}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{bookings} lượt đặt</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{bookings} lượt đặt</p>
                 </div>
             </div>
             <div className="text-right">
-                <p className="text-sm font-bold text-white">{revenue}</p>
+                <p className="text-sm font-bold text-foreground">{revenue}</p>
                 <p className={`text-[11px] font-bold mt-0.5 uppercase tracking-wider ${statusColor}`}>{status}</p>
             </div>
         </div>
@@ -445,10 +445,10 @@ function TopCourt({ name, bookings, revenue, status, statusColor, onClick }: any
 function ModalWrapper({ title, onClose, children, maxWidth = "max-w-2xl" }: { title: string, onClose: () => void, children: React.ReactNode, maxWidth?: string }) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className={`w-full ${maxWidth} bg-[#141b22] border border-[#262f3d] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]`}>
-                <div className="flex items-center justify-between p-5 border-b border-[#262f3d]">
-                    <h2 className="text-lg font-bold text-white">{title}</h2>
-                    <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#262f3d] text-gray-400 hover:text-white transition-colors">
+            <div className={`w-full ${maxWidth} bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]`}>
+                <div className="flex items-center justify-between p-5 border-b border-border">
+                    <h2 className="text-lg font-bold text-foreground">{title}</h2>
+                    <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface text-muted-foreground hover:text-foreground transition-colors">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
@@ -471,21 +471,21 @@ function MarketingCampaignModal({ data, onClose }: { data: any, onClose: () => v
                 
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-semibold text-gray-400 mb-2">Ngân sách ước tính (VND)</label>
-                        <input type="number" defaultValue={5000000} className="w-full px-4 py-3 rounded-xl bg-[#0f141a] border border-[#262f3d] text-white focus:border-emerald-500 focus:outline-none transition-colors" />
+                        <label className="block text-sm font-semibold text-muted-foreground mb-2">Ngân sách ước tính (VND)</label>
+                        <input type="number" defaultValue={5000000} className="w-full px-4 py-3 rounded-xl bg-background border border-border text-foreground focus:border-emerald-500 focus:outline-none transition-colors" />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-gray-400 mb-2">Nội dung Push Notification</label>
-                        <textarea rows={3} defaultValue="Giảm 20% khung giờ sáng. Nhanh tay đặt sân ngay!" className="w-full px-4 py-3 rounded-xl bg-[#0f141a] border border-[#262f3d] text-white focus:border-emerald-500 focus:outline-none transition-colors"></textarea>
+                        <label className="block text-sm font-semibold text-muted-foreground mb-2">Nội dung Push Notification</label>
+                        <textarea rows={3} defaultValue="Giảm 20% khung giờ sáng. Nhanh tay đặt sân ngay!" className="w-full px-4 py-3 rounded-xl bg-background border border-border text-foreground focus:border-emerald-500 focus:outline-none transition-colors"></textarea>
                     </div>
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-[#262f3d]">
-                    <button onClick={onClose} className="px-5 py-2.5 rounded-xl font-semibold text-gray-400 hover:text-white hover:bg-[#262f3d] transition-colors">Hủy</button>
+                <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                    <button onClick={onClose} className="px-5 py-2.5 rounded-xl font-semibold text-muted-foreground hover:text-foreground hover:bg-surface transition-colors">Hủy</button>
                     <button onClick={() => {
                         useAlertStore.getState().showAlert('Đã khởi tạo chiến dịch thành công!', 'Thành công', 'success');
                         onClose();
-                    }} className="px-5 py-2.5 rounded-xl font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition-colors">Kích hoạt ngay</button>
+                    }} className="px-5 py-2.5 rounded-xl font-bold bg-emerald-500 text-foreground hover:bg-emerald-600 transition-colors">Kích hoạt ngay</button>
                 </div>
             </div>
         </ModalWrapper>
@@ -498,41 +498,41 @@ function BookingDetailModal({ data, onClose }: { data: any, onClose: () => void 
         <ModalWrapper title={"Chi tiết đơn đặt sân #" + data.bookingCode} onClose={onClose}>
             <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-xl bg-[#0f141a] border border-[#262f3d]">
-                        <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Khách hàng</p>
+                    <div className="p-4 rounded-xl bg-background border border-border">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Khách hàng</p>
                         <div className="flex items-center gap-2">
                             <UserIcon className="w-4 h-4 text-emerald-500" />
-                            <p className="font-bold text-white">{data.userId?.displayName || 'Khách vãng lai'}</p>
+                            <p className="font-bold text-foreground">{data.userId?.displayName || 'Khách vãng lai'}</p>
                         </div>
                     </div>
-                    <div className="p-4 rounded-xl bg-[#0f141a] border border-[#262f3d]">
-                        <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Số tiền</p>
+                    <div className="p-4 rounded-xl bg-background border border-border">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Số tiền</p>
                         <div className="flex items-center gap-2">
                             <DollarSign className="w-4 h-4 text-emerald-500" />
                             <p className="font-bold text-emerald-400">{data.finalAmount?.toLocaleString()}đ</p>
                         </div>
                     </div>
-                    <div className="p-4 rounded-xl bg-[#0f141a] border border-[#262f3d]">
-                        <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Sân / Môn</p>
+                    <div className="p-4 rounded-xl bg-background border border-border">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Sân / Môn</p>
                         <div className="flex items-center gap-2">
                             <MapPin className="w-4 h-4 text-emerald-500" />
-                            <p className="font-bold text-white">{data.courtId?.name} ({data.courtId?.sportType})</p>
+                            <p className="font-bold text-foreground">{data.courtId?.name} ({data.courtId?.sportType})</p>
                         </div>
                     </div>
-                    <div className="p-4 rounded-xl bg-[#0f141a] border border-[#262f3d]">
-                        <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Ngày chơi</p>
+                    <div className="p-4 rounded-xl bg-background border border-border">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Ngày chơi</p>
                         <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-emerald-500" />
-                            <p className="font-bold text-white">{dayjs(data.date).format('DD/MM/YYYY')}</p>
+                            <p className="font-bold text-foreground">{dayjs(data.date).format('DD/MM/YYYY')}</p>
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <h3 className="text-sm font-bold text-white mb-3">Các khung giờ</h3>
+                    <h3 className="text-sm font-bold text-foreground mb-3">Các khung giờ</h3>
                     <div className="space-y-2">
-                        <div className="flex justify-between items-center p-3 rounded-lg bg-[#262f3d]/30 border border-[#262f3d]">
-                            <span className="text-gray-300 font-medium">{data.startTime} - {data.endTime}</span>
+                        <div className="flex justify-between items-center p-3 rounded-lg bg-surface/30 border border-border">
+                            <span className="text-muted-foreground font-medium">{data.startTime} - {data.endTime}</span>
                             <span className="text-emerald-400 font-bold">{data.finalAmount?.toLocaleString()}đ</span>
                         </div>
                     </div>
@@ -547,13 +547,13 @@ function AdminCourtManageModal({ data, onClose }: { data: any, onClose: () => vo
     return (
         <ModalWrapper title={"Thống kê Sân: " + (data.name || 'Sân')} onClose={onClose}>
             <div className="space-y-6">
-                <div className="flex justify-between items-center p-4 rounded-xl bg-[#0f141a] border border-[#262f3d]">
+                <div className="flex justify-between items-center p-4 rounded-xl bg-background border border-border">
                     <div>
-                        <p className="text-sm text-gray-400">Lượt đặt tổng cộng</p>
-                        <p className="text-2xl font-bold text-white mt-1">{data.bookings}</p>
+                        <p className="text-sm text-muted-foreground">Lượt đặt tổng cộng</p>
+                        <p className="text-2xl font-bold text-foreground mt-1">{data.bookings}</p>
                     </div>
                     <div className="text-right">
-                        <p className="text-sm text-gray-400">Doanh thu mang lại</p>
+                        <p className="text-sm text-muted-foreground">Doanh thu mang lại</p>
                         <p className="text-2xl font-bold text-emerald-400 mt-1">{(data.revenue)?.toLocaleString()}đ</p>
                     </div>
                 </div>
@@ -562,8 +562,8 @@ function AdminCourtManageModal({ data, onClose }: { data: any, onClose: () => vo
                     <h4 className="text-orange-400 font-bold mb-2">Hành động kiểm duyệt</h4>
                     <p className="text-sm text-orange-200/70 mb-4">Nếu sân này vi phạm chính sách hoặc bị báo cáo nhiều lần, bạn có thể tạm ngưng hoạt động của sân.</p>
                     <div className="flex gap-3">
-                        <button className="px-4 py-2 bg-[#0f141a] border border-orange-500/50 text-orange-400 font-semibold rounded-lg hover:bg-orange-500 hover:text-white transition-colors">Cảnh báo Chủ Sân</button>
-                        <button className="px-4 py-2 bg-red-500/20 border border-red-500/50 text-red-400 font-semibold rounded-lg hover:bg-red-500 hover:text-white transition-colors">Khóa Sân</button>
+                        <button className="px-4 py-2 bg-background border border-orange-500/50 text-orange-400 font-semibold rounded-lg hover:bg-orange-500 hover:text-foreground transition-colors">Cảnh báo Chủ Sân</button>
+                        <button className="px-4 py-2 bg-red-500/20 border border-red-500/50 text-red-400 font-semibold rounded-lg hover:bg-red-500 hover:text-foreground transition-colors">Khóa Sân</button>
                     </div>
                 </div>
             </div>
@@ -588,7 +588,7 @@ function AllBookingsModal({ onClose }: { onClose: () => void }) {
             ) : (
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm whitespace-nowrap">
-                        <thead className="text-gray-400 border-b border-[#262f3d]">
+                        <thead className="text-muted-foreground border-b border-border">
                             <tr>
                                 <th className="pb-4 font-semibold">Mã đơn</th>
                                 <th className="pb-4 font-semibold">Khách</th>
@@ -599,11 +599,11 @@ function AllBookingsModal({ onClose }: { onClose: () => void }) {
                         </thead>
                         <tbody className="divide-y divide-[#262f3d]">
                             {bookings.map((booking: any) => (
-                                <tr key={booking._id} className="hover:bg-white/5 transition-colors">
-                                    <td className="py-4 text-gray-300 font-medium">#{booking.bookingCode}</td>
-                                    <td className="py-4 text-gray-400">{booking.userId?.displayName || 'N/A'}</td>
+                                <tr key={booking._id} className="hover:bg-muted transition-colors">
+                                    <td className="py-4 text-muted-foreground font-medium">#{booking.bookingCode}</td>
+                                    <td className="py-4 text-muted-foreground">{booking.userId?.displayName || 'N/A'}</td>
                                     <td className="py-4 text-emerald-400 font-bold">{booking.finalAmount?.toLocaleString()}đ</td>
-                                    <td className="py-4 text-gray-400">{dayjs(booking.date).format('DD/MM/YYYY')}</td>
+                                    <td className="py-4 text-muted-foreground">{dayjs(booking.date).format('DD/MM/YYYY')}</td>
                                     <td className="py-4">
                                         <span className={`px-2.5 py-1 rounded text-[10px] font-bold tracking-wide uppercase ${booking.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : booking.status === 'cancelled' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-orange-500/10 text-orange-400 border border-orange-500/20'}`}>
                                             {booking.status}
@@ -613,7 +613,7 @@ function AllBookingsModal({ onClose }: { onClose: () => void }) {
                             ))}
                             {bookings.length === 0 && (
                                 <tr>
-                                    <td colSpan={5} className="py-8 text-center text-gray-500">Không có dữ liệu</td>
+                                    <td colSpan={5} className="py-8 text-center text-muted-foreground">Không có dữ liệu</td>
                                 </tr>
                             )}
                         </tbody>
@@ -629,13 +629,13 @@ function ChartDetailModal({ data, onClose }: { data: any, onClose: () => void })
     return (
         <ModalWrapper title={`Thống kê ngày ${data.name}`} onClose={onClose}>
             <div className="space-y-6">
-                <div className="flex justify-between items-center p-4 rounded-xl bg-[#0f141a] border border-[#262f3d]">
+                <div className="flex justify-between items-center p-4 rounded-xl bg-background border border-border">
                     <div>
-                        <p className="text-sm text-gray-400">Số đơn đặt</p>
-                        <p className="text-2xl font-bold text-white mt-1">{data.count || 0} đơn</p>
+                        <p className="text-sm text-muted-foreground">Số đơn đặt</p>
+                        <p className="text-2xl font-bold text-foreground mt-1">{data.count || 0} đơn</p>
                     </div>
                     <div className="text-right">
-                        <p className="text-sm text-gray-400">Doanh thu trong ngày</p>
+                        <p className="text-sm text-muted-foreground">Doanh thu trong ngày</p>
                         <p className="text-2xl font-bold text-emerald-400 mt-1">{(data.income)?.toLocaleString() || 0}đ</p>
                     </div>
                 </div>
@@ -645,7 +645,7 @@ function ChartDetailModal({ data, onClose }: { data: any, onClose: () => void })
                     <p className="text-blue-50 text-sm mt-1 leading-relaxed">
                         Ngày {data.name} có tổng cộng {data.count || 0} lượt đặt mang về {(data.income)?.toLocaleString() || 0}đ. Bạn có thể xem xét gửi Email Marketing hoặc tạo chiến dịch Push Notification kèm mã ưu đãi cho các khách hàng cũ nhằm lấp đầy các khung giờ trống và tối đa hóa doanh thu nhé!
                     </p>
-                    <button className="mt-4 px-4 py-2 bg-[#0f141a] border border-blue-500/50 text-blue-400 text-sm font-semibold rounded-lg hover:bg-blue-500 hover:text-white transition-colors">Tạo chiến dịch ngay</button>
+                    <button className="mt-4 px-4 py-2 bg-background border border-blue-500/50 text-blue-400 text-sm font-semibold rounded-lg hover:bg-blue-500 hover:text-foreground transition-colors">Tạo chiến dịch ngay</button>
                 </div>
             </div>
         </ModalWrapper>

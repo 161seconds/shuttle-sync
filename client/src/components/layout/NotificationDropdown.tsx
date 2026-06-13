@@ -129,11 +129,11 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="absolute right-0 top-[110%] w-[90vw] md:w-[420px] bg-[#151515]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-50 overflow-hidden"
+                    className="absolute right-0 top-[110%] w-[90vw] md:w-[420px] bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-50 overflow-hidden"
                 >
                     {/* Header */}
-                    <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
-                        <h2 className="text-[17px] font-black text-white">Thông báo</h2>
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+                        <h2 className="text-[17px] font-black text-foreground">Thông báo</h2>
                         <button
                             onClick={handleMarkAllRead}
                             disabled={loading || notifications.length === 0}
@@ -148,15 +148,15 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
                         {loading ? (
                             <div className="flex flex-col items-center justify-center py-10">
                                 <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-3" />
-                                <span className="text-sm font-medium text-gray-400">Đang tải...</span>
+                                <span className="text-sm font-medium text-muted-foreground">Đang tải...</span>
                             </div>
                         ) : notifications.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-10 text-center px-4">
-                                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-white/10 mb-4">
+                                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-border mb-4">
                                     <CheckCheck className="w-8 h-8 text-emerald-500" />
                                 </div>
-                                <p className="text-white font-bold mb-1">Không có thông báo mới</p>
-                                <p className="text-xs text-gray-400">Bạn đã cập nhật mọi thông tin.</p>
+                                <p className="text-foreground font-bold mb-1">Không có thông báo mới</p>
+                                <p className="text-xs text-muted-foreground">Bạn đã cập nhật mọi thông tin.</p>
                             </div>
                         ) : (
                             <div className="flex flex-col">
@@ -170,8 +170,8 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
                                             }
                                         }}
                                         className={`group relative flex gap-4 px-5 py-4 cursor-pointer transition-colors ${
-                                            noti.isRead ? 'hover:bg-white/5' : 'bg-emerald-500/5 hover:bg-emerald-500/10'
-                                        } ${index !== notifications.length - 1 ? 'border-b border-white/5' : ''}`}
+                                            noti.isRead ? 'hover:bg-muted' : 'bg-emerald-500/5 hover:bg-emerald-500/10'
+                                        } ${index !== notifications.length - 1 ? 'border-b border-border' : ''}`}
                                     >
                                         {/* Icon */}
                                         <div className={`w-11 h-11 shrink-0 rounded-xl border flex items-center justify-center ${getIconBackground(noti.type)}`}>
@@ -181,17 +181,17 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
                                         {/* Info */}
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start mb-1">
-                                                <h3 className={`text-[14px] font-bold leading-tight ${noti.isRead ? 'text-gray-300' : 'text-white'}`}>
+                                                <h3 className={`text-[14px] font-bold leading-tight ${noti.isRead ? 'text-muted-foreground' : 'text-foreground'}`}>
                                                     {noti.title}
                                                 </h3>
                                                 {!noti.isRead && (
                                                     <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 mt-1" />
                                                 )}
                                             </div>
-                                            <p className={`text-[13px] line-clamp-2 ${noti.isRead ? 'text-gray-500' : 'text-gray-400'}`}>
+                                            <p className={`text-[13px] line-clamp-2 ${noti.isRead ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
                                                 {noti.message}
                                             </p>
-                                            <div className="mt-2 text-[11px] font-bold text-gray-500 flex items-center gap-1.5">
+                                            <div className="mt-2 text-[11px] font-bold text-muted-foreground flex items-center gap-1.5">
                                                 <span>Hệ thống</span>
                                                 <span className="w-1 h-1 rounded-full bg-gray-600" />
                                                 <span>{timeAgo(noti.createdAt)}</span>
@@ -204,7 +204,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
                     </div>
 
                     {/* Footer */}
-                    <div className="border-t border-white/5 p-3">
+                    <div className="border-t border-border p-3">
                         <button
                             onClick={handleViewAll}
                             className="w-full py-2.5 rounded-xl text-[14px] font-bold text-emerald-400 hover:bg-emerald-500/10 transition-colors flex items-center justify-center"

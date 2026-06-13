@@ -81,14 +81,14 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative w-full max-w-md bg-[#1a1d21] border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+                className="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
             >
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-white/5">
-                    <h2 className="text-lg font-bold text-white">Thông tin nhóm</h2>
+                <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-white/5">
+                    <h2 className="text-lg font-bold text-foreground">Thông tin nhóm</h2>
                     <button 
                         onClick={onClose}
-                        className="p-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                        className="p-2 text-muted-foreground hover:text-foreground bg-white/5 hover:bg-muted rounded-full transition-colors"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -112,8 +112,8 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
                                     <Clock className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-400">Thời gian mở nhóm</p>
-                                    <p className="text-white font-medium">{timeElapsed ? `Đã mở được ${timeElapsed}` : 'Vừa mới mở'}</p>
+                                    <p className="text-sm text-muted-foreground">Thời gian mở nhóm</p>
+                                    <p className="text-foreground font-medium">{timeElapsed ? `Đã mở được ${timeElapsed}` : 'Vừa mới mở'}</p>
                                 </div>
                             </div>
 
@@ -121,11 +121,11 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
                             <div>
                                 <div className="flex items-center gap-2 mb-3">
                                     <Shield className="w-4 h-4 text-emerald-400" />
-                                    <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Chủ nhóm</h3>
+                                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Chủ nhóm</h3>
                                 </div>
                                 
-                                <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/5">
-                                    <div className="w-12 h-12 rounded-full overflow-hidden border border-white/10 bg-gray-800">
+                                <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-border">
+                                    <div className="w-12 h-12 rounded-full overflow-hidden border border-border bg-gray-800">
                                         <img 
                                             src={groupData.organizerId?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${groupData.organizerId?.displayName || 'A'}`} 
                                             alt="Avatar" 
@@ -133,7 +133,7 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
                                         />
                                     </div>
                                     <div>
-                                        <p className="text-white font-medium">{groupData.organizerId?.displayName || 'Chủ nhóm'}</p>
+                                        <p className="text-foreground font-medium">{groupData.organizerId?.displayName || 'Chủ nhóm'}</p>
                                         <p className="text-xs text-emerald-400 font-medium">Người tổ chức</p>
                                     </div>
                                 </div>
@@ -144,14 +144,14 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-2">
                                         <Users className="w-4 h-4 text-blue-400" />
-                                        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Thành viên ({groupData.participants?.length || 0})</h3>
+                                        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Thành viên ({groupData.participants?.length || 0})</h3>
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
                                     {groupData.participants?.map((participant: any, index: number) => (
-                                        <div key={participant.userId || index} className="flex items-center gap-3 bg-white/5 p-3 rounded-xl hover:bg-white/10 transition-colors">
-                                            <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 bg-gray-800">
+                                        <div key={participant.userId || index} className="flex items-center gap-3 bg-white/5 p-3 rounded-xl hover:bg-muted transition-colors">
+                                            <div className="w-10 h-10 rounded-full overflow-hidden border border-border bg-gray-800">
                                                 <img 
                                                     src={participant.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${participant.displayName || 'U'}`} 
                                                     alt={participant.displayName} 
@@ -159,7 +159,7 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
                                                 />
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-white text-sm font-medium flex items-center gap-2">
+                                                <p className="text-foreground text-sm font-medium flex items-center gap-2">
                                                     {participant.displayName || 'Thành viên'}
                                                     {String(participant.userId) === String(groupData.organizerId?._id || groupData.organizerId) && (
                                                         <span className="bg-emerald-500/20 text-emerald-400 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
@@ -167,7 +167,7 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
                                                         </span>
                                                     )}
                                                 </p>
-                                                <p className="text-xs text-gray-400">
+                                                <p className="text-xs text-muted-foreground">
                                                     Tham gia lúc {participant.joinedAt ? dayjs(participant.joinedAt).format('HH:mm - DD/MM/YYYY') : ''}
                                                 </p>
                                             </div>
@@ -188,7 +188,7 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
                                                         className={`p-2 rounded-lg transition-colors flex items-center justify-center shrink-0 ${
                                                             isSent
                                                                 ? 'bg-emerald-500/20 text-emerald-400'
-                                                                : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
+                                                                : 'bg-white/5 text-muted-foreground hover:text-foreground hover:bg-muted'
                                                         }`}
                                                         title={isSent ? 'Đã gửi lời mời' : 'Kết bạn'}
                                                     >
@@ -202,7 +202,7 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
                             </div>
                         </>
                     ) : (
-                        <div className="text-center py-10 text-gray-500">
+                        <div className="text-center py-10 text-muted-foreground">
                             <p>Không có dữ liệu nhóm</p>
                         </div>
                     )}

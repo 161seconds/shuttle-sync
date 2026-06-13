@@ -33,6 +33,7 @@ import AppSidebar from './components/layout/Sidebar';
 import GlobalAlert from './components/GlobalAlert';
 import { useAlertStore } from './stores/useAlertStore';
 import { socketService } from './utils/socket';
+import { ThemeProvider } from './components/theme-provider';
 
 function PremiumBackground() {
   const lightRef = useRef<HTMLDivElement>(null);
@@ -56,7 +57,7 @@ function PremiumBackground() {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#060809]">
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-background">
       {/* 1. Aurora Gradient Glows (Góc trái trên và góc phải dưới) */}
       <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-emerald-500/10 blur-[150px]" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-500/10 blur-[150px]" />
@@ -224,9 +225,11 @@ function Shell() {
 
 export default function App() {
   return (
-    <AppProvider>
-      <Shell />
-      <GlobalAlert />
-    </AppProvider>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <AppProvider>
+        <Shell />
+        <GlobalAlert />
+      </AppProvider>
+    </ThemeProvider>
   );
 }

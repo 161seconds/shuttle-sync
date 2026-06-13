@@ -54,17 +54,17 @@ export default function OnboardingModal({ onComplete, onSkip }: Props) {
             />
 
             <motion.div
-                className="relative w-full h-[85vh] max-h-[700px] sm:max-w-md sm:h-[650px] bg-[#060809]/80 backdrop-blur-2xl sm:rounded-[2rem] border border-white/10 shadow-[0_0_100px_rgba(16,185,129,0.15)] overflow-hidden flex flex-col"
+                className="relative w-full h-[85vh] max-h-[700px] sm:max-w-md sm:h-[650px] bg-background/80 backdrop-blur-2xl sm:rounded-[2rem] border border-border shadow-[0_0_100px_rgba(16,185,129,0.15)] overflow-hidden flex flex-col"
                 layout
             >
                 {/* Inner glass shine */}
-                <div className="absolute inset-0 rounded-[2rem] border-t border-white/10 pointer-events-none" />
+                <div className="absolute inset-0 rounded-[2rem] border-t border-border pointer-events-none" />
 
                 <div className="flex items-center justify-between relative z-20 shrink-0 p-6 pb-2">
                     <ProgressBar current={step} total={totalSteps} />
                     {step > 1 && (
                         <button onClick={onSkip}
-                            className="absolute right-6 top-5 p-2 rounded-xl text-white/30 hover:text-white/80 hover:bg-white/10 transition-all backdrop-blur-md"
+                            className="absolute right-6 top-5 p-2 rounded-xl text-foreground/30 hover:text-foreground/80 hover:bg-muted transition-all backdrop-blur-md"
                             aria-label="Đóng">
                             <X className="w-5 h-5" />
                         </button>

@@ -4,23 +4,23 @@ import { EmojiIcon } from '../components/EmojiIcon';
 /** ShuttleSync Design Tokens — FULL DARK THEME */
 export const theme = {
     bg: {
-        base: 'bg-[#0a0a0a]',
-        surface: 'bg-[#111111]',
-        card: 'bg-[#151515]',
-        elevated: 'bg-[#1a1a1a]',
-        hover: 'hover:bg-[#1e1e1e]',
-        input: 'bg-[#1a1a1a]',
+        base: 'bg-background',
+        surface: 'bg-card',
+        card: 'bg-card',
+        elevated: 'bg-card',
+        hover: 'hover:bg-card',
+        input: 'bg-card',
     },
     border: {
-        subtle: 'border-[#1e1e1e]',
-        muted: 'border-[#2a2a2a]',
+        subtle: 'border-border',
+        muted: 'border-border',
         accent: 'border-emerald-500/20',
         glow: 'border-emerald-400/40',
     },
     text: {
-        primary: 'text-[#eaeaea]',
-        secondary: 'text-[#999]',
-        muted: 'text-[#555]',
+        primary: 'text-foreground',
+        secondary: 'text-muted-foreground',
+        muted: 'text-muted-foreground',
         accent: 'text-emerald-400',
     },
     glow: {

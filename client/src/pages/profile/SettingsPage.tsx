@@ -52,12 +52,12 @@ export default function SettingsPage({ onBack }: Props) {
     return (
         <div className={`min-h-screen w-full${t.bg.base} pb-24`}>
             {/* STICKY HEADER */}
-            <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-white/5`}>
+            <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-border`}>
                 <div className="flex items-center gap-3 px-4 h-16">
-                    <button onClick={onBack} className={`w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center ${t.text.muted} hover:text-white transition-all`}>
+                    <button onClick={onBack} className={`w-10 h-10 rounded-full bg-white/5 hover:bg-muted flex items-center justify-center ${t.text.muted} hover:text-foreground transition-all`}>
                         <ChevronLeft className="w-6 h-6" />
                     </button>
-                    <h1 className={`font-black text-lg text-white tracking-wide`}>Cài đặt</h1>
+                    <h1 className={`font-black text-lg text-foreground tracking-wide`}>Cài đặt</h1>
                 </div>
             </div>
 
@@ -73,14 +73,14 @@ export default function SettingsPage({ onBack }: Props) {
                 {/* Bảo mật */}
                 <Section title="Bảo mật">
                     <button onClick={() => setShowChangePw(!showChangePw)}
-                        className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all group`}>
-                        <Lock className={`w-5 h-5 text-gray-400 group-hover:text-emerald-400 transition-colors`} />
-                        <span className={`flex-1 text-left text-[15px] font-bold text-gray-300 group-hover:text-white transition-colors`}>Đổi mật khẩu</span>
-                        <ChevronRight className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${showChangePw ? 'rotate-90 text-emerald-400' : ''}`} />
+                        className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/5 border border-border hover:bg-muted hover:border-border transition-all group`}>
+                        <Lock className={`w-5 h-5 text-muted-foreground group-hover:text-emerald-400 transition-colors`} />
+                        <span className={`flex-1 text-left text-[15px] font-bold text-muted-foreground group-hover:text-foreground transition-colors`}>Đổi mật khẩu</span>
+                        <ChevronRight className={`w-5 h-5 text-muted-foreground transition-transform duration-300 ${showChangePw ? 'rotate-90 text-emerald-400' : ''}`} />
                     </button>
 
                     {showChangePw && (
-                        <div className={`mt-2 p-5 rounded-2xl bg-black/40 border border-white/5 space-y-4`}>
+                        <div className={`mt-2 p-5 rounded-2xl bg-black/40 border border-border space-y-4`}>
                             <PwInput placeholder="Mật khẩu hiện tại" value={pwForm.current}
                                 onChange={v => setPwForm(p => ({ ...p, current: v }))} />
                             <PwInput placeholder="Mật khẩu mới (tối thiểu 6 ký tự)" value={pwForm.newPw}
@@ -105,7 +105,7 @@ export default function SettingsPage({ onBack }: Props) {
                         <Trash2 className="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform" />
                         <span className="text-[15px] font-black text-red-500">Xóa tài khoản</span>
                     </button>
-                    <p className={`text-[11px] font-bold text-gray-500 mt-2 ml-2 uppercase tracking-widest`}>Hành động này không thể hoàn tác</p>
+                    <p className={`text-[11px] font-bold text-muted-foreground mt-2 ml-2 uppercase tracking-widest`}>Hành động này không thể hoàn tác</p>
                 </Section>
             </div>
         </div>
@@ -115,7 +115,7 @@ export default function SettingsPage({ onBack }: Props) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
     return (
         <div>
-            <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3 ml-2">{title}</h3>
+            <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-3 ml-2">{title}</h3>
             <div className="space-y-3">{children}</div>
         </div>
     );
@@ -125,9 +125,9 @@ function ToggleRow({ icon, label, checked, onChange }: {
     icon: React.ReactNode; label: string; checked: boolean; onChange: (v: boolean) => void;
 }) {
     return (
-        <div className={`flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/5 border border-white/5`}>
-            <span className="text-gray-400">{icon}</span>
-            <span className="flex-1 text-[15px] font-bold text-gray-300">{label}</span>
+        <div className={`flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/5 border border-border`}>
+            <span className="text-muted-foreground">{icon}</span>
+            <span className="flex-1 text-[15px] font-bold text-muted-foreground">{label}</span>
 
             {/* iOS Neon Toggle Switch */}
             <button
@@ -148,6 +148,6 @@ function PwInput({ placeholder, value, onChange }: { placeholder: string; value:
     return (
         <input type="password" placeholder={placeholder} value={value}
             onChange={e => onChange((e.target as HTMLInputElement).value)}
-            className="w-full h-12 px-5 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-gray-500 text-[15px] font-medium outline-none focus:border-emerald-500/50 focus:bg-white/10 focus:shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-all" />
+            className="w-full h-12 px-5 rounded-xl bg-white/5 border border-border text-foreground placeholder:text-muted-foreground text-[15px] font-medium outline-none focus:border-emerald-500/50 focus:bg-white/10 focus:shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-all" />
     );
 }

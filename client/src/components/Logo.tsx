@@ -20,7 +20,7 @@ export default function Logo({ className = "", showText = true }: LogoProps) {
             {/* Phần chữ tên App */}
             {showText && (
                 <div className="flex flex-col leading-tight">
-                    <span className="text-white font-black text-lg tracking-tight">
+                    <span className="text-foreground font-black text-lg tracking-tight">
                         Shuttle<span className="text-emerald-500">Sync</span>
                     </span>
                     <span className="text-[10px] text-emerald-500/60 font-bold tracking-[0.2em] uppercase -mt-0.5">
