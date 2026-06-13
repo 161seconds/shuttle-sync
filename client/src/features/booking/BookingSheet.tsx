@@ -262,7 +262,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
             {/* MAIN GLASS CONTAINER */}
             <motion.div 
                 variants={sheetVariants} initial="hidden" animate="visible" exit="exit"
-                className="relative w-full max-w-2xl bg-white/5 rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col backdrop-blur-xl"
+                className="relative w-full max-w-2xl max-h-[90vh] bg-white/5 rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col backdrop-blur-xl"
             >
                 {/* Header */}
                 <div className="px-6 py-5 flex items-center justify-between relative z-10 border-b border-white/5 bg-white/5">

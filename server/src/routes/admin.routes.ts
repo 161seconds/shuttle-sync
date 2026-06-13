@@ -11,6 +11,9 @@ router.use(authenticate, requireAdmin);
 // Dashboard
 router.get('/dashboard', adminController.getDashboard);
 
+// Bookings
+router.get('/bookings', adminController.getAllBookings);
+
 // User management
 router.get('/users', adminController.getUsers);
 router.post('/users/:userId/ban', validate(banUserSchema), adminController.banUser);
