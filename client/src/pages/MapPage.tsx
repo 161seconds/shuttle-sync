@@ -86,7 +86,7 @@ export default function MapPage() {
             if (opts?.maxPrice) params.maxPrice = opts.maxPrice;
 
             const res = await courtApi.searchCourts(params);
-            if (res.data?.data) setCourts(res.data.data);
+            if (res.data?.data) setCourts(res.data.data as any);
         } catch (error) {
             console.error("Lỗi fetch sân:", error);
         }
