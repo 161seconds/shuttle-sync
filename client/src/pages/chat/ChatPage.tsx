@@ -330,7 +330,7 @@ export default function ChatPage() {
     };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-64px)] bg-transparent text-white overflow-hidden">
+        <div className="flex flex-col h-[calc(100vh-64px)] bg-transparent text-foreground overflow-hidden">
             <div className="flex flex-1 overflow-hidden">
                 {/* Sidebar */}
                 <div className={`
@@ -383,11 +383,11 @@ export default function ChatPage() {
                             onLeaveGroup={() => handleLeaveGroup(activeRoom.id)}
                         />
                     ) : (
-                        <div className="text-center text-gray-500 m-auto">
+                        <div className="text-center text-muted-foreground m-auto">
                             <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6 shadow-inner">
                                 <span className="text-4xl">💬</span>
                             </div>
-                            <h2 className="text-xl font-bold text-white mb-2">Shuttle Chat</h2>
+                            <h2 className="text-xl font-bold text-foreground mb-2">Shuttle Chat</h2>
                             <p className="text-sm">Chọn một nhóm chat ở bên trái để bắt đầu trò chuyện nhé</p>
                         </div>
                     )}

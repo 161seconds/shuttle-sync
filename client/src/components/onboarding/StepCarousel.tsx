@@ -24,8 +24,8 @@ export default function StepCarousel({ onNext, onBack }: { onNext: () => void; o
             initial={{ opacity: 0, x: 60 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -60 }}
             transition={{ duration: 0.4 }}
         >
-            <h2 className="text-2xl font-bold text-white mb-1 tracking-tight">Khám phá tính năng</h2>
-            <p className="text-white/40 text-sm mb-6">Vuốt để xem thêm</p>
+            <h2 className="text-2xl font-bold text-foreground mb-1 tracking-tight">Khám phá tính năng</h2>
+            <p className="text-foreground/40 text-sm mb-6">Vuốt để xem thêm</p>
 
             <div className="flex-1 flex flex-col justify-center overflow-hidden">
                 <motion.div className="cursor-grab active:cursor-grabbing"
@@ -60,8 +60,8 @@ export default function StepCarousel({ onNext, onBack }: { onNext: () => void; o
                                     transition={{ duration: 2.5, repeat: Infinity }}
                                 />
                             </div>
-                            <h3 className="text-2xl font-bold text-white mb-3 tracking-tight">{CAROUSEL_SLIDES[active].title}</h3>
-                            <p className="text-white/50 text-base leading-relaxed max-w-sm">{CAROUSEL_SLIDES[active].desc}</p>
+                            <h3 className="text-2xl font-bold text-foreground mb-3 tracking-tight">{CAROUSEL_SLIDES[active].title}</h3>
+                            <p className="text-foreground/50 text-base leading-relaxed max-w-sm">{CAROUSEL_SLIDES[active].desc}</p>
                         </motion.div>
                     </AnimatePresence>
                 </motion.div>
@@ -69,7 +69,7 @@ export default function StepCarousel({ onNext, onBack }: { onNext: () => void; o
                 <div className="flex justify-center gap-2 mt-8">
                     {CAROUSEL_SLIDES.map((_: any, i: any) => (
                         <motion.button key={i} onClick={() => setActive(i)}
-                            className={`rounded-full transition-colors ${i === active ? 'bg-emerald-400 w-8 h-2' : 'bg-white/15 w-2 h-2 hover:bg-white/25'}`}
+                            className={`rounded-full transition-colors ${i === active ? 'bg-emerald-400 w-8 h-2' : 'bg-white/15 w-2 h-2 hover:bg-muted'}`}
                             layout transition={{ duration: 0.3 }}
                         />
                     ))}
@@ -78,7 +78,7 @@ export default function StepCarousel({ onNext, onBack }: { onNext: () => void; o
 
             <div className="flex gap-3 mt-6">
                 <motion.button onClick={onBack} whileTap={{ scale: 0.97 }}
-                    className="flex-1 py-3.5 rounded-xl border border-white/10 text-white/60 font-medium hover:border-white/20 hover:text-white/80 transition-all flex items-center justify-center gap-2">
+                    className="flex-1 py-3.5 rounded-xl border border-border text-foreground/60 font-medium hover:border-border hover:text-foreground/80 transition-all flex items-center justify-center gap-2">
                     <ChevronLeft className="w-4 h-4" /> Quay lại
                 </motion.button>
                 <motion.button onClick={onNext} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}

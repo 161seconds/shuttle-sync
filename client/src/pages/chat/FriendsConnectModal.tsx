@@ -86,14 +86,14 @@ export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageC
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative w-full max-w-md bg-[#1a1d21] border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
+                className="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
             >
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-white/5 bg-black/20">
-                    <h2 className="text-lg font-bold text-white">Kết nối bạn bè</h2>
+                <div className="flex items-center justify-between p-4 border-b border-border bg-black/20">
+                    <h2 className="text-lg font-bold text-foreground">Kết nối bạn bè</h2>
                     <button 
                         onClick={onClose}
-                        className="p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/5"
+                        className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -104,12 +104,12 @@ export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageC
                     {/* Pending Requests */}
                     {pendingRequests.length > 0 && (
                         <div className="mb-6">
-                            <h3 className="text-sm font-semibold text-gray-400 mb-3 px-1 uppercase tracking-wider">
+                            <h3 className="text-sm font-semibold text-muted-foreground mb-3 px-1 uppercase tracking-wider">
                                 Lời mời kết bạn ({pendingRequests.length})
                             </h3>
                             <div className="space-y-2">
                                 {pendingRequests.map(req => (
-                                    <div key={req._id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
+                                    <div key={req._id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-border">
                                         <div 
                                             className="w-10 h-10 rounded-full bg-blue-500/20 overflow-hidden flex items-center justify-center text-blue-400 font-bold cursor-pointer hover:scale-105 transition-transform shrink-0"
                                             onClick={() => onAvatarClick?.(req.requesterId)}
@@ -117,7 +117,7 @@ export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageC
                                             {req.requesterId.avatar ? <img src={req.requesterId.avatar} alt="avatar" className="w-full h-full object-cover" /> : req.requesterId.displayName.charAt(0)}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h4 className="text-white font-medium truncate">{req.requesterId.displayName}</h4>
+                                            <h4 className="text-foreground font-medium truncate">{req.requesterId.displayName}</h4>
                                         </div>
                                         <div className="flex items-center gap-1.5 shrink-0">
                                             <button 
@@ -141,23 +141,23 @@ export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageC
 
                     {/* Search Section */}
                     <div>
-                        <h3 className="text-sm font-semibold text-gray-400 mb-3 px-1 uppercase tracking-wider">
+                        <h3 className="text-sm font-semibold text-muted-foreground mb-3 px-1 uppercase tracking-wider">
                             Tìm kiếm người dùng
                         </h3>
                         <div className="relative mb-4">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <input 
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyDown={handleSearchUsers}
                                 placeholder="Tìm theo tên hoặc email (Nhấn Enter)"
-                                className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-sm text-white placeholder-gray-500 outline-none focus:border-emerald-500/50 transition-colors"
+                                className="w-full bg-black/20 border border-border rounded-xl py-2.5 pl-9 pr-4 text-sm text-foreground placeholder-gray-500 outline-none focus:border-emerald-500/50 transition-colors"
                             />
                         </div>
 
                         {isSearching ? (
-                            <div className="text-center text-gray-400 text-sm py-4">Đang tìm...</div>
+                            <div className="text-center text-muted-foreground text-sm py-4">Đang tìm...</div>
                         ) : (
                             <div className="space-y-2">
                                 {searchResults.map(u => {
@@ -168,7 +168,7 @@ export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageC
                                     const isBlocked = isRejected && u.friendship?.rejectionCount >= 3;
 
                                     return (
-                                        <div key={u._id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 hover:border-emerald-500/30 group">
+                                        <div key={u._id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-muted transition-all border border-border hover:border-emerald-500/30 group">
                                             <div 
                                                 className="w-10 h-10 rounded-full bg-emerald-500/20 overflow-hidden flex items-center justify-center text-emerald-400 font-bold cursor-pointer hover:scale-105 transition-transform shrink-0"
                                                 onClick={() => onAvatarClick?.(u)}
@@ -176,8 +176,8 @@ export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageC
                                                 {u.avatar ? <img src={u.avatar} alt="avatar" className="w-full h-full object-cover" /> : u.displayName.charAt(0)}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <h4 className="text-white font-medium truncate">{u.displayName}</h4>
-                                                <p className="text-xs text-gray-400">Level: {u.skillLevel || 'Chưa xác định'}</p>
+                                                <h4 className="text-foreground font-medium truncate">{u.displayName}</h4>
+                                                <p className="text-xs text-muted-foreground">Level: {u.skillLevel || 'Chưa xác định'}</p>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 {isFriend ? (
@@ -185,13 +185,13 @@ export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageC
                                                 ) : isBlocked ? (
                                                     <span className="text-[10px] text-red-500 font-medium px-2 text-center max-w-[60px] leading-tight">Không thể kết bạn</span>
                                                 ) : isPendingUs ? (
-                                                    <span className="text-xs text-gray-400 font-medium px-2">Đã gửi</span>
+                                                    <span className="text-xs text-muted-foreground font-medium px-2">Đã gửi</span>
                                                 ) : isPendingThem ? (
                                                     <span className="text-xs text-emerald-400 font-medium px-2">Kéo lên để TL</span>
                                                 ) : (
                                                     <button 
                                                         onClick={() => handleSendRequest(u._id)}
-                                                        className="p-2 bg-white/10 text-white rounded-lg hover:bg-emerald-500 hover:text-black transition-all"
+                                                        className="p-2 bg-white/10 text-foreground rounded-lg hover:bg-emerald-500 hover:text-black transition-all"
                                                         title="Thêm bạn"
                                                     >
                                                         <UserPlus className="w-4 h-4" />
@@ -199,7 +199,7 @@ export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageC
                                                 )}
                                                 <button
                                                     onClick={() => onMessageClick?.(u._id)}
-                                                    className="p-2 bg-white/10 text-white rounded-lg hover:bg-blue-500 hover:text-white transition-all"
+                                                    className="p-2 bg-white/10 text-foreground rounded-lg hover:bg-blue-500 hover:text-foreground transition-all"
                                                     title="Nhắn tin"
                                                 >
                                                     <MessageCircle className="w-4 h-4" />

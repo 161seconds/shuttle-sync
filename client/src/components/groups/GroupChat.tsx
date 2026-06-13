@@ -86,7 +86,7 @@ export default function GroupChat({ groupPlayId, onClose }: GroupChatProps) {
         return (
             <div key={msg._id} className={`flex w-full mb-3 ${isMine ? 'justify-end' : 'justify-start'}`}>
                 {!isMine && showAvatar && (
-                    <div className="w-8 h-8 rounded-full bg-gray-700 overflow-hidden flex-shrink-0 mr-2 border border-gray-600 flex items-center justify-center text-xs font-bold text-white">
+                    <div className="w-8 h-8 rounded-full bg-gray-700 overflow-hidden flex-shrink-0 mr-2 border border-gray-600 flex items-center justify-center text-xs font-bold text-foreground">
                         {msg.senderAvatar ? (
                             <img src={msg.senderAvatar || undefined} alt="avatar" className="w-full h-full object-cover" />
                         ) : (
@@ -97,19 +97,19 @@ export default function GroupChat({ groupPlayId, onClose }: GroupChatProps) {
                 {!isMine && !showAvatar && <div className="w-8 mr-2 flex-shrink-0" />}
 
                 <div className={`max-w-[75%] flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
-                    {!isMine && showAvatar && <span className="text-[10px] text-gray-400 mb-1 ml-1">{msg.senderName}</span>}
+                    {!isMine && showAvatar && <span className="text-[10px] text-muted-foreground mb-1 ml-1">{msg.senderName}</span>}
                     
                     <div
                         className={`px-4 py-2 rounded-2xl text-sm ${
                             isMine
                                 ? 'bg-emerald-500 text-black rounded-tr-sm'
-                                : 'bg-white/10 text-white rounded-tl-sm border border-white/5'
+                                : 'bg-white/10 text-foreground rounded-tl-sm border border-border'
                         }`}
                         style={{ wordBreak: 'break-word' }}
                     >
                         {msg.content}
                     </div>
-                    <span className="text-[10px] text-gray-500 mt-1">{time}</span>
+                    <span className="text-[10px] text-muted-foreground mt-1">{time}</span>
                 </div>
             </div>
         );
@@ -120,30 +120,30 @@ export default function GroupChat({ groupPlayId, onClose }: GroupChatProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed inset-0 md:inset-auto md:bottom-24 md:right-6 md:w-96 md:h-[500px] z-[60] bg-[#1a1b1e] md:rounded-3xl border border-white/10 shadow-2xl flex flex-col overflow-hidden"
+            className="fixed inset-0 md:inset-auto md:bottom-24 md:right-6 md:w-96 md:h-[500px] z-[60] bg-card md:rounded-3xl border border-border shadow-2xl flex flex-col overflow-hidden"
         >
             {/* Header */}
-            <div className="h-14 bg-white/5 border-b border-white/10 flex items-center justify-between px-4">
+            <div className="h-14 bg-white/5 border-b border-border flex items-center justify-between px-4">
                 <div className="flex items-center gap-2">
                     <span className="text-xl">💬</span>
-                    <h3 className="font-bold text-white text-sm">Chat Phòng</h3>
+                    <h3 className="font-bold text-foreground text-sm">Chat Phòng</h3>
                 </div>
                 <button
                     onClick={onClose}
-                    className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center text-gray-400 transition-colors"
+                    className="w-8 h-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground transition-colors"
                 >
                     <X className="w-4 h-4" />
                 </button>
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-[#111113]">
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-card">
                 {loading ? (
                     <div className="flex items-center justify-center h-full">
                         <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
                     </div>
                 ) : messages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-2">
+                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground space-y-2">
                         <span className="text-3xl">🏸</span>
                         <p className="text-xs">Chưa có tin nhắn nào.</p>
                         <p className="text-[10px]">Hãy gửi tin nhắn đầu tiên!</p>
@@ -157,14 +157,14 @@ export default function GroupChat({ groupPlayId, onClose }: GroupChatProps) {
             </div>
 
             {/* Input Area */}
-            <div className="p-3 bg-white/5 border-t border-white/10">
+            <div className="p-3 bg-white/5 border-t border-border">
                 <form onSubmit={handleSend} className="flex gap-2">
                     <input
                         type="text"
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         placeholder="Nhập tin nhắn..."
-                        className="flex-1 h-10 bg-black/40 border border-white/10 rounded-xl px-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-colors"
+                        className="flex-1 h-10 bg-black/40 border border-border rounded-xl px-4 text-sm text-foreground focus:outline-none focus:border-emerald-500/50 transition-colors"
                     />
                     <button
                         type="submit"

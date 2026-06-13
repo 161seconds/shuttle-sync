@@ -356,11 +356,11 @@ export default function MapPage() {
 
     const mainPhoto = (c: Court) => c.photos?.find(p => p.isMain)?.url || c.photos?.[0]?.url || 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&fit=crop';
 
-    if (!VIETMAP_KEY) return <div className="h-full flex items-center justify-center text-emerald-500 font-bold bg-[#121212]">Thiếu KEY Bản đồ</div>;
+    if (!VIETMAP_KEY) return <div className="h-full flex items-center justify-center text-emerald-500 font-bold bg-card">Thiếu KEY Bản đồ</div>;
 
     return (
         <div className="relative w-full h-[calc(100dvh-64px)] overflow-hidden font-sans">
-            <div ref={mapContainer} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} className="bg-[#121212]" />
+            <div ref={mapContainer} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} className="bg-card" />
 
             <div className="absolute top-0 left-0 right-0 h-40 bg-linear-to-b from-[#121212]/90 via-[#121212]/50 to-transparent z-10 pointer-events-none" />
             <div className="absolute bottom-0 left-0 right-0 h-64 bg-linear-to-t from-[#121212] via-[#121212]/80 to-transparent z-10 pointer-events-none" />
@@ -368,17 +368,17 @@ export default function MapPage() {
             {/* TÌM KIẾM & CHIP FILTER */}
             <div className="absolute top-6 left-4 right-4 z-20 pointer-events-none">
                 <div className="relative max-w-md mx-auto pointer-events-auto group">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-emerald-400 transition-colors" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-emerald-400 transition-colors" />
                     <input
                         type="text" placeholder="Tìm sân trên bản đồ..." value={searchVal} onChange={(e) => setSearchVal(e.target.value)}
-                        className="w-full h-14 pl-12 pr-14 rounded-2xl bg-[#1e1e1e]/70 backdrop-blur-2xl border border-white/10 text-white placeholder:text-gray-500 text-[15px] outline-none shadow-[0_8px_30px_rgb(0,0,0,0.5)] focus:border-emerald-500/50 focus:bg-[#1e1e1e]/90 transition-all"
+                        className="w-full h-14 pl-12 pr-14 rounded-2xl bg-card/70 backdrop-blur-2xl border border-border text-foreground placeholder:text-muted-foreground text-[15px] outline-none shadow-[0_8px_30px_rgb(0,0,0,0.5)] focus:border-emerald-500/50 focus:bg-card/90 transition-all"
                     />
                     {searchVal && (
-                        <button onClick={() => { setSearchVal(''); fetchCourts({ lat: userLoc?.lat, lng: userLoc?.lng }); }} className="absolute right-14 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+                        <button onClick={() => { setSearchVal(''); fetchCourts({ lat: userLoc?.lat, lng: userLoc?.lng }); }} className="absolute right-14 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
                             <X className="w-3 h-3" />
                         </button>
                     )}
-                    <button className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-300 transition-colors border border-white/5">
+                    <button className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-white/5 hover:bg-muted flex items-center justify-center text-muted-foreground transition-colors border border-border">
                         <SlidersHorizontal className="w-5 h-5" />
                     </button>
                 </div>
@@ -386,7 +386,7 @@ export default function MapPage() {
                 <div className="max-w-md mx-auto mt-4 flex gap-2.5 overflow-x-auto hide-scrollbar pointer-events-auto snap-x pb-2">
                     {FILTER_CHIPS.map((chip) => (
                         <button key={chip.id} onClick={() => handleFilterChip(chip.id)}
-                            className={`snap-start shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full border text-[12px] font-medium transition-all duration-300 shadow-lg ${activeFilter === chip.id ? 'bg-emerald-500 text-black border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'bg-[#1e1e1e]/80 backdrop-blur-xl border-white/10 text-gray-300 hover:border-emerald-500/50'}`}>
+                            className={`snap-start shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full border text-[12px] font-medium transition-all duration-300 shadow-lg ${activeFilter === chip.id ? 'bg-emerald-500 text-black border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'bg-card/80 backdrop-blur-xl border-border text-muted-foreground hover:border-emerald-500/50'}`}>
                             {chip.label}
                         </button>
                     ))}
@@ -405,15 +405,15 @@ export default function MapPage() {
                             const coords = getCourtCoords(court);
                             return (
                                 <div key={court._id} onClick={() => { setSelected(court); setShowRoute(false); setRouteInfo(null); if (coords) map.current?.flyTo({ center: coords, zoom: 15.5, pitch: 60, duration: 1500 }); }}
-                                    className="min-w-65 md:min-w-70 snap-center shrink-0 bg-[#1a1a1a]/80 backdrop-blur-2xl rounded-2xl border border-white/10 p-2.5 shadow-2xl cursor-pointer hover:border-emerald-500/40 hover:bg-[#222]/90 transition-all duration-300 group">
+                                    className="min-w-65 md:min-w-70 snap-center shrink-0 bg-card/80 backdrop-blur-2xl rounded-2xl border border-border p-2.5 shadow-2xl cursor-pointer hover:border-emerald-500/40 hover:bg-surface/90 transition-all duration-300 group">
                                     <div className="flex gap-3 items-center">
-                                        <img src={mainPhoto(court)} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0 border border-white/5 group-hover:scale-105 transition-transform duration-500" />
+                                        <img src={mainPhoto(court)} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0 border border-border group-hover:scale-105 transition-transform duration-500" />
                                         <div className="flex-1 min-w-0 py-0.5">
-                                            <h3 className="font-bold text-[14px] text-white truncate group-hover:text-emerald-400 transition-colors">{court.name}</h3>
-                                            <p className="text-[12px] text-gray-400 truncate mt-0.5 flex items-center gap-1"><MapPin className="w-3 h-3" /> {court.address?.district}</p>
+                                            <h3 className="font-bold text-[14px] text-foreground truncate group-hover:text-emerald-400 transition-colors">{court.name}</h3>
+                                            <p className="text-[12px] text-muted-foreground truncate mt-0.5 flex items-center gap-1"><MapPin className="w-3 h-3" /> {court.address?.district}</p>
                                             <div className="flex items-center justify-between mt-2">
                                                 <span className="text-emerald-400 font-bold text-[13px] bg-emerald-500/10 px-1.5 py-0.5 rounded-lg">{formatPrice(court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0)}/h</span>
-                                                <span className="text-[11px] font-bold bg-[#2a2a2a] text-amber-400 px-1.5 py-0.5 rounded-lg flex items-center gap-1 border border-white/5">⭐ {court.averageRating?.toFixed(1) || '5.0'}</span>
+                                                <span className="text-[11px] font-bold bg-surface text-amber-400 px-1.5 py-0.5 rounded-lg flex items-center gap-1 border border-border">⭐ {court.averageRating?.toFixed(1) || '5.0'}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -426,23 +426,23 @@ export default function MapPage() {
 
             {/* POPUP CHI TIẾT SÂN */}
             {selected && (
-                <div className="absolute bottom-28 left-4 right-4 md:left-auto md:right-8 md:w-88 z-30 bg-[#1a1a1a]/95 backdrop-blur-2xl rounded-3xl border border-white/10 p-4 shadow-[0_10px_40px_rgba(0,0,0,0.7)] transition-all animate-in fade-in slide-in-from-bottom-8">
+                <div className="absolute bottom-28 left-4 right-4 md:left-auto md:right-8 md:w-88 z-30 bg-card/95 backdrop-blur-2xl rounded-3xl border border-border p-4 shadow-[0_10px_40px_rgba(0,0,0,0.7)] transition-all animate-in fade-in slide-in-from-bottom-8">
                     <button onClick={() => {
                         setSelected(null);
                         setShowRoute(false);
                         setRouteInfo(null);
                         clearRoute();
                         map.current?.flyTo({ pitch: 0, duration: 1000 }); // Đóng popup thì trả góc cam
-                    }} className="absolute top-6 right-6 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 hover:text-white hover:bg-red-500 hover:border-red-500 hover:scale-110 transition-all z-10">
+                    }} className="absolute top-6 right-6 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-border flex items-center justify-center text-foreground/80 hover:text-foreground hover:bg-red-500 hover:border-red-500 hover:scale-110 transition-all z-10">
                         <X className="w-4 h-4 stroke-[2.5px]" />
                     </button>
                     <div className="flex flex-col gap-3">
-                        <img src={mainPhoto(selected)} alt="" className="w-full h-32 rounded-2xl object-cover shrink-0 border border-white/5" />
+                        <img src={mainPhoto(selected)} alt="" className="w-full h-32 rounded-2xl object-cover shrink-0 border border-border" />
                         <div className="flex-1 min-w-0">
-                            <h3 className="font-extrabold text-[16px] text-white leading-tight">{selected.name}</h3>
-                            <p className="text-[12px] text-gray-400 flex items-start gap-1.5 mt-1.5"><MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5 text-emerald-500" /><span className="line-clamp-2">{selected.address?.fullAddress || selected.address.district}</span></p>
-                            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/10">
-                                <span className="flex items-center gap-1.5 text-[13px] bg-[#2a2a2a] px-2.5 py-1 rounded-xl border border-white/5"><Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /><span className="text-white font-bold">{selected.averageRating?.toFixed(1) || '5.0'}</span></span>
+                            <h3 className="font-extrabold text-[16px] text-foreground leading-tight">{selected.name}</h3>
+                            <p className="text-[12px] text-muted-foreground flex items-start gap-1.5 mt-1.5"><MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5 text-emerald-500" /><span className="line-clamp-2">{selected.address?.fullAddress || selected.address.district}</span></p>
+                            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
+                                <span className="flex items-center gap-1.5 text-[13px] bg-surface px-2.5 py-1 rounded-xl border border-border"><Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /><span className="text-foreground font-bold">{selected.averageRating?.toFixed(1) || '5.0'}</span></span>
                                 <span className="text-emerald-400 text-[14px] font-black bg-emerald-500/10 px-2.5 py-1 rounded-xl flex-1 text-center border border-emerald-500/20">{formatPrice(selected.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0)} / Giờ</span>
                             </div>
                         </div>
@@ -454,7 +454,7 @@ export default function MapPage() {
                         </div>
                     )}
                     <div className="flex gap-2 mt-4">
-                        <button onClick={handleGetDirections} className={`flex-1 py-3 rounded-xl text-[14px] font-bold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] ${showRoute ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40' : 'bg-[#2a2a2a] text-gray-300 border border-white/10 hover:bg-[#333]'}`}><Route className="w-4 h-4" /> Tìm đường</button>
+                        <button onClick={handleGetDirections} className={`flex-1 py-3 rounded-xl text-[14px] font-bold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] ${showRoute ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40' : 'bg-surface text-muted-foreground border border-border hover:bg-surface'}`}><Route className="w-4 h-4" /> Tìm đường</button>
                         <button onClick={() => setBookingCourt(selected)} className="flex-1 py-3 rounded-xl bg-linear-to-r from-emerald-500 to-emerald-400 text-black text-[14px] font-bold flex items-center justify-center gap-1.5 hover:opacity-90 transition-opacity shadow-[0_5px_20px_rgba(16,185,129,0.4)] active:scale-[0.98]"><Calendar className="w-4 h-4" /> Đặt lịch</button>
                     </div>
                 </div>

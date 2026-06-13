@@ -233,7 +233,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
 
     if (step === 3 && bookingData) {
         return (
-            <div className="fixed inset-0 z-[9999] bg-[#06080a] overflow-y-auto">
+            <div className="fixed inset-0 z-[9999] bg-background overflow-y-auto">
                 <Payment
                     bookingCode={bookingData.bookingCode}
                     amount={bookingData.finalAmount || validation.total}
@@ -256,19 +256,19 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
             {/* FULLSCREEN BLURRED BACKGROUND */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 overflow-hidden" onClick={onClose}>
                 <div className="absolute inset-[-10%] bg-cover bg-center bg-no-repeat blur-[60px] opacity-40" style={{ backgroundImage: `url(${mainPhoto})` }} />
-                <div className="absolute inset-0 bg-[#06080a]/60 backdrop-blur-3xl" />
+                <div className="absolute inset-0 bg-background/60 backdrop-blur-3xl" />
             </motion.div>
 
             {/* MAIN GLASS CONTAINER */}
             <motion.div 
                 variants={sheetVariants} initial="hidden" animate="visible" exit="exit"
-                className="relative w-full max-w-2xl max-h-[90vh] bg-white/5 rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col backdrop-blur-xl"
+                className="relative w-full max-w-2xl max-h-[90vh] bg-white/5 rounded-[2rem] border border-border shadow-2xl overflow-hidden flex flex-col backdrop-blur-xl"
             >
                 {/* Header */}
-                <div className="px-6 py-5 flex items-center justify-between relative z-10 border-b border-white/5 bg-white/5">
+                <div className="px-6 py-5 flex items-center justify-between relative z-10 border-b border-border bg-white/5">
                     <div className="flex items-center gap-4">
                         {step === 2 && (
-                            <button onClick={() => changeStep(1)} className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-300 hover:text-white transition-all">
+                            <button onClick={() => changeStep(1)} className="w-10 h-10 rounded-full bg-white/5 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-all">
                                 <ChevronLeft className="w-5 h-5" />
                             </button>
                         )}
@@ -277,14 +277,14 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                 <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
                                     <Zap className="w-3.5 h-3.5 text-emerald-400" />
                                 </div>
-                                <h2 className="font-bold text-xl text-white tracking-wide">
+                                <h2 className="font-bold text-xl text-foreground tracking-wide">
                                 {step === 1 ? 'Lịch & Giờ chơi' : 'Xác nhận & Thanh toán'}
                             </h2>
                             </div>
-                            <p className="text-[13px] text-gray-400 font-medium ml-8">{court.name}</p>
+                            <p className="text-[13px] text-muted-foreground font-medium ml-8">{court.name}</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all">
+                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-all">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
@@ -298,13 +298,13 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                 <div className="flex bg-white/5 p-1 rounded-2xl">
                                     <button 
                                         onClick={() => setBookingType('casual')}
-                                        className={`flex-1 py-3 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${bookingType === 'casual' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25' : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'}`}
+                                        className={`flex-1 py-3 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${bookingType === 'casual' ? 'bg-emerald-500 text-foreground shadow-lg shadow-emerald-500/25' : 'text-muted-foreground hover:text-gray-200 hover:bg-muted'}`}
                                     >
                                         <Zap className="w-4 h-4" /> Vãng Lai
                                     </button>
                                     <button 
                                         onClick={() => setBookingType('fixed')}
-                                        className={`flex-1 py-3 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${bookingType === 'fixed' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25' : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'}`}
+                                        className={`flex-1 py-3 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${bookingType === 'fixed' ? 'bg-emerald-500 text-foreground shadow-lg shadow-emerald-500/25' : 'text-muted-foreground hover:text-gray-200 hover:bg-muted'}`}
                                     >
                                         <Repeat className="w-4 h-4" /> Cố Định
                                     </button>
@@ -322,12 +322,12 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                     <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
                                                         <Repeat className="w-4 h-4 text-emerald-400" />
                                                     </div>
-                                                    <p className="text-[13px] font-bold text-gray-300">Thời gian đặt</p>
+                                                    <p className="text-[13px] font-bold text-muted-foreground">Thời gian đặt</p>
                                                 </div>
                                                 <div className="flex items-center gap-2 bg-white/5 rounded-xl p-1">
-                                                    <button onClick={() => setFixedMonths(Math.max(1, fixedMonths - 1))} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">-</button>
-                                                    <span className="text-white w-16 text-center text-sm font-bold">{fixedMonths} tháng</span>
-                                                    <button onClick={() => setFixedMonths(Math.min(12, fixedMonths + 1))} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">+</button>
+                                                    <button onClick={() => setFixedMonths(Math.max(1, fixedMonths - 1))} className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">-</button>
+                                                    <span className="text-foreground w-16 text-center text-sm font-bold">{fixedMonths} tháng</span>
+                                                    <button onClick={() => setFixedMonths(Math.min(12, fixedMonths + 1))} className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">+</button>
                                                 </div>
                                             </div>
                                         </motion.div>
@@ -338,7 +338,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                 {bookingType === 'casual' ? (
                                     <div>
                                         <div className="flex items-center justify-between mb-4">
-                                            <label className="text-sm font-bold text-gray-300">
+                                            <label className="text-sm font-bold text-muted-foreground">
                                                 Chọn ngày
                                             </label>
                                             <div className="text-[13px] font-medium text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full">
@@ -353,12 +353,12 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                     <button
                                                         key={i}
                                                         onClick={() => setSelectedDate(i)}
-                                                        className={`relative shrink-0 w-[4.5rem] py-3 rounded-2xl flex flex-col items-center justify-center gap-1 snap-center transition-all duration-300 ${isActive ? 'bg-emerald-500 shadow-lg shadow-emerald-500/25' : 'bg-white/5 hover:bg-white/10'}`}
+                                                        className={`relative shrink-0 w-[4.5rem] py-3 rounded-2xl flex flex-col items-center justify-center gap-1 snap-center transition-all duration-300 ${isActive ? 'bg-emerald-500 shadow-lg shadow-emerald-500/25' : 'bg-white/5 hover:bg-muted'}`}
                                                     >
-                                                        <span className={`relative z-10 text-[11px] font-bold uppercase ${isActive ? 'text-emerald-50' : 'text-gray-400'}`}>
+                                                        <span className={`relative z-10 text-[11px] font-bold uppercase ${isActive ? 'text-emerald-50' : 'text-muted-foreground'}`}>
                                                             {d.day}
                                                         </span>
-                                                        <span className={`relative z-10 text-xl font-bold ${isActive ? 'text-white' : 'text-gray-300'}`}>
+                                                        <span className={`relative z-10 text-xl font-bold ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
                                                             {d.date}
                                                         </span>
                                                     </button>
@@ -369,10 +369,10 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                 ) : (
                                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
                                         <div className="flex items-center justify-between mb-4">
-                                            <label className="text-sm font-bold text-gray-300">
+                                            <label className="text-sm font-bold text-muted-foreground">
                                                 Thứ trong tuần
                                             </label>
-                                            <span className="text-[11px] text-gray-500 uppercase tracking-wide font-semibold">Có thể chọn nhiều</span>
+                                            <span className="text-[11px] text-muted-foreground uppercase tracking-wide font-semibold">Có thể chọn nhiều</span>
                                         </div>
                                         <div className="flex gap-2">
                                             {[1, 2, 3, 4, 5, 6, 0].map(day => {
@@ -384,8 +384,8 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                         onClick={() => toggleDayOfWeek(day)}
                                                         className={`flex-1 py-3 rounded-2xl text-sm font-bold transition-all duration-300 ${
                                                             isActive 
-                                                            ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25'
-                                                            : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-gray-200'
+                                                            ? 'bg-emerald-500 text-foreground shadow-lg shadow-emerald-500/25'
+                                                            : 'bg-white/5 text-muted-foreground hover:bg-muted hover:text-gray-200'
                                                         }`}
                                                     >
                                                         {label}
@@ -399,18 +399,18 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                 {/* TIME GRID */}
                                 <div className="relative">
                                     <div className="flex items-center justify-between mb-4">
-                                        <label className="text-sm font-bold text-gray-300">
+                                        <label className="text-sm font-bold text-muted-foreground">
                                             Khung giờ
                                         </label>
-                                        <div className="flex gap-4 text-[12px] font-semibold text-gray-400">
+                                        <div className="flex gap-4 text-[12px] font-semibold text-muted-foreground">
                                             <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50" /> Đang chọn</span>
-                                            <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-white/5 border border-white/10" /> Hết chỗ</span>
+                                            <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-white/5 border border-border" /> Hết chỗ</span>
                                         </div>
                                     </div>
                                     
                                     <div className="relative p-1">
                                         {isLoadingSlots && (
-                                            <div className="absolute inset-0 z-10 bg-[#0a0c10]/50 backdrop-blur-md flex items-center justify-center rounded-2xl">
+                                            <div className="absolute inset-0 z-10 bg-background/50 backdrop-blur-md flex items-center justify-center rounded-2xl">
                                                 <div className="flex flex-col items-center gap-3">
                                                     <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
                                                     <p className="text-sm text-emerald-400 font-medium">Đang tải dữ liệu...</p>
@@ -446,10 +446,10 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                         disabled={booked}
                                                         className={`relative h-11 rounded-xl text-[13px] font-semibold transition-all duration-300 flex items-center justify-center overflow-hidden ${
                                                             booked 
-                                                                ? 'bg-white/5 text-gray-500/50 cursor-not-allowed'
+                                                                ? 'bg-white/5 text-muted-foreground/50 cursor-not-allowed'
                                                                 : isSelected
-                                                                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
-                                                                    : 'bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white'
+                                                                    ? 'bg-emerald-500 text-foreground shadow-lg shadow-emerald-500/30'
+                                                                    : 'bg-white/5 text-muted-foreground hover:bg-muted hover:text-foreground'
                                                         }`}
                                                     >
                                                         <span className="relative z-10">{slot}</span>
@@ -483,7 +483,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                 >
                                                     <div>
                                                         <p className="text-[12px] font-semibold text-emerald-500/80 mb-1 uppercase tracking-wider">Thời lượng</p>
-                                                        <span className="text-white text-lg font-bold">{validation.durationHours.toFixed(1)} Giờ</span>
+                                                        <span className="text-foreground text-lg font-bold">{validation.durationHours.toFixed(1)} Giờ</span>
                                                     </div>
                                                     <div className="text-right">
                                                         <p className="text-[12px] font-semibold text-emerald-500/80 mb-1 uppercase tracking-wider">Tạm tính</p>
@@ -501,20 +501,20 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                             <motion.div key="step2" custom={direction} variants={stepVariants} initial="enter" animate="center" exit="exit" className="flex justify-center">
                                 {/* MODERN E-TICKET */}
                                 <div 
-                                    className="relative w-full max-w-sm bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 p-8 shadow-2xl overflow-hidden"
+                                    className="relative w-full max-w-sm bg-white/5 backdrop-blur-xl rounded-[2rem] border border-border p-8 shadow-2xl overflow-hidden"
                                 >
                                     <div className="flex flex-col items-center mb-8 relative z-10">
-                                        <div className="w-20 h-20 rounded-2xl overflow-hidden mb-4 shadow-xl border border-white/10">
+                                        <div className="w-20 h-20 rounded-2xl overflow-hidden mb-4 shadow-xl border border-border">
                                             <img src={mainPhoto} alt="" className="w-full h-full object-cover" />
                                         </div>
-                                        <h3 className="font-bold text-xl text-white text-center">{court.name}</h3>
-                                        <p className="text-sm text-gray-400 flex items-center gap-1.5 mt-2 font-medium">
+                                        <h3 className="font-bold text-xl text-foreground text-center">{court.name}</h3>
+                                        <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-2 font-medium">
                                             <MapPin className="w-4 h-4" /> {court.address?.district}
                                         </p>
                                     </div>
 
                                     {/* Separator */}
-                                    <div className="w-full border-b border-white/10 my-6 relative z-10" />
+                                    <div className="w-full border-b border-border my-6 relative z-10" />
 
                                     <div className="space-y-4 relative z-10">
                                         <SummaryRow label={bookingType === 'fixed' ? 'Gói cố định' : 'Ngày chơi'} value={bookingType === 'fixed' ? `${fixedMonths} Tháng (${validation.totalSessions} buổi)` : `${dates[selectedDate].date}/${dates[selectedDate].month}/${new Date().getFullYear()}`} />
@@ -523,9 +523,9 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                         <SummaryRow label="Phương thức" value="Thanh toán VNPay" />
                                     </div>
 
-                                    <div className="mt-8 pt-6 border-t border-white/10 relative z-10">
+                                    <div className="mt-8 pt-6 border-t border-border relative z-10">
                                         <div className="flex justify-between items-end">
-                                            <span className="text-[13px] font-semibold text-gray-400">Tổng thanh toán</span>
+                                            <span className="text-[13px] font-semibold text-muted-foreground">Tổng thanh toán</span>
                                             <span className="text-3xl font-black bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent drop-shadow-sm">
                                                 {formatPrice(validation.total)}
                                             </span>
@@ -539,12 +539,12 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                 </div>
 
                 {/* Footer CTA */}
-                <div className="px-6 py-6 border-t border-white/5 relative z-10 bg-white/5 backdrop-blur-xl">
+                <div className="px-6 py-6 border-t border-border relative z-10 bg-white/5 backdrop-blur-xl">
                     {step === 1 ? (
                         <button
                             onClick={() => changeStep(2)}
                             disabled={validation.error !== '' || isLoadingSlots}
-                            className="group relative w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-2xl font-bold text-lg flex items-center justify-center gap-3 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-emerald-500/20"
+                            className="group relative w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-foreground rounded-2xl font-bold text-lg flex items-center justify-center gap-3 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-emerald-500/20"
                         >
                             <span className="relative z-10">Tiếp tục thanh toán</span>
                             <ChevronRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
@@ -553,7 +553,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                         <button
                             onClick={handleConfirm}
                             disabled={isBooking}
-                            className="group relative w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-2xl font-bold text-lg flex items-center justify-center gap-3 overflow-hidden disabled:opacity-70 transition-all shadow-lg shadow-emerald-500/20"
+                            className="group relative w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-foreground rounded-2xl font-bold text-lg flex items-center justify-center gap-3 overflow-hidden disabled:opacity-70 transition-all shadow-lg shadow-emerald-500/20"
                         >
                             {isBooking && (
                                 <div className="absolute inset-0 bg-black/10 flex items-center justify-center z-20">
@@ -573,7 +573,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
 function SummaryRow({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
     return (
         <div className="flex justify-between items-center">
-            <span className="text-[14px] text-gray-400 font-medium">{label}</span>
+            <span className="text-[14px] text-muted-foreground font-medium">{label}</span>
             <span className={`text-[15px] font-semibold ${accent ? 'text-emerald-400' : 'text-gray-200'}`}>{value}</span>
         </div>
     );

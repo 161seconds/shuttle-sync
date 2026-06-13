@@ -97,17 +97,17 @@ export default function GuidedTourOverlay({ onComplete }: Props) {
                         <Star className="w-4 h-4 text-emerald-400" />
                     </div>
                     <div>
-                        <h4 className="text-white font-bold text-sm">{step.title}</h4>
-                        <p className="text-white/50 text-xs mt-1 leading-relaxed">{step.description}</p>
+                        <h4 className="text-foreground font-bold text-sm">{step.title}</h4>
+                        <p className="text-foreground/50 text-xs mt-1 leading-relaxed">{step.description}</p>
                     </div>
                 </div>
 
                 <div className="flex items-center justify-between mt-4">
-                    <span className="text-xs text-white/30 font-mono">{stepIdx + 1} / {TOUR_STEPS.length}</span>
+                    <span className="text-xs text-foreground/30 font-mono">{stepIdx + 1} / {TOUR_STEPS.length}</span>
                     <div className="flex gap-2">
-                        <button onClick={onComplete} className="px-3 py-1.5 text-xs text-white/40 hover:text-white/70 transition-colors">Bỏ qua</button>
+                        <button onClick={onComplete} className="px-3 py-1.5 text-xs text-foreground/40 hover:text-foreground/70 transition-colors">Bỏ qua</button>
                         {stepIdx > 0 && (
-                            <button onClick={prev} className="px-3 py-1.5 text-xs border border-white/10 rounded-lg text-white/60 hover:border-white/20 transition-colors">Trước</button>
+                            <button onClick={prev} className="px-3 py-1.5 text-xs border border-border rounded-lg text-foreground/60 hover:border-border transition-colors">Trước</button>
                         )}
                         <button onClick={next} className="px-4 py-1.5 text-xs bg-emerald-500 text-black font-bold rounded-lg hover:bg-emerald-400 transition-colors">
                             {stepIdx === TOUR_STEPS.length - 1 ? 'Xong' : 'Tiếp'}

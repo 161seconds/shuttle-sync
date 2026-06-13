@@ -132,13 +132,13 @@ export default function Notifications({ onBack }: Props) {
     return (
         <div className={`min-h-screen w-full${t.bg.base} pb-24`}>
             {/* Header */}
-            <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-white/5`}>
+            <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-border`}>
                 <div className="flex items-center justify-between px-4 h-16">
                     <div className="flex items-center gap-3">
-                        <button onClick={onBack} className={`w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center ${t.text.muted} hover:text-white transition-all`}>
+                        <button onClick={onBack} className={`w-10 h-10 rounded-full bg-white/5 hover:bg-muted flex items-center justify-center ${t.text.muted} hover:text-foreground transition-all`}>
                             <ChevronLeft className="w-6 h-6" />
                         </button>
-                        <h1 className={`font-black text-lg text-white tracking-wide`}>Thông báo</h1>
+                        <h1 className={`font-black text-lg text-foreground tracking-wide`}>Thông báo</h1>
                     </div>
 
                     <button
@@ -159,13 +159,13 @@ export default function Notifications({ onBack }: Props) {
                 {pendingRequests.length > 0 && (
                     <div className="mb-8">
                         <div className="flex items-center justify-between mb-3 px-1">
-                            <h2 className="text-[13px] font-bold text-gray-400 uppercase tracking-wider">
+                            <h2 className="text-[13px] font-bold text-muted-foreground uppercase tracking-wider">
                                 Lời mời kết bạn ({pendingRequests.length})
                             </h2>
                         </div>
-                        <div className="bg-[#151515] border border-white/10 rounded-2xl overflow-hidden">
+                        <div className="bg-card border border-border rounded-2xl overflow-hidden">
                             {pendingRequests.map((req, index) => (
-                                <div key={req._id} className={`flex flex-col sm:flex-row gap-4 p-4 ${index !== pendingRequests.length - 1 ? 'border-b border-white/5' : ''} hover:bg-white/5 transition-colors`}>
+                                <div key={req._id} className={`flex flex-col sm:flex-row gap-4 p-4 ${index !== pendingRequests.length - 1 ? 'border-b border-border' : ''} hover:bg-muted transition-colors`}>
                                     <div className="flex gap-4 flex-1">
                                         <div 
                                             className="w-12 h-12 rounded-full overflow-hidden border border-emerald-500/30 shrink-0 cursor-pointer bg-white/5 flex items-center justify-center text-emerald-400 font-bold"
@@ -174,8 +174,8 @@ export default function Notifications({ onBack }: Props) {
                                             {req.requesterId.avatar ? <img src={req.requesterId.avatar || undefined} alt="avatar" className="w-full h-full object-cover" /> : req.requesterId.displayName.charAt(0)}
                                         </div>
                                         <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                            <h3 className="text-[14px] font-bold text-white">{req.requesterId.displayName}</h3>
-                                            <p className="text-[13px] text-gray-400 mt-0.5">Đã gửi lời mời kết bạn</p>
+                                            <h3 className="text-[14px] font-bold text-foreground">{req.requesterId.displayName}</h3>
+                                            <p className="text-[13px] text-muted-foreground mt-0.5">Đã gửi lời mời kết bạn</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2 sm:ml-auto">
@@ -201,22 +201,22 @@ export default function Notifications({ onBack }: Props) {
 
                 <div>
                     <div className="flex items-center justify-between mb-3 px-1">
-                        <h2 className="text-[13px] font-bold text-gray-400 uppercase tracking-wider">Hoạt động</h2>
+                        <h2 className="text-[13px] font-bold text-muted-foreground uppercase tracking-wider">Hoạt động</h2>
                     </div>
 
-                    <div className="bg-[#151515] border border-white/10 rounded-2xl overflow-hidden">
+                    <div className="bg-card border border-border rounded-2xl overflow-hidden">
                         {loading ? (
                             <div className="flex flex-col items-center justify-center py-20 text-center">
                                 <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-4" />
-                                <p className="text-gray-400 text-sm font-medium">Đang tải thông báo...</p>
+                                <p className="text-muted-foreground text-sm font-medium">Đang tải thông báo...</p>
                             </div>
                         ) : notifications.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-20 text-center px-4">
-                                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-white/10 mb-4">
+                                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-border mb-4">
                                     <CheckCheck className="w-8 h-8 text-emerald-500" />
                                 </div>
-                                <p className="text-white font-bold text-[15px] mb-1">Không có thông báo nào</p>
-                                <p className="text-sm text-gray-500">Bạn đã cập nhật mọi thông tin.</p>
+                                <p className="text-foreground font-bold text-[15px] mb-1">Không có thông báo nào</p>
+                                <p className="text-sm text-muted-foreground">Bạn đã cập nhật mọi thông tin.</p>
                             </div>
                         ) : (
                             <div className="flex flex-col">
@@ -229,8 +229,8 @@ export default function Notifications({ onBack }: Props) {
                                             }
                                         }}
                                         className={`group relative flex gap-4 px-4 py-4 cursor-pointer transition-colors ${
-                                            noti.isRead ? 'hover:bg-white/5' : 'bg-emerald-500/5 hover:bg-emerald-500/10'
-                                        } ${index !== notifications.length - 1 ? 'border-b border-white/5' : ''}`}
+                                            noti.isRead ? 'hover:bg-muted' : 'bg-emerald-500/5 hover:bg-emerald-500/10'
+                                        } ${index !== notifications.length - 1 ? 'border-b border-border' : ''}`}
                                     >
                                         {/* Icon */}
                                         <div className={`w-11 h-11 shrink-0 rounded-xl border flex items-center justify-center ${getIconBackground(noti.type)}`}>
@@ -240,14 +240,14 @@ export default function Notifications({ onBack }: Props) {
                                         {/* Content */}
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start mb-1">
-                                                <h3 className={`text-[14px] font-bold leading-tight ${noti.isRead ? 'text-gray-300' : 'text-white'}`}>
+                                                <h3 className={`text-[14px] font-bold leading-tight ${noti.isRead ? 'text-muted-foreground' : 'text-foreground'}`}>
                                                     {noti.title}
                                                 </h3>
                                                 {!noti.isRead && (
                                                     <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 mt-1 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                                                 )}
                                             </div>
-                                            <p className={`text-[13px] leading-relaxed ${noti.isRead ? 'text-gray-500' : 'text-gray-300'}`}>
+                                            <p className={`text-[13px] leading-relaxed ${noti.isRead ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
                                                 {noti.message}
                                             </p>
 
@@ -258,14 +258,14 @@ export default function Notifications({ onBack }: Props) {
                                                             e.stopPropagation();
                                                             setNotifications(prev => prev.filter(n => n._id !== noti._id));
                                                         }}
-                                                        className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 rounded-lg text-[12px] font-medium transition-colors"
+                                                        className="px-3 py-1.5 bg-white/5 hover:bg-muted border border-border text-muted-foreground rounded-lg text-[12px] font-medium transition-colors"
                                                     >
                                                         Đã hiểu
                                                     </button>
                                                 </div>
                                             )}
 
-                                            <div className="mt-2.5 text-[11px] font-bold text-gray-500 flex items-center gap-1.5">
+                                            <div className="mt-2.5 text-[11px] font-bold text-muted-foreground flex items-center gap-1.5">
                                                 <span>Hệ thống</span>
                                                 <span className="w-1 h-1 rounded-full bg-gray-600" />
                                                 <span>{timeAgo(noti.createdAt)}</span>

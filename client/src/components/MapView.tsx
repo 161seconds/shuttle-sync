@@ -386,7 +386,7 @@ const MapView: React.FC<MapViewProps> = ({
 
     if (!VIETMAP_KEY) {
         return (
-            <div className="w-full h-full flex items-center justify-center bg-[#121212] text-emerald-400 p-4 text-center rounded-2xl border border-emerald-500/20 shadow-lg">
+            <div className="w-full h-full flex items-center justify-center bg-card text-emerald-400 p-4 text-center rounded-2xl border border-emerald-500/20 shadow-lg">
                 <p className="font-bold tracking-wide">Vui lòng cấu hình biến VITE_VIETMAP_KEY trong file .env nhé!</p>
             </div>
         );
@@ -396,7 +396,7 @@ const MapView: React.FC<MapViewProps> = ({
         <div
             ref={mapContainer}
             style={{ width: '100%', height: '100%', borderRadius: '16px', overflow: 'hidden' }}
-            className="shadow-2xl border border-[#2a2a2a]"
+            className="shadow-2xl border border-border"
         />
     );
 };

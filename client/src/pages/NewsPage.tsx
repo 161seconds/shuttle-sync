@@ -127,7 +127,7 @@ export default function NewsPage() {
     };
 
     return (
-        <div className="w-full h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar news-container bg-[#090b10] relative font-sans text-gray-300">
+        <div className="w-full h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar news-container bg-background relative font-sans text-muted-foreground">
 
             {/* Animated Ambient Background */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
@@ -151,7 +151,7 @@ export default function NewsPage() {
                         <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-blue-500 tracking-tight">
                             Tin Tức & Giải Đấu
                         </h1>
-                        <p className="text-gray-400 text-lg font-medium max-w-xl">
+                        <p className="text-muted-foreground text-lg font-medium max-w-xl">
                             Cập nhật 24/7 mọi thông tin nóng hổi nhất từ các giải đấu hàng đầu.
                         </p>
                     </div>
@@ -161,7 +161,7 @@ export default function NewsPage() {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="flex flex-wrap gap-2 p-1.5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl w-fit"
+                        className="flex flex-wrap gap-2 p-1.5 bg-white/5 backdrop-blur-xl border border-border rounded-2xl w-fit"
                     >
                         {[
                             { id: 'all', label: 'Tất cả', icon: null },
@@ -172,11 +172,11 @@ export default function NewsPage() {
                                 key={tab.id}
                                 onClick={() => { setActiveTab(tab.id as NewsCategory); setCurrentPage(1); }}
                                 className={`px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${activeTab === tab.id
-                                    ? 'bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-[0_0_20px_rgba(59,130,246,0.4)]'
-                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                    ? 'bg-gradient-to-r from-blue-600 to-blue-400 text-foreground shadow-[0_0_20px_rgba(59,130,246,0.4)]'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                                     }`}
                             >
-                                {tab.icon && <EmojiIcon name={tab.icon as any} className={`w-4 h-4 ${activeTab === tab.id ? 'text-white' : 'opacity-70'}`} />}
+                                {tab.icon && <EmojiIcon name={tab.icon as any} className={`w-4 h-4 ${activeTab === tab.id ? 'text-foreground' : 'opacity-70'}`} />}
                                 {tab.label}
                             </button>
                         ))}
@@ -187,7 +187,7 @@ export default function NewsPage() {
                 {loading ? (
                     <div className="flex flex-col items-center justify-center h-[600px] gap-8">
                         <div className="relative w-24 h-24">
-                            <div className="absolute inset-0 border-4 border-white/5 rounded-full"></div>
+                            <div className="absolute inset-0 border-4 border-border rounded-full"></div>
                             <div className="absolute inset-0 border-4 border-blue-500 border-t-transparent rounded-full animate-spin shadow-[0_0_30px_rgba(59,130,246,0.6)]"></div>
                         </div>
                         <p className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 font-black animate-pulse tracking-widest text-lg uppercase">Đang đồng bộ dữ liệu...</p>
@@ -211,14 +211,14 @@ export default function NewsPage() {
                                     onClick={() => { if (paginatedNews[0].link) window.open(paginatedNews[0].link, '_blank'); }}
                                 >
                                     {/* Glass Frame */}
-                                    <div className="absolute inset-0 bg-white/5 border border-white/10 rounded-[2rem] z-20 pointer-events-none group-hover:border-blue-500/50 transition-colors duration-500"></div>
+                                    <div className="absolute inset-0 bg-white/5 border border-border rounded-[2rem] z-20 pointer-events-none group-hover:border-blue-500/50 transition-colors duration-500"></div>
 
                                     <img src={paginatedNews[0].imageUrl} alt={paginatedNews[0].title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.5s] ease-out" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10" />
                                     <div className="absolute inset-0 bg-blue-900/20 mix-blend-multiply group-hover:opacity-0 transition-opacity duration-500 z-10" />
 
                                     <div className="absolute top-6 left-6 z-30 flex gap-2">
-                                        <div className="bg-red-500 text-white text-xs font-black uppercase px-4 py-2 rounded-full shadow-[0_0_20px_rgba(239,68,68,0.6)] flex items-center gap-1.5 backdrop-blur-md">
+                                        <div className="bg-red-500 text-foreground text-xs font-black uppercase px-4 py-2 rounded-full shadow-[0_0_20px_rgba(239,68,68,0.6)] flex items-center gap-1.5 backdrop-blur-md">
                                             <TrendingUp className="w-4 h-4" /> Top 1
                                         </div>
                                     </div>
@@ -232,10 +232,10 @@ export default function NewsPage() {
                                             <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
                                             <span>{paginatedNews[0].readTime} p</span>
                                         </div>
-                                        <h2 className="text-3xl md:text-5xl font-black text-white mb-4 leading-[1.15] group-hover:text-blue-300 transition-colors line-clamp-3 drop-shadow-2xl">
+                                        <h2 className="text-3xl md:text-5xl font-black text-foreground mb-4 leading-[1.15] group-hover:text-blue-300 transition-colors line-clamp-3 drop-shadow-2xl">
                                             {paginatedNews[0].title}
                                         </h2>
-                                        <p className="text-gray-300 line-clamp-2 md:text-lg font-medium drop-shadow-lg opacity-80 group-hover:opacity-100 transition-opacity">
+                                        <p className="text-muted-foreground line-clamp-2 md:text-lg font-medium drop-shadow-lg opacity-80 group-hover:opacity-100 transition-opacity">
                                             {paginatedNews[0].summary}
                                         </p>
                                     </div>
@@ -249,7 +249,7 @@ export default function NewsPage() {
                                     className="lg:col-span-1 lg:row-span-2 group relative rounded-[2rem] overflow-hidden cursor-pointer"
                                     onClick={() => { if (paginatedNews[1].link) window.open(paginatedNews[1].link, '_blank'); }}
                                 >
-                                    <div className="absolute inset-0 bg-white/5 border border-white/10 rounded-[2rem] z-20 pointer-events-none group-hover:border-purple-500/50 transition-colors duration-500"></div>
+                                    <div className="absolute inset-0 bg-white/5 border border-border rounded-[2rem] z-20 pointer-events-none group-hover:border-purple-500/50 transition-colors duration-500"></div>
 
                                     <img src={paginatedNews[1].imageUrl} alt={paginatedNews[1].title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent z-10" />
@@ -260,7 +260,7 @@ export default function NewsPage() {
                                             <span className="w-1 h-1 rounded-full bg-purple-400"></span>
                                             <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {paginatedNews[1].date}</span>
                                         </div>
-                                        <h2 className="text-xl md:text-3xl font-black text-white leading-tight group-hover:text-purple-300 transition-colors line-clamp-4 drop-shadow-xl">
+                                        <h2 className="text-xl md:text-3xl font-black text-foreground leading-tight group-hover:text-purple-300 transition-colors line-clamp-4 drop-shadow-xl">
                                             {paginatedNews[1].title}
                                         </h2>
                                     </div>
@@ -271,7 +271,7 @@ export default function NewsPage() {
                             {paginatedNews[2] && (
                                 <motion.div
                                     layout
-                                    className="lg:col-span-1 lg:row-span-1 group relative rounded-[2rem] overflow-hidden cursor-pointer bg-white/5 border border-white/10 hover:border-emerald-500/50 transition-colors duration-500 p-2"
+                                    className="lg:col-span-1 lg:row-span-1 group relative rounded-[2rem] overflow-hidden cursor-pointer bg-white/5 border border-border hover:border-emerald-500/50 transition-colors duration-500 p-2"
                                     onClick={() => { if (paginatedNews[2].link) window.open(paginatedNews[2].link, '_blank'); }}
                                 >
                                     <div className="w-full h-full relative rounded-3xl overflow-hidden">
@@ -280,7 +280,7 @@ export default function NewsPage() {
 
                                         <div className="absolute bottom-0 left-0 right-0 p-5 z-20">
                                             <div className="text-[10px] font-black text-emerald-400 mb-2 uppercase tracking-widest">{paginatedNews[2].category}</div>
-                                            <h3 className="text-lg font-bold text-white line-clamp-2 leading-snug group-hover:text-emerald-300 transition-colors">{paginatedNews[2].title}</h3>
+                                            <h3 className="text-lg font-bold text-foreground line-clamp-2 leading-snug group-hover:text-emerald-300 transition-colors">{paginatedNews[2].title}</h3>
                                         </div>
                                     </div>
                                 </motion.div>
@@ -290,7 +290,7 @@ export default function NewsPage() {
                             {paginatedNews[3] && (
                                 <motion.div
                                     layout
-                                    className="lg:col-span-1 lg:row-span-1 group relative rounded-[2rem] overflow-hidden cursor-pointer bg-white/5 border border-white/10 hover:border-orange-500/50 transition-colors duration-500 p-2"
+                                    className="lg:col-span-1 lg:row-span-1 group relative rounded-[2rem] overflow-hidden cursor-pointer bg-white/5 border border-border hover:border-orange-500/50 transition-colors duration-500 p-2"
                                     onClick={() => { if (paginatedNews[3].link) window.open(paginatedNews[3].link, '_blank'); }}
                                 >
                                     <div className="w-full h-full relative rounded-3xl overflow-hidden">
@@ -299,7 +299,7 @@ export default function NewsPage() {
 
                                         <div className="absolute bottom-0 left-0 right-0 p-5 z-20">
                                             <div className="text-[10px] font-black text-orange-400 mb-2 uppercase tracking-widest">{paginatedNews[3].category}</div>
-                                            <h3 className="text-lg font-bold text-white line-clamp-2 leading-snug group-hover:text-orange-300 transition-colors">{paginatedNews[3].title}</h3>
+                                            <h3 className="text-lg font-bold text-foreground line-clamp-2 leading-snug group-hover:text-orange-300 transition-colors">{paginatedNews[3].title}</h3>
                                         </div>
                                     </div>
                                 </motion.div>
@@ -320,7 +320,7 @@ export default function NewsPage() {
                                             exit={{ opacity: 0, scale: 0.9 }}
                                             transition={{ duration: 0.5, delay: (idx % 3) * 0.1 }}
                                             onClick={() => { if (article.link) window.open(article.link, '_blank'); }}
-                                            className="group relative bg-white/5 border border-white/10 backdrop-blur-xl rounded-[2rem] hover:bg-white/10 hover:border-blue-500/40 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-all duration-500 cursor-pointer flex flex-col overflow-hidden"
+                                            className="group relative bg-white/5 border border-border backdrop-blur-xl rounded-[2rem] hover:bg-muted hover:border-blue-500/40 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-all duration-500 cursor-pointer flex flex-col overflow-hidden"
                                         >
                                             {/* Glowing background blob on hover */}
                                             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-purple-500/0 to-blue-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-colors duration-500 z-0"></div>
@@ -333,7 +333,7 @@ export default function NewsPage() {
                                                         alt={article.title}
                                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                                                     />
-                                                    <div className="absolute top-3 right-3 z-20 bg-black/50 backdrop-blur-md border border-white/10 text-white text-[10px] font-black uppercase px-3 py-1.5 rounded-full shadow-lg">
+                                                    <div className="absolute top-3 right-3 z-20 bg-black/50 backdrop-blur-md border border-border text-foreground text-[10px] font-black uppercase px-3 py-1.5 rounded-full shadow-lg">
                                                         {article.category}
                                                     </div>
                                                 </div>
@@ -344,12 +344,12 @@ export default function NewsPage() {
                                                 <h3 className="text-xl md:text-2xl font-black text-gray-100 mb-3 line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 transition-all leading-snug">
                                                     {article.title}
                                                 </h3>
-                                                <p className="text-sm text-gray-400 line-clamp-3 mb-6 flex-1 font-medium leading-relaxed group-hover:text-gray-300 transition-colors">
+                                                <p className="text-sm text-muted-foreground line-clamp-3 mb-6 flex-1 font-medium leading-relaxed group-hover:text-muted-foreground transition-colors">
                                                     {article.summary}
                                                 </p>
 
-                                                <div className="flex items-center justify-between mt-auto pt-5 border-t border-white/5">
-                                                    <div className="flex items-center gap-3 text-xs text-gray-500 font-bold uppercase tracking-wider">
+                                                <div className="flex items-center justify-between mt-auto pt-5 border-t border-border">
+                                                    <div className="flex items-center gap-3 text-xs text-muted-foreground font-bold uppercase tracking-wider">
                                                         <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-blue-500" /> {article.date}</span>
                                                         <span className="w-1 h-1 rounded-full bg-gray-600"></span>
                                                         <span>{article.readTime} p</span>
@@ -368,7 +368,7 @@ export default function NewsPage() {
                                 <button
                                     onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                                     disabled={currentPage === 1}
-                                    className="p-3 rounded-xl bg-white/5 border border-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+                                    className="p-3 rounded-xl bg-white/5 border border-border text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
                                 >
                                     <ChevronLeft className="w-5 h-5" />
                                 </button>
@@ -377,7 +377,7 @@ export default function NewsPage() {
                                     if (totalPages > 7) {
                                         if (i !== 0 && i !== totalPages - 1 && Math.abs(i + 1 - currentPage) > 1) {
                                             if (i + 1 === currentPage - 2 || i + 1 === currentPage + 2) {
-                                                return <span key={i} className="text-gray-500">...</span>;
+                                                return <span key={i} className="text-muted-foreground">...</span>;
                                             }
                                             return null;
                                         }
@@ -388,8 +388,8 @@ export default function NewsPage() {
                                             onClick={() => handlePageChange(i + 1)}
                                             className={`w-11 h-11 rounded-xl font-bold transition-all ${
                                                 currentPage === i + 1
-                                                    ? 'bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]'
-                                                    : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'
+                                                    ? 'bg-gradient-to-r from-blue-600 to-blue-400 text-foreground shadow-[0_0_15px_rgba(59,130,246,0.4)]'
+                                                    : 'bg-white/5 border border-border text-muted-foreground hover:bg-muted hover:text-foreground'
                                             }`}
                                         >
                                             {i + 1}
@@ -400,7 +400,7 @@ export default function NewsPage() {
                                 <button
                                     onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="p-3 rounded-xl bg-white/5 border border-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+                                    className="p-3 rounded-xl bg-white/5 border border-border text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
                                 >
                                     <ChevronRight className="w-5 h-5" />
                                 </button>
@@ -408,8 +408,8 @@ export default function NewsPage() {
                         )}
                     </motion.div>
                 ) : (
-                    <div className="flex flex-col items-center justify-center h-64 text-gray-500 relative z-10">
-                        <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
+                    <div className="flex flex-col items-center justify-center h-64 text-muted-foreground relative z-10">
+                        <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-border">
                             <Newspaper className="w-10 h-10 opacity-50" />
                         </div>
                         <p className="text-xl font-bold">Không có bài báo nào trong danh mục này.</p>

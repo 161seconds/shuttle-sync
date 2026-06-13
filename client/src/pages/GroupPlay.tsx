@@ -60,7 +60,7 @@ const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> =
     open: { label: 'Đang mở', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
     full: { label: 'Đã đủ', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
     in_progress: { label: 'Đang chơi', color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
-    completed: { label: 'Đã xong', color: 'text-[#555]', bg: 'bg-white/5 border-white/10' },
+    completed: { label: 'Đã xong', color: 'text-muted-foreground', bg: 'bg-white/5 border-border' },
     cancelled: { label: 'Đã hủy', color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20' },
 };
 
@@ -172,7 +172,7 @@ export default function GroupPlayPage() {
                         <h1 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400 flex items-center gap-2">
                             <Users className="w-8 h-8 text-emerald-400" /> Nhóm Chơi
                         </h1>
-                        <p className="text-sm text-gray-400 mt-2 font-medium">Tìm kiếm đồng đội, kết nối đam mê</p>
+                        <p className="text-sm text-muted-foreground mt-2 font-medium">Tìm kiếm đồng đội, kết nối đam mê</p>
                     </div>
                     <button onClick={() => setShowCreate(true)}
                         className="group relative px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 text-black font-black flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] hover:-translate-y-0.5 transition-all duration-300">
@@ -186,14 +186,14 @@ export default function GroupPlayPage() {
                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
                     <button
                         onClick={() => setPage('match-leaderboard')}
-                        className="flex-1 min-w-max px-5 py-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl text-sm font-bold text-gray-300 flex items-center justify-center gap-2 hover:bg-yellow-500/10 hover:text-yellow-400 hover:border-yellow-500/30 transition-all duration-300"
+                        className="flex-1 min-w-max px-5 py-3 bg-white/5 backdrop-blur-md border border-border rounded-2xl text-sm font-bold text-muted-foreground flex items-center justify-center gap-2 hover:bg-yellow-500/10 hover:text-yellow-400 hover:border-yellow-500/30 transition-all duration-300"
                     >
                         <Trophy className="w-4 h-4" /> Ghi nhận Trận đấu
                     </button>
 
                     <button
                         onClick={() => setShowPriceModal(true)}
-                        className="flex-1 min-w-max px-5 py-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl text-sm font-bold text-gray-300 flex items-center justify-center gap-2 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 transition-all duration-300"
+                        className="flex-1 min-w-max px-5 py-3 bg-white/5 backdrop-blur-md border border-border rounded-2xl text-sm font-bold text-muted-foreground flex items-center justify-center gap-2 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 transition-all duration-300"
                     >
                         <Settings className="w-4 h-4" /> Cấu hình Giá & Thu tiền
                     </button>
@@ -204,24 +204,24 @@ export default function GroupPlayPage() {
             <div className="flex gap-3 mb-6 relative z-10">
                 <div className="relative flex-1 group">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500" />
-                    <div className="relative flex items-center bg-[#1a1c23] border border-white/10 rounded-2xl h-14 overflow-hidden">
-                        <Search className="absolute left-4 w-5 h-5 text-gray-400" />
+                    <div className="relative flex items-center bg-card border border-border rounded-2xl h-14 overflow-hidden">
+                        <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
                         <input
                             type="text" placeholder="Tìm tên nhóm, sân, khu vực..." value={searchVal}
                             onChange={e => setSearchVal(e.target.value)}
-                            className="w-full h-full pl-12 pr-4 bg-transparent text-white text-sm outline-none placeholder:text-gray-500"
+                            className="w-full h-full pl-12 pr-4 bg-transparent text-foreground text-sm outline-none placeholder:text-muted-foreground"
                         />
                     </div>
                 </div>
             </div>
 
             {/* Sport Pills (Segmented Control Style) */}
-            <div className="flex gap-2 mb-8 overflow-x-auto scrollbar-none relative z-10 p-1 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 w-max max-w-full">
+            <div className="flex gap-2 mb-8 overflow-x-auto scrollbar-none relative z-10 p-1 bg-white/5 backdrop-blur-md rounded-2xl border border-border w-max max-w-full">
                 {SPORT_FILTERS.map(f => {
                     const isActive = sportFilter === f.id;
                     return (
                         <button key={f.id} onClick={() => setSportFilter(f.id)}
-                            className={`relative px-6 py-2.5 rounded-xl text-sm font-bold transition-colors duration-300 z-10 flex items-center gap-2 ${isActive ? 'text-black' : 'text-gray-400 hover:text-gray-200'}`}>
+                            className={`relative px-6 py-2.5 rounded-xl text-sm font-bold transition-colors duration-300 z-10 flex items-center gap-2 ${isActive ? 'text-black' : 'text-muted-foreground hover:text-gray-200'}`}>
                             {isActive && (
                                 <motion.div layoutId="sport-pill-bg"
                                     className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-xl -z-10 shadow-lg shadow-emerald-500/20"
@@ -248,7 +248,7 @@ export default function GroupPlayPage() {
 
                     return (
                         <motion.div key={g._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
-                            className="group relative rounded-[28px] bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-white/5 overflow-hidden transition-all duration-500 hover:border-emerald-500/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)] backdrop-blur-xl">
+                            className="group relative rounded-[28px] bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-border overflow-hidden transition-all duration-500 hover:border-emerald-500/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)] backdrop-blur-xl">
 
                             {/* Card Background Glow */}
                             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
@@ -257,11 +257,11 @@ export default function GroupPlayPage() {
                                 {/* Top Row: Sport Icon & Status */}
                                 <div className="flex justify-between items-start mb-5">
                                     <div className="flex gap-4 items-center">
-                                        <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1e2128] to-[#14151a] border border-white/10 flex items-center justify-center text-3xl shadow-inner shadow-white/5">
+                                        <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1e2128] to-[#14151a] border border-border flex items-center justify-center text-3xl shadow-inner shadow-white/5">
                                             {g.sportType === 'pickleball' ? '🏓' : '🏸'}
                                         </div>
                                         <div>
-                                            <h3 className="font-black text-white text-lg mb-1.5 leading-tight">{g.title}</h3>
+                                            <h3 className="font-black text-foreground text-lg mb-1.5 leading-tight">{g.title}</h3>
                                             <div className="flex gap-2 flex-wrap">
                                                 <span className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border ${status.bg} ${status.color} shadow-sm backdrop-blur-md`}>{status.label}</span>
                                                 <span className={`px-2.5 py-1 rounded-xl text-[11px] font-bold ${skill.color} shadow-sm backdrop-blur-md flex items-center gap-1`}>
@@ -274,31 +274,31 @@ export default function GroupPlayPage() {
                                         <div className="text-emerald-400 font-black text-xl tracking-tight drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]">
                                             {formatPrice(g.pricePerPlayer)}<span className="text-sm">đ</span>
                                         </div>
-                                        <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest mt-0.5">/ Người</div>
+                                        <div className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mt-0.5">/ Người</div>
                                     </div>
                                 </div>
 
                                 {/* Info Grid */}
-                                <div className="grid grid-cols-2 gap-y-3 gap-x-4 mb-5 p-4 rounded-2xl bg-black/20 border border-white/5">
-                                    <div className="flex items-center gap-2.5 text-sm text-gray-300">
+                                <div className="grid grid-cols-2 gap-y-3 gap-x-4 mb-5 p-4 rounded-2xl bg-black/20 border border-border">
+                                    <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
                                         <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
                                             <MapPin className="w-3.5 h-3.5 text-emerald-400" />
                                         </div>
                                         <span className="truncate">{typeof g.courtId === 'object' && g.courtId ? g.courtId.name : 'Sân cầu lông'}</span>
                                     </div>
-                                    <div className="flex items-center gap-2.5 text-sm text-gray-300">
+                                    <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
                                         <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
                                             <Calendar className="w-3.5 h-3.5 text-emerald-400" />
                                         </div>
                                         <span>{formatDate(g.date)}</span>
                                     </div>
-                                    <div className="flex items-center gap-2.5 text-sm text-gray-300">
+                                    <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
                                         <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
                                             <Clock className="w-3.5 h-3.5 text-emerald-400" />
                                         </div>
                                         <span>{g.startTime} - {g.endTime}</span>
                                     </div>
-                                    <div className="flex items-center gap-2.5 text-sm text-gray-300">
+                                    <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
                                         <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
                                             <Users className="w-3.5 h-3.5 text-emerald-400" />
                                         </div>
@@ -313,19 +313,19 @@ export default function GroupPlayPage() {
                                     <div className="flex items-center gap-3">
                                         <div className="flex -space-x-3">
                                             {g.participants.slice(0, 5).map((p, i) => (
-                                                <div key={i} className="w-8 h-8 rounded-full border-2 border-[#16181d] bg-gray-800 flex items-center justify-center text-[10px] font-bold text-white overflow-hidden shadow-sm relative z-10 hover:z-20 transition-all hover:scale-110">
+                                                <div key={i} className="w-8 h-8 rounded-full border-2 border-border bg-gray-800 flex items-center justify-center text-[10px] font-bold text-foreground overflow-hidden shadow-sm relative z-10 hover:z-20 transition-all hover:scale-110">
                                                     {p.avatar ? <img src={p.avatar} alt="avt" className="w-full h-full object-cover" /> : p.displayName.charAt(0)}
                                                 </div>
                                             ))}
                                             {g.participants.length > 5 && (
-                                                <div className="w-8 h-8 rounded-full border-2 border-[#16181d] bg-[#1a1c23] flex items-center justify-center text-[10px] font-bold text-emerald-400 relative z-10">
+                                                <div className="w-8 h-8 rounded-full border-2 border-border bg-card flex items-center justify-center text-[10px] font-bold text-emerald-400 relative z-10">
                                                     +{g.participants.length - 5}
                                                 </div>
                                             )}
                                         </div>
-                                        {g.participants.length === 0 && <span className="text-xs text-gray-500 italic">Chưa có ai tham gia</span>}
+                                        {g.participants.length === 0 && <span className="text-xs text-muted-foreground italic">Chưa có ai tham gia</span>}
                                     </div>
-                                    <div className={`w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-transform duration-300 ${expandedId === g._id ? 'rotate-180 bg-emerald-500/20 text-emerald-400' : 'text-gray-400'}`}>
+                                    <div className={`w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-transform duration-300 ${expandedId === g._id ? 'rotate-180 bg-emerald-500/20 text-emerald-400' : 'text-muted-foreground'}`}>
                                         <ChevronDown className="w-4 h-4" />
                                     </div>
                                 </div>
@@ -338,7 +338,7 @@ export default function GroupPlayPage() {
                                         <div className="px-6 pb-6 pt-2 space-y-5">
                                             <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent mb-4" />
 
-                                            {g.description && <p className="text-sm text-gray-300 leading-relaxed bg-white/5 p-4 rounded-2xl border border-white/5">"{g.description}"</p>}
+                                            {g.description && <p className="text-sm text-muted-foreground leading-relaxed bg-white/5 p-4 rounded-2xl border border-border">"{g.description}"</p>}
 
                                             {g.requirements && (
                                                 <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200/80 flex gap-3 items-start">
@@ -352,22 +352,22 @@ export default function GroupPlayPage() {
 
                                             {/* Participants List */}
                                             {g.participants.length > 0 && (
-                                                <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+                                                <div className="bg-white/5 p-4 rounded-2xl border border-border">
                                                     <h4 className="text-emerald-400 font-bold text-sm mb-3 flex items-center gap-2">
                                                         <Users className="w-4 h-4" /> Danh sách người chơi ({g.participants.length})
                                                     </h4>
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
                                                         {g.participants.map((p, i) => (
-                                                            <div key={i} className="flex items-center gap-3 bg-black/20 p-2 rounded-xl border border-white/5">
-                                                                <div className="w-10 h-10 rounded-full border-2 border-[#16181d] bg-gray-800 flex items-center justify-center text-xs font-bold text-white overflow-hidden shrink-0 shadow-sm">
+                                                            <div key={i} className="flex items-center gap-3 bg-black/20 p-2 rounded-xl border border-border">
+                                                                <div className="w-10 h-10 rounded-full border-2 border-border bg-gray-800 flex items-center justify-center text-xs font-bold text-foreground overflow-hidden shrink-0 shadow-sm">
                                                                     {p.avatar ? <img src={p.avatar} alt="avt" className="w-full h-full object-cover" /> : p.displayName.charAt(0)}
                                                                 </div>
                                                                 <div className="flex-1 min-w-0">
-                                                                    <div className="text-sm font-bold text-white truncate flex items-center gap-1">
+                                                                    <div className="text-sm font-bold text-foreground truncate flex items-center gap-1">
                                                                         {p.displayName}
                                                                         {p.role === 'organizer' && <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />}
                                                                     </div>
-                                                                    <div className="text-[10px] text-gray-400 uppercase tracking-wider">
+                                                                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
                                                                         {p.role === 'organizer' ? 'Trưởng nhóm' : 'Thành viên'}
                                                                     </div>
                                                                 </div>
@@ -542,12 +542,12 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
     return (
         <motion.div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-            <motion.div className="relative w-full max-w-2xl max-h-[90vh] bg-gradient-to-b from-[#1a1c23] to-[#111113] rounded-[32px] border border-white/10 flex flex-col shadow-2xl shadow-emerald-500/10" initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: "spring", damping: 25, stiffness: 300 }}>
+            <motion.div className="relative w-full max-w-2xl max-h-[90vh] bg-gradient-to-b from-[#1a1c23] to-[#111113] rounded-[32px] border border-border flex flex-col shadow-2xl shadow-emerald-500/10" initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: "spring", damping: 25, stiffness: 300 }}>
                 
                 {/* Decorative background glow */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-emerald-500/20 blur-[80px] pointer-events-none" />
 
-                <div className="relative p-6 border-b border-white/5 flex justify-between items-center z-10">
+                <div className="relative p-6 border-b border-border flex justify-between items-center z-10">
                     <div>
                         <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 tracking-tight flex items-center gap-2">
                             MỞ KÈO MỚI <EmojiIcon name="badminton" className="w-6 h-6" />
@@ -555,10 +555,10 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                         <div className="flex items-center gap-2 mt-2">
                             <div className={`h-1.5 w-8 rounded-full transition-colors ${step >= 1 ? 'bg-emerald-500' : 'bg-white/10'}`} />
                             <div className={`h-1.5 w-8 rounded-full transition-colors ${step >= 2 ? 'bg-emerald-500' : 'bg-white/10'}`} />
-                            <span className="text-xs text-gray-400 font-medium ml-1">Bước {step}/2</span>
+                            <span className="text-xs text-muted-foreground font-medium ml-1">Bước {step}/2</span>
                         </div>
                     </div>
-                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 hover:rotate-90 transition-all shadow-sm"><X className="w-5 h-5" /></button>
+                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted hover:rotate-90 transition-all shadow-sm"><X className="w-5 h-5" /></button>
                 </div>
 
                 <div className="relative p-6 flex-1 overflow-y-auto custom-scrollbar z-10">
@@ -567,16 +567,16 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                             <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
                                 <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
                             </div>
-                            <p className="text-sm font-medium text-gray-400">Đang tìm lịch đặt sân...</p>
+                            <p className="text-sm font-medium text-muted-foreground">Đang tìm lịch đặt sân...</p>
                         </div>
                     ) : myBookings.length === 0 ? (
                         <div className="text-center py-12 space-y-5">
-                            <div className="w-16 h-16 mx-auto rounded-3xl bg-white/5 flex items-center justify-center border border-white/10">
-                                <Calendar className="w-8 h-8 text-gray-500" />
+                            <div className="w-16 h-16 mx-auto rounded-3xl bg-white/5 flex items-center justify-center border border-border">
+                                <Calendar className="w-8 h-8 text-muted-foreground" />
                             </div>
                             <div>
-                                <p className="text-base font-bold text-white mb-1">Chưa có lịch đặt sân nào!</p>
-                                <p className="text-sm text-gray-400 px-4">Bạn cần đặt sân trước mới có thể mở nhóm chơi.</p>
+                                <p className="text-base font-bold text-foreground mb-1">Chưa có lịch đặt sân nào!</p>
+                                <p className="text-sm text-muted-foreground px-4">Bạn cần đặt sân trước mới có thể mở nhóm chơi.</p>
                             </div>
                             <button onClick={() => { onClose(); setPage('search'); }} className="px-6 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold hover:bg-emerald-500 hover:text-black transition-colors">
                                 Đi đặt sân ngay
@@ -591,7 +591,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                             <div className="w-7 h-7 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
                                                 <Calendar className="w-3.5 h-3.5 text-emerald-400" />
                                             </div>
-                                            <h3 className="text-sm font-black text-white uppercase tracking-wider">Chọn lịch sắp tới</h3>
+                                            <h3 className="text-sm font-black text-foreground uppercase tracking-wider">Chọn lịch sắp tới</h3>
                                         </div>
                                         {/* Pagination Controls */}
                                         {myBookings.length > 4 && (
@@ -599,17 +599,17 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                 <button 
                                                     onClick={() => setBookingPage(p => Math.max(0, p - 1))} 
                                                     disabled={bookingPage === 0}
-                                                    className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+                                                    className="w-7 h-7 rounded-lg bg-white/5 border border-border flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-muted transition-colors"
                                                 >
-                                                    <ChevronLeft className="w-4 h-4 text-white" />
+                                                    <ChevronLeft className="w-4 h-4 text-foreground" />
                                                 </button>
-                                                <span className="text-xs text-gray-400 font-bold">{bookingPage + 1} / {Math.ceil(myBookings.length / 4)}</span>
+                                                <span className="text-xs text-muted-foreground font-bold">{bookingPage + 1} / {Math.ceil(myBookings.length / 4)}</span>
                                                 <button 
                                                     onClick={() => setBookingPage(p => Math.min(Math.ceil(myBookings.length / 4) - 1, p + 1))} 
                                                     disabled={bookingPage >= Math.ceil(myBookings.length / 4) - 1}
-                                                    className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+                                                    className="w-7 h-7 rounded-lg bg-white/5 border border-border flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-muted transition-colors"
                                                 >
-                                                    <ChevronRight className="w-4 h-4 text-white" />
+                                                    <ChevronRight className="w-4 h-4 text-foreground" />
                                                 </button>
                                             </div>
                                         )}
@@ -626,7 +626,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                     whileTap={{ scale: 0.96 }}
                                                     key={b._id}
                                                     onClick={() => setSelectedBookingId(b._id)}
-                                                    className={`relative w-full text-left p-5 rounded-[24px] border transition-all duration-300 flex flex-col group overflow-hidden ${isSelected ? 'bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]' : 'bg-black/20 border-white/10 hover:border-white/30 hover:bg-white/10 hover:-translate-y-0.5'}`}
+                                                    className={`relative w-full text-left p-5 rounded-[24px] border transition-all duration-300 flex flex-col group overflow-hidden ${isSelected ? 'bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]' : 'bg-black/20 border-border hover:border-border hover:bg-muted hover:-translate-y-0.5'}`}
                                                 >
                                                     <div className={`absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent transition-opacity duration-300 ${isSelected ? 'opacity-100' : 'opacity-0'}`} />
 
@@ -634,16 +634,16 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                         <Check className="w-3 h-3 text-black" />
                                                     </div>
 
-                                                    <div className={`font-black text-sm mb-3 transition-colors pr-8 line-clamp-2 relative z-10 flex items-start gap-2 ${isSelected ? 'text-emerald-400' : 'text-white'}`}>
+                                                    <div className={`font-black text-sm mb-3 transition-colors pr-8 line-clamp-2 relative z-10 flex items-start gap-2 ${isSelected ? 'text-emerald-400' : 'text-foreground'}`}>
                                                         <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
                                                         {courtName}
                                                     </div>
                                                     
-                                                    <div className="space-y-2 mt-auto relative z-10 bg-black/20 p-2.5 rounded-xl border border-white/5">
-                                                        <div className="flex items-center gap-2 text-[11px] text-gray-300 font-medium">
+                                                    <div className="space-y-2 mt-auto relative z-10 bg-black/20 p-2.5 rounded-xl border border-border">
+                                                        <div className="flex items-center gap-2 text-[11px] text-muted-foreground font-medium">
                                                             <Calendar className="w-3.5 h-3.5 text-emerald-400" /> {dateStr}
                                                         </div>
-                                                        <div className="flex items-center gap-2 text-[11px] text-gray-300 font-medium">
+                                                        <div className="flex items-center gap-2 text-[11px] text-muted-foreground font-medium">
                                                             <Clock className="w-3.5 h-3.5 text-emerald-400" /> {b.startTime} - {b.endTime}
                                                         </div>
                                                     </div>
@@ -674,31 +674,31 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                         <div className="w-7 h-7 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
                                             <AlignLeft className="w-3.5 h-3.5 text-blue-400" />
                                         </div>
-                                        <h3 className="text-sm font-black text-white uppercase tracking-wider">Thông tin chi tiết</h3>
+                                        <h3 className="text-sm font-black text-foreground uppercase tracking-wider">Thông tin chi tiết</h3>
                                     </div>
                                     
                                     <div className="space-y-3">
-                                        <input type="text" placeholder="Tên nhóm chơi (Ví dụ: Kèo tối thứ 3 vui vẻ...)" className="w-full h-14 bg-[#1e2028] border border-white/20 rounded-2xl px-5 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:bg-[#252833] transition-all outline-none shadow-inner" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
-                                        <textarea placeholder="Mô tả ngắn gọn, yêu cầu trình độ, liên hệ..." className="w-full h-24 bg-[#1e2028] border border-white/20 rounded-2xl p-5 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:bg-[#252833] transition-all outline-none resize-none custom-scrollbar shadow-inner" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+                                        <input type="text" placeholder="Tên nhóm chơi (Ví dụ: Kèo tối thứ 3 vui vẻ...)" className="w-full h-14 bg-card border border-border rounded-2xl px-5 text-sm text-foreground placeholder-gray-400 focus:border-blue-500 focus:bg-surface transition-all outline-none shadow-inner" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
+                                        <textarea placeholder="Mô tả ngắn gọn, yêu cầu trình độ, liên hệ..." className="w-full h-24 bg-card border border-border rounded-2xl p-5 text-sm text-foreground placeholder-gray-400 focus:border-blue-500 focus:bg-surface transition-all outline-none resize-none custom-scrollbar shadow-inner" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
                                     </div>
                                     
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {/* Số lượng Slot */}
-                                        <div className="p-4 bg-black/20 border border-white/5 rounded-2xl flex items-center justify-between transition-colors hover:bg-white/5">
+                                        <div className="p-4 bg-black/20 border border-border rounded-2xl flex items-center justify-between transition-colors hover:bg-muted">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
                                                     <Users className="w-5 h-5 text-blue-400" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Số lượng Slot</p>
-                                                    <p className="text-sm font-black text-white">{form.maxPlayers} người</p>
+                                                    <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Số lượng Slot</p>
+                                                    <p className="text-sm font-black text-foreground">{form.maxPlayers} người</p>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1 border border-white/10">
-                                                <button onClick={() => setForm(f => ({ ...f, maxPlayers: Math.max(2, f.maxPlayers - 1) }))} className="w-8 h-8 rounded-lg bg-black/40 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors">-</button>
+                                            <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1 border border-border">
+                                                <button onClick={() => setForm(f => ({ ...f, maxPlayers: Math.max(2, f.maxPlayers - 1) }))} className="w-8 h-8 rounded-lg bg-black/40 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">-</button>
                                                 <input 
                                                     type="number" 
-                                                    className="text-sm font-bold w-10 bg-transparent text-center text-white outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+                                                    className="text-sm font-bold w-10 bg-transparent text-center text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                                                     value={form.maxPlayers || ''}
                                                     onChange={(e) => {
                                                         const val = parseInt(e.target.value);
@@ -711,15 +711,15 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                         setForm(f => ({ ...f, maxPlayers: val }));
                                                     }}
                                                 />
-                                                <button onClick={() => setForm(f => ({ ...f, maxPlayers: Math.min(20, f.maxPlayers + 1) }))} className="w-8 h-8 rounded-lg bg-black/40 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors">+</button>
+                                                <button onClick={() => setForm(f => ({ ...f, maxPlayers: Math.min(20, f.maxPlayers + 1) }))} className="w-8 h-8 rounded-lg bg-black/40 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">+</button>
                                             </div>
                                         </div>
 
                                         {/* Tổng Tiền */}
-                                        <div className="p-4 bg-black/20 border border-white/5 rounded-2xl space-y-3 flex flex-col justify-center transition-colors hover:bg-white/5">
+                                        <div className="p-4 bg-black/20 border border-border rounded-2xl space-y-3 flex flex-col justify-center transition-colors hover:bg-muted">
                                             <div className="flex items-center gap-2">
                                                 <Zap className="w-4 h-4 text-amber-400" />
-                                                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Tổng tiền / Người</p>
+                                                <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Tổng tiền / Người</p>
                                             </div>
                                             
                                             <div className="relative">
@@ -727,21 +727,21 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                     type="number" 
                                                     value={form.pricePerPlayer || ''} 
                                                     onChange={e => setForm({ ...form, pricePerPlayer: parseInt(e.target.value) || 0 })}
-                                                    className="w-full bg-[#1e2028] border border-white/20 rounded-xl py-2 px-3 text-base font-black text-amber-400 focus:border-amber-500/50 focus:bg-amber-500/5 outline-none transition-all placeholder:text-gray-600 shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    className="w-full bg-card border border-border rounded-xl py-2 px-3 text-base font-black text-amber-400 focus:border-amber-500/50 focus:bg-amber-500/5 outline-none transition-all placeholder:text-muted-foreground shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                     placeholder="0"
                                                 />
-                                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-500 uppercase tracking-wider">VNĐ</span>
+                                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground uppercase tracking-wider">VNĐ</span>
                                             </div>
 
                                             <div className="grid grid-cols-2 gap-2">
                                                 <div className="grid grid-cols-3 gap-1">
                                                     {[-10, -20, -50].map(val => (
-                                                        <button key={val} onClick={() => setForm(f => ({ ...f, pricePerPlayer: Math.max(0, f.pricePerPlayer + val * 1000) }))} className="py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white text-[10px] font-bold transition-all">{val}k</button>
+                                                        <button key={val} onClick={() => setForm(f => ({ ...f, pricePerPlayer: Math.max(0, f.pricePerPlayer + val * 1000) }))} className="py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-foreground text-[10px] font-bold transition-all">{val}k</button>
                                                     ))}
                                                 </div>
                                                 <div className="grid grid-cols-3 gap-1">
                                                     {[10, 20, 50].map(val => (
-                                                        <button key={val} onClick={() => setForm(f => ({ ...f, pricePerPlayer: f.pricePerPlayer + val * 1000 }))} className="py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white text-[10px] font-bold transition-all">+{val}k</button>
+                                                        <button key={val} onClick={() => setForm(f => ({ ...f, pricePerPlayer: f.pricePerPlayer + val * 1000 }))} className="py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-foreground text-[10px] font-bold transition-all">+{val}k</button>
                                                     ))}
                                                 </div>
                                             </div>
@@ -749,7 +749,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                     </div>
                                     
                                     <div className="pt-4 flex gap-3">
-                                        <motion.button whileTap={{ scale: 0.95 }} onClick={() => setStep(1)} className="px-5 py-4 rounded-2xl bg-white/10 border border-white/20 font-bold text-sm text-white hover:bg-white/20 transition-colors flex items-center gap-2 shadow-sm">
+                                        <motion.button whileTap={{ scale: 0.95 }} onClick={() => setStep(1)} className="px-5 py-4 rounded-2xl bg-white/10 border border-border font-bold text-sm text-foreground hover:bg-muted transition-colors flex items-center gap-2 shadow-sm">
                                             <ChevronLeft className="w-5 h-5" />
                                         </motion.button>
                                         <motion.button whileTap={{ scale: 0.98 }} onClick={handleCreate} disabled={creating} className="relative flex-1 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 overflow-hidden group shadow-lg shadow-emerald-500/10">

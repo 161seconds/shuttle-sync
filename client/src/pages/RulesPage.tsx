@@ -106,7 +106,7 @@ export default function RulesPage() {
     const data = KNOWLEDGE_BASE[activeTab];
 
     return (
-        <div className="w-full h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-[#090b10] relative font-sans text-gray-300">
+        <div className="w-full h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-background relative font-sans text-muted-foreground">
 
             {/* Animated Ambient Background */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
@@ -130,7 +130,7 @@ export default function RulesPage() {
                         <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-gray-500 tracking-tight flex items-center gap-4">
                             Sách Giáo Khoa
                         </h1>
-                        <p className="text-gray-400 text-lg font-medium max-w-xl">
+                        <p className="text-muted-foreground text-lg font-medium max-w-xl">
                             Nắm vững luật chơi và các thuật ngữ cơ bản để tự tin bước ra sân và thể hiện đẳng cấp.
                         </p>
                     </div>
@@ -140,25 +140,25 @@ export default function RulesPage() {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="flex flex-wrap gap-2 p-1.5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl w-fit"
+                        className="flex flex-wrap gap-2 p-1.5 bg-white/5 backdrop-blur-xl border border-border rounded-2xl w-fit"
                     >
                         <button
                             onClick={() => setActiveTab('badminton')}
                             className={`px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${activeTab === 'badminton'
-                                    ? 'bg-gradient-to-r from-emerald-600 to-emerald-400 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]'
-                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                    ? 'bg-gradient-to-r from-emerald-600 to-emerald-400 text-foreground shadow-[0_0_20px_rgba(16,185,129,0.4)]'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                                 }`}
                         >
-                            <EmojiIcon name="badminton" className={`w-5 h-5 ${activeTab === 'badminton' ? 'text-white' : 'opacity-70 text-emerald-400'}`} /> Cầu lông
+                            <EmojiIcon name="badminton" className={`w-5 h-5 ${activeTab === 'badminton' ? 'text-foreground' : 'opacity-70 text-emerald-400'}`} /> Cầu lông
                         </button>
                         <button
                             onClick={() => setActiveTab('pickleball')}
                             className={`px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${activeTab === 'pickleball'
-                                    ? 'bg-gradient-to-r from-orange-600 to-orange-400 text-white shadow-[0_0_20px_rgba(249,115,22,0.4)]'
-                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                    ? 'bg-gradient-to-r from-orange-600 to-orange-400 text-foreground shadow-[0_0_20px_rgba(249,115,22,0.4)]'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                                 }`}
                         >
-                            <EmojiIcon name="pickleball" className={`w-5 h-5 ${activeTab === 'pickleball' ? 'text-white' : 'opacity-70 text-orange-400'}`} /> Pickleball
+                            <EmojiIcon name="pickleball" className={`w-5 h-5 ${activeTab === 'pickleball' ? 'text-foreground' : 'opacity-70 text-orange-400'}`} /> Pickleball
                         </button>
                     </motion.div>
                 </motion.div>
@@ -175,7 +175,7 @@ export default function RulesPage() {
                     >
                         {/* Cột Trái: LUẬT CHƠI */}
                         <div className="space-y-6">
-                            <h2 className="text-2xl font-black text-white flex items-center gap-3 mb-6 uppercase tracking-wider">
+                            <h2 className="text-2xl font-black text-foreground flex items-center gap-3 mb-6 uppercase tracking-wider">
                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${activeTab === 'badminton' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-orange-500/20 text-orange-500'}`}>
                                     <AlertTriangle className="w-5 h-5" />
                                 </div>
@@ -188,7 +188,7 @@ export default function RulesPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: idx * 0.1 }}
                                         key={idx}
-                                        className="group relative p-6 md:p-8 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-xl hover:bg-white/10 hover:border-white/20 transition-all duration-500 overflow-hidden cursor-default"
+                                        className="group relative p-6 md:p-8 rounded-[2rem] bg-white/5 border border-border backdrop-blur-xl hover:bg-muted hover:border-border transition-all duration-500 overflow-hidden cursor-default"
                                     >
                                         <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/5 group-hover:to-transparent transition-colors duration-500 z-0"></div>
                                         <div className="relative z-10 flex flex-col md:flex-row md:items-start gap-5">
@@ -199,7 +199,7 @@ export default function RulesPage() {
                                                 <h3 className={`text-xl font-black mb-4 transition-colors ${activeTab === 'badminton' ? 'group-hover:text-emerald-400' : 'group-hover:text-orange-400'} text-gray-100`}>{rule.title}</h3>
                                                 <ul className="space-y-3">
                                                     {rule.items.map((item, i) => (
-                                                        <li key={i} className="text-base text-gray-300 flex items-start gap-3 leading-relaxed font-medium">
+                                                        <li key={i} className="text-base text-muted-foreground flex items-start gap-3 leading-relaxed font-medium">
                                                             <span className={`${activeTab === 'badminton' ? 'text-emerald-500' : 'text-orange-500'} mt-1.5 text-xs`}>✦</span>
                                                             {item}
                                                         </li>
@@ -214,7 +214,7 @@ export default function RulesPage() {
 
                         {/* Cột Phải: KỸ THUẬT */}
                         <div className="space-y-6">
-                            <h2 className="text-2xl font-black text-white flex items-center gap-3 mb-6 uppercase tracking-wider">
+                            <h2 className="text-2xl font-black text-foreground flex items-center gap-3 mb-6 uppercase tracking-wider">
                                 <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-500 flex items-center justify-center">
                                     <Swords className="w-5 h-5" />
                                 </div>
@@ -227,7 +227,7 @@ export default function RulesPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: idx * 0.1 }}
                                         key={idx}
-                                        className="group p-6 md:p-8 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-xl hover:bg-white/10 hover:border-white/20 transition-all duration-500 relative overflow-hidden"
+                                        className="group p-6 md:p-8 rounded-[2rem] bg-white/5 border border-border backdrop-blur-xl hover:bg-muted hover:border-border transition-all duration-500 relative overflow-hidden"
                                     >
                                         <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                                             <span className="text-8xl font-black italic">{idx + 1}</span>
@@ -236,7 +236,7 @@ export default function RulesPage() {
                                             <h3 className={`text-xl font-black mb-3 transition-colors ${activeTab === 'badminton' ? 'group-hover:text-emerald-400' : 'group-hover:text-orange-400'} text-gray-100`}>
                                                 {tech.title}
                                             </h3>
-                                            <p className="text-base text-gray-300 leading-relaxed font-medium">
+                                            <p className="text-base text-muted-foreground leading-relaxed font-medium">
                                                 {tech.desc}
                                             </p>
                                         </div>
@@ -253,12 +253,12 @@ export default function RulesPage() {
                             >
                                 <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 bg-gradient-to-r ${activeTab === 'badminton' ? 'from-emerald-500 to-transparent' : 'from-orange-500 to-transparent'}`}></div>
                                 <div className="relative z-10 flex gap-5">
-                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-lg ${activeTab === 'badminton' ? 'bg-emerald-500 text-white shadow-emerald-500/50' : 'bg-orange-500 text-white shadow-orange-500/50'}`}>
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-lg ${activeTab === 'badminton' ? 'bg-emerald-500 text-foreground shadow-emerald-500/50' : 'bg-orange-500 text-foreground shadow-orange-500/50'}`}>
                                         <Target className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <strong className="text-lg font-black text-white block mb-2 tracking-wide">💡 MẸO CHO NGƯỜI MỚI</strong>
-                                        <p className="text-base text-gray-300 leading-relaxed font-medium">
+                                        <strong className="text-lg font-black text-foreground block mb-2 tracking-wide">💡 MẸO CHO NGƯỜI MỚI</strong>
+                                        <p className="text-base text-muted-foreground leading-relaxed font-medium">
                                             {activeTab === 'badminton'
                                                 ? "Đừng cố dùng tay để vung vợt, hãy xoay hông và mượn lực lật vai. Lực thực sự của cầu lông đến từ cái vút vẩy cổ tay và sự đàn hồi của thân vợt."
                                                 : "Chìa khóa của Pickleball không phải là sức mạnh bạo lực, mà là sự kiên nhẫn. Ai dink hỏng trước, ép bóng rúc lưới hoặc văng ra ngoài, người đó thua."

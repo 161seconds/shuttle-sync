@@ -76,17 +76,17 @@ export default function CourtCard({ court, index = 0 }: CourtCardProps) {
                 {/* Tags */}
                 <div className="absolute top-3 left-3 flex gap-1.5">
                     {court.isHot && (
-                        <span className="px-2 py-0.5 rounded-lg bg-orange-500/90 text-white text-[10px] font-bold flex items-center gap-1 backdrop-blur-sm">
+                        <span className="px-2 py-0.5 rounded-lg bg-orange-500/90 text-foreground text-[10px] font-bold flex items-center gap-1 backdrop-blur-sm">
                             <Zap className="w-2.5 h-2.5" /> Hot
                         </span>
                     )}
                     {(court.distance ?? 99) <= 2 && (
-                        <span className="px-2 py-0.5 rounded-lg bg-emerald-500/90 text-white text-[10px] font-bold backdrop-blur-sm">
+                        <span className="px-2 py-0.5 rounded-lg bg-emerald-500/90 text-foreground text-[10px] font-bold backdrop-blur-sm">
                             Gần bạn
                         </span>
                     )}
                     {minPrice > 0 && minPrice <= 80000 && (
-                        <span className="px-2 py-0.5 rounded-lg bg-blue-500/90 text-white text-[10px] font-bold backdrop-blur-sm">
+                        <span className="px-2 py-0.5 rounded-lg bg-blue-500/90 text-foreground text-[10px] font-bold backdrop-blur-sm">
                             Giá tốt
                         </span>
                     )}
@@ -99,9 +99,9 @@ export default function CourtCard({ court, index = 0 }: CourtCardProps) {
                     aria-label="Yêu thích"
                 >
                     {loadingLike ? (
-                        <Loader2 className="w-4 h-4 text-white/70 animate-spin" />
+                        <Loader2 className="w-4 h-4 text-foreground/70 animate-spin" />
                     ) : (
-                        <Heart className={`w-4 h-4 transition-colors ${liked ? 'fill-red-500 text-red-500' : 'text-white/70'}`} />
+                        <Heart className={`w-4 h-4 transition-colors ${liked ? 'fill-red-500 text-red-500' : 'text-foreground/70'}`} />
                     )}
                 </button>
 
@@ -109,14 +109,14 @@ export default function CourtCard({ court, index = 0 }: CourtCardProps) {
                 <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
                     <div className="flex items-center gap-1.5">
                         <span className="text-xl">{sportIcon}</span>
-                        <span className="text-white/50 text-[10px] font-medium uppercase tracking-wider">
+                        <span className="text-foreground/50 text-[10px] font-medium uppercase tracking-wider">
                             {court.sportTypes?.join(' · ')}
                         </span>
                     </div>
                     <div className="flex items-center gap-1 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-lg">
                         <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                        <span className="text-white text-xs font-bold">{court.averageRating?.toFixed(1) || '0.0'}</span>
-                        <span className="text-white/40 text-[10px]">({court.reviewCount || 0})</span>
+                        <span className="text-foreground text-xs font-bold">{court.averageRating?.toFixed(1) || '0.0'}</span>
+                        <span className="text-foreground/40 text-[10px]">({court.reviewCount || 0})</span>
                     </div>
                 </div>
             </div>

@@ -60,12 +60,12 @@ export default function ProfilePage() {
         return (
             <div className="w-full flex-1 flex flex-col items-center justify-center min-h-[75vh] px-6 pt-20 pb-24 text-center">
                 <div className="max-w-md w-full flex flex-col items-center">
-                    <div className="relative w-28 h-28 bg-[#1e1e1e] rounded-full flex items-center justify-center mb-6 border border-white/10 shadow-[0_0_40px_rgba(16,185,129,0.15)]">
+                    <div className="relative w-28 h-28 bg-card rounded-full flex items-center justify-center mb-6 border border-border shadow-[0_0_40px_rgba(16,185,129,0.15)]">
                         <div className="absolute inset-0 rounded-full border border-emerald-500/20 animate-ping" style={{ animationDuration: '3s' }}></div>
                         <UserCircle className="w-14 h-14 text-emerald-500/80" />
                     </div>
-                    <h2 className="text-2xl font-black text-white mb-3">Chưa đăng nhập</h2>
-                    <p className="text-gray-400 text-[14px] leading-relaxed mb-10 px-2">
+                    <h2 className="text-2xl font-black text-foreground mb-3">Chưa đăng nhập</h2>
+                    <p className="text-muted-foreground text-[14px] leading-relaxed mb-10 px-2">
                         Vui lòng đăng nhập để xem thông tin cá nhân và quản lý lịch đặt sân.
                     </p>
                     <button onClick={() => setPage('login')} className="w-full flex items-center justify-center gap-2 bg-linear-to-r from-emerald-500 to-emerald-400 hover:opacity-90 text-black font-bold py-4 px-6 rounded-2xl transition-all shadow-[0_8px_25px_rgba(16,185,129,0.3)] active:scale-[0.98]">
@@ -108,7 +108,7 @@ export default function ProfilePage() {
                     <div className="absolute bottom-[-50%] right-[-20%] w-[150%] h-[150%] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-teal-500/10 via-transparent to-transparent blur-3xl z-0"></div>
 
                     {/* Glassmorphism Content */}
-                    <div className={`relative z-10 ${t.bg.card} bg-opacity-60 backdrop-blur-xl border border-white/10 p-8 text-center`}>
+                    <div className={`relative z-10 ${t.bg.card} bg-opacity-60 backdrop-blur-xl border border-border p-8 text-center`}>
                         {isSyncing && (
                             <div className="absolute top-4 right-4 w-4 h-4 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin" />
                         )}
@@ -116,20 +116,20 @@ export default function ProfilePage() {
                         {/* Avatar */}
                         <div className="relative inline-block mb-5 group-hover:scale-105 transition-transform duration-500">
                             <div className="absolute inset-0 bg-emerald-500/40 rounded-[28px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                            <div className="relative w-24 h-24 rounded-[28px] bg-linear-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-4xl font-black text-black shadow-[0_0_40px_rgba(16,185,129,0.3)] overflow-hidden border border-white/20">
+                            <div className="relative w-24 h-24 rounded-[28px] bg-linear-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-4xl font-black text-black shadow-[0_0_40px_rgba(16,185,129,0.3)] overflow-hidden border border-border">
                                 {user.avatar ? (
                                     <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
                                 ) : (
                                     user.displayName?.charAt(0).toUpperCase() || 'U'
                                 )}
                             </div>
-                            <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl bg-linear-to-br from-emerald-400 to-emerald-500 flex items-center justify-center border-2 border-[#151515] shadow-lg shadow-emerald-500/50">
+                            <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl bg-linear-to-br from-emerald-400 to-emerald-500 flex items-center justify-center border-2 border-border shadow-lg shadow-emerald-500/50">
                                 <Check className="w-4 h-4 text-black" strokeWidth={4} />
                             </div>
                         </div>
 
                         {/* User Info */}
-                        <h2 className={`text-2xl font-black text-white tracking-tight`}>{user.displayName || 'Vợt thủ'}</h2>
+                        <h2 className={`text-2xl font-black text-foreground tracking-tight`}>{user.displayName || 'Vợt thủ'}</h2>
                         <p className={`text-sm ${t.text.muted} mt-1 font-medium`}>{user.email}</p>
 
                         {/* Floating Stats */}
@@ -140,7 +140,7 @@ export default function ProfilePage() {
                                 { label: 'Nhóm tham gia', value: user.stats?.totalGroupsJoined || '0', color: 'text-blue-400', bg: 'bg-blue-500/5' },
                                 { label: 'Điểm đánh giá', value: user.stats?.rating?.toFixed(1) || '0.0', color: 'text-purple-400', bg: 'bg-purple-500/5' },
                             ].map(s => (
-                                <div key={s.label} className={`py-4 rounded-2xl ${s.bg} bg-opacity-50 backdrop-blur-md border border-white/5 flex flex-col items-center justify-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300`}>
+                                <div key={s.label} className={`py-4 rounded-2xl ${s.bg} bg-opacity-50 backdrop-blur-md border border-border flex flex-col items-center justify-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300`}>
                                     <div className={`text-2xl font-black ${s.color} drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]`}>{s.value}</div>
                                     <div className={`text-[11px] ${t.text.muted} mt-1 font-bold uppercase tracking-wider`}>{s.label}</div>
                                 </div>
@@ -153,11 +153,11 @@ export default function ProfilePage() {
                 <div className="space-y-2.5">
                     {MENU.map((item) => (
                         <button key={item.label} onClick={() => setSubPage(item.action)}
-                            className={`w-full flex items-center gap-4 px-5 py-4 rounded-[20px] bg-white/5 border border-white/5 hover:bg-white/10 hover:border-emerald-500/30 hover:shadow-[0_0_20px_rgba(16,185,129,0.1)] transition-all duration-300 group`}>
+                            className={`w-full flex items-center gap-4 px-5 py-4 rounded-[20px] bg-white/5 border border-border hover:bg-muted hover:border-emerald-500/30 hover:shadow-[0_0_20px_rgba(16,185,129,0.1)] transition-all duration-300 group`}>
                             <div className={`w-10 h-10 rounded-xl bg-black/30 flex items-center justify-center ${t.text.muted} group-hover:text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/10 transition-all duration-300`}>
                                 {item.icon}
                             </div>
-                            <span className={`flex-1 text-left text-[15px] font-bold text-gray-300 group-hover:text-white transition-colors duration-300`}>
+                            <span className={`flex-1 text-left text-[15px] font-bold text-muted-foreground group-hover:text-foreground transition-colors duration-300`}>
                                 {item.label}
                             </span>
                             {item.badge != null && item.badge > 0 && (
@@ -165,7 +165,7 @@ export default function ProfilePage() {
                                     {item.badge}
                                 </span>
                             )}
-                            <ChevronRight className={`w-5 h-5 text-gray-600 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all duration-300`} />
+                            <ChevronRight className={`w-5 h-5 text-muted-foreground group-hover:text-emerald-500 group-hover:translate-x-1 transition-all duration-300`} />
                         </button>
                     ))}
                 </div>

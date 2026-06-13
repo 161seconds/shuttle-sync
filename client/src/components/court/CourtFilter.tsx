@@ -33,7 +33,7 @@ export default function CourtFilter({ filters, onChange, showSearch = true }: Co
                         placeholder="Tìm theo tên sân, khu vực..."
                         value={filters.keyword}
                         onChange={(e) => onChange({ keyword: (e.target as HTMLInputElement).value })}
-                        className={`w-full h-11 pl-11 pr-4 rounded-xl ${t.bg.input} border ${t.border.subtle} ${t.text.primary} placeholder:text-[#555] text-sm outline-none focus:border-emerald-500/40 transition-colors`}
+                        className={`w-full h-11 pl-11 pr-4 rounded-xl ${t.bg.input} border ${t.border.subtle} ${t.text.primary} placeholder:text-muted-foreground text-sm outline-none focus:border-emerald-500/40 transition-colors`}
                     />
                 </div>
             )}

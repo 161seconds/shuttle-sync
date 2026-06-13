@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import axiosClient from '../../api/axiosClient';
 import NotificationDropdown from './NotificationDropdown';
+import { ModeToggle } from '../ModeToggle';
 
 export default function Header() {
     const { setPage, user, isSideBarOpen, toggleSidebar } = useAppStore();
@@ -49,7 +50,7 @@ export default function Header() {
             }}
             animate={hidden ? "hidden" : "visible"}
             transition={{ duration: 0.35, ease: "easeInOut" }}
-            className={`fixed top-0 left-0 right-0 z-50 w-full h-16 border-b ${t.border.subtle} bg-[#060809]/80 backdrop-blur-xl supports-[backdrop-filter]:bg-[#060809]/60`}
+            className={`fixed top-0 left-0 right-0 z-50 w-full h-16 border-b ${t.border.subtle} bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60`}
         >
             <div className="w-full h-full flex items-center justify-between md:grid md:grid-cols-3 px-3 md:px-6">
                 {/* LEFT */}
@@ -57,7 +58,7 @@ export default function Header() {
                     {/* NÚT BẬT TẮT SIDEBAR */}
                     <button
                         onClick={toggleSidebar}
-                        className={`p-2 rounded-xl transition-all ${isSideBarOpen ? 'bg-emerald-500/10 text-emerald-400' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
+                        className={`p-2 rounded-xl transition-all ${isSideBarOpen ? 'bg-emerald-500/10 text-emerald-400' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
                     >
                         <Menu className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
@@ -99,12 +100,13 @@ export default function Header() {
 
                 {/* RIGHT */}
                 <div className="flex items-center justify-end gap-3">
+                    <ModeToggle />
                     {user ? (
                         <>
                             <div className="relative flex items-center">
                                 <button
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                    className={`relative w-10 h-10 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-emerald-400 hover:bg-white/5 transition-all`}
+                                    className={`relative w-10 h-10 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-emerald-400 hover:bg-muted transition-all`}
                                 >
                                     <Bell className="w-5 h-5" />
                                     {hasUnread && (
@@ -159,7 +161,7 @@ function NavBtn({
     return (
         <button
             onClick={onClick}
-            className="px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-[#999] hover:bg-[#1e1e1e] hover:text-emerald-400 transition-all"
+            className="px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-muted-foreground hover:bg-card hover:text-emerald-400 transition-all"
         >
             {icon}
             {label}

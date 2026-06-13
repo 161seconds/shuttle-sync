@@ -27,11 +27,11 @@ export default function StepWelcome({ onNext, onSkip }: { onNext: () => void; on
             <motion.h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-4"
                 initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4, duration: 0.6 }}
             >
-                <span className="text-white">Shuttle</span>
+                <span className="text-foreground">Shuttle</span>
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Sync</span>
             </motion.h1>
 
-            <motion.p className="text-white/50 text-lg sm:text-xl max-w-md leading-relaxed mb-2 font-light"
+            <motion.p className="text-foreground/50 text-lg sm:text-xl max-w-md leading-relaxed mb-2 font-light"
                 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.6 }}
             >
                 Đặt sân thể thao. Tìm bạn chơi.
@@ -57,7 +57,7 @@ export default function StepWelcome({ onNext, onSkip }: { onNext: () => void; on
             </motion.button>
 
             <motion.button onClick={onSkip}
-                className="mt-6 text-sm text-white/30 hover:text-white/60 transition-colors underline underline-offset-4 decoration-white/10 hover:decoration-white/30"
+                className="mt-6 text-sm text-foreground/30 hover:text-foreground/60 transition-colors underline underline-offset-4 decoration-white/10 hover:decoration-white/30"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1 }}
             >
                 Bỏ qua giới thiệu
