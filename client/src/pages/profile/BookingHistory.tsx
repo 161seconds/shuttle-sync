@@ -91,7 +91,7 @@ export default function BookingHistory({ onBack }: Props) {
         <div className={`min-h-screen w-full${t.bg.base} pb-24`}>
             <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-border`}>
                 <div className="flex items-center gap-3 px-4 h-16">
-                    <button onClick={onBack} className={`w-10 h-10 rounded-full bg-white/5 hover:bg-muted flex items-center justify-center ${t.text.muted} hover:text-foreground transition-all`}>
+                    <button onClick={onBack} className={`w-10 h-10 rounded-full bg-card hover:bg-muted flex items-center justify-center ${t.text.muted} hover:text-foreground transition-all`}>
                         <ChevronLeft className="w-6 h-6" />
                     </button>
                     <h1 className={`font-black text-lg text-foreground tracking-wide`}>Lịch sử đặt sân</h1>
@@ -102,8 +102,8 @@ export default function BookingHistory({ onBack }: Props) {
                     {TABS.map(tb => (
                         <button key={tb.id} onClick={() => setTab(tb.id)}
                             className={`shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 ${tab === tb.id
-                                ? 'bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.4)] scale-105'
-                                : `bg-white/5 text-muted-foreground border border-border hover:bg-muted hover:text-foreground`}`}>
+                                ? 'bg-emerald-500 text-black shadow-glow-lg scale-105'
+                                : `bg-card text-muted-foreground border border-border hover:bg-muted hover:text-foreground`}`}>
                             {tb.label}
                         </button>
                     ))}
@@ -114,12 +114,12 @@ export default function BookingHistory({ onBack }: Props) {
                 {loading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {Array.from({ length: 8 }).map((_, i) => (
-                            <div key={i} className={`h-32 rounded-3xl bg-white/5 border border-border animate-pulse`} />
+                            <div key={i} className={`h-32 rounded-3xl bg-card border border-border animate-pulse`} />
                         ))}
                     </div>
                 ) : bookings.length === 0 ? (
                     <div className="flex flex-col items-center py-20 col-span-full">
-                        <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-5">
+                        <div className="w-20 h-20 rounded-full bg-card flex items-center justify-center mb-5">
                             <Calendar className={`w-10 h-10 text-muted-foreground`} />
                         </div>
                         <p className={`text-foreground font-bold mb-1.5 text-lg`}>Chưa có đơn đặt sân nào</p>
@@ -135,7 +135,7 @@ export default function BookingHistory({ onBack }: Props) {
                                 const courtName = typeof courtObj === 'object' ? courtObj?.name : 'Sân (Không xác định)';
 
                                 return (
-                                    <div key={b._id} className={`relative flex flex-col h-full bg-white/5 rounded-3xl border border-border overflow-hidden transition-all duration-300 hover:border-emerald-500/30 hover:shadow-[0_0_30px_rgba(16,185,129,0.05)] group`}>
+                                    <div key={b._id} className={`relative flex flex-col h-full bg-card rounded-3xl border border-border overflow-hidden transition-all duration-300 hover:border-emerald-500/30 hover:shadow-[0_0_30px_rgba(16,185,129,0.05)] group`}>
                                         <button onClick={() => setExpanded(b._id)} className="w-full flex flex-col h-full text-left relative z-0">
                                             
                                             {/* TOP SECTION */}
@@ -165,7 +165,7 @@ export default function BookingHistory({ onBack }: Props) {
 
                                             {/* BOTTOM SECTION */}
                                             <div className="p-5 pt-3 mt-auto w-full">
-                                                <div className="bg-black/20 rounded-2xl p-4 border border-border mb-4">
+                                                <div className="bg-card rounded-2xl p-4 border border-border mb-4">
                                                     <div className={`text-[13px] font-medium text-muted-foreground flex items-center gap-3 mb-2.5`}>
                                                         <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
                                                             <Calendar className="w-3.5 h-3.5 text-emerald-400" /> 
@@ -180,7 +180,7 @@ export default function BookingHistory({ onBack }: Props) {
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center justify-between">
-                                                    <span className={`text-[11px] font-mono text-muted-foreground bg-black/50 px-2 py-1 rounded-md border border-border`}>#{b.bookingCode}</span>
+                                                    <span className={`text-[11px] font-mono text-muted-foreground bg-card px-2 py-1 rounded-md border border-border`}>#{b.bookingCode}</span>
                                                     <span className="text-emerald-400 text-xl font-black">{b.finalAmount?.toLocaleString()}đ</span>
                                                 </div>
                                             </div>
@@ -196,7 +196,7 @@ export default function BookingHistory({ onBack }: Props) {
                                 <button 
                                     disabled={pageIndex === 1}
                                     onClick={() => setPageIndex(p => Math.max(1, p - 1))}
-                                    className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center disabled:opacity-30 hover:bg-muted transition-colors"
+                                    className="w-10 h-10 rounded-full bg-card flex items-center justify-center disabled:opacity-30 hover:bg-muted transition-colors"
                                 >
                                     <ChevronLeft className="w-5 h-5" />
                                 </button>
@@ -204,7 +204,7 @@ export default function BookingHistory({ onBack }: Props) {
                                 <button 
                                     disabled={pageIndex === totalPages}
                                     onClick={() => setPageIndex(p => Math.min(totalPages, p + 1))}
-                                    className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center disabled:opacity-30 hover:bg-muted transition-colors"
+                                    className="w-10 h-10 rounded-full bg-card flex items-center justify-center disabled:opacity-30 hover:bg-muted transition-colors"
                                 >
                                     <ChevronRight className="w-5 h-5" />
                                 </button>
@@ -229,7 +229,7 @@ export default function BookingHistory({ onBack }: Props) {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-card backdrop-blur-sm"
                             onClick={() => setExpanded(null)}
                         >
                             <motion.div 
@@ -237,9 +237,9 @@ export default function BookingHistory({ onBack }: Props) {
                                 animate={{ scale: 1, opacity: 1, y: 0 }}
                                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                                 onClick={e => e.stopPropagation()}
-                                className="bg-background border border-border rounded-[2rem] p-6 w-full max-w-md shadow-[0_0_50px_rgba(0,0,0,0.8)] relative"
+                                className="bg-background border border-border rounded-[2rem] p-6 w-full max-w-md shadow-card relative"
                             >
-                                <button onClick={() => setExpanded(null)} className="absolute top-5 right-5 text-muted-foreground hover:text-foreground bg-white/5 hover:bg-muted p-2 rounded-full transition-colors">
+                                <button onClick={() => setExpanded(null)} className="absolute top-5 right-5 text-muted-foreground hover:text-foreground bg-card hover:bg-muted p-2 rounded-full transition-colors">
                                     <X className="w-5 h-5" />
                                 </button>
 
@@ -256,12 +256,12 @@ export default function BookingHistory({ onBack }: Props) {
                                     </span>
                                 </div>
 
-                                <div className="space-y-4 bg-black/40 p-6 rounded-[1.5rem] border border-border mb-6">
+                                <div className="space-y-4 bg-card p-6 rounded-[1.5rem] border border-border mb-6">
                                     <DetailRow label="Mã đơn" value={`#${b.bookingCode}`} />
                                     <DetailRow label="Ngày chơi" value={formatDate(b.date)} />
                                     <DetailRow label="Thời gian" value={`${b.startTime} - ${b.endTime}`} />
                                     <DetailRow label="Thanh toán" value={b.payment?.method === 'qr_code' ? 'QR Code' : b.payment?.method || '—'} />
-                                    <div className="h-px bg-white/5 my-4"></div>
+                                    <div className="h-px bg-card my-4"></div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-muted-foreground font-bold text-[15px]">Tổng thanh toán</span>
                                         <span className="text-3xl font-black text-emerald-400 drop-shadow-md">{b.totalAmount?.toLocaleString()}đ</span>

@@ -62,17 +62,17 @@ function PremiumBackground() {
       <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-emerald-500/10 blur-[150px]" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-500/10 blur-[150px]" />
 
-      {/* 2. Micro-dot pattern cực mờ tạo cảm giác tinh tế */}
-      <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] bg-[size:32px_32px] opacity-15" />
+      {/* 2. Micro-dot pattern sắc nét như web mẫu */}
+      <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(rgba(255,255,255,0.15)_1.5px,transparent_1.5px)] bg-[size:32px_32px] opacity-70 dark:opacity-100" />
 
       {/* 3. Mouse Follower Glow (Ánh sáng mềm mại đi theo chuột) */}
       <div
         ref={lightRef}
-        className="absolute top-0 left-0 w-[800px] h-[800px] bg-emerald-400/5 rounded-full blur-[100px] will-change-transform"
+        className="absolute top-0 left-0 w-[800px] h-[800px] bg-emerald-500/10 dark:bg-emerald-400/5 rounded-full blur-[100px] will-change-transform"
       />
 
-      {/* 4. Particle Field cũ được làm mờ bớt để không rối mắt */}
-      <div className="opacity-20 mix-blend-screen">
+      {/* 4. Particle Field cũ được điều chỉnh để hiển thị tốt trên nền sáng */}
+      <div className="opacity-40 dark:opacity-20 dark:mix-blend-screen">
         <ParticleField />
       </div>
     </div>

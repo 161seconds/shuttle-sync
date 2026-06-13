@@ -58,7 +58,7 @@ export default function JoinRequestsModal({ groupId, requests, onClose, onUpdate
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={onClose}
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                className="absolute inset-0 bg-card backdrop-blur-sm"
             />
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -66,7 +66,7 @@ export default function JoinRequestsModal({ groupId, requests, onClose, onUpdate
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 className="relative w-full max-w-lg bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden max-h-[80vh]"
             >
-                <div className="flex items-center justify-between p-4 border-b border-border bg-white/5">
+                <div className="flex items-center justify-between p-4 border-b border-border bg-card">
                     <h3 className="font-bold text-foreground text-lg">Yêu cầu tham gia</h3>
                     <button
                         onClick={onClose}
@@ -84,10 +84,10 @@ export default function JoinRequestsModal({ groupId, requests, onClose, onUpdate
                     ) : (
                         <div className="flex flex-col gap-3">
                             {requests.map(req => (
-                                <div key={req._id} className="bg-white/5 border border-border rounded-xl p-3 flex flex-col gap-3">
+                                <div key={req._id} className="bg-card border border-border rounded-xl p-3 flex flex-col gap-3">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3 cursor-pointer" onClick={() => onAvatarClick?.(req.userId)}>
-                                            <div className="w-10 h-10 rounded-full bg-white/10 overflow-hidden border border-border shrink-0">
+                                            <div className="w-10 h-10 rounded-full bg-card overflow-hidden border border-border shrink-0">
                                                 {req.avatar ? (
                                                     <img src={req.avatar || undefined} alt={req.displayName} className="w-full h-full object-cover" />
                                                 ) : (
@@ -136,7 +136,7 @@ export default function JoinRequestsModal({ groupId, requests, onClose, onUpdate
                                                         value={rejectReason}
                                                         onChange={(e) => setRejectReason(e.target.value)}
                                                         placeholder="Nhập lý do từ chối..."
-                                                        className="w-full bg-black/40 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder-gray-500 outline-none focus:border-red-500/50"
+                                                        className="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder-gray-500 outline-none focus:border-red-500/50"
                                                         autoFocus
                                                     />
                                                     <div className="flex justify-end gap-2 mt-1">

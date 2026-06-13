@@ -70,7 +70,7 @@ export default function Header() {
                     >
                         <div className="relative flex items-center justify-center">
                             {/* Khung chứa icon phát quang nhẹ */}
-                            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)] group-hover:scale-105 group-hover:border-emerald-500/40 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all duration-300">
+                            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-glow group-hover:scale-105 group-hover:border-emerald-500/40 group-hover:shadow-glow-lg transition-all duration-300">
                                 <Zap className="w-4 h-4 text-emerald-400 fill-emerald-400/10 group-hover:scale-110 transition-transform" />
                             </div>
                         </div>

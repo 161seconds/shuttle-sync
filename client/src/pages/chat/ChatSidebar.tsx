@@ -30,7 +30,7 @@ export default function ChatSidebar({
             <div className="h-[85px] shrink-0 px-4 flex items-center gap-3 border-b border-border">
                 <button 
                     onClick={onBack}
-                    className="w-10 h-10 rounded-full bg-white/5 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-all shrink-0"
+                    className="w-10 h-10 rounded-full bg-card hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-all shrink-0"
                 >
                     <ChevronLeft className="w-6 h-6" />
                 </button>

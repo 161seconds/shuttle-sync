@@ -181,7 +181,7 @@ export default function MapPage() {
                         padding: 4px 10px 4px 4px;
                         border-radius: 30px;
                         box-shadow: ${isActive ? '0 8px 25px rgba(16,185,129,0.5)' : '0 4px 15px rgba(0,0,0,0.5)'};
-                        color: ${isActive ? '#fff' : '#e2e8f0'};
+                        color: ${isActive ? 'var(--color-card)' : 'var(--color-foreground)'};
                         font-family: 'Inter', sans-serif;
                         font-weight: 700;
                         font-size: 13px;
@@ -362,8 +362,8 @@ export default function MapPage() {
         <div className="relative w-full h-[calc(100dvh-64px)] overflow-hidden font-sans">
             <div ref={mapContainer} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} className="bg-card" />
 
-            <div className="absolute top-0 left-0 right-0 h-40 bg-linear-to-b from-[#121212]/90 via-[#121212]/50 to-transparent z-10 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 right-0 h-64 bg-linear-to-t from-[#121212] via-[#121212]/80 to-transparent z-10 pointer-events-none" />
+            <div className="absolute top-0 left-0 right-0 h-40 bg-linear-to-b from-background via-background/50 to-transparent z-10 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-64 bg-linear-to-t from-background via-background/80 to-transparent z-10 pointer-events-none" />
 
             {/* TÌM KIẾM & CHIP FILTER */}
             <div className="absolute top-6 left-4 right-4 z-20 pointer-events-none">
@@ -374,11 +374,11 @@ export default function MapPage() {
                         className="w-full h-14 pl-12 pr-14 rounded-2xl bg-card/70 backdrop-blur-2xl border border-border text-foreground placeholder:text-muted-foreground text-[15px] outline-none shadow-[0_8px_30px_rgb(0,0,0,0.5)] focus:border-emerald-500/50 focus:bg-card/90 transition-all"
                     />
                     {searchVal && (
-                        <button onClick={() => { setSearchVal(''); fetchCourts({ lat: userLoc?.lat, lng: userLoc?.lng }); }} className="absolute right-14 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+                        <button onClick={() => { setSearchVal(''); fetchCourts({ lat: userLoc?.lat, lng: userLoc?.lng }); }} className="absolute right-14 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
                             <X className="w-3 h-3" />
                         </button>
                     )}
-                    <button className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-white/5 hover:bg-muted flex items-center justify-center text-muted-foreground transition-colors border border-border">
+                    <button className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-card hover:bg-muted flex items-center justify-center text-muted-foreground transition-colors border border-border">
                         <SlidersHorizontal className="w-5 h-5" />
                     </button>
                 </div>
@@ -386,14 +386,14 @@ export default function MapPage() {
                 <div className="max-w-md mx-auto mt-4 flex gap-2.5 overflow-x-auto hide-scrollbar pointer-events-auto snap-x pb-2">
                     {FILTER_CHIPS.map((chip) => (
                         <button key={chip.id} onClick={() => handleFilterChip(chip.id)}
-                            className={`snap-start shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full border text-[12px] font-medium transition-all duration-300 shadow-lg ${activeFilter === chip.id ? 'bg-emerald-500 text-black border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'bg-card/80 backdrop-blur-xl border-border text-muted-foreground hover:border-emerald-500/50'}`}>
+                            className={`snap-start shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full border text-[12px] font-medium transition-all duration-300 shadow-lg ${activeFilter === chip.id ? 'bg-emerald-500 text-black border-emerald-500 shadow-glow-lg' : 'bg-card/80 backdrop-blur-xl border-border text-muted-foreground hover:border-emerald-500/50'}`}>
                             {chip.label}
                         </button>
                     ))}
                 </div>
             </div>
 
-            <button onClick={handleLocateMe} className={`absolute right-4 z-20 px-4 py-3 rounded-full bg-emerald-500 text-black text-sm font-bold flex items-center gap-2.5 shadow-[0_8px_20px_rgba(16,185,129,0.3)] hover:bg-emerald-400 hover:scale-105 transition-all duration-300 active:scale-95 ${selected ? 'bottom-56' : 'bottom-48'}`}>
+            <button onClick={handleLocateMe} className={`absolute right-4 z-20 px-4 py-3 rounded-full bg-emerald-500 text-black text-sm font-bold flex items-center gap-2.5 shadow-glow-lg hover:bg-emerald-400 hover:scale-105 transition-all duration-300 active:scale-95 ${selected ? 'bottom-56' : 'bottom-48'}`}>
                 <Navigation className="w-4 h-4" /> Sân gần tôi
             </button>
 
@@ -426,14 +426,14 @@ export default function MapPage() {
 
             {/* POPUP CHI TIẾT SÂN */}
             {selected && (
-                <div className="absolute bottom-28 left-4 right-4 md:left-auto md:right-8 md:w-88 z-30 bg-card/95 backdrop-blur-2xl rounded-3xl border border-border p-4 shadow-[0_10px_40px_rgba(0,0,0,0.7)] transition-all animate-in fade-in slide-in-from-bottom-8">
+                <div className="absolute bottom-28 left-4 right-4 md:left-auto md:right-8 md:w-88 z-30 bg-card/95 backdrop-blur-2xl rounded-3xl border border-border p-4 shadow-card transition-all animate-in fade-in slide-in-from-bottom-8">
                     <button onClick={() => {
                         setSelected(null);
                         setShowRoute(false);
                         setRouteInfo(null);
                         clearRoute();
                         map.current?.flyTo({ pitch: 0, duration: 1000 }); // Đóng popup thì trả góc cam
-                    }} className="absolute top-6 right-6 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-border flex items-center justify-center text-foreground/80 hover:text-foreground hover:bg-red-500 hover:border-red-500 hover:scale-110 transition-all z-10">
+                    }} className="absolute top-6 right-6 w-8 h-8 rounded-full bg-card backdrop-blur-md border border-border flex items-center justify-center text-foreground/80 hover:text-foreground hover:bg-red-500 hover:border-red-500 hover:scale-110 transition-all z-10">
                         <X className="w-4 h-4 stroke-[2.5px]" />
                     </button>
                     <div className="flex flex-col gap-3">
@@ -455,7 +455,7 @@ export default function MapPage() {
                     )}
                     <div className="flex gap-2 mt-4">
                         <button onClick={handleGetDirections} className={`flex-1 py-3 rounded-xl text-[14px] font-bold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] ${showRoute ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40' : 'bg-surface text-muted-foreground border border-border hover:bg-surface'}`}><Route className="w-4 h-4" /> Tìm đường</button>
-                        <button onClick={() => setBookingCourt(selected)} className="flex-1 py-3 rounded-xl bg-linear-to-r from-emerald-500 to-emerald-400 text-black text-[14px] font-bold flex items-center justify-center gap-1.5 hover:opacity-90 transition-opacity shadow-[0_5px_20px_rgba(16,185,129,0.4)] active:scale-[0.98]"><Calendar className="w-4 h-4" /> Đặt lịch</button>
+                        <button onClick={() => setBookingCourt(selected)} className="flex-1 py-3 rounded-xl bg-linear-to-r from-emerald-500 to-emerald-400 text-black text-[14px] font-bold flex items-center justify-center gap-1.5 hover:opacity-90 transition-opacity shadow-glow-lg active:scale-[0.98]"><Calendar className="w-4 h-4" /> Đặt lịch</button>
                     </div>
                 </div>
             )}

@@ -55,7 +55,7 @@ export default function FavoriteCourts({ onBack }: Props) {
             {/* Header */}
             <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-border`}>
                 <div className="flex items-center gap-3 px-4 h-16">
-                    <button onClick={onBack} className={`w-10 h-10 rounded-full bg-white/5 hover:bg-muted flex items-center justify-center ${t.text.muted} hover:text-foreground transition-all`}>
+                    <button onClick={onBack} className={`w-10 h-10 rounded-full bg-card hover:bg-muted flex items-center justify-center ${t.text.muted} hover:text-foreground transition-all`}>
                         <ChevronLeft className="w-6 h-6" />
                     </button>
                     <h1 className={`font-black text-lg text-foreground tracking-wide`}>Sân yêu thích</h1>
@@ -73,7 +73,7 @@ export default function FavoriteCourts({ onBack }: Props) {
                     ))
                 ) : courts.length === 0 ? (
                     <div className="flex flex-col items-center py-20">
-                        <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-5">
+                        <div className="w-20 h-20 rounded-full bg-card flex items-center justify-center mb-5">
                             <Heart className={`w-10 h-10 text-muted-foreground`} />
                         </div>
                         <p className={`text-foreground font-bold mb-1.5 text-lg`}>Chưa có sân yêu thích</p>
@@ -82,12 +82,12 @@ export default function FavoriteCourts({ onBack }: Props) {
                 ) : (
                     courts.map(court => (
                         <div key={court._id}
-                            className={`flex gap-3 p-3 rounded-3xl bg-white/5 border border-border hover:border-emerald-500/30 hover:bg-muted hover:shadow-[0_0_20px_rgba(16,185,129,0.1)] transition-all duration-300 group`}>
+                            className={`flex gap-3 p-3 rounded-3xl bg-card border border-border hover:border-emerald-500/30 hover:bg-muted hover:shadow-glow transition-all duration-300 group`}>
                             
                             <div className="relative w-[110px] h-[100px] shrink-0 rounded-2xl overflow-hidden cursor-pointer" onClick={() => setBookingCourt(court)}>
                                 <img src={mainPhoto(court)} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                 <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent"></div>
-                                <div className="absolute bottom-2 left-2 flex items-center gap-1 text-[10px] bg-black/40 backdrop-blur-md px-1.5 py-0.5 rounded border border-border">
+                                <div className="absolute bottom-2 left-2 flex items-center gap-1 text-[10px] bg-card backdrop-blur-md px-1.5 py-0.5 rounded border border-border">
                                     <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
                                     <span className="text-foreground font-bold">{court.averageRating?.toFixed(1) || '5.0'}</span>
                                 </div>

@@ -262,13 +262,13 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
             {/* MAIN GLASS CONTAINER */}
             <motion.div 
                 variants={sheetVariants} initial="hidden" animate="visible" exit="exit"
-                className="relative w-full max-w-2xl max-h-[90vh] bg-white/5 rounded-[2rem] border border-border shadow-2xl overflow-hidden flex flex-col backdrop-blur-xl"
+                className="relative w-full max-w-2xl max-h-[90vh] bg-card rounded-[2rem] border border-border shadow-2xl overflow-hidden flex flex-col backdrop-blur-xl"
             >
                 {/* Header */}
-                <div className="px-6 py-5 flex items-center justify-between relative z-10 border-b border-border bg-white/5">
+                <div className="px-6 py-5 flex items-center justify-between relative z-10 border-b border-border bg-card">
                     <div className="flex items-center gap-4">
                         {step === 2 && (
-                            <button onClick={() => changeStep(1)} className="w-10 h-10 rounded-full bg-white/5 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-all">
+                            <button onClick={() => changeStep(1)} className="w-10 h-10 rounded-full bg-card hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-all">
                                 <ChevronLeft className="w-5 h-5" />
                             </button>
                         )}
@@ -284,7 +284,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                             <p className="text-[13px] text-muted-foreground font-medium ml-8">{court.name}</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-all">
+                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-card hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-all">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
@@ -295,16 +295,16 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                             <motion.div key="step1" custom={direction} variants={stepVariants} initial="enter" animate="center" exit="exit" className="space-y-8">
                                 
                                 {/* TYPE SELECTOR */}
-                                <div className="flex bg-white/5 p-1 rounded-2xl">
+                                <div className="flex bg-card p-1 rounded-2xl">
                                     <button 
                                         onClick={() => setBookingType('casual')}
-                                        className={`flex-1 py-3 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${bookingType === 'casual' ? 'bg-emerald-500 text-foreground shadow-lg shadow-emerald-500/25' : 'text-muted-foreground hover:text-gray-200 hover:bg-muted'}`}
+                                        className={`flex-1 py-3 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${bookingType === 'casual' ? 'bg-emerald-500 text-foreground shadow-lg shadow-emerald-500/25' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
                                     >
                                         <Zap className="w-4 h-4" /> Vãng Lai
                                     </button>
                                     <button 
                                         onClick={() => setBookingType('fixed')}
-                                        className={`flex-1 py-3 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${bookingType === 'fixed' ? 'bg-emerald-500 text-foreground shadow-lg shadow-emerald-500/25' : 'text-muted-foreground hover:text-gray-200 hover:bg-muted'}`}
+                                        className={`flex-1 py-3 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${bookingType === 'fixed' ? 'bg-emerald-500 text-foreground shadow-lg shadow-emerald-500/25' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
                                     >
                                         <Repeat className="w-4 h-4" /> Cố Định
                                     </button>
@@ -324,7 +324,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                     </div>
                                                     <p className="text-[13px] font-bold text-muted-foreground">Thời gian đặt</p>
                                                 </div>
-                                                <div className="flex items-center gap-2 bg-white/5 rounded-xl p-1">
+                                                <div className="flex items-center gap-2 bg-card rounded-xl p-1">
                                                     <button onClick={() => setFixedMonths(Math.max(1, fixedMonths - 1))} className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">-</button>
                                                     <span className="text-foreground w-16 text-center text-sm font-bold">{fixedMonths} tháng</span>
                                                     <button onClick={() => setFixedMonths(Math.min(12, fixedMonths + 1))} className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">+</button>
@@ -353,7 +353,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                     <button
                                                         key={i}
                                                         onClick={() => setSelectedDate(i)}
-                                                        className={`relative shrink-0 w-[4.5rem] py-3 rounded-2xl flex flex-col items-center justify-center gap-1 snap-center transition-all duration-300 ${isActive ? 'bg-emerald-500 shadow-lg shadow-emerald-500/25' : 'bg-white/5 hover:bg-muted'}`}
+                                                        className={`relative shrink-0 w-[4.5rem] py-3 rounded-2xl flex flex-col items-center justify-center gap-1 snap-center transition-all duration-300 ${isActive ? 'bg-emerald-500 shadow-lg shadow-emerald-500/25' : 'bg-card hover:bg-muted'}`}
                                                     >
                                                         <span className={`relative z-10 text-[11px] font-bold uppercase ${isActive ? 'text-emerald-50' : 'text-muted-foreground'}`}>
                                                             {d.day}
@@ -385,7 +385,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                         className={`flex-1 py-3 rounded-2xl text-sm font-bold transition-all duration-300 ${
                                                             isActive 
                                                             ? 'bg-emerald-500 text-foreground shadow-lg shadow-emerald-500/25'
-                                                            : 'bg-white/5 text-muted-foreground hover:bg-muted hover:text-gray-200'
+                                                            : 'bg-card text-muted-foreground hover:bg-muted hover:text-foreground'
                                                         }`}
                                                     >
                                                         {label}
@@ -404,7 +404,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                         </label>
                                         <div className="flex gap-4 text-[12px] font-semibold text-muted-foreground">
                                             <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50" /> Đang chọn</span>
-                                            <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-white/5 border border-border" /> Hết chỗ</span>
+                                            <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-card border border-border" /> Hết chỗ</span>
                                         </div>
                                     </div>
                                     
@@ -446,10 +446,10 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                         disabled={booked}
                                                         className={`relative h-11 rounded-xl text-[13px] font-semibold transition-all duration-300 flex items-center justify-center overflow-hidden ${
                                                             booked 
-                                                                ? 'bg-white/5 text-muted-foreground/50 cursor-not-allowed'
+                                                                ? 'bg-card text-muted-foreground/50 cursor-not-allowed'
                                                                 : isSelected
                                                                     ? 'bg-emerald-500 text-foreground shadow-lg shadow-emerald-500/30'
-                                                                    : 'bg-white/5 text-muted-foreground hover:bg-muted hover:text-foreground'
+                                                                    : 'bg-card text-muted-foreground hover:bg-muted hover:text-foreground'
                                                         }`}
                                                     >
                                                         <span className="relative z-10">{slot}</span>
@@ -501,7 +501,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                             <motion.div key="step2" custom={direction} variants={stepVariants} initial="enter" animate="center" exit="exit" className="flex justify-center">
                                 {/* MODERN E-TICKET */}
                                 <div 
-                                    className="relative w-full max-w-sm bg-white/5 backdrop-blur-xl rounded-[2rem] border border-border p-8 shadow-2xl overflow-hidden"
+                                    className="relative w-full max-w-sm bg-card backdrop-blur-xl rounded-[2rem] border border-border p-8 shadow-2xl overflow-hidden"
                                 >
                                     <div className="flex flex-col items-center mb-8 relative z-10">
                                         <div className="w-20 h-20 rounded-2xl overflow-hidden mb-4 shadow-xl border border-border">
@@ -539,7 +539,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                 </div>
 
                 {/* Footer CTA */}
-                <div className="px-6 py-6 border-t border-border relative z-10 bg-white/5 backdrop-blur-xl">
+                <div className="px-6 py-6 border-t border-border relative z-10 bg-card backdrop-blur-xl">
                     {step === 1 ? (
                         <button
                             onClick={() => changeStep(2)}
@@ -556,7 +556,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                             className="group relative w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-foreground rounded-2xl font-bold text-lg flex items-center justify-center gap-3 overflow-hidden disabled:opacity-70 transition-all shadow-lg shadow-emerald-500/20"
                         >
                             {isBooking && (
-                                <div className="absolute inset-0 bg-black/10 flex items-center justify-center z-20">
+                                <div className="absolute inset-0 bg-muted flex items-center justify-center z-20">
                                     <Loader2 className="w-6 h-6 animate-spin" />
                                 </div>
                             )}
@@ -574,7 +574,7 @@ function SummaryRow({ label, value, accent }: { label: string; value: string; ac
     return (
         <div className="flex justify-between items-center">
             <span className="text-[14px] text-muted-foreground font-medium">{label}</span>
-            <span className={`text-[15px] font-semibold ${accent ? 'text-emerald-400' : 'text-gray-200'}`}>{value}</span>
+            <span className={`text-[15px] font-semibold ${accent ? 'text-emerald-400' : 'text-foreground'}`}>{value}</span>
         </div>
     );
 }

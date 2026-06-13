@@ -42,7 +42,7 @@ export default function StepCarousel({ onNext, onBack }: { onNext: () => void; o
                         >
                             <div className="relative mb-8">
                                 <motion.div
-                                    className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-emerald-400/20 to-emerald-900/40 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-[0_0_50px_rgba(16,185,129,0.3)] backdrop-blur-xl relative overflow-hidden"
+                                    className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-emerald-400/20 to-emerald-900/40 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-glow-lg backdrop-blur-xl relative overflow-hidden"
                                     animate={{ rotate: [0, 5, -5, 0] }}
                                     transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                                 >
@@ -69,7 +69,7 @@ export default function StepCarousel({ onNext, onBack }: { onNext: () => void; o
                 <div className="flex justify-center gap-2 mt-8">
                     {CAROUSEL_SLIDES.map((_: any, i: any) => (
                         <motion.button key={i} onClick={() => setActive(i)}
-                            className={`rounded-full transition-colors ${i === active ? 'bg-emerald-400 w-8 h-2' : 'bg-white/15 w-2 h-2 hover:bg-muted'}`}
+                            className={`rounded-full transition-colors ${i === active ? 'bg-emerald-400 w-8 h-2' : 'bg-card w-2 h-2 hover:bg-muted'}`}
                             layout transition={{ duration: 0.3 }}
                         />
                     ))}

@@ -384,7 +384,7 @@ export default function ChatPage() {
                         />
                     ) : (
                         <div className="text-center text-muted-foreground m-auto">
-                            <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6 shadow-inner">
+                            <div className="w-24 h-24 rounded-full bg-card flex items-center justify-center mx-auto mb-6 shadow-inner">
                                 <span className="text-4xl">💬</span>
                             </div>
                             <h2 className="text-xl font-bold text-foreground mb-2">Shuttle Chat</h2>

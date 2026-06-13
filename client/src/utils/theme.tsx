@@ -24,9 +24,9 @@ export const theme = {
         accent: 'text-emerald-400',
     },
     glow: {
-        sm: 'shadow-[0_0_12px_rgba(16,185,129,0.15)]',
-        md: 'shadow-[0_0_24px_rgba(16,185,129,0.2)]',
-        lg: 'shadow-[0_0_40px_rgba(16,185,129,0.25)]',
+        sm: 'shadow-glow',
+        md: 'shadow-glow-md',
+        lg: 'shadow-glow-md',
     },
     ring: {
         accent: 'ring-emerald-500/30',

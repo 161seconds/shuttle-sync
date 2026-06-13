@@ -127,7 +127,7 @@ export default function AiCoach() {
             {/* Header */}
             <div className="relative z-20 flex items-center justify-between px-5 py-5.5 bg-background/80 backdrop-blur-xl border-b border-border shadow-sm">
                 <div className="flex items-center gap-3">
-                    <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                    <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 shadow-glow">
                         <Bot size={20} className="text-emerald-400" />
                         <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-background rounded-full flex items-center justify-center">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
@@ -140,7 +140,7 @@ export default function AiCoach() {
                         </p>
                     </div>
                 </div>
-                <div className="flex items-center justify-center w-10 h-10 border rounded-xl bg-white/5 border-border">
+                <div className="flex items-center justify-center w-10 h-10 border rounded-xl bg-card border-border">
                     <Sparkles size={16} className="text-emerald-400/60" />
                 </div>
             </div>
@@ -154,12 +154,12 @@ export default function AiCoach() {
                             <div key={msg.id} className="flex flex-col animate-[fadeSlideIn_0.4s_ease-out]">
                                 <div className={`flex gap-3 w-full ${isAI ? 'justify-start' : 'justify-end'}`}>
                                     {isAI && (
-                                        <div className="flex items-center justify-center w-8 h-8 mt-1 border rounded-full bg-emerald-500/10 text-emerald-400 shrink-0 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                                        <div className="flex items-center justify-center w-8 h-8 mt-1 border rounded-full bg-emerald-500/10 text-emerald-400 shrink-0 border-emerald-500/20 shadow-glow">
                                             <Bot size={16} />
                                         </div>
                                     )}
                                     <div className={`relative max-w-[85%] p-4 rounded-2xl shadow-xl ${isAI
-                                        ? 'bg-background/80 backdrop-blur-xl border border-border text-gray-200 rounded-tl-sm'
+                                        ? 'bg-background/80 backdrop-blur-xl border border-border text-foreground rounded-tl-sm'
                                         : 'bg-gradient-to-br from-emerald-600/30 via-emerald-600/20 to-emerald-600/10 backdrop-blur-xl border border-emerald-500/30 text-foreground rounded-tr-sm'
                                         }`}>
                                         <div className="text-sm leading-relaxed whitespace-pre-wrap">
@@ -199,7 +199,7 @@ export default function AiCoach() {
                                                     key={i}
                                                     onClick={() => handleSendMessage(sug)}
                                                     disabled={isTyping}
-                                                    className="px-4 py-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/40 hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
+                                                    className="px-4 py-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/40 hover:shadow-glow transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
                                                 >
                                                     {sug}
                                                 </button>
@@ -242,7 +242,7 @@ export default function AiCoach() {
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyDown={handleKeyDown}
                             placeholder="Nhập câu hỏi về cầu lông..."
-                            className="w-full bg-card/80 backdrop-blur-xl border border-border rounded-2xl py-4 pl-5 pr-14 text-sm text-foreground focus:outline-none focus:border-emerald-500/50 focus:bg-card focus:shadow-[0_0_25px_rgba(16,185,129,0.15)] transition-all placeholder:text-muted-foreground shadow-2xl"
+                            className="w-full bg-card/80 backdrop-blur-xl border border-border rounded-2xl py-4 pl-5 pr-14 text-sm text-foreground focus:outline-none focus:border-emerald-500/50 focus:bg-card focus:shadow-glow transition-all placeholder:text-muted-foreground shadow-2xl"
                         />
                         <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground pointer-events-none">
                             {inputValue.length}/100
@@ -251,7 +251,7 @@ export default function AiCoach() {
                     <button
                         onClick={() => handleSendMessage()}
                         disabled={!inputValue.trim() || isTyping}
-                        className="p-4 transition-all rounded-2xl bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed border border-emerald-500/30 hover:border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.1)] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+                        className="p-4 transition-all rounded-2xl bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed border border-emerald-500/30 hover:border-emerald-400 shadow-glow hover:shadow-glow-lg"
                     >
                         <Send size={18} />
                     </button>

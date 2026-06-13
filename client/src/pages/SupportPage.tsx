@@ -8,15 +8,15 @@ export default function SupportPage() {
     return (
         <div className="min-h-screen bg-background pt-20 px-4 pb-24 text-foreground relative overflow-hidden font-sans">
             {/* Premium Aurora Background */}
-            <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-purple-600/15 blur-[120px] rounded-full pointer-events-none mix-blend-screen" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-fuchsia-600/10 blur-[100px] rounded-full pointer-events-none mix-blend-screen" />
+            <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-purple-600/15 blur-[120px] rounded-full pointer-events-none dark:mix-blend-screen" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-fuchsia-600/10 blur-[100px] rounded-full pointer-events-none dark:mix-blend-screen" />
 
             <div className="max-w-4xl mx-auto relative z-10">
                 <button
                     onClick={() => setPage('home')}
                     className="group mb-12 flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors"
                 >
-                    <div className="w-8 h-8 rounded-full bg-white/5 border border-border flex items-center justify-center group-hover:bg-muted transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center group-hover:bg-muted transition-colors">
                         <ArrowLeft className="w-4 h-4" />
                     </div>
                     <span className="font-medium tracking-wide text-sm uppercase">Quay lại trang chủ</span>
@@ -31,7 +31,7 @@ export default function SupportPage() {
                     <div className="w-20 h-20 rounded-[24px] bg-gradient-to-br from-purple-500/20 to-transparent flex items-center justify-center border border-purple-500/30 mb-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]">
                         <HelpCircle className="w-10 h-10 text-purple-400 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]" />
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight bg-gradient-to-br from-white via-white/90 to-white/30 bg-clip-text text-transparent">
+                    <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight bg-gradient-to-br from-foreground via-foreground/90 to-foreground/50 bg-clip-text text-transparent">
                         Bạn cần trợ giúp?
                     </h1>
                     <p className="text-muted-foreground text-lg md:text-xl max-w-2xl leading-relaxed">
@@ -89,11 +89,11 @@ export default function SupportPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3, duration: 0.5 }}
-                        className="relative p-8 md:p-10 rounded-[32px] bg-gradient-to-br from-[#121417] to-[#0a0a0b] border border-border hover:border-border transition-all group md:col-span-2 shadow-[inset_0_2px_10px_rgba(255,255,255,0.02)]"
+                        className="relative p-8 md:p-10 rounded-[32px] bg-gradient-to-br from-card to-background border border-border hover:border-border transition-all group md:col-span-2 shadow-[inset_0_2px_10px_rgba(255,255,255,0.02)]"
                     >
                         <div className="flex flex-col md:flex-row md:items-start gap-8 relative z-10">
                             <div className="flex-1">
-                                <div className="w-14 h-14 rounded-2xl bg-white/5 border border-border flex items-center justify-center mb-6 group-hover:bg-muted transition-colors">
+                                <div className="w-14 h-14 rounded-2xl bg-card border border-border flex items-center justify-center mb-6 group-hover:bg-muted transition-colors">
                                     <Mail className="w-7 h-7 text-muted-foreground" />
                                 </div>
                                 <h3 className="text-2xl font-bold mb-3 text-foreground">Gửi phản hồi / Báo lỗi</h3>
@@ -105,16 +105,16 @@ export default function SupportPage() {
                                     <textarea 
                                         rows={3}
                                         placeholder="Mô tả chi tiết vấn đề bạn đang gặp phải..." 
-                                        className="w-full bg-background border border-border rounded-[20px] px-6 py-5 text-sm outline-none focus:border-purple-500/50 focus:bg-white/[0.02] transition-all resize-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] placeholder:text-muted-foreground" 
+                                        className="w-full bg-background border border-border rounded-[20px] px-6 py-5 text-sm outline-none focus:border-purple-500/50 focus:bg-card transition-all resize-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] placeholder:text-muted-foreground" 
                                     />
                                 </div>
                                 <div className="flex flex-col sm:flex-row gap-4">
                                     <input 
                                         type="email" 
                                         placeholder="Địa chỉ Email" 
-                                        className="flex-1 bg-background border border-border rounded-2xl px-6 py-4 text-sm outline-none focus:border-purple-500/50 focus:bg-white/[0.02] transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] placeholder:text-muted-foreground" 
+                                        className="flex-1 bg-background border border-border rounded-2xl px-6 py-4 text-sm outline-none focus:border-purple-500/50 focus:bg-card transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] placeholder:text-muted-foreground" 
                                     />
-                                    <button className="px-8 py-4 rounded-2xl bg-white text-black hover:bg-gray-200 font-bold text-sm transition-colors shadow-[0_4px_14px_rgba(255,255,255,0.25)] flex items-center justify-center gap-2 group/btn">
+                                    <button className="px-8 py-4 rounded-2xl bg-foreground text-background hover:opacity-90 font-bold text-sm transition-all shadow-glow-md flex items-center justify-center gap-2 group/btn">
                                         Gửi ngay
                                         <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                                     </button>

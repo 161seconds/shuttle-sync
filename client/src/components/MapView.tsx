@@ -141,7 +141,7 @@ const MapView: React.FC<MapViewProps> = ({
 
             inner.innerHTML = `
                 <div style="display:flex;flex-direction:column;align-items:center;">
-                    <div style="background:${highlight ? '#10b981' : '#151515'};color:${highlight ? '#000' : '#eaeaea'};border:1.5px solid ${highlight ? '#10b981' : '#2a2a2a'};border-radius:8px;padding:3px 7px;font-size:10px;font-weight:800;font-family:'Outfit',sans-serif;box-shadow:0 4px 12px rgba(0,0,0,0.4);white-space:nowrap;">
+                    <div style="background:${highlight ? '#10b981' : 'var(--color-card)'};color:${highlight ? '#000' : 'var(--color-foreground)'};border:1.5px solid ${highlight ? '#10b981' : 'var(--color-border)'};border-radius:8px;padding:3px 7px;font-size:10px;font-weight:800;font-family:'Outfit',sans-serif;box-shadow:0 4px 12px rgba(0,0,0,0.4);white-space:nowrap;">
                         ${price > 0 ? `${Math.round(price / 1000)}K` : '??K'}
                     </div>
                     <div style="width:7px;height:7px;margin-top:2px;background:${highlight ? '#10b981' : 'rgba(16,185,129,0.4)'};border-radius:50%;border:${highlight ? '2px solid #fff' : 'none'};"></div>
@@ -163,8 +163,8 @@ const MapView: React.FC<MapViewProps> = ({
                         <div style="margin:-10px -10px -15px;font-family:'Outfit',sans-serif;">
                             ${photoUrl ? `<img src="${photoUrl}" style="width:100%;height:100px;object-fit:cover;border-radius:4px 4px 0 0;" />` : ''}
                             <div style="padding:8px 10px 10px;">
-                                <div style="font-weight:800;font-size:13px;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${court.name}</div>
-                                <div style="font-size:11px;color:#6B7280;margin:2px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${address}</div>
+                                <div style="font-weight:800;font-size:13px;color:var(--color-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${court.name}</div>
+                                <div style="font-size:11px;color:var(--color-muted-foreground);margin:2px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${address}</div>
                                 <div style="display:flex;justify-content:space-between;align-items:center;">
                                     <span style="color:#059669;font-weight:900;font-size:13px;">${formatPrice(price)}/h</span>
                                     <span style="font-size:11px;font-weight:700;background:#FEF3C7;color:#B45309;padding:1px 6px;border-radius:4px;">★ ${rating}</span>

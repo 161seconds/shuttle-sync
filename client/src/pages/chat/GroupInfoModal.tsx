@@ -73,7 +73,7 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={onClose}
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                className="absolute inset-0 bg-card backdrop-blur-sm"
             />
 
             <motion.div
@@ -84,11 +84,11 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
                 className="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
             >
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-white/5">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-card">
                     <h2 className="text-lg font-bold text-foreground">Thông tin nhóm</h2>
                     <button 
                         onClick={onClose}
-                        className="p-2 text-muted-foreground hover:text-foreground bg-white/5 hover:bg-muted rounded-full transition-colors"
+                        className="p-2 text-muted-foreground hover:text-foreground bg-card hover:bg-muted rounded-full transition-colors"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -124,8 +124,8 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
                                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Chủ nhóm</h3>
                                 </div>
                                 
-                                <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-border">
-                                    <div className="w-12 h-12 rounded-full overflow-hidden border border-border bg-gray-800">
+                                <div className="flex items-center gap-3 bg-card p-3 rounded-xl border border-border">
+                                    <div className="w-12 h-12 rounded-full overflow-hidden border border-border bg-card">
                                         <img 
                                             src={groupData.organizerId?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${groupData.organizerId?.displayName || 'A'}`} 
                                             alt="Avatar" 
@@ -150,8 +150,8 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
 
                                 <div className="space-y-2">
                                     {groupData.participants?.map((participant: any, index: number) => (
-                                        <div key={participant.userId || index} className="flex items-center gap-3 bg-white/5 p-3 rounded-xl hover:bg-muted transition-colors">
-                                            <div className="w-10 h-10 rounded-full overflow-hidden border border-border bg-gray-800">
+                                        <div key={participant.userId || index} className="flex items-center gap-3 bg-card p-3 rounded-xl hover:bg-muted transition-colors">
+                                            <div className="w-10 h-10 rounded-full overflow-hidden border border-border bg-card">
                                                 <img 
                                                     src={participant.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${participant.displayName || 'U'}`} 
                                                     alt={participant.displayName} 
@@ -188,7 +188,7 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
                                                         className={`p-2 rounded-lg transition-colors flex items-center justify-center shrink-0 ${
                                                             isSent
                                                                 ? 'bg-emerald-500/20 text-emerald-400'
-                                                                : 'bg-white/5 text-muted-foreground hover:text-foreground hover:bg-muted'
+                                                                : 'bg-card text-muted-foreground hover:text-foreground hover:bg-muted'
                                                         }`}
                                                         title={isSent ? 'Đã gửi lời mời' : 'Kết bạn'}
                                                     >

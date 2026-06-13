@@ -13,7 +13,7 @@ export default function StepWelcome({ onNext, onSkip }: { onNext: () => void; on
                 initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
             >
-                <div className="w-28 h-28 bg-gradient-to-br from-emerald-400/20 to-emerald-900/40 rounded-[2rem] border border-emerald-500/30 flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.3)] backdrop-blur-xl relative overflow-hidden">
+                <div className="w-28 h-28 bg-gradient-to-br from-emerald-400/20 to-emerald-900/40 rounded-[2rem] border border-emerald-500/30 flex items-center justify-center shadow-glow-lg backdrop-blur-xl relative overflow-hidden">
                     {/* Shimmer sweep effect */}
                     <motion.div
                         className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg]"

@@ -57,7 +57,7 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
                 <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex flex-col items-center">
                     <div className="w-24 h-24 rounded-full bg-emerald-500/20 flex items-center justify-center mb-6 relative">
                         <div className="absolute inset-0 rounded-full border-2 border-emerald-500/30 animate-ping" style={{ animationDuration: '2s' }} />
-                        <div className="w-16 h-16 rounded-full bg-linear-to-br from-emerald-400 to-green-500 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.5)]">
+                        <div className="w-16 h-16 rounded-full bg-linear-to-br from-emerald-400 to-green-500 flex items-center justify-center shadow-glow-lg">
                             <Check className="w-8 h-8 text-black" strokeWidth={3} />
                         </div>
                     </div>
@@ -92,7 +92,7 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
         <Wrapper>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full">
                 <div className="flex items-center justify-between mb-8 relative">
-                    <button onClick={onBack} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors border border-border absolute left-0">
+                    <button onClick={onBack} className="w-10 h-10 rounded-xl bg-card hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors border border-border absolute left-0">
                         <ChevronLeft className="w-5 h-5" />
                     </button>
                     <div className="w-full text-center">
@@ -143,7 +143,7 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
                 </div>
 
                 <button onClick={confirm} disabled={status === 'confirming'}
-                    className="w-full py-4 rounded-2xl bg-linear-to-r from-emerald-500 to-emerald-400 text-black font-black text-[15px] flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(16,185,129,0.25)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-60 disabled:hover:scale-100 disabled:cursor-not-allowed relative overflow-hidden group">
+                    className="w-full py-4 rounded-2xl bg-linear-to-r from-emerald-500 to-emerald-400 text-black font-black text-[15px] flex items-center justify-center gap-2 shadow-glow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-60 disabled:hover:scale-100 disabled:cursor-not-allowed relative overflow-hidden group">
                     {status === 'confirming' ? (
                         <><Loader2 className="w-5 h-5 animate-spin" /> Đang kiểm tra...</>
                     ) : (
@@ -167,10 +167,10 @@ function DetailRow({ label, value, accent, copyable, onCopy, copied }: { label: 
     return (
         <div className="flex justify-between items-center text-[13px]">
             <span className={DS.text.muted}>{label}</span>
-            <span className={`font-semibold flex items-center gap-2 ${accent ? 'text-emerald-400' : 'text-gray-200'}`}>
+            <span className={`font-semibold flex items-center gap-2 ${accent ? 'text-emerald-400' : 'text-foreground'}`}>
                 {value}
                 {copyable && (
-                    <button onClick={onCopy} className="w-6 h-6 rounded-md bg-white/5 hover:bg-muted flex items-center justify-center transition-colors">
+                    <button onClick={onCopy} className="w-6 h-6 rounded-md bg-card hover:bg-muted flex items-center justify-center transition-colors">
                         {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-muted-foreground" />}
                     </button>
                 )}

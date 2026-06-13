@@ -10,7 +10,7 @@ export default function Logo({ className = "", showText = true }: LogoProps) {
         <div className={`flex items-center gap-2.5 ${className}`}>
             {/* Phần biểu tượng Icon */}
             <div className="relative flex items-center justify-center">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30 shadow-glow-md">
                     <Zap className="w-5 h-5 text-emerald-400 fill-emerald-400/10" />
                 </div>
                 {/* Chấm nhỏ trang trí cho cảm giác "Sync" */}

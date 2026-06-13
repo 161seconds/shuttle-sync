@@ -3,12 +3,16 @@
 
 @theme {
   --color-background: #f8fafc;
-  --color-foreground: #020617;
+  --color-foreground: #1e293b;
   --color-card: #ffffff;
   --color-surface: #f1f5f9;
   --color-border: #e2e8f0;
   --color-muted: #f1f5f9;
   --color-muted-foreground: #64748b;
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 15px rgba(16, 185, 129, 0.15);
+  --shadow-glow-md: 0 0 30px rgba(16, 185, 129, 0.2);
+  --shadow-glow-lg: 0 0 50px rgba(16, 185, 129, 0.25);
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -22,6 +26,10 @@
     --color-border: #262f3d;
     --color-muted: #1e1e1e;
     --color-muted-foreground: #9ca3af;
+    --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.8);
+    --shadow-glow: 0 0 15px rgba(16, 185, 129, 0.3);
+    --shadow-glow-md: 0 0 30px rgba(16, 185, 129, 0.4);
+    --shadow-glow-lg: 0 0 50px rgba(16, 185, 129, 0.5);
   }
 }
 

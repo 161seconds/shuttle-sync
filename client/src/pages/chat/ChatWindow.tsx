@@ -87,7 +87,7 @@ export default function ChatWindow({
     if (!isParticipant && myRequest?.status === 'pending') {
         return (
             <div className="flex flex-col h-full bg-transparent">
-                <div className="h-[85px] shrink-0 px-4 flex items-center border-b border-border bg-black/20 backdrop-blur-sm relative z-20">
+                <div className="h-[85px] shrink-0 px-4 flex items-center border-b border-border bg-card backdrop-blur-sm relative z-20">
                     <button onClick={onBack} className="p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors">
                         <ChevronLeft className="w-6 h-6" />
                     </button>
@@ -109,7 +109,7 @@ export default function ChatWindow({
     if (!isParticipant && myRequest?.status === 'rejected') {
         return (
             <div className="flex flex-col h-full bg-transparent">
-                <div className="h-[85px] shrink-0 px-4 flex items-center border-b border-border bg-black/20 backdrop-blur-sm relative z-20">
+                <div className="h-[85px] shrink-0 px-4 flex items-center border-b border-border bg-card backdrop-blur-sm relative z-20">
                     <button onClick={onBack} className="p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors">
                         <ChevronLeft className="w-6 h-6" />
                     </button>
@@ -123,7 +123,7 @@ export default function ChatWindow({
                     <p className="text-muted-foreground max-w-sm mb-6">
                         Rất tiếc, chủ sân đã từ chối yêu cầu tham gia của bạn.
                     </p>
-                    <div className="bg-white/5 p-4 rounded-xl border border-border w-full max-w-sm text-left">
+                    <div className="bg-card p-4 rounded-xl border border-border w-full max-w-sm text-left">
                         <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider mb-1">Lý do từ chối:</p>
                         <p className="text-foreground text-sm font-medium">{myRequest.rejectReason || 'Không có lý do'}</p>
                     </div>
@@ -135,7 +135,7 @@ export default function ChatWindow({
     return (
         <div className="flex flex-col h-full bg-transparent">
             {/* Header */}
-            <div className="h-[85px] shrink-0 px-4 flex items-center justify-between border-b border-border bg-black/20 backdrop-blur-sm relative z-20">
+            <div className="h-[85px] shrink-0 px-4 flex items-center justify-between border-b border-border bg-card backdrop-blur-sm relative z-20">
                 <div className="flex items-center gap-3">
                     <button
                         onClick={onBack}
@@ -179,7 +179,7 @@ export default function ChatWindow({
                     {!isFriend && (
                         <button 
                             onClick={() => setShowMenu(!showMenu)}
-                            className={`p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted ${showMenu ? 'bg-white/5 text-foreground' : ''}`}
+                            className={`p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted ${showMenu ? 'bg-card text-foreground' : ''}`}
                         >
                             <MoreVertical className="w-5 h-5" />
                         </button>
@@ -192,7 +192,7 @@ export default function ChatWindow({
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
                                 transition={{ duration: 0.15, ease: "easeOut" }}
-                                className="absolute top-full right-0 mt-2 w-56 bg-gray-900 border border-border rounded-xl shadow-xl overflow-hidden z-50"
+                                className="absolute top-full right-0 mt-2 w-56 bg-card border border-border rounded-xl shadow-xl overflow-hidden z-50"
                             >
                                 <div className="py-1">
                                     <button 
@@ -262,7 +262,7 @@ export default function ChatWindow({
             <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar flex flex-col">
                 {messages.length === 0 ? (
                     <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
-                        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                        <div className="w-16 h-16 rounded-full bg-card flex items-center justify-center mb-4">
                             <span className="text-3xl">👋</span>
                         </div>
                         <p className="text-sm font-medium text-foreground mb-1">Chưa có tin nhắn nào</p>
@@ -331,7 +331,7 @@ export default function ChatWindow({
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setShowDeleteAlert(false)}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                            className="absolute inset-0 bg-card backdrop-blur-sm"
                         />
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -366,7 +366,7 @@ export default function ChatWindow({
                                         <div className="flex gap-3 mt-2">
                                             <button 
                                                 onClick={() => setShowDeleteAlert(false)}
-                                                className="flex-1 py-2.5 rounded-xl font-medium text-foreground bg-white/5 hover:bg-muted transition-colors"
+                                                className="flex-1 py-2.5 rounded-xl font-medium text-foreground bg-card hover:bg-muted transition-colors"
                                             >
                                                 Hủy
                                             </button>

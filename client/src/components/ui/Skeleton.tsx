@@ -3,7 +3,7 @@ import { theme as t } from '../../utils/theme';
 export function Skeleton({ className = '' }: { className?: string }) {
     return (
         <div
-            className={`rounded-xl bg-linear-to-r from-[#1a1a1a] via-[#222] to-[#1a1a1a] bg-size[200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite] ${className}`}
+            className={`rounded-xl bg-linear-to-r from-muted via-border to-muted bg-size[200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite] ${className}`}
         />
     );
 }

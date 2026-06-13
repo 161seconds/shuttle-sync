@@ -22,7 +22,7 @@ export default function BottomNav() {
             className="fixed bottom-4 left-0 right-0 z-50 flex justify-center pointer-events-none px-4"
             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
-            <nav className="pointer-events-auto w-full max-w-75 bg-card border border-border rounded-[18px] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8)] flex items-center justify-around px-1.5 py-1.5">
+            <nav className="pointer-events-auto w-full max-w-75 bg-card border border-border rounded-[18px] shadow-card flex items-center justify-around px-1.5 py-1.5">
 
                 {NAV_ITEMS.map((item) => {
                     const isProfilePage = item.id === 'profile' && ['profile', 'edit-profile', 'favorites', 'history', 'tournaments', 'groups', 'notifications', 'settings'].includes(page);
