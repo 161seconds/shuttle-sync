@@ -232,7 +232,7 @@ export default function AiCoach() {
             </div>
 
             {/* Input */}
-            <div className="relative z-20 shrink-0 w-full px-4 pt-4 pb-6 bg-gradient-to-t from-[#060a08] via-[#060a08]/95 to-transparent">
+            <div className="relative z-20 shrink-0 w-full px-4 pt-4 pb-6 bg-gradient-to-t from-background via-background/95 to-transparent">
                 <div className="relative flex items-center max-w-4xl gap-3 mx-auto">
                     <div className="relative flex-1 group">
                         <input

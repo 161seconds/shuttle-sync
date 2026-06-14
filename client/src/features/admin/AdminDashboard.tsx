@@ -146,7 +146,7 @@ export default function AdminDashboard() {
                         <div className="absolute -right-10 -top-20 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
                         <div className="absolute right-32 -bottom-20 w-48 h-48 bg-emerald-900 opacity-20 rounded-full blur-2xl"></div>
 
-                        <h2 className="text-3xl font-bold text-foreground mb-2 relative z-10">Xin chào {user?.displayName || 'Admin'},</h2>
+                        <h2 className="text-3xl font-bold text-white mb-2 relative z-10">Xin chào {user?.displayName || 'Admin'},</h2>
                         <p className="text-emerald-50 max-w-lg text-sm leading-relaxed mb-6 relative z-10">
                             Chào mừng đến với Bảng điều khiển ShuttleSync! Theo dõi doanh thu, quản lý sân và nắm bắt mọi thông tin chi tiết về hệ thống một cách trực quan.
                         </p>
