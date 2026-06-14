@@ -31,9 +31,9 @@ export function ModeToggle() {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-32 rounded-xl shadow-lg bg-surface border border-border overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
           <div className="py-1" role="menu">
-            <button onClick={() => { setTheme("light"); setIsOpen(false); }} className={`block w-full text-left px-4 py-2 text-sm hover:bg-surface hover:text-foreground transition-colors ${theme === 'light' ? 'text-emerald-400 font-bold bg-surface/50' : 'text-muted-foreground'}`}>Light</button>
-            <button onClick={() => { setTheme("dark"); setIsOpen(false); }} className={`block w-full text-left px-4 py-2 text-sm hover:bg-surface hover:text-foreground transition-colors ${theme === 'dark' ? 'text-emerald-400 font-bold bg-surface/50' : 'text-muted-foreground'}`}>Dark</button>
-            <button onClick={() => { setTheme("system"); setIsOpen(false); }} className={`block w-full text-left px-4 py-2 text-sm hover:bg-surface hover:text-foreground transition-colors ${theme === 'system' ? 'text-emerald-400 font-bold bg-surface/50' : 'text-muted-foreground'}`}>System</button>
+            <button onClick={() => { setTheme("light"); setIsOpen(false); }} className={`block w-full text-left px-4 py-2 text-sm hover:bg-surface hover:text-foreground transition-colors ${theme === 'light' ? 'text-emerald-400 font-bold bg-surface/50' : 'text-muted-foreground'}`}>Sáng</button>
+            <button onClick={() => { setTheme("dark"); setIsOpen(false); }} className={`block w-full text-left px-4 py-2 text-sm hover:bg-surface hover:text-foreground transition-colors ${theme === 'dark' ? 'text-emerald-400 font-bold bg-surface/50' : 'text-muted-foreground'}`}>Tối</button>
+            <button onClick={() => { setTheme("system"); setIsOpen(false); }} className={`block w-full text-left px-4 py-2 text-sm hover:bg-surface hover:text-foreground transition-colors ${theme === 'system' ? 'text-emerald-400 font-bold bg-surface/50' : 'text-muted-foreground'}`}>Hệ thống</button>
           </div>
         </div>
       )}

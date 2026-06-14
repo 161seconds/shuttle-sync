@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 
 export const BadmintonIcon = ({ className = "w-5 h-5 inline-block align-text-bottom", style }: { className?: string, style?: any }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
         <g transform="rotate(45 12 12)">
             {/* Đế bần (Cork) */}
             <path d="M9 17 C9 22 15 22 15 17 Z" fill="currentColor" fillOpacity="0.2" />
@@ -23,7 +23,7 @@ export const BadmintonIcon = ({ className = "w-5 h-5 inline-block align-text-bot
 );
 
 export const PickleballIcon = ({ className = "w-5 h-5 inline-block align-text-bottom", style }: { className?: string, style?: any }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
         {/* Quả bóng Pickleball (Wiffle ball) */}
         <circle cx="6.5" cy="6.5" r="3.5" />
         <g fill="currentColor" stroke="none">
