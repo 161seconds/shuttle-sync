@@ -230,8 +230,8 @@ export default function MyTournaments({ onBack }: Props) {
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={`min-h-screen w-full${t.bg.base} bg-background pb-24 overflow-x-hidden relative`}>
             {/* Ambient Background Glows */}
-            <div className="fixed top-[-20%] right-[-10%] w-[60%] h-[60%] bg-blue-600/10 rounded-full blur-[180px] pointer-events-none mix-blend-screen" />
-            <div className="fixed bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-emerald-600/10 rounded-full blur-[180px] pointer-events-none mix-blend-screen" />
+            <div className="fixed top-[-20%] right-[-10%] w-[60%] h-[60%] bg-blue-600/10 rounded-full blur-[180px] pointer-events-none dark:mix-blend-screen" />
+            <div className="fixed bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-emerald-600/10 rounded-full blur-[180px] pointer-events-none dark:mix-blend-screen" />
             
             {/* Grid Pattern */}
             <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none mix-blend-overlay" />

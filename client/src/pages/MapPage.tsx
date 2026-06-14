@@ -7,6 +7,7 @@ import type { Court } from '../types';
 import { EmojiIcon } from '../components/EmojiIcon';
 import { renderToString } from 'react-dom/server';
 import { useAlertStore } from '../stores/useAlertStore';
+import { useTheme } from '../components/theme-provider';
 
 const vietmapgl = (window as any).vietmapgl;
 
@@ -57,6 +58,9 @@ export default function MapPage() {
     const markersRef = useRef<any[]>([]);
     const userMarkerRef = useRef<any | null>(null);
     const radiusLayerRef = useRef<boolean>(false);
+
+    const { theme } = useTheme();
+    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
     const VIETMAP_KEY = import.meta.env.VITE_VIETMAP_KEY;
 
@@ -125,9 +129,13 @@ export default function MapPage() {
     useEffect(() => {
         if (!mapContainer.current || !VIETMAP_KEY || !vietmapgl) return;
         if (!map.current) {
+            const styleUrl = isDark 
+                ? `https://maps.vietmap.vn/maps/styles/dm/style.json?apikey=${VIETMAP_KEY}`
+                : `https://maps.vietmap.vn/api/maps/light/styles.json?apikey=${VIETMAP_KEY}`;
+
             map.current = new vietmapgl.Map({
                 container: mapContainer.current,
-                style: `https://maps.vietmap.vn/maps/styles/dm/style.json?apikey=${VIETMAP_KEY}`,
+                style: styleUrl,
                 center: [106.660172, 10.762622],
                 zoom: 12.5,
                 pitch: 0, // Mặc định góc nhìn 90 độ từ trên xuống (pitch 0)
@@ -142,6 +150,26 @@ export default function MapPage() {
             });
         }
     }, [VIETMAP_KEY]);
+
+    // Lắng nghe thay đổi theme để đổi màu bản đồ
+    useEffect(() => {
+        if (!map.current || !vietmapgl) return;
+        const styleUrl = isDark 
+            ? `https://maps.vietmap.vn/maps/styles/dm/style.json?apikey=${VIETMAP_KEY}`
+            : `https://maps.vietmap.vn/api/maps/light/styles.json?apikey=${VIETMAP_KEY}`;
+        
+        map.current.setStyle(styleUrl);
+        
+        // Vẽ lại các layer (bán kính, đường đi) sau khi style mới load xong
+        map.current.once('style.load', () => {
+            if (userLoc && radiusLayerRef.current) {
+                drawRadiusCircle(userLoc.lng, userLoc.lat, 5);
+            }
+            if (showRoute && selected) {
+                handleGetDirections();
+            }
+        });
+    }, [isDark, VIETMAP_KEY]);
 
     // ═══ RENDER MARKER ĐẸP MẮT (THEO ĐÁNH GIÁ SAO) ═══
     useEffect(() => {
