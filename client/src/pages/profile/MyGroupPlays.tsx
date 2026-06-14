@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, Users, Calendar, Clock, MapPin, Loader2, LogOut, Crown, MessageSquare, Sparkles } from 'lucide-react';
-import { theme as t } from '../../utils/theme';
+import { Users, Calendar, Clock, MapPin, Loader2, LogOut, Crown, MessageSquare, Sparkles } from 'lucide-react';
+import ProfileHeader from '../../components/layout/ProfileHeader';
 import { useAppStore } from '../../store';
 import { useAlertStore } from '../../stores/useAlertStore';
 import axiosClient from '../../api/axiosClient';
@@ -108,39 +108,34 @@ export default function MyGroupPlays({ onBack }: Props) {
     return (
         <div className={`min-h-screen w-full pb-24`}>
             {/* Header */}
-            <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-border`}>
-                <div className="flex items-center gap-3 px-4 h-16">
-                    <button onClick={onBack} className={`w-10 h-10 rounded-full bg-card hover:bg-muted flex items-center justify-center ${t.text.muted} hover:text-foreground transition-all`}>
-                        <ChevronLeft className="w-6 h-6" />
-                    </button>
-                    <h1 className={`font-black text-lg text-foreground tracking-wide`}>Quản lý nhóm chơi</h1>
-                </div>
-            </div>
+            <ProfileHeader title="Quản lý nhóm chơi" onBack={onBack} />
 
             <div className="w-full mx-auto px-4 lg:px-8 py-6">
                 
                 {/* Premium Animated Tabs */}
-                <div className="relative flex p-1.5 bg-card backdrop-blur-xl border border-border rounded-2xl mb-6 shadow-inner">
-                    {['organizer', 'participant'].map((tab) => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab as any)}
-                            className={`relative flex-1 py-3 text-[15px] font-bold rounded-xl transition-all duration-300 z-10 ${activeTab === tab ? 'text-black' : 'text-muted-foreground hover:text-foreground'}`}
-                        >
-                            {activeTab === tab && (
-                                <motion.div
-                                    layoutId="active-tab"
-                                    className="absolute inset-0 bg-emerald-400 rounded-xl shadow-[0_0_20px_rgba(52,211,153,0.4)]"
-                                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                                    style={{ zIndex: -1 }}
-                                />
-                            )}
-                            <span className="relative z-10 flex items-center justify-center gap-2">
-                                {tab === 'organizer' ? <Crown className="w-4 h-4" /> : <Users className="w-4 h-4" />}
-                                {tab === 'organizer' ? 'Chủ sân' : 'Tham gia'}
-                            </span>
-                        </button>
-                    ))}
+                <div className="flex justify-center mb-6">
+                    <div className="relative inline-flex p-1.5 bg-card backdrop-blur-xl border border-border rounded-2xl shadow-inner">
+                        {['organizer', 'participant'].map((tab) => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveTab(tab as any)}
+                                className={`relative px-6 py-2 text-[14px] font-bold rounded-xl transition-all duration-300 z-10 ${activeTab === tab ? 'text-black' : 'text-muted-foreground hover:text-foreground'}`}
+                            >
+                                {activeTab === tab && (
+                                    <motion.div
+                                        layoutId="active-tab"
+                                        className="absolute inset-0 bg-emerald-400 rounded-xl shadow-[0_0_20px_rgba(52,211,153,0.4)]"
+                                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                                        style={{ zIndex: -1 }}
+                                    />
+                                )}
+                                <span className="relative z-10 flex items-center justify-center gap-2 whitespace-nowrap">
+                                    {tab === 'organizer' ? <Crown className="w-4 h-4" /> : <Users className="w-4 h-4" />}
+                                    {tab === 'organizer' ? 'Chủ sân' : 'Tham gia'}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Section Title */}
@@ -151,12 +146,12 @@ export default function MyGroupPlays({ onBack }: Props) {
                     transition={{ duration: 0.3 }}
                     className="mb-6 flex items-center justify-center gap-2"
                 >
-                    <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                    <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-foreground/10 to-transparent"></div>
                     <span className="text-muted-foreground text-[13px] font-semibold uppercase tracking-widest px-2 flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                         {activeTab === 'organizer' ? 'Các nhóm bạn quản lý' : 'Các nhóm bạn tham gia'}
                     </span>
-                    <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                    <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-foreground/10 to-transparent"></div>
                 </motion.div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

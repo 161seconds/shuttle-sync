@@ -248,7 +248,7 @@ export default function GroupPlayPage() {
 
                     return (
                         <motion.div key={g._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
-                            className="group relative rounded-[28px] bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-border overflow-hidden transition-all duration-500 hover:border-emerald-500/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)] backdrop-blur-xl">
+                            className="group relative rounded-[28px] bg-gradient-to-br from-foreground/[0.03] to-foreground/[0.01] border border-border overflow-hidden transition-all duration-500 hover:border-emerald-500/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)] backdrop-blur-xl">
 
                             {/* Card Background Glow */}
                             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
@@ -257,7 +257,7 @@ export default function GroupPlayPage() {
                                 {/* Top Row: Sport Icon & Status */}
                                 <div className="flex justify-between items-start mb-5">
                                     <div className="flex gap-4 items-center">
-                                        <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-card to-background border border-border flex items-center justify-center text-3xl shadow-inner shadow-white/5">
+                                        <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-card to-background border border-border flex items-center justify-center text-3xl shadow-inner shadow-foreground/5">
                                             {g.sportType === 'pickleball' ? '🏓' : '🏸'}
                                         </div>
                                         <div>
@@ -336,7 +336,7 @@ export default function GroupPlayPage() {
                                 {expandedId === g._id && (
                                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: "easeInOut" }} className="overflow-hidden bg-gradient-to-b from-transparent to-black/40 relative z-10">
                                         <div className="px-6 pb-6 pt-2 space-y-5">
-                                            <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent mb-4" />
+                                            <div className="h-px w-full bg-gradient-to-r from-transparent via-foreground/10 to-transparent mb-4" />
 
                                             {g.description && <p className="text-sm text-muted-foreground leading-relaxed bg-card p-4 rounded-2xl border border-border">"{g.description}"</p>}
 

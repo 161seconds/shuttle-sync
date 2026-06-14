@@ -138,12 +138,33 @@ class BookingService {
         };
     }
 
-    async getMyBookings(userId: string, status?: any): Promise<any[]> {
+    async getMyBookings(userId: string, status?: any, startDate?: string, endDate?: string): Promise<any[]> {
+        const now = new Date();
+        const startOfToday = new Date(now.setHours(0,0,0,0));
+
+        // Tự động chuyển các đơn 'confirmed' trong quá khứ thành 'completed'
+        await Booking.updateMany(
+            {
+                userId,
+                status: BookingStatus.CONFIRMED,
+                date: { $lt: startOfToday }
+            },
+            { $set: { status: BookingStatus.COMPLETED } }
+        );
+
         const filter: any = { userId };
         if (status) filter.status = status;
+        
+        if (startDate && endDate) {
+            filter.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
+        } else if (startDate) {
+            filter.date = { $gte: new Date(startDate) };
+        } else if (endDate) {
+            filter.date = { $lte: new Date(endDate) };
+        }
 
         const bookings = await Booking.find(filter)
-            .sort({ createdAt: -1 })
+            .sort({ date: -1, createdAt: -1 })
             .populate({ path: 'courtId', model: 'Venue', select: 'name address photos' })
             .lean();
             

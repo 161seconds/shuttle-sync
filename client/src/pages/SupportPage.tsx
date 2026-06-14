@@ -8,8 +8,8 @@ export default function SupportPage() {
     return (
         <div className="min-h-screen bg-background pt-20 px-4 pb-24 text-foreground relative overflow-hidden font-sans">
             {/* Premium Aurora Background */}
-            <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-purple-600/15 blur-[120px] rounded-full pointer-events-none dark:mix-blend-screen" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-fuchsia-600/10 blur-[100px] rounded-full pointer-events-none dark:mix-blend-screen" />
+            <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-purple-500/30 dark:bg-purple-600/15 blur-[120px] rounded-full pointer-events-none dark:mix-blend-screen" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-fuchsia-500/30 dark:bg-fuchsia-600/10 blur-[100px] rounded-full pointer-events-none dark:mix-blend-screen" />
 
             <div className="max-w-4xl mx-auto relative z-10">
                 <button
@@ -31,7 +31,7 @@ export default function SupportPage() {
                     <div className="w-20 h-20 rounded-[24px] bg-gradient-to-br from-purple-500/20 to-transparent flex items-center justify-center border border-purple-500/30 mb-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]">
                         <HelpCircle className="w-10 h-10 text-purple-400 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]" />
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight bg-gradient-to-br from-foreground via-foreground/90 to-foreground/50 bg-clip-text text-transparent">
+                    <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight bg-gradient-to-br from-purple-500 via-fuchsia-500 to-purple-400 bg-clip-text text-transparent py-2 leading-tight">
                         Bạn cần trợ giúp?
                     </h1>
                     <p className="text-muted-foreground text-lg md:text-xl max-w-2xl leading-relaxed">

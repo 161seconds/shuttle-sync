@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, Heart, MapPin, Star, Loader2 } from 'lucide-react';
+import { Heart, MapPin, Star, Loader2 } from 'lucide-react';
+import ProfileHeader from '../../components/layout/ProfileHeader';
 import { theme as t, formatPrice } from '../../utils/theme';
 import { useAppStore } from '../../store';
 import axiosClient from '../../api/axiosClient';
@@ -52,19 +53,15 @@ export default function FavoriteCourts({ onBack }: Props) {
 
     return (
         <div className={`min-h-screen w-full${t.bg.base} pb-24`}>
-            {/* Header */}
-            <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-border`}>
-                <div className="flex items-center gap-3 px-4 h-16">
-                    <button onClick={onBack} className={`w-10 h-10 rounded-full bg-card hover:bg-muted flex items-center justify-center ${t.text.muted} hover:text-foreground transition-all`}>
-                        <ChevronLeft className="w-6 h-6" />
-                    </button>
-                    <h1 className={`font-black text-lg text-foreground tracking-wide`}>Sân yêu thích</h1>
-                    <div className="flex-1" />
-                    <span className={`text-[11px] font-bold px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20`}>
+            <ProfileHeader 
+                title="Sân yêu thích" 
+                onBack={onBack}
+                rightContent={
+                    <span className={`text-[11px] font-bold px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-glow-sm`}>
                         {courts.length} sân
                     </span>
-                </div>
-            </div>
+                }
+            />
 
             <div className="max-w-lg mx-auto px-5 py-6 space-y-4">
                 {loading ? (

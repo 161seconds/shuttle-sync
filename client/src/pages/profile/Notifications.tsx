@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-    ChevronLeft, CheckCheck, Rocket,
+    CheckCheck, Rocket,
     Trophy, Users, CalendarClock, CreditCard,
     ShieldAlert, Info, Loader2
 } from 'lucide-react';
@@ -12,6 +12,7 @@ import UserProfileModal from '../chat/UserProfileModal';
 import type { ChatUser } from '../chat/mockData';
 import { friendApi } from '../../api/friend.api';
 import { AnimatePresence } from 'framer-motion';
+import ProfileHeader from '../../components/layout/ProfileHeader';
 
 interface Props {
     onBack: () => void;
@@ -132,15 +133,10 @@ export default function Notifications({ onBack }: Props) {
     return (
         <div className={`min-h-screen w-full${t.bg.base} pb-24`}>
             {/* Header */}
-            <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-border`}>
-                <div className="flex items-center justify-between px-4 h-16">
-                    <div className="flex items-center gap-3">
-                        <button onClick={onBack} className={`w-10 h-10 rounded-full bg-card hover:bg-muted flex items-center justify-center ${t.text.muted} hover:text-foreground transition-all`}>
-                            <ChevronLeft className="w-6 h-6" />
-                        </button>
-                        <h1 className={`font-black text-lg text-foreground tracking-wide`}>Thông báo</h1>
-                    </div>
-
+            <ProfileHeader 
+                title="Thông báo" 
+                onBack={onBack}
+                rightContent={
                     <button
                         onClick={handleMarkAllRead}
                         disabled={loading || notifications.length === 0}
@@ -149,8 +145,8 @@ export default function Notifications({ onBack }: Props) {
                         <CheckCheck className="w-4 h-4" />
                         Đã đọc tất cả
                     </button>
-                </div>
-            </div>
+                }
+            />
 
             {/* Danh sách thông báo */}
             <div className="max-w-3xl mx-auto px-4 py-6">

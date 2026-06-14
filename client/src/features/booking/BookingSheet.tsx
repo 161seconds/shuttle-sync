@@ -123,23 +123,19 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
     }, [selectedDate, court._id]);
 
     const isSlotBooked = (slot: string) => {
-        const startMins = timeToMins(slot);
-        const endMins = startMins + 30;
+        const pointMins = timeToMins(slot);
         if (selectedDate === 0) {
             const currentMins = new Date().getHours() * 60 + new Date().getMinutes();
-            if (startMins <= currentMins) return true;
+            if (pointMins <= currentMins) return true;
         }
-        return bookedRanges.some(r => startMins < r.end && endMins > r.start);
+        // Disable time points strictly inside booked ranges
+        return bookedRanges.some(r => pointMins > r.start && pointMins < r.end);
     };
 
     const hasBookedSlotsBetween = (startSlot: string, endSlot: string) => {
         const startMins = timeToMins(startSlot);
         const endMins = timeToMins(endSlot);
-        return SLOTS.some(slot => {
-            const m = timeToMins(slot);
-            if (m > startMins && m < endMins) return isSlotBooked(slot);
-            return false;
-        });
+        return bookedRanges.some(r => startMins < r.end && endMins > r.start);
     };
 
     const handleSlotClick = (slot: string) => {
@@ -170,13 +166,11 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
     };
 
     const finalStartTime = rangeStart;
-    const finalEndTime = rangeEnd 
-        ? minsToTime(timeToMins(rangeEnd) + 30) 
-        : (rangeStart ? minsToTime(timeToMins(rangeStart) + 30) : null);
+    const finalEndTime = rangeEnd ? rangeEnd : null;
 
     const validation = useMemo(() => {
         if (!finalStartTime || !finalEndTime) {
-            return { error: 'Vui lòng chọn khung giờ trên bảng!', durationHours: 0, total: 0 };
+            return { error: 'Vui lòng chọn mốc bắt đầu và kết thúc!', durationHours: 0, total: 0 };
         }
 
         const startMins = timeToMins(finalStartTime);
@@ -184,8 +178,8 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
         const durationHours = (endMins - startMins) / 60;
 
         let error = '';
-        if (durationHours < 1) {
-            error = 'Thời gian thuê sân tối thiểu là 1 giờ (2 block)!';
+        if (durationHours < 0.5) {
+            error = 'Vui lòng chọn khung giờ hợp lệ!';
         }
 
         const basePrice = court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 100000;
@@ -419,7 +413,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                         )}
                                         
                                         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2.5">
-                                            {SLOTS.map(slot => {
+                                            {ALL_TIME_OPTIONS.map(slot => {
                                                 const booked = isSlotBooked(slot);
                                                 
                                                 let isSelected = false;

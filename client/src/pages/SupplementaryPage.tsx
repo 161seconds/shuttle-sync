@@ -110,9 +110,9 @@ export default function SupplementaryPage() {
             
             {/* Animated Ambient Background */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[50%] rounded-full bg-blue-600/10 blur-[120px] dark:mix-blend-screen animate-pulse" style={{ animationDuration: '8s' }} />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[50%] rounded-full bg-emerald-600/10 blur-[120px] dark:mix-blend-screen animate-pulse" style={{ animationDuration: '10s', animationDelay: '2s' }} />
-                <div className="absolute top-[30%] left-[30%] w-[40%] h-[40%] rounded-full bg-teal-500/5 blur-[100px] dark:mix-blend-screen animate-pulse" style={{ animationDuration: '12s', animationDelay: '4s' }} />
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[50%] rounded-full bg-blue-500/30 dark:bg-blue-600/10 blur-[120px] dark:mix-blend-screen animate-pulse" style={{ animationDuration: '8s' }} />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[50%] rounded-full bg-emerald-500/30 dark:bg-emerald-600/10 blur-[120px] dark:mix-blend-screen animate-pulse" style={{ animationDuration: '10s', animationDelay: '2s' }} />
+                <div className="absolute top-[30%] left-[30%] w-[40%] h-[40%] rounded-full bg-teal-500/20 dark:bg-teal-500/5 blur-[100px] dark:mix-blend-screen animate-pulse" style={{ animationDuration: '12s', animationDelay: '4s' }} />
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
             </div>
 
@@ -137,8 +137,8 @@ export default function SupplementaryPage() {
                                     <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse mr-2"></span>Giáo án Thể lực & Phục hồi
                                 </span>
                             </div>
-                            <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-gray-500 tracking-tight mb-6">
-                                Cỗ Máy <br className="hidden md:block"/> Không Phổi
+                            <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 tracking-tight mb-6 py-2 leading-tight">
+                                Các Bài Tập Bổ Trợ
                             </h1>
                             <p className="text-muted-foreground text-lg font-medium leading-relaxed max-w-2xl">
                                 Kỹ thuật tốt là chưa đủ. Hệ thống gồm 60 bài tập chuyên sâu từ Khởi động đến Phục hồi dưới đây sẽ giúp bạn duy trì phong độ và tránh chấn thương.

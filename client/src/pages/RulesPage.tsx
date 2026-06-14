@@ -110,8 +110,8 @@ export default function RulesPage() {
 
             {/* Animated Ambient Background */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-                <div className={`absolute top-[-10%] left-[-10%] w-[40%] h-[50%] rounded-full blur-[120px] dark:mix-blend-screen animate-pulse transition-colors duration-1000 ${activeTab === 'badminton' ? 'bg-emerald-600/10' : 'bg-orange-600/10'}`} style={{ animationDuration: '8s' }} />
-                <div className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[50%] rounded-full blur-[120px] dark:mix-blend-screen animate-pulse transition-colors duration-1000 ${activeTab === 'badminton' ? 'bg-blue-600/10' : 'bg-red-600/10'}`} style={{ animationDuration: '10s', animationDelay: '2s' }} />
+                <div className={`absolute top-[-10%] left-[-10%] w-[40%] h-[50%] rounded-full blur-[120px] dark:mix-blend-screen animate-pulse transition-colors duration-1000 ${activeTab === 'badminton' ? 'bg-emerald-500/30 dark:bg-emerald-600/10' : 'bg-orange-500/30 dark:bg-orange-600/10'}`} style={{ animationDuration: '8s' }} />
+                <div className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[50%] rounded-full blur-[120px] dark:mix-blend-screen animate-pulse transition-colors duration-1000 ${activeTab === 'badminton' ? 'bg-blue-500/30 dark:bg-blue-600/10' : 'bg-red-500/30 dark:bg-red-600/10'}`} style={{ animationDuration: '10s', animationDelay: '2s' }} />
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
             </div>
 
@@ -127,8 +127,8 @@ export default function RulesPage() {
                         <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-black uppercase tracking-widest w-fit mb-2 transition-colors duration-500 ${activeTab === 'badminton' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-orange-500/10 border-orange-500/20 text-orange-400'}`}>
                             <span className={`w-2 h-2 rounded-full animate-ping ${activeTab === 'badminton' ? 'bg-emerald-500' : 'bg-orange-500'}`}></span> Official Rules
                         </div>
-                        <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-gray-500 tracking-tight flex items-center gap-4">
-                            Sách Giáo Khoa
+                        <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-red-500 to-orange-500 tracking-tight flex items-center gap-4 py-2 leading-tight">
+                            Luật chơi & Thi đấu
                         </h1>
                         <p className="text-muted-foreground text-lg font-medium max-w-xl">
                             Nắm vững luật chơi và các thuật ngữ cơ bản để tự tin bước ra sân và thể hiện đẳng cấp.
@@ -190,7 +190,7 @@ export default function RulesPage() {
                                         key={idx}
                                         className="group relative p-6 md:p-8 rounded-[2rem] bg-card border border-border backdrop-blur-xl hover:bg-muted hover:border-border transition-all duration-500 overflow-hidden cursor-default"
                                     >
-                                        <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/5 group-hover:to-transparent transition-colors duration-500 z-0"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-br from-foreground/0 to-foreground/0 group-hover:from-foreground/5 group-hover:to-transparent transition-colors duration-500 z-0"></div>
                                         <div className="relative z-10 flex flex-col md:flex-row md:items-start gap-5">
                                             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border shadow-lg ${rule.color}`}>
                                                 {rule.icon}

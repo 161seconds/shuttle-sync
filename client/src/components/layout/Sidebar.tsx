@@ -120,7 +120,7 @@ export default function AppSidebar() {
                             <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-700" />
                         </button>
 
-                        <div className="w-px h-6 bg-gradient-to-b from-transparent via-white/10 to-transparent" />
+                        <div className="w-px h-6 bg-gradient-to-b from-transparent via-foreground/10 to-transparent" />
 
                         <button
                             onClick={() => { setPage('support' as any); if (isSideBarOpen) toggleSidebar(); }}
@@ -130,7 +130,7 @@ export default function AppSidebar() {
                             <HelpCircle className="w-5 h-5 group-hover:-translate-y-1 transition-transform duration-300" />
                         </button>
 
-                        <div className="w-px h-6 bg-gradient-to-b from-transparent via-white/10 to-transparent" />
+                        <div className="w-px h-6 bg-gradient-to-b from-transparent via-foreground/10 to-transparent" />
 
                         <button
                             onClick={async () => {
