@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, Calendar, Clock, Loader2, Check, X, ChevronRight, Users, Ticket, MapPin, ReceiptText } from 'lucide-react';
 import ProfileHeader from '../../components/layout/ProfileHeader';
 import { motion, AnimatePresence } from 'framer-motion';
