@@ -85,7 +85,7 @@ function Shell() {
   const { showOnboarding, showTour, completeOnboarding, skipOnboarding, completeTour } = useOnboarding();
   const { showAlert } = useAlertStore();
 
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(() => !sessionStorage.getItem('splashShown'));
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
@@ -159,7 +159,10 @@ function Shell() {
   return (
     <div className={`min-h-screen ${DS.bg.base} relative overflow-hidden`}>
       <AnimatePresence>
-        {(showSplash || isCheckingAuth) && <SplashScreen isLoading={isCheckingAuth} onComplete={() => setShowSplash(false)} />}
+        {showSplash && <SplashScreen isLoading={isCheckingAuth} onComplete={() => {
+            setShowSplash(false);
+            sessionStorage.setItem('splashShown', 'true');
+        }} />}
       </AnimatePresence>
 
       <PremiumBackground />

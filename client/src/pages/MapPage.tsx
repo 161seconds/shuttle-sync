@@ -7,6 +7,7 @@ import type { Court } from '../types';
 import { EmojiIcon } from '../components/EmojiIcon';
 import { renderToString } from 'react-dom/server';
 import { useAlertStore } from '../stores/useAlertStore';
+import { useTheme } from '../components/theme-provider';
 
 const vietmapgl = (window as any).vietmapgl;
 
@@ -51,12 +52,16 @@ export default function MapPage() {
     const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null);
     const [routeInfo, setRouteInfo] = useState<{ distance: string; duration: string } | null>(null);
     const [showRoute, setShowRoute] = useState(false);
+    const [is3D, setIs3D] = useState(false);
 
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<any | null>(null);
     const markersRef = useRef<any[]>([]);
     const userMarkerRef = useRef<any | null>(null);
     const radiusLayerRef = useRef<boolean>(false);
+
+    const { theme } = useTheme();
+    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
     const VIETMAP_KEY = import.meta.env.VITE_VIETMAP_KEY;
 
@@ -125,9 +130,13 @@ export default function MapPage() {
     useEffect(() => {
         if (!mapContainer.current || !VIETMAP_KEY || !vietmapgl) return;
         if (!map.current) {
+            const styleUrl = isDark 
+                ? `https://maps.vietmap.vn/maps/styles/dm/style.json?apikey=${VIETMAP_KEY}`
+                : `https://maps.vietmap.vn/api/maps/light/styles.json?apikey=${VIETMAP_KEY}`;
+
             map.current = new vietmapgl.Map({
                 container: mapContainer.current,
-                style: `https://maps.vietmap.vn/maps/styles/dm/style.json?apikey=${VIETMAP_KEY}`,
+                style: styleUrl,
                 center: [106.660172, 10.762622],
                 zoom: 12.5,
                 pitch: 0, // Mặc định góc nhìn 90 độ từ trên xuống (pitch 0)
@@ -140,8 +149,64 @@ export default function MapPage() {
                 clearRoute();
                 map.current?.flyTo({ pitch: 0, duration: 1000 });
             });
+            map.current.on('pitchend', () => {
+                setIs3D(map.current.getPitch() > 40);
+            });
+            
+            // Tự động thêm layer toà nhà 3D mỗi khi style tải xong
+            map.current.on('style.load', () => {
+                if (!map.current) return;
+                try {
+                    const sources = map.current.getStyle().sources;
+                    // Tìm source vector (thường là openmaptiles)
+                    const sourceName = Object.keys(sources).find(k => sources[k].type === 'vector') || 'openmaptiles';
+
+                    if (!map.current.getLayer('3d-buildings')) {
+                        map.current.addLayer({
+                            'id': '3d-buildings',
+                            'source': sourceName,
+                            'source-layer': 'building',
+                            'filter': ['==', 'extrude', 'true'],
+                            'type': 'fill-extrusion',
+                            'minzoom': 14,
+                            'paint': {
+                                'fill-extrusion-color': ['case',
+                                    ['boolean', ['feature-state', 'hover'], false],
+                                    '#10b981', // Màu xanh khi hover (nếu có)
+                                    isDark ? '#374151' : '#e5e7eb' // Màu toà nhà tối/sáng
+                                ],
+                                'fill-extrusion-height': ['get', 'height'],
+                                'fill-extrusion-base': ['get', 'min_height'],
+                                'fill-extrusion-opacity': isDark ? 0.8 : 0.6
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.error("Không thể thêm 3D buildings layer:", e);
+                }
+            });
         }
-    }, [VIETMAP_KEY]);
+    }, [VIETMAP_KEY, isDark]);
+
+    // Lắng nghe thay đổi theme để đổi màu bản đồ
+    useEffect(() => {
+        if (!map.current || !vietmapgl) return;
+        const styleUrl = isDark 
+            ? `https://maps.vietmap.vn/maps/styles/dm/style.json?apikey=${VIETMAP_KEY}`
+            : `https://maps.vietmap.vn/api/maps/light/styles.json?apikey=${VIETMAP_KEY}`;
+        
+        map.current.setStyle(styleUrl);
+        
+        // Vẽ lại các layer (bán kính, đường đi) sau khi style mới load xong
+        map.current.once('style.load', () => {
+            if (userLoc && radiusLayerRef.current) {
+                drawRadiusCircle(userLoc.lng, userLoc.lat, 5);
+            }
+            if (showRoute && selected) {
+                handleGetDirections();
+            }
+        });
+    }, [isDark, VIETMAP_KEY]);
 
     // ═══ RENDER MARKER ĐẸP MẮT (THEO ĐÁNH GIÁ SAO) ═══
     useEffect(() => {
@@ -174,14 +239,14 @@ export default function MapPage() {
                         display: flex; 
                         align-items: center; 
                         gap: 6px;
-                        background: ${isActive ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(25, 25, 25, 0.9)'};
+                        background: ${isActive ? 'linear-gradient(135deg, #10b981, #059669)' : (isDark ? 'rgba(25, 25, 25, 0.9)' : 'rgba(255, 255, 255, 0.9)')};
                         backdrop-filter: blur(12px);
                         -webkit-backdrop-filter: blur(12px);
-                        border: 1px solid ${isActive ? '#34d399' : 'rgba(255,255,255,0.1)'};
+                        border: 1px solid ${isActive ? '#34d399' : (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')};
                         padding: 4px 10px 4px 4px;
                         border-radius: 30px;
-                        box-shadow: ${isActive ? '0 8px 25px rgba(16,185,129,0.5)' : '0 4px 15px rgba(0,0,0,0.5)'};
-                        color: ${isActive ? 'var(--color-card)' : 'var(--color-foreground)'};
+                        box-shadow: ${isActive ? '0 8px 25px rgba(16,185,129,0.5)' : (isDark ? '0 4px 15px rgba(0,0,0,0.5)' : '0 4px 15px rgba(0,0,0,0.1)')};
+                        color: ${isActive ? '#fff' : (isDark ? '#fff' : '#000')};
                         font-family: 'Inter', sans-serif;
                         font-weight: 700;
                         font-size: 13px;
@@ -189,7 +254,7 @@ export default function MapPage() {
                         <div style="
                             display: flex; align-items: center; justify-content: center; 
                             width: 26px; height: 26px; 
-                            background: ${isActive ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.05)'}; 
+                            background: ${isActive ? 'rgba(255,255,255,0.2)' : (isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')}; 
                             border-radius: 50%; 
                             font-size: 14px;
                         ">
@@ -208,7 +273,7 @@ export default function MapPage() {
                         width: 0; height: 0; 
                         border-left: 6px solid transparent; 
                         border-right: 6px solid transparent; 
-                        border-top: 8px solid ${isActive ? '#059669' : 'rgba(25, 25, 25, 0.9)'}; 
+                        border-top: 8px solid ${isActive ? '#059669' : (isDark ? 'rgba(25, 25, 25, 0.9)' : 'rgba(255, 255, 255, 0.9)')}; 
                         margin: 0 auto; 
                     "></div>
                 </div>
@@ -230,7 +295,7 @@ export default function MapPage() {
         if (hasValidCoords && courts.length > 1 && !selected) {
             map.current.fitBounds(bounds, { padding: 80, maxZoom: 14.5, pitch: 0, duration: 1000 });
         }
-    }, [courts, selected]);
+    }, [courts, selected, isDark]);
 
     // ═══ ĐỊNH VỊ VÀ VÒNG BÁN KÍNH ═══
     const drawRadiusCircle = (lng: number, lat: number, radiusKm: number) => {
@@ -392,6 +457,12 @@ export default function MapPage() {
                     ))}
                 </div>
             </div>
+
+            <button onClick={() => {
+                if (map.current) map.current.flyTo({ pitch: is3D ? 0 : 60, duration: 1000 });
+            }} className={`absolute right-4 z-20 w-12 h-12 rounded-full font-black text-[15px] flex items-center justify-center transition-all duration-300 active:scale-95 shadow-lg ${is3D ? 'bg-emerald-500 text-black shadow-glow-lg border-emerald-500' : 'bg-card/90 backdrop-blur-md text-foreground border border-border'} ${selected ? 'bottom-72' : 'bottom-64'}`}>
+                3D
+            </button>
 
             <button onClick={handleLocateMe} className={`absolute right-4 z-20 px-4 py-3 rounded-full bg-emerald-500 text-black text-sm font-bold flex items-center gap-2.5 shadow-glow-lg hover:bg-emerald-400 hover:scale-105 transition-all duration-300 active:scale-95 ${selected ? 'bottom-56' : 'bottom-48'}`}>
                 <Navigation className="w-4 h-4" /> Sân gần tôi

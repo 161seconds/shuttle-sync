@@ -157,10 +157,9 @@ class AuthController {
 
             await User.findByIdAndUpdate(user._id, { $unset: { otpCode: 1, otpExpires: 1 } });
 
-            const accessToken = jwt.sign({ id: user._id, role: user.role }, config.jwt.accessSecret, { expiresIn: '15m' });
-            const refreshToken = jwt.sign({ id: user._id }, config.jwt.refreshSecret, { expiresIn: '7d' });
+            const tokens = await authService.createSession(userAny);
 
-            setAuthCookies(res, accessToken, refreshToken);
+            setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
             sendSuccess(res, { user }, 'Đăng nhập thành công');
         } catch (error) {
             next(error);

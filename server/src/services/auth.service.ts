@@ -75,6 +75,17 @@ class AuthService {
     }
 
     /**
+     * Create session for a user (used by OTP login or SSO)
+     */
+    async createSession(user: IUserDocument): Promise<TokenPair> {
+        const tokens = this.generateTokens(user);
+        await this.saveRefreshToken(user._id.toString(), tokens.refreshToken);
+        user.lastLoginAt = new Date();
+        await user.save();
+        return tokens;
+    }
+
+    /**
      * Refresh access token using refresh token
      */
     async refreshToken(refreshToken: string): Promise<TokenPair> {

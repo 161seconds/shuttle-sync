@@ -40,6 +40,7 @@ axiosClient.interceptors.response.use(
                     failedQueue.push({ resolve, reject });
                 }).then(() => {
                     // Refresh xong, gọi lại request cũ (Axios sẽ tự kẹp Cookie mới)
+                    original._retry = true; // NGĂN CHẶN LẶP VÔ HẠN nếu token mới vẫn bị 401
                     return axiosClient(original);
                 }).catch(err => Promise.reject(err));
             }
