@@ -23,7 +23,9 @@ class BookingController {
         try {
             const userId = req.userId!;
             const status = req.query.status as string;
-            const bookings = await bookingService.getMyBookings(userId, status);
+            const startDate = req.query.startDate as string;
+            const endDate = req.query.endDate as string;
+            const bookings = await bookingService.getMyBookings(userId, status, startDate, endDate);
             res.status(200).json({ success: true, data: bookings, message: 'Lấy lịch sử thành công' });
         } catch (error) {
             next(error);

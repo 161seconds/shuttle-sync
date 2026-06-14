@@ -216,7 +216,10 @@ class AuthController {
                 }
 
                 if (GroupPlayModel) {
-                    totalGroupsCreated = await GroupPlayModel.countDocuments({ organizerId: userId });
+                    totalGroupsCreated = await GroupPlayModel.countDocuments({ 
+                        organizerId: userId,
+                        status: { $in: ['open', 'full', 'in_progress'] } 
+                    });
 
                     totalGroupsJoined = await GroupPlayModel.countDocuments({
                         'participants.userId': userId,

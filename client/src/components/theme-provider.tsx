@@ -35,17 +35,22 @@ export function ThemeProvider({
 
     root.classList.remove("light", "dark")
 
+    let activeTheme = theme;
     if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light"
-
-      root.classList.add(systemTheme)
-      return
+      activeTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
     }
 
-    root.classList.add(theme)
+    root.classList.add(activeTheme)
+
+    // Update theme-color meta tag for mobile browser safe areas
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement('meta');
+      metaThemeColor.setAttribute('name', 'theme-color');
+      document.head.appendChild(metaThemeColor);
+    }
+    metaThemeColor.setAttribute('content', activeTheme === 'dark' ? '#060809' : '#f8fafc');
+
   }, [theme])
 
   const value = {

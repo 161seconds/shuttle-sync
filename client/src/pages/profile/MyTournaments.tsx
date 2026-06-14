@@ -4,6 +4,7 @@ import { useAlertStore } from '../../stores/useAlertStore';
 import { ChevronLeft, Trophy, Crown, X, Medal, Sparkles, Swords, Zap } from 'lucide-react';
 import { theme as t } from '../../utils/theme';
 import axiosClient from '../../api/axiosClient';
+import ProfileHeader from '../../components/layout/ProfileHeader';
 
 // --- INTERFACES ---
 interface Team {
@@ -81,7 +82,7 @@ const TeamRow = ({ matchId, slot, teamId, teamName, score, isWinner, isTBD, onDr
                     </div>
                 ) : (
                     <div className="w-4 h-4 rounded-full border border-border bg-card shadow-inner flex items-center justify-center">
-                        {!isEmpty && !isTBD && <div className="w-1.5 h-1.5 rounded-full bg-white/30 group-hover/row:bg-white/60 transition-colors" />}
+                        {!isEmpty && !isTBD && <div className="w-1.5 h-1.5 rounded-full bg-foreground/30 group-hover/row:bg-foreground/60 transition-colors" />}
                     </div>
                 )}
                 <span className={`text-[14px] select-none truncate max-w-[140px] ${
@@ -190,14 +191,7 @@ export default function MyTournaments({ onBack }: Props) {
                 className={`min-h-screen w-full${t.bg.base} pb-24 relative bg-background`}
             >
                 {/* Header */}
-                <div className="sticky top-0 z-30 bg-background/60 backdrop-blur-3xl border-b border-border">
-                    <div className="flex items-center gap-3 px-6 h-20 w-full">
-                        <button onClick={onBack} className="group w-12 h-12 rounded-full bg-card hover:bg-muted flex items-center justify-center transition-all border border-border hover:border-border">
-                            <ChevronLeft className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-colors group-hover:-translate-x-0.5" />
-                        </button>
-                        <h1 className="font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 tracking-wide">Quản lý Giải đấu</h1>
-                    </div>
-                </div>
+                <ProfileHeader title="Quản lý Giải đấu" onBack={onBack} />
 
                 <div className="max-w-lg mx-auto px-5 py-32 flex flex-col items-center justify-center relative">
                     {/* Background glow for empty state */}
@@ -278,7 +272,7 @@ export default function MyTournaments({ onBack }: Props) {
                             <div key={round} className="flex flex-col w-[340px]">
                                 {/* Round Header */}
                                 <div className="h-14 mb-10 relative group/round">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-white/[0.03] to-transparent rounded-2xl transition-colors duration-500 group-hover/round:from-white/[0.06]" />
+                                    <div className="absolute inset-0 bg-gradient-to-r from-foreground/[0.03] to-transparent rounded-2xl transition-colors duration-500 group-hover/round:from-foreground/[0.06]" />
                                     <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-emerald-400 to-cyan-500 rounded-l-2xl shadow-[0_0_15px_rgba(52,211,153,0.5)]" />
                                     <div className="h-full flex items-center px-6 font-black text-foreground/60 tracking-[0.3em] uppercase text-[14px]">
                                         {isLastRound ? (
@@ -325,7 +319,7 @@ export default function MyTournaments({ onBack }: Props) {
                                                     className={`relative z-10 bg-background/80 backdrop-blur-3xl border ${hasWinner ? 'border-emerald-500/40 shadow-glow' : 'border-border shadow-card hover:border-border hover:shadow-[0_15px_40px_rgba(255,255,255,0.05)]'} rounded-3xl overflow-hidden transition-all duration-500 cursor-pointer group/card`}
                                                 >
                                                     {/* Background Glow inside card */}
-                                                    <div className={`absolute inset-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none bg-gradient-to-br ${hasWinner ? 'from-emerald-500/10 to-transparent' : 'from-white/5 to-transparent'}`} />
+                                                    <div className={`absolute inset-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none bg-gradient-to-br ${hasWinner ? 'from-emerald-500/10 to-transparent' : 'from-foreground/5 to-transparent'}`} />
 
                                                     {/* Card Header */}
                                                     <div className="flex justify-between items-center px-5 py-3.5 bg-card border-b border-border relative z-20">

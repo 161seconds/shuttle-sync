@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
-import { ChevronLeft, Check, Loader2 } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
+import ProfileHeader from '../../components/layout/ProfileHeader';
 import { theme as t } from '../../utils/theme';
 import { useAppStore } from '../../store';
 import axiosClient from '../../api/axiosClient';
@@ -97,21 +98,10 @@ export default function EditProfile({ onBack }: Props) {
     return (
         <div className={`min-h-screen w-full${t.bg.base} pb-24`}>
             {/* Header */}
-            <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-border`}>
-                <div className="flex items-center gap-3 px-4 h-16">
-                    <button
-                        onClick={onBack}
-                        className={`w-10 h-10 rounded-full bg-card hover:bg-muted flex items-center justify-center ${t.text.muted} hover:text-foreground transition-all`}
-                    >
-                        <ChevronLeft className="w-6 h-6" />
-                    </button>
-
-                    <h1 className="font-black text-lg text-foreground tracking-wide">
-                        Hồ sơ của bạn
-                    </h1>
-
-                    <div className="flex-1" />
-
+            <ProfileHeader 
+                title="Hồ sơ của bạn" 
+                onBack={onBack}
+                rightContent={
                     <button
                         onClick={handleSave}
                         disabled={saving || !form.displayName.trim()}
@@ -125,8 +115,8 @@ export default function EditProfile({ onBack }: Props) {
 
                         {success ? 'Đã lưu' : 'Lưu lại'}
                     </button>
-                </div>
-            </div>
+                }
+            />
 
             <div className="max-w-lg mx-auto px-5 py-6 space-y-6">
                 {/* Header row: Avatar + Quick Info */}

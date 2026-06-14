@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ChevronLeft, Bell, Lock, Shield, Trash2, Loader2, Check, ChevronRight } from 'lucide-react';
+import { Bell, Lock, Shield, Trash2, Loader2, Check, ChevronRight } from 'lucide-react';
+import ProfileHeader from '../../components/layout/ProfileHeader';
 import { theme as t } from '../../utils/theme';
 import { useAppStore } from '../../store';
 import axiosClient from '../../api/axiosClient';
@@ -51,15 +52,7 @@ export default function SettingsPage({ onBack }: Props) {
 
     return (
         <div className={`min-h-screen w-full${t.bg.base} pb-24`}>
-            {/* STICKY HEADER */}
-            <div className={`sticky top-16 z-30 ${t.bg.base}/80 backdrop-blur-2xl border-b border-border`}>
-                <div className="flex items-center gap-3 px-4 h-16">
-                    <button onClick={onBack} className={`w-10 h-10 rounded-full bg-card hover:bg-muted flex items-center justify-center ${t.text.muted} hover:text-foreground transition-all`}>
-                        <ChevronLeft className="w-6 h-6" />
-                    </button>
-                    <h1 className={`font-black text-lg text-foreground tracking-wide`}>Cài đặt</h1>
-                </div>
-            </div>
+            <ProfileHeader title="Cài đặt" onBack={onBack} />
 
         <div className="max-w-lg mx-auto px-5 py-8 space-y-8">
                 {/* Thông báo */}
