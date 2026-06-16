@@ -45,8 +45,10 @@ export default function GlobalAlert() {
                 </div>
 
                 {/* Content */}
-                <h2 className="text-xl font-black text-foreground mb-2">{title}</h2>
-                <p className="text-foreground/60 text-sm leading-relaxed mb-6">{message}</p>
+                <h2 className="text-xl font-black text-foreground mb-2 break-words w-full">{title}</h2>
+                <div className="text-foreground/60 text-sm leading-relaxed mb-6 break-words whitespace-pre-wrap w-full max-h-[50vh] overflow-y-auto overflow-x-hidden px-1 custom-scrollbar">
+                    {message}
+                </div>
 
                 {/* Buttons */}
                 <div className="w-full flex gap-3">

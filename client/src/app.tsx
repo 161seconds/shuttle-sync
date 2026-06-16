@@ -1,6 +1,6 @@
 import './app.css';
 import { lazy, Suspense, useState, useEffect, useRef } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { AppProvider, useAppStore } from './store';
 import Header from './components/layout/Header';
 import BottomNav from './components/layout/BottomNav';
@@ -79,11 +79,15 @@ function PremiumBackground() {
   );
 }
 
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { ErrorBoundary } from './components/ErrorBoundary';
+
 function Shell() {
-  const { page, setPage, bookingCourt, setBookingCourt, user, setUser, isSideBarOpen } = useAppStore();
+  const { bookingCourt, setBookingCourt, user, setUser, isSideBarOpen } = useAppStore();
   const [detailCourt, setDetailCourt] = useState<Court | null>(null);
   const { showOnboarding, showTour, completeOnboarding, skipOnboarding, completeTour } = useOnboarding();
   const { showAlert } = useAlertStore();
+  const location = useLocation();
 
   const [showSplash, setShowSplash] = useState(() => !sessionStorage.getItem('splashShown'));
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
@@ -91,7 +95,6 @@ function Shell() {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        // Đảm bảo không bị treo quá 5s nếu backend bị đứng
         const res: any = await Promise.race([
           authApi.getMe(),
           new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
@@ -109,40 +112,21 @@ function Shell() {
   }, [setUser]);
 
   useEffect(() => {
-    // Chỉ đá sang home nếu user ĐÃ đăng nhập mà lại rớt vào trang login
-    if (user && page === 'login') {
-      setPage('home');
-    }
-
-    // Yêu cầu đăng nhập nếu vào trang chat
-    if (!user && page === 'chat' && !isCheckingAuth) {
-      showAlert('Vui lòng đăng nhập để sử dụng tính năng Trò chuyện', 'Yêu cầu đăng nhập', 'warning');
-      setPage('login');
-    }
-  }, [user, page, setPage, isCheckingAuth, showAlert]);
-
-  // Global Socket cho Thông báo
-  useEffect(() => {
     if (!user) return;
-
     socketService.connect('');
     const socket = socketService.getSocket();
     if (!socket) return;
-
     const handleNoti = (title: string, message: string) => {
         showAlert(message, title, 'success');
         window.dispatchEvent(new Event('refresh_notifications'));
-        window.dispatchEvent(new Event('refresh_chat_rooms')); // Update chat rooms too
+        window.dispatchEvent(new Event('refresh_chat_rooms'));
     };
-
     const onJoinReq = () => handleNoti('Yêu cầu tham gia mới', 'Có người vừa xin vào nhóm của bạn!');
     const onJoinAcc = () => handleNoti('Đã được duyệt!', 'Chủ sân đã đồng ý cho bạn vào nhóm. Vào chat ngay!');
     const onJoinRej = () => handleNoti('Bị từ chối', 'Rất tiếc, chủ sân đã từ chối yêu cầu của bạn.');
-
     socket.on('join_request_received', onJoinReq);
     socket.on('join_request_accepted', onJoinAcc);
     socket.on('join_request_rejected', onJoinRej);
-
     return () => {
         socket.off('join_request_received', onJoinReq);
         socket.off('join_request_accepted', onJoinAcc);
@@ -150,11 +134,12 @@ function Shell() {
     };
   }, [user, showAlert]);
 
-  // Gộp chung thời gian check Auth vào Splash Screen để không bị nháy giao diện
-
   if (detailCourt) {
     return <CourtDetail court={detailCourt} onBack={() => setDetailCourt(null)} />;
   }
+
+  const isLoginPage = location.pathname === '/login';
+  const isMapPage = location.pathname === '/map';
 
   return (
     <div className={`min-h-screen ${DS.bg.base} relative overflow-hidden`}>
@@ -173,12 +158,11 @@ function Shell() {
 
       {!showOnboarding && !isCheckingAuth && (
         <div className="relative z-10 flex flex-col min-h-screen">
-
-          {page !== 'login' && <Header />}
-          {page !== 'login' && page !== 'map' && <AppSidebar />}
+          {!isLoginPage && <Header />}
+          {!isLoginPage && !isMapPage && <AppSidebar />}
 
           <main
-            className={`flex-1 transition-all duration-300 ease-in-out ${page !== 'login' ? 'pt-16' : ''} ${(isSideBarOpen && page !== 'login' && page !== 'map') ? 'md:pl-64 pl-0' : 'pl-0'
+            className={`flex-1 transition-all duration-300 ease-in-out ${!isLoginPage ? 'pt-16' : ''} ${(isSideBarOpen && !isLoginPage && !isMapPage) ? 'md:pl-64 pl-0' : 'pl-0'
               } w-full min-h-screen`}
           >
             <Suspense fallback={
@@ -187,28 +171,31 @@ function Shell() {
               </div>
             }>
               <AnimatePresence mode="wait">
-                {page === 'login' && <motion.div key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Login /></motion.div>}
-                {page === 'home' && <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Dashboard /></motion.div>}
-                {page === 'map' && <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MapPage /></motion.div>}
-                {page === 'search' && <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SearchPage /></motion.div>}
-                {page === 'profile' && <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ProfilePage /></motion.div>}
-                {page === 'edit-profile' && <motion.div key="edit-profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><EditProfile onBack={() => setPage('profile')} /></motion.div>}
-                {page === 'groupplay' && <motion.div key="group-play" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><GroupPlayPage /></motion.div>}
-                {page === 'aicoach' && <motion.div key="aicoach" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AiCoach /></motion.div>}
-                {page === 'admin' && <motion.div key="admin" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AdminDashboard /></motion.div>}
-                {page === 'notifications' && <motion.div key="noti" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Notifications onBack={() => setPage('home')} /></motion.div>}
-                {page === 'match-leaderboard' && <motion.div key="leaderboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MatchLeaderboard onBack={() => setPage('groupplay')} /></motion.div>}
-                {page === 'rules' && <motion.div key="rules" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><RulesPage /></motion.div>}
-                {page === 'supplementary' && <motion.div key="supplementary" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SupplementaryPage /></motion.div>}
-                {page === 'chat' && <motion.div key="chat" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ChatPage /></motion.div>}
-                {page === 'news' && <motion.div key="news" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><NewsPage /></motion.div>}
-                {page === 'support' && <motion.div key="support" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><SupportPage /></motion.div>}
+                <Routes location={location} key={location.pathname}>
+                  <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/map" element={<MapPage />} />
+                  <Route path="/search" element={<SearchPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/edit-profile" element={<EditProfile onBack={() => window.history.back()} />} />
+                  <Route path="/groupplay" element={<GroupPlayPage />} />
+                  <Route path="/aicoach" element={<AiCoach />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/notifications" element={<Notifications onBack={() => window.history.back()} />} />
+                  <Route path="/match-leaderboard" element={<MatchLeaderboard onBack={() => window.history.back()} />} />
+                  <Route path="/rules" element={<RulesPage />} />
+                  <Route path="/supplementary" element={<SupplementaryPage />} />
+                  <Route path="/chat" element={user ? <ChatPage /> : <Navigate to="/login" replace />} />
+                  <Route path="/news" element={<NewsPage />} />
+                  <Route path="/support" element={<SupportPage />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
               </AnimatePresence>
             </Suspense>
           </main>
 
           <AnimatePresence>
-            {['home', 'map', 'search', 'profile'].includes(page) && !isSideBarOpen && (
+            {['/', '/map', '/search', '/profile'].includes(location.pathname) && !isSideBarOpen && (
               <BottomNav key="bottom-nav" />
             )}
           </AnimatePresence>
@@ -218,7 +205,7 @@ function Shell() {
           </AnimatePresence>
 
           <AnimatePresence>
-            {showTour && page != 'login' && <GuidedTourOverlay onComplete={completeTour} />}
+            {showTour && !isLoginPage && <GuidedTourOverlay onComplete={completeTour} />}
           </AnimatePresence>
         </div>
       )}
@@ -228,11 +215,15 @@ function Shell() {
 
 export default function App() {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <AppProvider>
-        <Shell />
-        <GlobalAlert />
-      </AppProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <BrowserRouter>
+          <AppProvider>
+            <Shell />
+            <GlobalAlert />
+          </AppProvider>
+        </BrowserRouter>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }

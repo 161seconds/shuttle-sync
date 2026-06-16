@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import type { AppPage, Court, CourtFilters, User } from '../types';
 
 interface AppState {
@@ -46,6 +47,35 @@ export function AppProvider({ children }: AppProviderProps) {
 
     const [isSideBarOpen, setIsSideBarOpen] = useState(false);
 
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // Sync URL path back to page state (for Back/Forward buttons)
+    useEffect(() => {
+        const path = location.pathname;
+        let newPage = '';
+        if (path === '/') newPage = 'home';
+        else if (path === '/login') newPage = 'login';
+        else if (path === '/map') newPage = 'map';
+        else if (path === '/search') newPage = 'search';
+        else if (path === '/profile') newPage = 'profile';
+        else if (path === '/edit-profile') newPage = 'edit-profile';
+        else if (path === '/groupplay') newPage = 'groupplay';
+        else if (path === '/aicoach') newPage = 'aicoach';
+        else if (path === '/admin') newPage = 'admin';
+        else if (path === '/notifications') newPage = 'notifications';
+        else if (path === '/match-leaderboard') newPage = 'match-leaderboard';
+        else if (path === '/rules') newPage = 'rules';
+        else if (path === '/supplementary') newPage = 'supplementary';
+        else if (path === '/chat') newPage = 'chat';
+        else if (path === '/news') newPage = 'news';
+        else if (path === '/support') newPage = 'support';
+        
+        if (newPage && newPage !== page) {
+            setPage(newPage as AppPage);
+        }
+    }, [location.pathname]);
+
     const setFilters = useCallback((partial: Partial<CourtFilters>) => {
         setFiltersState(prev => ({ ...prev, ...partial }));
     }, []);
@@ -54,7 +84,11 @@ export function AppProvider({ children }: AppProviderProps) {
 
     const handleSetPage = useCallback((newPage: AppPage) => {
         setPage(newPage);
-    }, []);
+        if (newPage === 'home') navigate('/');
+        else if (newPage === 'edit-profile') navigate('/edit-profile');
+        else if (newPage === 'match-leaderboard') navigate('/match-leaderboard');
+        else navigate(`/${newPage}`);
+    }, [navigate]);
 
     const toggleSidebar = useCallback(() => {
         setIsSideBarOpen(prev => !prev);
