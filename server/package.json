@@ -8,7 +8,8 @@
     "build": "tsc -b && tsc-alias",
     "start": "node -r module-alias/register dist/server.js",
     "seed": "tsx src/scripts/seed.ts",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts",
+    "test": "vitest run"
   },
   "_moduleAliases": {
     "@": "./dist"
@@ -51,8 +52,12 @@
     "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^8.0.0",
     "@types/qrcode": "^1.5.5",
+    "@typescript-eslint/eslint-plugin": "^8.61.1",
+    "@typescript-eslint/parser": "^8.61.1",
+    "eslint": "^8.57.1",
     "tsc-alias": "^1.8.10",
     "tsx": "^4.19.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "vitest": "^4.1.9"
   }
 }

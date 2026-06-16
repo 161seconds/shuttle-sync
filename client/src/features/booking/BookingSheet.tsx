@@ -23,18 +23,11 @@ const generateTimeOptions = () => {
     return times;
 };
 const ALL_TIME_OPTIONS = generateTimeOptions();
-const SLOTS = ALL_TIME_OPTIONS.slice(0, -1);
 
 const timeToMins = (timeStr: string) => {
     if (!timeStr) return 0;
     const [h, m] = timeStr.split(':').map(Number);
     return h * 60 + m;
-};
-
-const minsToTime = (mins: number) => {
-    const h = Math.floor(mins / 60);
-    const m = mins % 60;
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 };
 
 const sheetVariants: Variants = {

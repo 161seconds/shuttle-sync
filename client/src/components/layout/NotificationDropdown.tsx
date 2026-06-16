@@ -180,15 +180,15 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
 
                                         {/* Info */}
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex justify-between items-start mb-1">
-                                                <h3 className={`text-[14px] font-bold leading-tight ${noti.isRead ? 'text-muted-foreground' : 'text-foreground'}`}>
+                                            <div className="flex justify-between items-start mb-1 gap-2">
+                                                <h3 className={`text-[14px] font-bold leading-tight break-words ${noti.isRead ? 'text-muted-foreground' : 'text-foreground'}`}>
                                                     {noti.title}
                                                 </h3>
                                                 {!noti.isRead && (
                                                     <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 mt-1" />
                                                 )}
                                             </div>
-                                            <p className={`text-[13px] line-clamp-2 ${noti.isRead ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
+                                            <p className={`text-[13px] line-clamp-2 break-words ${noti.isRead ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
                                                 {noti.message}
                                             </p>
                                             <div className="mt-2 text-[11px] font-bold text-muted-foreground flex items-center gap-1.5">
