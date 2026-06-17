@@ -163,7 +163,7 @@ function Shell() {
       {!showOnboarding && !isCheckingAuth && (
         <div className="relative z-10 flex flex-col min-h-screen">
           {!isLoginPage && <Header />}
-          {!isLoginPage && !isMapPage && <AppSidebar />}
+          {!isLoginPage && <AppSidebar />}
 
           <main
             className={`flex-1 transition-all duration-300 ease-in-out ${!isLoginPage ? 'pt-16' : ''} ${(isSideBarOpen && !isLoginPage && !isMapPage) ? 'md:pl-64 pl-0' : 'pl-0'
