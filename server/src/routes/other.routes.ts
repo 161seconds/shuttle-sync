@@ -16,8 +16,6 @@ export const userRoutes = Router();
 
 userRoutes.get('/profile', authenticate, userController.getProfile);
 userRoutes.put('/profile', authenticate, validate(updateProfileSchema), userController.updateProfile);
-userRoutes.post('/favorites/:courtId', authenticate, userController.toggleFavorite);
-userRoutes.get('/favorites', authenticate, userController.getFavorites);
 userRoutes.get('/public/:userId', userController.getPublicProfile);
 
 // ========================

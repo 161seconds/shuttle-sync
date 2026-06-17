@@ -2,6 +2,30 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middlewares/auth';
 import { Friendship, User } from '../models';
 import { FriendshipStatus, IApiResponse } from '@shuttle-sync/shared';
+import { notificationService } from '../services';
+
+const notifyRecipient = async (req: AuthRequest, requesterId: string, recipientId: string) => {
+    try {
+        const requester = await User.findById(requesterId).select('displayName');
+        if (requester) {
+            const io = req.app.get('io');
+            if (io) {
+                io.to(`user:${recipientId}`).emit('friend:request', {
+                    requesterId: requesterId,
+                    requesterName: requester.displayName
+                });
+            }
+            await notificationService.createNotification({
+                userId: recipientId,
+                title: '👥 Lời mời kết bạn mới',
+                message: `${requester.displayName} đã gửi cho bạn một lời mời kết bạn.`,
+                type: 'system'
+            });
+        }
+    } catch (err) {
+        console.error('Lỗi tạo thông báo kết bạn:', err);
+    }
+};
 
 export const sendFriendRequest = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
@@ -39,6 +63,8 @@ export const sendFriendRequest = async (req: AuthRequest, res: Response, next: N
                 existing.recipientId = recipientId;
                 await existing.save();
                 
+                await notifyRecipient(req, requesterId!, recipientId);
+
                 return res.status(200).json({
                     success: true,
                     message: 'Friend request sent',
@@ -52,6 +78,8 @@ export const sendFriendRequest = async (req: AuthRequest, res: Response, next: N
             recipientId,
             status: FriendshipStatus.PENDING,
         });
+
+        await notifyRecipient(req, requesterId!, recipientId);
 
         return res.status(201).json({
             success: true,

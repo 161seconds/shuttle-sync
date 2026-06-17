@@ -28,24 +28,6 @@ class UserController {
         }
     }
 
-    async toggleFavorite(req: AuthRequest, res: Response, next: NextFunction) {
-        try {
-            const added = await userService.toggleFavoriteCourt(req.userId!, req.params.courtId as string);
-            sendSuccess(res, { isFavorite: added }, added ? 'Đã thêm vào yêu thích' : 'Đã bỏ yêu thích');
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    async getFavorites(req: AuthRequest, res: Response, next: NextFunction) {
-        try {
-            const courts = await userService.getFavoriteCourts(req.userId!);
-            sendSuccess(res, courts);
-        } catch (error) {
-            next(error);
-        }
-    }
-
     async getPublicProfile(req: Request, res: Response, next: NextFunction) {
         try {
             const profile = await userService.getPublicProfile(req.params.userId as string);

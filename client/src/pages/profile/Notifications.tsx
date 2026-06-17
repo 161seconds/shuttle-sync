@@ -80,6 +80,7 @@ export default function Notifications({ onBack }: Props) {
 
         const handleRefresh = () => {
             fetchNotifications();
+            fetchPendingRequests();
         };
 
         window.addEventListener('refresh_notifications', handleRefresh);
