@@ -124,13 +124,17 @@ function Shell() {
     const onJoinReq = () => handleNoti('Yêu cầu tham gia mới', 'Có người vừa xin vào nhóm của bạn!');
     const onJoinAcc = () => handleNoti('Đã được duyệt!', 'Chủ sân đã đồng ý cho bạn vào nhóm. Vào chat ngay!');
     const onJoinRej = () => handleNoti('Bị từ chối', 'Rất tiếc, chủ sân đã từ chối yêu cầu của bạn.');
+    const onFriendReq = (data: any) => handleNoti('Lời mời kết bạn', `${data?.requesterName || 'Ai đó'} đã gửi cho bạn lời mời kết bạn.`);
+    
     socket.on('join_request_received', onJoinReq);
     socket.on('join_request_accepted', onJoinAcc);
     socket.on('join_request_rejected', onJoinRej);
+    socket.on('friend:request', onFriendReq);
     return () => {
         socket.off('join_request_received', onJoinReq);
         socket.off('join_request_accepted', onJoinAcc);
         socket.off('join_request_rejected', onJoinRej);
+        socket.off('friend:request', onFriendReq);
     };
   }, [user, showAlert]);
 

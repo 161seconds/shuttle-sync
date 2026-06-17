@@ -12,14 +12,6 @@ import cookieParser from 'cookie-parser';
 const app = express();
 
 
-app.set('trust proxy', 1);
-const rateLimit = require('express-rate-limit');
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100
-});
-app.use(limiter);
-
 // Security
 app.use(helmet());
 app.use(cors({
@@ -32,6 +24,15 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
+app.set('trust proxy', 1);
+const rateLimit = require('express-rate-limit');
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 2000 // Tăng limit lên 2000 cho môi trường dev đỡ bị block
+});
+app.use(limiter);
+
 app.use(cookieParser());
 // Body parsing
 app.use(express.json({ limit: '10mb' }));

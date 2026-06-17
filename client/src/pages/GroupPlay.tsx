@@ -175,10 +175,10 @@ export default function GroupPlayPage() {
                         <p className="text-sm text-muted-foreground mt-2 font-medium">Tìm kiếm đồng đội, kết nối đam mê</p>
                     </div>
                     <button onClick={() => setShowCreate(true)}
-                        className="group relative px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 text-black font-black flex items-center gap-2 shadow-glow-lg hover:shadow-glow-lg hover:-translate-y-0.5 transition-all duration-300">
-                        <div className="absolute inset-0 bg-card rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <Plus className="w-5 h-5" />
-                        <span className="hidden sm:inline">Mở nhóm mới</span>
+                        className="group relative px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 text-black font-black flex items-center gap-2 shadow-glow-lg hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] hover:-translate-y-0.5 transition-all duration-300 overflow-hidden">
+                        <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <Plus className="w-5 h-5 relative z-10" />
+                        <span className="hidden sm:inline relative z-10">Mở nhóm mới</span>
                     </button>
                 </div>
 

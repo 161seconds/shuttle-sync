@@ -280,7 +280,7 @@ export default function BookingHistory({ onBack }: Props) {
                                 animate={{ scale: 1, opacity: 1, y: 0 }}
                                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                                 onClick={e => e.stopPropagation()}
-                                className="bg-card border border-border rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl relative overflow-hidden"
+                                className="bg-card border border-border rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl relative overflow-y-auto overflow-x-hidden max-h-[90vh] custom-scrollbar"
                             >
                                 {/* Decorative Glow */}
                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-gradient-to-b from-emerald-500/10 to-transparent blur-3xl pointer-events-none" />

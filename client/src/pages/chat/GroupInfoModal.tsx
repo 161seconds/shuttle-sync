@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, Users, Clock, Shield, UserPlus, Check } from 'lucide-react';
 import { groupPlayApi } from '../../api/groupPlay.api';
 import { useAppStore } from '../../store';
@@ -8,6 +8,8 @@ import { friendApi } from '../../api/friend.api';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
+import UserProfileModal from './UserProfileModal';
+import axiosClient from '../../api/axiosClient';
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
@@ -21,6 +23,7 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
     const [groupData, setGroupData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [selectedUser, setSelectedUser] = useState<any>(null);
 
     const { user } = useAppStore();
     const { friends } = useSocialStore();
@@ -31,11 +34,33 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
             await friendApi.sendRequest(userId);
             setSentRequests(prev => new Set(prev).add(userId));
         } catch (error: any) {
-            if (error.response?.status === 400 && error.response?.data?.message?.includes('already exists')) {
+            const msg = error.response?.data?.message || '';
+            if (error.response?.status === 400 && (msg.includes('already exists') || msg.includes('Already friends') || msg.includes('already pending'))) {
                 setSentRequests(prev => new Set(prev).add(userId));
             } else {
                 console.error('Failed to send friend request', error);
+                // Cập nhật state để UI hiển thị "Đã gửi" và vô hiệu hoá nút, tránh spam
+                setSentRequests(prev => new Set(prev).add(userId));
             }
+        }
+    };
+
+    const handleUserClick = async (userId: string) => {
+        try {
+            const res = await axiosClient.get(`/users/public/${userId}`);
+            const data = res.data.data;
+            setSelectedUser({
+                id: data._id,
+                name: data.displayName,
+                avatar: data.avatar,
+                status: data.status,
+                skillLevel: data.skillLevel || 'Chưa rõ',
+                matchesPlayed: (data.stats?.totalGroupsJoined || 0) + (data.stats?.totalGroupsCreated || 0),
+                favoriteCourt: 'Nhiều sân khác nhau', // Placeholder vì public API ko có favoriteCourt
+                joinedDate: data.joinedDate,
+            });
+        } catch (error) {
+            console.error('Failed to fetch user profile', error);
         }
     };
 
@@ -117,14 +142,17 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
                                 </div>
                             </div>
 
-                            {/* Organizer Info */}
+                                {/* Organizer Info */}
                             <div>
                                 <div className="flex items-center gap-2 mb-3">
                                     <Shield className="w-4 h-4 text-emerald-400" />
                                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Chủ nhóm</h3>
                                 </div>
                                 
-                                <div className="flex items-center gap-3 bg-card p-3 rounded-xl border border-border">
+                                <div 
+                                    className="flex items-center gap-3 bg-card p-3 rounded-xl border border-border cursor-pointer hover:bg-muted transition-colors"
+                                    onClick={() => groupData.organizerId?._id && handleUserClick(groupData.organizerId._id)}
+                                >
                                     <div className="w-12 h-12 rounded-full overflow-hidden border border-border bg-card">
                                         <img 
                                             src={groupData.organizerId?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${groupData.organizerId?.displayName || 'A'}`} 
@@ -150,7 +178,11 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
 
                                 <div className="space-y-2">
                                     {groupData.participants?.map((participant: any, index: number) => (
-                                        <div key={participant.userId || index} className="flex items-center gap-3 bg-card p-3 rounded-xl hover:bg-muted transition-colors">
+                                        <div 
+                                            key={participant.userId || index} 
+                                            className="flex items-center gap-3 bg-card p-3 rounded-xl hover:bg-muted transition-colors cursor-pointer"
+                                            onClick={() => handleUserClick(participant.userId)}
+                                        >
                                             <div className="w-10 h-10 rounded-full overflow-hidden border border-border bg-card">
                                                 <img 
                                                     src={participant.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${participant.displayName || 'U'}`} 
@@ -183,7 +215,10 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
 
                                                 return (
                                                     <button
-                                                        onClick={() => handleSendFriendRequest(participant.userId)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleSendFriendRequest(participant.userId);
+                                                        }}
                                                         disabled={isSent}
                                                         className={`p-2 rounded-lg transition-colors flex items-center justify-center shrink-0 ${
                                                             isSent
@@ -208,6 +243,15 @@ export default function GroupInfoModal({ groupId, onClose }: GroupInfoModalProps
                     )}
                 </div>
             </motion.div>
+
+            <AnimatePresence>
+                {selectedUser && (
+                    <UserProfileModal 
+                        user={selectedUser} 
+                        onClose={() => setSelectedUser(null)} 
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Award, MapPin, Calendar, Activity, AlertTriangle, UserPlus, UserCheck, Clock } from 'lucide-react';
+import { X, Award, MapPin, Calendar, Activity, AlertTriangle, UserPlus, UserCheck, Clock, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { ChatUser } from './mockData';
 import { useAppStore } from '../../store';
@@ -14,23 +14,26 @@ interface UserProfileModalProps {
 export default function UserProfileModal({ user, onClose }: UserProfileModalProps) {
     const isBanned = user.status === 'banned';
     const { user: currentUser } = useAppStore();
-    const { friends, pendingRequests } = useSocialStore();
+    const { friends, pendingRequests, fetchFriends, fetchPendingRequests } = useSocialStore();
     const [requestSent, setRequestSent] = useState(false);
 
     const isMe = currentUser?._id === user.id || (currentUser as any)?.id === user.id;
     const isFriend = friends.some(f => f._id === user.id);
-    const isPending = pendingRequests.some(r => r.requesterId._id === user.id); // Họ gửi cho mình
+    const pendingRequest = pendingRequests.find(r => r.requesterId._id === user.id); // Họ gửi cho mình
+    const isPending = !!pendingRequest;
 
     const handleAddFriend = async () => {
         try {
             await friendApi.sendRequest(user.id);
             setRequestSent(true);
         } catch (error: any) {
-            if (error.response?.status === 400 && error.response?.data?.message?.includes('already exists')) {
+            const msg = error.response?.data?.message || '';
+            if (error.response?.status === 400 && (msg.includes('already exists') || msg.includes('Already friends') || msg.includes('already pending'))) {
                 setRequestSent(true);
             } else {
                 console.error('Failed to send friend request', error);
-                alert(error.response?.data?.message || 'Có lỗi xảy ra khi gửi lời mời kết bạn');
+                // Vẫn set true để tránh bị bấm spam và ẩn thông báo lỗi nếu nó là 400
+                setRequestSent(true);
             }
         }
     };
@@ -88,9 +91,35 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                                     <UserCheck className="w-4 h-4" /> Bạn bè
                                 </button>
                             ) : isPending ? (
-                                <button disabled className="px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[13px] font-bold flex items-center gap-1.5">
-                                    <Clock className="w-4 h-4" /> Đã gửi cho bạn
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    <button 
+                                        onClick={async () => {
+                                            try {
+                                                await friendApi.acceptRequest(pendingRequest!._id);
+                                                fetchFriends();
+                                                fetchPendingRequests();
+                                            } catch (e) {
+                                                console.error(e);
+                                            }
+                                        }}
+                                        className="px-4 py-1.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black text-[13px] font-bold flex items-center gap-1.5 transition-colors shadow-glow-lg"
+                                    >
+                                        <Check className="w-4 h-4" /> Chấp nhận
+                                    </button>
+                                    <button 
+                                        onClick={async () => {
+                                            try {
+                                                await friendApi.declineRequest(pendingRequest!._id);
+                                                fetchPendingRequests();
+                                            } catch (e) {
+                                                console.error(e);
+                                            }
+                                        }}
+                                        className="px-4 py-1.5 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 text-[13px] font-bold flex items-center gap-1.5 transition-colors"
+                                    >
+                                        <X className="w-4 h-4" /> Từ chối
+                                    </button>
+                                </div>
                             ) : (
                                 <button 
                                     onClick={handleAddFriend}

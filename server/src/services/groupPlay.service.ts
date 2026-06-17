@@ -106,7 +106,7 @@ class GroupPlayService {
             userId: groupPlay.organizerId.toString(),
             title: '👋 Yêu cầu tham gia mới!',
             message: `${user.displayName} muốn tham gia nhóm "${groupPlay.title}" của bạn. Hãy vào duyệt ngay!`,
-            type: 'GROUP'
+            type: 'group_play'
         }).catch(err => logger.error('Lỗi tạo thông báo (GroupPlay):', err));
 
         // Note: socket event should be emitted by controller to owner
@@ -175,7 +175,7 @@ class GroupPlayService {
             userId: requesterId,
             title: '✅ Đã được duyệt!',
             message: `Chủ sân đã duyệt bạn vào nhóm "${groupPlay.title}". Vào chat ngay nào!`,
-            type: 'GROUP'
+            type: 'group_play'
         }).catch(err => logger.error('Lỗi tạo thông báo (GroupPlay):', err));
 
         return groupPlay;
@@ -212,7 +212,7 @@ class GroupPlayService {
             userId: requesterId,
             title: '❌ Yêu cầu bị từ chối',
             message: `Chủ sân đã từ chối yêu cầu tham gia nhóm "${groupPlay.title}" của bạn. Lý do: ${request.rejectReason}`,
-            type: 'GROUP'
+            type: 'group_play'
         }).catch(err => logger.error('Lỗi tạo thông báo (GroupPlay):', err));
 
         return groupPlay;
@@ -257,7 +257,7 @@ class GroupPlayService {
                 userId: groupPlay.organizerId.toString(),
                 title: '😢 Thành viên rời nhóm',
                 message: `${user.displayName} đã rời khỏi nhóm "${groupPlay.title}".`,
-                type: 'GROUP'
+                type: 'group_play'
             }).catch(err => logger.error('Lỗi tạo thông báo (GroupPlay):', err));
         }
 
@@ -305,16 +305,18 @@ class GroupPlayService {
         if (params.sportType) filter.sportType = params.sportType;
         if (params.skillLevel) filter.skillLevel = params.skillLevel;
 
-        // if (params.date) {
-        //     const date = new Date(params.date);
-        //     date.setHours(0, 0, 0, 0);
-        //     const nextDay = new Date(date);
-        //     nextDay.setDate(nextDay.getDate() + 1);
-        //     filter.date = { $gte: date, $lt: nextDay };
-        // } else {
-        //     // Default: only show future group plays
-        //     filter.date = { $gte: new Date() };
-        // }
+        if (params.date) {
+            const date = new Date(params.date);
+            date.setHours(0, 0, 0, 0);
+            const nextDay = new Date(date);
+            nextDay.setDate(nextDay.getDate() + 1);
+            filter.date = { $gte: date, $lt: nextDay };
+        } else {
+            // Default: only show future group plays
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            filter.date = { $gte: today };
+        }
 
         const total = await GroupPlay.countDocuments(filter);
         const { page, limit, totalPages, skip } = calculatePagination(
