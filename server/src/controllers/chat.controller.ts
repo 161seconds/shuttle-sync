@@ -78,7 +78,10 @@ export const getConversations = async (req: AuthRequest, res: Response): Promise
         const userId = req.userId;
 
         const { Conversation } = await import('../models/Conversation');
-        const conversations = await Conversation.find({ participants: userId })
+        const conversations = await Conversation.find({ 
+            participants: userId,
+            deletedBy: { $ne: userId } // Don't return deleted conversations
+        })
             .populate('participants', 'displayName avatar')
             .populate('lastMessage')
             .sort({ updatedAt: -1 });
@@ -112,7 +115,10 @@ export const getMessages = async (req: AuthRequest, res: Response): Promise<void
             return;
         }
 
-        const messages = await Message.find({ conversationId }).sort({ createdAt: 1 });
+        const messages = await Message.find({ 
+            conversationId,
+            deletedBy: { $ne: userId } // Don't return messages deleted by this user
+        }).sort({ createdAt: 1 });
 
         // Reset unread count
         if (conversation.unreadCount.get(userId as string) && conversation.unreadCount.get(userId as string)! > 0) {
@@ -163,6 +169,83 @@ export const createConversation = async (req: AuthRequest, res: Response): Promi
         });
     } catch (error) {
         logger.error('Error creating conversation:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
+export const archiveConversation = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.userId;
+        const { conversationId } = req.params;
+        const { isArchived } = req.body;
+
+        const { Conversation } = await import('../models/Conversation');
+        const update = isArchived 
+            ? { $addToSet: { archivedBy: userId } }
+            : { $pull: { archivedBy: userId } };
+
+        await Conversation.findOneAndUpdate(
+            { _id: conversationId, participants: userId },
+            update
+        );
+
+        res.status(200).json({ success: true, message: 'Conversation archive status updated' });
+    } catch (error) {
+        logger.error('Error archiving conversation:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
+export const deleteConversation = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.userId;
+        const { conversationId } = req.params;
+
+        const { Conversation } = await import('../models/Conversation');
+        await Conversation.findOneAndUpdate(
+            { _id: conversationId, participants: userId },
+            { $addToSet: { deletedBy: userId }, $pull: { archivedBy: userId } }
+        );
+
+        res.status(200).json({ success: true, message: 'Conversation deleted' });
+    } catch (error) {
+        logger.error('Error deleting conversation:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
+export const deleteMessage = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.userId;
+        const { messageId } = req.params;
+        const { type } = req.body; // 'recall' or 'delete'
+
+        const { Message } = await import('../models/Message');
+        const message = await Message.findById(messageId);
+
+        if (!message) {
+            res.status(404).json({ success: false, message: 'Message not found' });
+            return;
+        }
+
+        if (type === 'recall') {
+            if (message.senderId.toString() !== userId) {
+                res.status(403).json({ success: false, message: 'Only sender can recall the message' });
+                return;
+            }
+            message.isRecalled = true;
+            await message.save();
+        } else {
+            // Delete for me
+            await Message.updateOne(
+                { _id: messageId },
+                { $addToSet: { deletedBy: userId } }
+            );
+        }
+
+        res.status(200).json({ success: true, message: 'Message deleted' });
+    } catch (error) {
+        logger.error('Error deleting message:', error);
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };

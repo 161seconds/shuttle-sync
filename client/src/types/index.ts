@@ -206,6 +206,8 @@ export interface IMessage {
         content: string;
     };
     isRead: boolean;
+    isRecalled?: boolean;
+    deletedBy?: string[];
     createdAt: string;
 }
 
@@ -215,5 +217,7 @@ export interface IConversation {
     participantDetails?: IUserPublic[];
     lastMessage?: IMessage;
     unreadCount: Record<string, number>;
+    archivedBy?: string[];
+    deletedBy?: string[];
     updatedAt: string;
 }

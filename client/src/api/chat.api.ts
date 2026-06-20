@@ -14,6 +14,8 @@ export interface ChatMessage {
         content: string;
     };
     createdAt: string;
+    isRecalled?: boolean;
+    deletedBy?: string[];
 }
 
 export const chatApi = {
@@ -38,5 +40,14 @@ export const chatApi = {
     createConversation: async (recipientId: string): Promise<IConversation> => {
         const response = await axiosClient.post<ApiResponse<IConversation>>('/chat/conversations', { recipientId });
         return response.data.data!;
+    },
+    archiveConversation: async (conversationId: string, isArchived: boolean): Promise<void> => {
+        await axiosClient.put(`/chat/conversations/${conversationId}/archive`, { isArchived });
+    },
+    deleteConversation: async (conversationId: string): Promise<void> => {
+        await axiosClient.delete(`/chat/conversations/${conversationId}`);
+    },
+    deleteMessage: async (messageId: string, type: 'recall' | 'delete'): Promise<void> => {
+        await axiosClient.delete(`/chat/messages/${messageId}`, { data: { type } });
     },
 };

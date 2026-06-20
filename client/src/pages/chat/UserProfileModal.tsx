@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Award, MapPin, Calendar, Activity, AlertTriangle, UserPlus, UserCheck, Clock, Check } from 'lucide-react';
+import { X, Award, MapPin, Calendar, Activity, AlertTriangle, UserPlus, Clock, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { ChatUser } from './mockData';
 import { useAppStore } from '../../store';
@@ -18,6 +18,8 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
     const { friends, pendingRequests, fetchFriends, fetchPendingRequests } = useSocialStore();
     const { showAlert } = useAlertStore();
     const [requestSent, setRequestSent] = useState(false);
+    const [isReporting, setIsReporting] = useState(false);
+    const [reportReason, setReportReason] = useState('');
 
     const isMe = currentUser?._id === user.id || (currentUser as any)?.id === user.id;
     const isFriend = friends.some(f => f._id === user.id);
@@ -179,20 +181,56 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                             )}
 
                             {/* Nút Báo cáo */}
-                            <button 
-                                onClick={() => {
-                                    showAlert('Đã gửi báo cáo vi phạm với người dùng này cho quản trị viên.', 'Đã ghi nhận', 'success');
-                                    onClose();
-                                }}
-                                className="px-4 py-1.5 rounded-full bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/20 text-[13px] font-bold flex items-center gap-1.5 transition-colors"
-                                title="Báo cáo vi phạm"
-                            >
-                                <AlertTriangle className="w-4 h-4" /> Báo cáo
-                            </button>
+                            {!isReporting && (
+                                <button 
+                                    onClick={() => setIsReporting(true)}
+                                    className="px-4 py-1.5 rounded-full bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/20 text-[13px] font-bold flex items-center gap-1.5 transition-colors"
+                                    title="Báo cáo vi phạm"
+                                >
+                                    <AlertTriangle className="w-4 h-4" /> Báo cáo
+                                </button>
+                            )}
                         </div>
                     )}
 
-                    <div className="grid grid-cols-2 gap-3 mt-6 text-left">
+                    {isReporting ? (
+                        <div className="mt-6 text-left animate-in fade-in slide-in-from-bottom-2 duration-200">
+                            <label className="text-sm font-semibold text-foreground mb-2 block">Lý do báo cáo:</label>
+                            <textarea
+                                value={reportReason}
+                                onChange={(e) => setReportReason(e.target.value)}
+                                className="w-full bg-background border border-border rounded-xl p-3 text-sm text-foreground focus:border-orange-500/50 outline-none resize-none h-24 mb-3 custom-scrollbar"
+                                placeholder="Vui lòng mô tả chi tiết lý do bạn báo cáo người dùng này..."
+                                autoFocus
+                            />
+                            <div className="flex gap-2 justify-end">
+                                <button
+                                    onClick={() => {
+                                        setIsReporting(false);
+                                        setReportReason('');
+                                    }}
+                                    className="px-4 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:bg-muted transition-colors"
+                                >
+                                    Hủy
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (!reportReason.trim()) {
+                                            showAlert('Vui lòng nhập lý do báo cáo', 'Cảnh báo', 'warning');
+                                            return;
+                                        }
+                                        showAlert('Đã gửi báo cáo vi phạm với người dùng này cho quản trị viên.', 'Đã ghi nhận', 'success');
+                                        setIsReporting(false);
+                                        onClose();
+                                    }}
+                                    className="px-4 py-2 rounded-xl text-sm font-bold bg-orange-500 hover:bg-orange-600 text-white shadow-glow-lg transition-colors"
+                                >
+                                    Gửi báo cáo
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 gap-3 mt-6 text-left">
                         <div className="bg-card rounded-2xl p-4 border border-border">
                             <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                                 <Award className="w-3.5 h-3.5" /> Trình độ
@@ -228,7 +266,8 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        </div>
+                    )}
                 </div>
             </motion.div>
         </div>
