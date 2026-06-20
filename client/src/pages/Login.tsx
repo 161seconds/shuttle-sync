@@ -1,55 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Eye, Mail, Lock, ChevronRight, User, TrendingUp, Users, Calendar, Star, Zap, ArrowLeft, Phone } from 'lucide-react';
 import { theme as DS } from '../utils/theme';
 import { useAppStore } from '../store';
 import { authApi } from '../api/auth.api';
 import { EmojiIcon } from '../components/EmojiIcon';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 function FloatingCards() {
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
-
-    const springConfig = { damping: 50, stiffness: 400 };
-    const xSpring = useSpring(mouseX, springConfig);
-    const ySpring = useSpring(mouseY, springConfig);
-
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            // Chia nhỏ giá trị để tạo hiệu ứng dịch chuyển nhẹ (parallax) thay vì bay theo chuột
-            mouseX.set((e.clientX - window.innerWidth / 2) * 0.03);
-            mouseY.set((e.clientY - window.innerHeight / 2) * 0.03);
-        };
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, [mouseX, mouseY]);
-
     return (
-        <div className="absolute inset-0 overflow-hidden pointer-events-auto">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {/* Premium Grid Background */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
-            
+
             {/* Radial Glows for depth */}
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-500/10 blur-[120px]" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-500/10 blur-[120px]" />
 
             {/* Background elements with parallax */}
-            <motion.div 
-                style={{ x: xSpring, y: ySpring }}
+            <div
                 className="absolute w-125 h-125 rounded-full blur-[100px] opacity-[0.15] bg-gradient-to-br from-emerald-500 to-green-300 -top-20 -left-20 animate-[drift_20s_ease-in-out_infinite]" 
             />
-            <motion.div 
-                style={{ x: xSpring, y: ySpring }}
+            <div 
                 className="absolute w-100 h-100 rounded-full blur-[90px] opacity-[0.12] bg-gradient-to-tl from-emerald-600 to-teal-400 bottom-10 right-10 animate-[drift_15s_ease-in-out_infinite_reverse]" 
             />
 
-            <motion.div 
-                style={{ x: xSpring, y: ySpring }}
-                className="absolute top-[12%] left-[8%] animate-[float_6s_ease-in-out_infinite]"
-            >
+            <div className="absolute top-[12%] left-[8%] animate-[float_6s_ease-in-out_infinite]">
                 <motion.div 
                     whileHover={{ scale: 1.08, rotate: -2, y: -5, boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.15)" }}
-                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-5 py-4 shadow-card w-48 cursor-pointer transition-colors hover:border-emerald-500/30 hover:bg-card/90"
+                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-5 py-4 shadow-card w-48 cursor-pointer transition-colors hover:border-emerald-500/30 hover:bg-card/90 pointer-events-auto"
                 >
                     <div className="flex items-center justify-between mb-2">
                         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center border border-emerald-500/10">
@@ -65,15 +43,12 @@ function FloatingCards() {
                         <div className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 w-[70%]" />
                     </div>
                 </motion.div>
-            </motion.div>
+            </div>
 
-            <motion.div 
-                style={{ x: xSpring, y: ySpring }}
-                className="absolute top-[6%] right-[12%] animate-[float_7s_ease-in-out_infinite_0.5s]"
-            >
+            <div className="absolute top-[6%] right-[12%] animate-[float_7s_ease-in-out_infinite_0.5s]">
                 <motion.div 
                     whileHover={{ scale: 1.08, rotate: 2, y: -5, boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.15)" }}
-                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-5 py-4 shadow-card w-44 cursor-pointer transition-colors hover:border-blue-500/30 hover:bg-card/90"
+                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-5 py-4 shadow-card w-44 cursor-pointer transition-colors hover:border-blue-500/30 hover:bg-card/90 pointer-events-auto"
                 >
                     <div className="flex items-center justify-between mb-2">
                         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center border border-blue-500/10">
@@ -86,15 +61,12 @@ function FloatingCards() {
                     <p className="text-foreground font-black text-xl tracking-tight">856</p>
                     <p className="text-[#5f656d] text-[11px] mt-0.5">Người chơi online</p>
                 </motion.div>
-            </motion.div>
+            </div>
 
-            <motion.div 
-                style={{ x: xSpring, y: ySpring }}
-                className="absolute bottom-[18%] right-[8%] animate-[float_8s_ease-in-out_infinite_1s]"
-            >
+            <div className="absolute bottom-[18%] right-[8%] animate-[float_8s_ease-in-out_infinite_1s]">
                 <motion.div 
                     whileHover={{ scale: 1.05, y: -5, boxShadow: "0 25px 50px -12px rgba(251, 191, 36, 0.15)" }}
-                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-5 py-4 shadow-card w-52 cursor-pointer transition-colors hover:border-amber-400/20 hover:bg-card/90"
+                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-5 py-4 shadow-card w-52 cursor-pointer transition-colors hover:border-amber-400/20 hover:bg-card/90 pointer-events-auto"
                 >
                     <div className="flex items-center gap-2 mb-1">
                         <p className="text-foreground font-black text-lg tracking-tight">4.8</p>
@@ -118,15 +90,12 @@ function FloatingCards() {
                         <circle cx="160" cy="4" r="4" fill="#10b981" className="shadow-[0_0_10px_#10b981]" />
                     </svg>
                 </motion.div>
-            </motion.div>
+            </div>
 
-            <motion.div 
-                style={{ x: xSpring, y: ySpring }}
-                className="absolute bottom-[32%] left-[15%] animate-[float_5s_ease-in-out_infinite_1.5s]"
-            >
+            <div className="absolute bottom-[32%] left-[15%] animate-[float_5s_ease-in-out_infinite_1.5s]">
                 <motion.div 
                     whileHover={{ scale: 1.1, rotate: -3, y: -5, boxShadow: "0 25px 50px -12px rgba(168, 85, 247, 0.15)" }}
-                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-5 py-4 shadow-card w-40 cursor-pointer transition-colors hover:border-purple-500/30 hover:bg-card/90"
+                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-5 py-4 shadow-card w-40 cursor-pointer transition-colors hover:border-purple-500/30 hover:bg-card/90 pointer-events-auto"
                 >
                     <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 flex items-center justify-center border border-purple-500/10 mb-2">
                         <Zap className="w-4 h-4 text-purple-400" />
@@ -134,16 +103,13 @@ function FloatingCards() {
                     <p className="text-foreground font-black text-xl tracking-tight">98%</p>
                     <p className="text-[#5f656d] text-[11px] mt-0.5">Tỉ lệ hài lòng</p>
                 </motion.div>
-            </motion.div>
+            </div>
 
             {/* NEW CARD 1: Top Right - User Joined */}
-            <motion.div 
-                style={{ x: xSpring, y: ySpring }}
-                className="absolute top-[25%] right-[25%] animate-[float_4s_ease-in-out_infinite_2.5s]"
-            >
+            <div className="absolute top-[25%] right-[25%] animate-[float_4s_ease-in-out_infinite_2.5s]">
                 <motion.div 
                     whileHover={{ scale: 1.1, rotate: 3, y: -5, boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.15)" }}
-                    className="bg-card/70 backdrop-blur-xl border border-border rounded-full px-4 py-2 shadow-card cursor-pointer transition-colors hover:border-emerald-500/30 hover:bg-card/90 flex items-center gap-3"
+                    className="bg-card/70 backdrop-blur-xl border border-border rounded-full px-4 py-2 shadow-card cursor-pointer transition-colors hover:border-emerald-500/30 hover:bg-card/90 flex items-center gap-3 pointer-events-auto"
                 >
                     <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center p-0.5 shadow-inner">
                         <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" className="w-full h-full rounded-full bg-card" />
@@ -153,16 +119,13 @@ function FloatingCards() {
                         <p className="text-emerald-400 text-[10px]">Vừa tham gia</p>
                     </div>
                 </motion.div>
-            </motion.div>
+            </div>
 
             {/* NEW CARD 2: Middle Left - Live Matches */}
-            <motion.div 
-                style={{ x: xSpring, y: ySpring }}
-                className="absolute top-[45%] left-[22%] animate-[float_5s_ease-in-out_infinite_0.8s]"
-            >
+            <div className="absolute top-[45%] left-[22%] animate-[float_5s_ease-in-out_infinite_0.8s]">
                 <motion.div 
                     whileHover={{ scale: 1.1, rotate: -4, y: -5, boxShadow: "0 25px 50px -12px rgba(239, 68, 68, 0.15)" }}
-                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-4 py-3 shadow-card cursor-pointer transition-colors hover:border-red-500/30 hover:bg-card/90 flex items-center gap-3"
+                    className="bg-card/70 backdrop-blur-xl border border-border rounded-2xl px-4 py-3 shadow-card cursor-pointer transition-colors hover:border-red-500/30 hover:bg-card/90 flex items-center gap-3 pointer-events-auto"
                 >
                     <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-red-500/10 border border-red-500/20">
                         <div className="absolute w-2 h-2 bg-red-500 rounded-full animate-ping" />
@@ -173,34 +136,25 @@ function FloatingCards() {
                         <p className="text-[#5f656d] text-[10px]">Đang diễn ra (Live)</p>
                     </div>
                 </motion.div>
-            </motion.div>
+            </div>
 
             {/* NEW CARD 3: Bottom Center - Secure */}
-            <motion.div 
-                style={{ x: xSpring, y: ySpring }}
-                className="absolute bottom-[10%] left-[50%] -translate-x-1/2 animate-[float_6s_ease-in-out_infinite_3s]"
-            >
+            <div className="absolute bottom-[10%] left-[50%] -translate-x-1/2 animate-[float_6s_ease-in-out_infinite_3s]">
                 <motion.div 
                     whileHover={{ scale: 1.05, y: -5, boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.15)" }}
-                    className="bg-card/70 backdrop-blur-xl border border-border rounded-full px-4 py-2 shadow-card cursor-pointer transition-colors hover:border-blue-500/30 hover:bg-card/90 flex items-center gap-2"
+                    className="bg-card/70 backdrop-blur-xl border border-border rounded-full px-4 py-2 shadow-card cursor-pointer transition-colors hover:border-blue-500/30 hover:bg-card/90 flex items-center gap-2 pointer-events-auto"
                 >
                     <Lock className="w-3.5 h-3.5 text-blue-400" />
                     <span className="text-[#5f656d] text-[11px] font-medium">Bảo mật thông tin 100%</span>
                 </motion.div>
-            </motion.div>
+            </div>
 
-            <motion.div 
-                style={{ x: xSpring, y: ySpring }}
-                className="absolute bottom-[8%] left-[35%] w-32 h-32 rounded-full border border-emerald-500/5 animate-[spin_30s_linear_infinite]" 
-            >
+            <div className="absolute bottom-[8%] left-[35%] w-32 h-32 rounded-full border border-emerald-500/5 animate-[spin_30s_linear_infinite]">
                 <div className="absolute top-0 right-1/4 w-1 h-1 bg-emerald-500/50 rounded-full blur-[1px]"></div>
-            </motion.div>
-            <motion.div 
-                style={{ x: xSpring, y: ySpring }}
-                className="absolute top-[40%] left-[45%] w-24 h-24 rounded-full border border-blue-500/5 animate-[spin_20s_linear_infinite_reverse]" 
-            >
+            </div>
+            <div className="absolute top-[40%] left-[45%] w-24 h-24 rounded-full border border-blue-500/5 animate-[spin_20s_linear_infinite_reverse]">
                 <div className="absolute bottom-0 left-1/4 w-1.5 h-1.5 bg-blue-500/40 rounded-full blur-[1px]"></div>
-            </motion.div>
+            </div>
         </div>
     );
 }
@@ -326,20 +280,22 @@ export default function Login() {
 
             {/* RIGHT FORM SECTION */}
             <div 
-                className="flex-1 flex items-center justify-center px-6 py-12 relative overflow-y-auto group"
+                className="flex-1 flex items-center justify-center px-6 py-12 relative overflow-y-auto overflow-x-hidden group"
                 onMouseMove={handleFormMouseMove}
                 onMouseEnter={() => setIsHoveringForm(true)}
                 onMouseLeave={() => setIsHoveringForm(false)}
             >
                 {/* Magic Mouse Glow */}
-                <div 
-                    className="pointer-events-none absolute w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] transition-opacity duration-500"
-                    style={{ 
-                        left: formMouseX - 192, 
-                        top: formMouseY - 192,
-                        opacity: isHoveringForm ? 1 : 0 
-                    }}
-                />
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div 
+                        className="absolute w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] transition-opacity duration-500"
+                        style={{ 
+                            left: formMouseX - 192, 
+                            top: formMouseY - 192,
+                            opacity: isHoveringForm ? 1 : 0 
+                        }}
+                    />
+                </div>
                 
                 <div className="absolute top-0 right-0 w-72 h-72 rounded-full blur-[100px] opacity-[0.06] bg-emerald-400 pointer-events-none" />
                 <div className="w-full max-w-[420px] relative z-10 p-8 sm:p-10 rounded-[2.5rem] bg-card/40 border border-border backdrop-blur-2xl shadow-card hover:border-border transition-colors">

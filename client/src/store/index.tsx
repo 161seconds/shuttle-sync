@@ -74,6 +74,7 @@ export function AppProvider({ children }: AppProviderProps) {
         if (newPage && newPage !== page) {
             setPage(newPage as AppPage);
         }
+        setIsSideBarOpen(false); // Luôn đóng sidebar khi chuyển trang
     }, [location.pathname]);
 
     const setFilters = useCallback((partial: Partial<CourtFilters>) => {
