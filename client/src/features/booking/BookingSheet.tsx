@@ -529,7 +529,14 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                 <div className="px-6 py-6 border-t border-border relative z-10 bg-card backdrop-blur-xl">
                     {step === 1 ? (
                         <button
-                            onClick={() => changeStep(2)}
+                            onClick={() => {
+                                if (!user) {
+                                    useAlertStore.getState().showAlert('Bạn cần đăng nhập để tiếp tục thanh toán!', 'Thông báo', 'info');
+                                    onClose();
+                                    return;
+                                }
+                                changeStep(2);
+                            }}
                             disabled={validation.error !== '' || isLoadingSlots}
                             className="group relative w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-foreground rounded-2xl font-bold text-lg flex items-center justify-center gap-3 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-emerald-500/20"
                         >

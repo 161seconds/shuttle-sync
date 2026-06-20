@@ -2,7 +2,7 @@ import {
     Bot,
     UserCircle, BookOpen, Dumbbell,
     Zap, ChevronRight,
-    BarChart2, Newspaper, Settings, HelpCircle, LogOut
+    BarChart2, Newspaper, Settings, HelpCircle, LogOut, LogIn
 } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { theme as t } from '../../utils/theme';
@@ -130,20 +130,23 @@ export default function AppSidebar() {
                             <HelpCircle className="w-5 h-5 group-hover:-translate-y-1 transition-transform duration-300" />
                         </button>
 
-                        <div className="w-px h-6 bg-gradient-to-b from-transparent via-foreground/10 to-transparent" />
-
-                        <button
-                            onClick={async () => {
-                                try { await authApi.logout(); } catch (e) { console.log(e); }
-                                setUser(null);
-                                setPage('login');
-                                if (isSideBarOpen) toggleSidebar();
-                            }}
-                            className="p-3 rounded-[1.2rem] text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-all group"
-                            title="Đăng xuất"
-                        >
-                            <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
-                        </button>
+                        {user && (
+                            <>
+                                <div className="w-px h-6 bg-gradient-to-b from-transparent via-foreground/10 to-transparent" />
+                                <button
+                                    onClick={async () => {
+                                        try { await authApi.logout(); } catch (e) { console.log(e); }
+                                        setUser(null);
+                                        setPage('login');
+                                        if (isSideBarOpen) toggleSidebar();
+                                    }}
+                                    className="p-3 rounded-[1.2rem] text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-all group"
+                                    title="Đăng xuất"
+                                >
+                                    <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
             </aside>

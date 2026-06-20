@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react"
 
-type Theme = "dark" | "light" | "system"
+type Theme = "dark" | "light"
 
 type ThemeProviderProps = {
   children: React.ReactNode
@@ -14,7 +14,7 @@ type ThemeProviderState = {
 }
 
 const initialState: ThemeProviderState = {
-  theme: "system",
+  theme: "light",
   setTheme: () => null,
 }
 
@@ -22,7 +22,7 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 
 export function ThemeProvider({
   children,
-  defaultTheme = "system",
+  defaultTheme = "light",
   storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
@@ -34,13 +34,7 @@ export function ThemeProvider({
     const root = window.document.documentElement
 
     root.classList.remove("light", "dark")
-
-    let activeTheme = theme;
-    if (theme === "system") {
-      activeTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-    }
-
-    root.classList.add(activeTheme)
+    root.classList.add(theme)
 
     // Update theme-color meta tag for mobile browser safe areas
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');
@@ -49,7 +43,7 @@ export function ThemeProvider({
       metaThemeColor.setAttribute('name', 'theme-color');
       document.head.appendChild(metaThemeColor);
     }
-    metaThemeColor.setAttribute('content', activeTheme === 'dark' ? '#060809' : '#f8fafc');
+    metaThemeColor.setAttribute('content', theme === 'dark' ? '#060809' : '#f8fafc');
 
   }, [theme])
 

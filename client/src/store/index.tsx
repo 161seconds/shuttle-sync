@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAlertStore } from '../stores/useAlertStore';
 import type { AppPage, Court, CourtFilters, User } from '../types';
 
 interface AppState {
@@ -84,12 +85,17 @@ export function AppProvider({ children }: AppProviderProps) {
     const resetFilters = useCallback(() => setFiltersState(defaultFilters), []);
 
     const handleSetPage = useCallback((newPage: AppPage) => {
+        const protectedPages = ['chat', 'profile', 'edit-profile', 'notifications', 'match-leaderboard', 'admin'];
+        if (!user && protectedPages.includes(newPage)) {
+            useAlertStore.getState().showAlert('Vui lòng đăng nhập để sử dụng tính năng này!', 'Thông báo', 'info');
+            return;
+        }
         setPage(newPage);
         if (newPage === 'home') navigate('/');
         else if (newPage === 'edit-profile') navigate('/edit-profile');
         else if (newPage === 'match-leaderboard') navigate('/match-leaderboard');
         else navigate(`/${newPage}`);
-    }, [navigate]);
+    }, [navigate, user]);
 
     const toggleSidebar = useCallback(() => {
         setIsSideBarOpen(prev => !prev);

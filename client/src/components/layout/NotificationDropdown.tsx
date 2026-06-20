@@ -59,10 +59,11 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
     // Xử lý click ra ngoài hoặc nhấn Esc
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
+            const toggleBtn = document.getElementById('notification-bell-btn');
+            if (toggleBtn && toggleBtn.contains(event.target as Node)) {
+                return; // Để nút toggle tự xử lý
+            }
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                // Kiểm tra nếu click không phải vào chuông (nút chuông ở Header)
-                // Nút chuông sẽ được bao bọc bên ngoài hoặc ta phải truyền id/ref, 
-                // nhưng cách tốt nhất là dùng div bao quanh nút chuông trong Header.
                 onClose();
             }
         };

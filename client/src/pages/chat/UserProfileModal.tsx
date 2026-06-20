@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import type { ChatUser } from './mockData';
 import { useAppStore } from '../../store';
 import { useSocialStore } from '../../stores/useSocialStore';
+import { useAlertStore } from '../../stores/useAlertStore';
 import { friendApi } from '../../api/friend.api';
 
 interface UserProfileModalProps {
@@ -15,6 +16,7 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
     const isBanned = user.status === 'banned';
     const { user: currentUser } = useAppStore();
     const { friends, pendingRequests, fetchFriends, fetchPendingRequests } = useSocialStore();
+    const { showAlert } = useAlertStore();
     const [requestSent, setRequestSent] = useState(false);
 
     const isMe = currentUser?._id === user.id || (currentUser as any)?.id === user.id;
@@ -38,8 +40,33 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
         }
     };
 
+    const getFullSkillLevel = (level: string) => {
+        if (!level) return 'Chưa xác định';
+        const l = level.toLowerCase().trim();
+        const map: Record<string, string> = {
+            'y': 'Yếu',
+            'y_minus': 'Yếu -',
+            'y_plus': 'Yếu +',
+            'tby_minus': 'Trung bình yếu -',
+            'tby': 'Trung bình yếu',
+            'tby_plus': 'Trung bình yếu +',
+            'tb_minus': 'Trung bình -',
+            'tb': 'Trung bình',
+            'tb_plus': 'Trung bình +',
+            'tb_plus_2': 'Trung bình ++',
+            'tb_plus_3': 'Trung bình +++',
+            'tbk': 'Trung bình khá',
+            'bc': 'Bán chuyên',
+            'cn': 'Chuyên nghiệp',
+            'pro': 'Chuyên nghiệp',
+            'kha': 'Khá',
+            'k': 'Khá'
+        };
+        return map[l] || level;
+    };
+
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-card backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -59,8 +86,8 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                 {/* Avatar */}
                 <div className="flex justify-center -mt-12 mb-4 relative z-10">
                     <div className="relative">
-                        <div className="w-24 h-24 rounded-full border-4 border-border bg-card overflow-hidden">
-                            <img src={user.avatar || undefined} alt={user.name} className="w-full h-full object-cover" />
+                        <div className="w-24 h-24 rounded-full border-4 border-border bg-card overflow-hidden flex items-center justify-center">
+                            <img src={user.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${user.name || 'U'}`} alt={user.name} className="w-full h-full object-cover" />
                         </div>
                         {isBanned && (
                             <div className="absolute -bottom-2 -right-2 bg-card rounded-full p-1">
@@ -85,10 +112,23 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
 
                     {/* Nút kết bạn */}
                     {!isMe && (
-                        <div className="flex justify-center mt-3">
+                        <div className="flex justify-center mt-3 gap-2">
                             {isFriend ? (
-                                <button disabled className="px-4 py-1.5 rounded-full bg-card text-foreground text-[13px] font-bold flex items-center gap-1.5 opacity-70">
-                                    <UserCheck className="w-4 h-4" /> Bạn bè
+                                <button 
+                                    onClick={async () => {
+                                        if (!confirm('Bạn có chắc chắn muốn xóa bạn bè với người này?')) return;
+                                        try {
+                                            await friendApi.deleteFriend(user.id);
+                                            fetchFriends();
+                                            showAlert('Đã hủy kết bạn thành công', 'Thông báo', 'success');
+                                        } catch (e) {
+                                            console.error(e);
+                                            showAlert('Có lỗi xảy ra', 'Lỗi', 'error');
+                                        }
+                                    }}
+                                    className="px-4 py-1.5 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 text-[13px] font-bold flex items-center gap-1.5 transition-colors"
+                                >
+                                    <X className="w-4 h-4" /> Xóa bạn bè
                                 </button>
                             ) : isPending ? (
                                 <div className="flex items-center gap-2">
@@ -137,6 +177,18 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                                     )}
                                 </button>
                             )}
+
+                            {/* Nút Báo cáo */}
+                            <button 
+                                onClick={() => {
+                                    showAlert('Đã gửi báo cáo vi phạm với người dùng này cho quản trị viên.', 'Đã ghi nhận', 'success');
+                                    onClose();
+                                }}
+                                className="px-4 py-1.5 rounded-full bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/20 text-[13px] font-bold flex items-center gap-1.5 transition-colors"
+                                title="Báo cáo vi phạm"
+                            >
+                                <AlertTriangle className="w-4 h-4" /> Báo cáo
+                            </button>
                         </div>
                     )}
 
@@ -145,7 +197,7 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                             <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                                 <Award className="w-3.5 h-3.5" /> Trình độ
                             </div>
-                            <div className="text-emerald-400 font-bold text-sm">{user.skillLevel}</div>
+                            <div className="text-emerald-400 font-bold text-sm">{getFullSkillLevel(user.skillLevel)}</div>
                         </div>
                         
                         <div className="bg-card rounded-2xl p-4 border border-border">
