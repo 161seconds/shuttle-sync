@@ -174,7 +174,13 @@ export default function GroupPlayPage() {
                         </h1>
                         <p className="text-sm text-muted-foreground mt-2 font-medium">Tìm kiếm đồng đội, kết nối đam mê</p>
                     </div>
-                    <button onClick={() => setShowCreate(true)}
+                    <button onClick={() => {
+                        if (!user) {
+                            useAlertStore.getState().showAlert('Vui lòng đăng nhập để mở nhóm mới!', 'Thông báo', 'info');
+                            return;
+                        }
+                        setShowCreate(true);
+                    }}
                         className="group relative px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 text-black font-black flex items-center gap-2 shadow-glow-lg hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] hover:-translate-y-0.5 transition-all duration-300 overflow-hidden">
                         <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                         <Plus className="w-5 h-5 relative z-10" />
@@ -185,14 +191,26 @@ export default function GroupPlayPage() {
                 {/* Quick Actions (Glassmorphism Pills) */}
                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
                     <button
-                        onClick={() => setPage('match-leaderboard')}
+                        onClick={() => {
+                            if (!user) {
+                                useAlertStore.getState().showAlert('Vui lòng đăng nhập để ghi nhận trận đấu!', 'Thông báo', 'info');
+                                return;
+                            }
+                            setPage('match-leaderboard');
+                        }}
                         className="flex-1 min-w-max px-5 py-3 bg-card backdrop-blur-md border border-border rounded-2xl text-sm font-bold text-muted-foreground flex items-center justify-center gap-2 hover:bg-yellow-500/10 hover:text-yellow-400 hover:border-yellow-500/30 transition-all duration-300"
                     >
                         <Trophy className="w-4 h-4" /> Ghi nhận Trận đấu
                     </button>
 
                     <button
-                        onClick={() => setShowPriceModal(true)}
+                        onClick={() => {
+                            if (!user) {
+                                useAlertStore.getState().showAlert('Vui lòng đăng nhập để cấu hình giá!', 'Thông báo', 'info');
+                                return;
+                            }
+                            setShowPriceModal(true);
+                        }}
                         className="flex-1 min-w-max px-5 py-3 bg-card backdrop-blur-md border border-border rounded-2xl text-sm font-bold text-muted-foreground flex items-center justify-center gap-2 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 transition-all duration-300"
                     >
                         <Settings className="w-4 h-4" /> Cấu hình Giá & Thu tiền
