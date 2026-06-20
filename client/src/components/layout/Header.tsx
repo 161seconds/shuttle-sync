@@ -105,6 +105,7 @@ export default function Header() {
                         <>
                             <div className="relative flex items-center">
                                 <button
+                                    id="notification-bell-btn"
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                     className={`relative w-10 h-10 rounded-xl ${t.bg.elevated} flex items-center justify-center ${t.text.muted} hover:text-emerald-400 hover:bg-muted transition-all`}
                                 >

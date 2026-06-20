@@ -79,7 +79,7 @@ export default function FriendsConnectModal({ onClose, onAvatarClick, onMessageC
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={onClose}
-                className="absolute inset-0 bg-card backdrop-blur-sm"
+                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             />
             
             <motion.div
