@@ -20,7 +20,7 @@ export default function ChatPage() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null);
     const [loadingRooms, setLoadingRooms] = useState(true);
-    const [activeTab, setActiveTab] = useState<'group' | 'friend'>('group');
+    const [activeTab, setActiveTab] = useState<'group' | 'friend' | 'archive'>('group');
     const [showConnectModal, setShowConnectModal] = useState(false);
     const sentTimestampsRef = useRef<number[]>([]);
 
@@ -31,7 +31,9 @@ export default function ChatPage() {
         fetchMessages: fetchP2PMessages,
         addMessage: addP2PMessage,
         fetchPendingRequests,
-        fetchFriends
+        fetchFriends,
+        archiveConversation,
+        deleteConversation
     } = useSocialStore();
 
     // Fetch friend data
@@ -62,10 +64,20 @@ export default function ChatPage() {
             otherParticipant: otherParticipant,
             joinRequests: [],
             type: 'friend',
+            isArchived: conv.archivedBy?.includes(String(user?._id)),
+            archivedBy: conv.archivedBy || [],
         };
     });
 
-    const displayedRooms = activeTab === 'group' ? rooms : mappedFriendRooms;
+    const activeFriendRooms = mappedFriendRooms.filter(r => !r.isArchived);
+    const archivedRooms = mappedFriendRooms.filter(r => r.isArchived);
+
+    const displayedRooms = activeTab === 'group' 
+        ? rooms 
+        : activeTab === 'friend' 
+            ? activeFriendRooms 
+            : archivedRooms;
+            
     const activeRoom = displayedRooms.find(r => r.id === activeRoomId) || null;
 
     // Fetch user's group plays as chat rooms
@@ -354,6 +366,8 @@ export default function ChatPage() {
                                 useSocialStore.getState().setActiveConversation(null);
                             }}
                             onConnectClick={() => setShowConnectModal(true)}
+                            onArchive={archiveConversation}
+                            onDelete={deleteConversation}
                             className="h-full"
                         />
                     )}
@@ -381,6 +395,7 @@ export default function ChatPage() {
                             onAvatarClick={handleAvatarClick}
                             onDeleteChat={() => handleDeleteChat(activeRoom.id)}
                             onLeaveGroup={() => handleLeaveGroup(activeRoom.id)}
+                            onDeleteMessage={(msgId, type) => useSocialStore.getState().deleteMessage(msgId, type, activeRoom.id)}
                         />
                     ) : (
                         <div className="text-center text-muted-foreground m-auto">

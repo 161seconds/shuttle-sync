@@ -12,6 +12,8 @@ export interface IMessageDocument extends Document {
         senderName: string;
         content: string;
     };
+    deletedBy: mongoose.Types.ObjectId[];
+    isRecalled: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -29,6 +31,8 @@ const messageSchema = new Schema<IMessageDocument>(
             senderName: String,
             content: String,
         },
+        deletedBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+        isRecalled: { type: Boolean, default: false },
     },
     { timestamps: true }
 );

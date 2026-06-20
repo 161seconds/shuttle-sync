@@ -33,6 +33,8 @@ export interface ChatRoom {
     joinRequests?: any[];
     type?: 'group' | 'friend';
     otherParticipant?: any;
+    isArchived?: boolean;
+    archivedBy?: string[];
 }
 
 // 1. Mock Users (including the logged in user)

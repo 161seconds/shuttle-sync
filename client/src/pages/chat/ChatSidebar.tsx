@@ -1,4 +1,4 @@
-import { Search, ChevronLeft, Users, UserPlus } from 'lucide-react';
+import { Search, ChevronLeft, Users, UserPlus, Archive } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ChatRoomItem from './ChatRoomItem';
 import type { ChatRoom } from './mockData';
@@ -8,9 +8,11 @@ interface ChatSidebarProps {
     activeRoomId: string | null;
     onSelectRoom: (roomId: string) => void;
     onBack: () => void;
-    activeTab: 'group' | 'friend';
-    onTabChange: (tab: 'group' | 'friend') => void;
+    activeTab: 'group' | 'friend' | 'archive';
+    onTabChange: (tab: 'group' | 'friend' | 'archive') => void;
     onConnectClick: () => void;
+    onArchive?: (roomId: string, isArchived: boolean) => void;
+    onDelete?: (roomId: string) => void;
     className?: string;
 }
 
@@ -22,6 +24,8 @@ export default function ChatSidebar({
     activeTab, 
     onTabChange, 
     onConnectClick, 
+    onArchive,
+    onDelete,
     className = '' 
 }: ChatSidebarProps) {
     return (
@@ -53,6 +57,14 @@ export default function ChatSidebar({
                     <UserPlus className="w-4 h-4 mx-auto mb-1" />
                     Bạn bè
                     {activeTab === 'friend' && <motion.div layoutId="activeTabSidebar" className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500" />}
+                </button>
+                <button 
+                    className={`flex-1 py-3 text-sm font-semibold transition-all relative ${activeTab === 'archive' ? 'text-emerald-400' : 'text-muted-foreground hover:text-foreground'}`}
+                    onClick={() => onTabChange('archive')}
+                >
+                    <Archive className="w-4 h-4 mx-auto mb-1" />
+                    Lưu trữ
+                    {activeTab === 'archive' && <motion.div layoutId="activeTabSidebar" className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500" />}
                 </button>
             </div>
 
@@ -90,6 +102,9 @@ export default function ChatSidebar({
                                 room={room}
                                 isActive={room.id === activeRoomId}
                                 onClick={() => onSelectRoom(room.id)}
+                                onArchive={room.type === 'friend' ? onArchive : undefined}
+                                onDelete={room.type === 'friend' ? onDelete : undefined}
+                                isArchived={room.isArchived}
                             />
                         ))}
                     </div>

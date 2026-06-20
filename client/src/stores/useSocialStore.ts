@@ -22,6 +22,10 @@ interface SocialState {
     toggleDrawer: () => void;
     setDrawerOpen: (isOpen: boolean) => void;
     
+    archiveConversation: (conversationId: string, isArchived: boolean) => Promise<void>;
+    deleteConversation: (conversationId: string) => Promise<void>;
+    deleteMessage: (messageId: string, type: 'recall' | 'delete', conversationId: string) => Promise<void>;
+    
     // Socket handlers
     addMessage: (message: IMessage, currentUserId?: string) => void;
     updateOnlineUsers: (userId: string, isOnline: boolean) => void;
@@ -96,6 +100,57 @@ export const useSocialStore = create<SocialState>((set) => ({
     setActiveConversation: (id) => set({ activeConversationId: id }),
     toggleDrawer: () => set((state) => ({ isDrawerOpen: !state.isDrawerOpen })),
     setDrawerOpen: (isOpen) => set({ isDrawerOpen: isOpen }),
+
+    archiveConversation: async (conversationId, isArchived) => {
+        try {
+            await chatApi.archiveConversation(conversationId, isArchived);
+            set((state) => ({
+                conversations: state.conversations.map(c => {
+                    if (c._id === conversationId) {
+                        const archivedBy = new Set(c.archivedBy || []);
+                        // Placeholder for optimistic UI update (we need userId but we'll fetch again)
+                    }
+                    return c;
+                })
+            }));
+            // Refresh to get accurate data
+            await useSocialStore.getState().fetchConversations();
+        } catch (error) {
+            console.error('Failed to archive conversation', error);
+        }
+    },
+
+    deleteConversation: async (conversationId) => {
+        try {
+            await chatApi.deleteConversation(conversationId);
+            set((state) => ({
+                conversations: state.conversations.filter(c => c._id !== conversationId),
+                activeConversationId: state.activeConversationId === conversationId ? null : state.activeConversationId
+            }));
+        } catch (error) {
+            console.error('Failed to delete conversation', error);
+        }
+    },
+
+    deleteMessage: async (messageId, type, conversationId) => {
+        try {
+            await chatApi.deleteMessage(messageId, type);
+            // Re-fetch messages or optimistic update
+            set((state) => {
+                const currentMsgs = state.messages[conversationId] || [];
+                return {
+                    messages: {
+                        ...state.messages,
+                        [conversationId]: type === 'recall' 
+                            ? currentMsgs.map(m => m._id === messageId ? { ...m, isRecalled: true } : m)
+                            : currentMsgs.filter(m => m._id !== messageId)
+                    }
+                };
+            });
+        } catch (error) {
+            console.error('Failed to delete message', error);
+        }
+    },
 
     addMessage: (message, currentUserId?: string) => {
         set((state) => {

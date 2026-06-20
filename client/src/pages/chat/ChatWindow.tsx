@@ -19,6 +19,7 @@ interface ChatWindowProps {
     onAvatarClick?: (userId: string, fallbackName?: string, fallbackAvatar?: string) => void;
     onDeleteChat?: () => void;
     onLeaveGroup?: () => void;
+    onDeleteMessage?: (messageId: string, type: 'recall' | 'delete') => void;
 }
 
 export default function ChatWindow({
@@ -29,7 +30,8 @@ export default function ChatWindow({
     onSendMessage,
     onAvatarClick,
     onDeleteChat,
-    onLeaveGroup
+    onLeaveGroup,
+    onDeleteMessage
 }: ChatWindowProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
@@ -283,6 +285,7 @@ export default function ChatWindow({
                                     showAvatar={showAvatar}
                                     onAvatarClick={(id) => onAvatarClick?.(id, msg.senderName, msg.senderAvatar)}
                                     onReply={(message) => setReplyingTo(message)}
+                                    onDelete={(type) => onDeleteMessage?.(msg._id, type)}
                                 />
                             );
                         })}
