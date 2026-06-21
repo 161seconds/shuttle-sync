@@ -25,6 +25,7 @@ const SupportPage = lazy(() => import('./pages/SupportPage'));
 
 import { useOnboarding, OnboardingModal, GuidedTourOverlay } from './features/onboarding';
 import { ParticleField } from './components/onboarding/Shared';
+import DotField from './components/ui/DotField';
 import { theme as DS } from './utils/theme';
 import type { Court } from './types';
 import { authApi } from './api/auth.api';
@@ -62,8 +63,23 @@ function PremiumBackground() {
       <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-emerald-500/10 blur-[150px]" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-500/10 blur-[150px]" />
 
-      {/* 2. Micro-dot pattern sắc nét như web mẫu */}
-      <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(rgba(255,255,255,0.15)_1.5px,transparent_1.5px)] bg-[size:32px_32px] opacity-70 dark:opacity-100" />
+      {/* 2. Interactive DotField */}
+      <div className="absolute inset-0 opacity-70 dark:opacity-100 z-0">
+        <DotField
+          dotRadius={1.2}
+          dotSpacing={22}
+          bulgeStrength={20}
+          glowRadius={120}
+          sparkle={false}
+          waveAmplitude={0}
+          cursorRadius={120}
+          cursorForce={1}
+          bulgeOnly
+          gradientFrom="#10B981"
+          gradientTo="#3b82f6"
+          glowColor="#043819"
+        />
+      </div>
 
       {/* 3. Mouse Follower Glow (Ánh sáng mềm mại đi theo chuột) */}
       <div

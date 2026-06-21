@@ -18,7 +18,10 @@
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
-    /* ĐÃ XÓA MỤC "paths" VÀ "jsxImportSource" Ở ĐÂY */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "jsx": "react-jsx",
     /* Linting */
     "noUnusedLocals": true,
