@@ -61,7 +61,7 @@ export default function MapPage() {
     const radiusLayerRef = useRef<boolean>(false);
 
     const { theme } = useTheme();
-    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const isDark = theme === 'dark';
 
     const VIETMAP_KEY = import.meta.env.VITE_VIETMAP_KEY;
 
@@ -436,7 +436,7 @@ export default function MapPage() {
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-emerald-400 transition-colors" />
                     <input
                         type="text" placeholder="Tìm sân trên bản đồ..." value={searchVal} onChange={(e) => setSearchVal(e.target.value)}
-                        className="w-full h-14 pl-12 pr-14 rounded-2xl bg-card/70 backdrop-blur-2xl border border-border text-foreground placeholder:text-muted-foreground text-[15px] outline-none shadow-[0_8px_30px_rgb(0,0,0,0.5)] focus:border-emerald-500/50 focus:bg-card/90 transition-all"
+                        className="w-full h-14 pl-12 pr-14 rounded-2xl bg-card/70 backdrop-blur-2xl border border-border text-foreground placeholder:text-muted-foreground text-[15px] outline-none shadow-xl shadow-black/10 focus:border-emerald-500/50 focus:bg-card/90 transition-all"
                     />
                     {searchVal && (
                         <button onClick={() => { setSearchVal(''); fetchCourts({ lat: userLoc?.lat, lng: userLoc?.lng }); }} className="absolute right-14 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
@@ -478,7 +478,7 @@ export default function MapPage() {
                                 <div key={court._id} onClick={() => { setSelected(court); setShowRoute(false); setRouteInfo(null); if (coords) map.current?.flyTo({ center: coords, zoom: 15.5, pitch: 60, duration: 1500 }); }}
                                     className="min-w-65 md:min-w-70 snap-center shrink-0 bg-card/80 backdrop-blur-2xl rounded-2xl border border-border p-2.5 shadow-2xl cursor-pointer hover:border-emerald-500/40 hover:bg-surface/90 transition-all duration-300 group">
                                     <div className="flex gap-3 items-center">
-                                        <img src={mainPhoto(court)} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0 border border-border group-hover:scale-105 transition-transform duration-500" />
+                                        <img src={mainPhoto(court)} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0 group-hover:scale-105 transition-transform duration-500" />
                                         <div className="flex-1 min-w-0 py-0.5">
                                             <h3 className="font-bold text-[14px] text-foreground truncate group-hover:text-emerald-400 transition-colors">{court.name}</h3>
                                             <p className="text-[12px] text-muted-foreground truncate mt-0.5 flex items-center gap-1"><MapPin className="w-3 h-3" /> {court.address?.district}</p>
@@ -504,11 +504,11 @@ export default function MapPage() {
                         setRouteInfo(null);
                         clearRoute();
                         map.current?.flyTo({ pitch: 0, duration: 1000 }); // Đóng popup thì trả góc cam
-                    }} className="absolute top-6 right-6 w-8 h-8 rounded-full bg-card backdrop-blur-md border border-border flex items-center justify-center text-foreground/80 hover:text-foreground hover:bg-red-500 hover:border-red-500 hover:scale-110 transition-all z-10">
+                    }} className="absolute top-6 right-6 w-8 h-8 rounded-full bg-card backdrop-blur-md border border-border flex items-center justify-center text-foreground/80 hover:text-foreground hover:bg-foreground/5 hover:border-foreground/10 active:scale-95 transition-all z-10">
                         <X className="w-4 h-4 stroke-[2.5px]" />
                     </button>
                     <div className="flex flex-col gap-3">
-                        <img src={mainPhoto(selected)} alt="" className="w-full h-32 rounded-2xl object-cover shrink-0 border border-border" />
+                        <img src={mainPhoto(selected)} alt="" className="w-full h-32 rounded-2xl object-cover shrink-0" />
                         <div className="flex-1 min-w-0">
                             <h3 className="font-extrabold text-[16px] text-foreground leading-tight">{selected.name}</h3>
                             <p className="text-[12px] text-muted-foreground flex items-start gap-1.5 mt-1.5"><MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5 text-emerald-500" /><span className="line-clamp-2">{selected.address?.fullAddress || selected.address.district}</span></p>
@@ -525,7 +525,7 @@ export default function MapPage() {
                         </div>
                     )}
                     <div className="flex gap-2 mt-4">
-                        <button onClick={handleGetDirections} className={`flex-1 py-3 rounded-xl text-[14px] font-bold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] ${showRoute ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40' : 'bg-surface text-muted-foreground border border-border hover:bg-surface'}`}><Route className="w-4 h-4" /> Tìm đường</button>
+                        <button onClick={handleGetDirections} className={`flex-1 py-3 rounded-xl text-[14px] font-bold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] ${showRoute ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40' : 'bg-blue-500/5 text-blue-400/80 border border-blue-500/10 hover:bg-blue-500/10 hover:text-blue-400'}`}><Route className="w-4 h-4" /> Tìm đường</button>
                         <button onClick={() => setBookingCourt(selected)} className="flex-1 py-3 rounded-xl bg-linear-to-r from-emerald-500 to-emerald-400 text-black text-[14px] font-bold flex items-center justify-center gap-1.5 hover:opacity-90 transition-opacity shadow-glow-lg active:scale-[0.98]"><Calendar className="w-4 h-4" /> Đặt lịch</button>
                     </div>
                 </div>

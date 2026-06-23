@@ -25,12 +25,12 @@ const MOCK_UPCOMING_GROUPS = [
 ];
 
 const PROMO_STYLES: Record<string, { bg: string, icon: any }> = {
-    discount: { bg: 'from-emerald-500 to-teal-600', icon: Clock },
-    new_user: { bg: 'from-blue-500 to-indigo-600', icon: Gift },
-    event: { bg: 'from-orange-500 to-red-600', icon: Flame },
-    couple: { bg: 'from-pink-500 to-rose-600', icon: Heart },
-    loyalty: { bg: 'from-purple-500 to-fuchsia-600', icon: Crown },
-    default: { bg: 'from-gray-500 to-slate-600', icon: Zap }
+    discount: { bg: 'from-emerald-500/90 to-teal-600/90', icon: Clock },
+    new_user: { bg: 'from-cyan-500/90 to-blue-600/90', icon: Gift },
+    event: { bg: 'from-emerald-600/90 to-lime-600/90', icon: Flame },
+    couple: { bg: 'from-teal-500/90 to-cyan-600/90', icon: Heart },
+    loyalty: { bg: 'from-emerald-700/90 to-teal-800/90', icon: Crown },
+    default: { bg: 'from-emerald-600/90 to-teal-700/90', icon: Zap }
 };
 
 const PROMOTIONS = [
@@ -166,10 +166,10 @@ export default function Dashboard() {
                                 {user?.name || 'Lông thủ'}
                             </span>
                             <motion.div
-                                animate={{ rotate: [0, 15, -10, 0], y: [0, -5, 0] }}
-                                transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                                whileHover={{ rotate: 15, scale: 1.1 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                             >
-                                <EmojiIcon name="badminton" className="w-8 h-8 drop-shadow-md" />
+                                <EmojiIcon name="badminton" className="w-8 h-8 drop-shadow-md cursor-pointer" />
                             </motion.div>
                         </motion.h1>
 
@@ -246,22 +246,22 @@ export default function Dashboard() {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
                             transition={{ duration: 0.3 }}
-                            className="bg-background/60 rounded-xl p-3 border border-border flex gap-3 items-center backdrop-blur-sm absolute inset-0"
+                            className="rounded-xl p-2 flex gap-3 items-center absolute inset-0"
                         >
-                            <div className="w-12 h-12 rounded-xl bg-card flex items-center justify-center shrink-0 border border-border">
-                                <EmojiIcon name={MOCK_UPCOMING_GROUPS[currentGroupIndex].name.toLowerCase().includes('pickleball') ? 'pickleball' : 'badminton'} className="w-6 h-6 text-emerald-400" />
+                            <div className="w-12 h-12 flex items-center justify-center shrink-0">
+                                <EmojiIcon name={MOCK_UPCOMING_GROUPS[currentGroupIndex].name.toLowerCase().includes('pickleball') ? 'pickleball' : 'badminton'} className="w-10 h-10 drop-shadow-sm text-emerald-400" />
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h4 className="font-bold text-foreground text-sm truncate">{MOCK_UPCOMING_GROUPS[currentGroupIndex].location}</h4>
                                 <p className="text-xs font-semibold text-emerald-400 truncate mt-0.5">{MOCK_UPCOMING_GROUPS[currentGroupIndex].name} • {MOCK_UPCOMING_GROUPS[currentGroupIndex].level}</p>
-                                <p className="text-[10px] text-muted-foreground truncate mt-0.5 flex items-center gap-2">
+                                <p className="text-[10px] text-emerald-400/70 truncate mt-0.5 flex items-center gap-2">
                                     <span>⏰ {MOCK_UPCOMING_GROUPS[currentGroupIndex].time}</span>
                                     <span>💸 {MOCK_UPCOMING_GROUPS[currentGroupIndex].price}/người</span>
                                 </p>
                             </div>
                             <div className="flex flex-col items-end gap-1">
                                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400">{MOCK_UPCOMING_GROUPS[currentGroupIndex].slots}</span>
-                                <button onClick={() => setPage('groupplay')} className="px-3 py-1.5 bg-emerald-500 text-black text-xs font-bold rounded-lg hover:bg-emerald-400 active:scale-95 transition-all shadow-md shadow-emerald-500/20">
+                                <button onClick={() => setPage('groupplay')} className="px-3 py-1.5 bg-emerald-500 text-black text-xs font-bold rounded-lg hover:bg-emerald-400 active:scale-95 transition-transform shadow-md shadow-emerald-500/20">
                                     Vào
                                 </button>
                             </div>
@@ -316,7 +316,7 @@ export default function Dashboard() {
                             </div>
                         </div>
                         <div>
-                            <h4 className="font-bold text-sm text-foreground">Tuấn Anh <span className="text-muted-foreground font-normal">vừa tạo nhóm</span></h4>
+                            <h4 className="font-bold text-sm text-foreground">Tuấn Anh <span className="text-blue-400/70 font-normal">vừa tạo nhóm</span></h4>
                             <p className="text-xs font-semibold text-blue-400 mt-0.5">Sân Lê Đức • Tối nay 19:30</p>
                         </div>
                     </div>

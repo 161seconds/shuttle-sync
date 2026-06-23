@@ -142,7 +142,7 @@ export default function AdminDashboard() {
                 {/* ================= HÀNG 1: WELCOME & IDEAS ================= */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                    <div className="lg:col-span-2 rounded-2xl p-8 bg-linear-to-r from-[#064e3b] via-[#047857] to-[#10b981] flex flex-col justify-center relative overflow-hidden shadow-glow">
+                    <div className="lg:col-span-2 rounded-2xl p-8 bg-gradient-to-r from-emerald-900 via-emerald-700 to-emerald-500 flex flex-col justify-center relative overflow-hidden shadow-glow">
                         <div className="absolute -right-10 -top-20 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
                         <div className="absolute right-32 -bottom-20 w-48 h-48 bg-emerald-900 opacity-20 rounded-full blur-2xl"></div>
 
@@ -152,7 +152,7 @@ export default function AdminDashboard() {
                         </p>
                         <button
                             onClick={handleScrollToStats}
-                            className="bg-background text-emerald-400 font-bold px-6 py-2.5 rounded-lg w-max hover:bg-foreground hover:text-background transition-colors shadow-sm relative z-10 border border-emerald-800 active:scale-95"
+                            className="bg-background text-emerald-400 font-bold px-6 py-2.5 rounded-lg w-max hover:bg-emerald-50 hover:text-emerald-950 transition-colors shadow-sm relative z-10 border border-emerald-800 active:scale-95"
                         >
                             Khám phá ngay
                         </button>
@@ -163,10 +163,10 @@ export default function AdminDashboard() {
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-sm font-semibold text-muted-foreground">Gợi ý cho bạn ({currentIdea + 1}/{IDEAS.length})</h3>
                             <div className="flex gap-2">
-                                <button onClick={prevIdea} className="w-7 h-7 rounded bg-surface text-muted-foreground flex items-center justify-center hover:bg-surface hover:text-foreground transition-colors active:scale-90">
+                                <button onClick={prevIdea} className="w-7 h-7 rounded bg-emerald-500/10 text-emerald-100/70 flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-50 transition-colors active:scale-90">
                                     <ChevronLeft className="w-4 h-4" />
                                 </button>
-                                <button onClick={nextIdea} className="w-7 h-7 rounded bg-surface text-muted-foreground flex items-center justify-center hover:bg-surface hover:text-foreground transition-colors active:scale-90">
+                                <button onClick={nextIdea} className="w-7 h-7 rounded bg-emerald-500/10 text-emerald-100/70 flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-50 transition-colors active:scale-90">
                                     <ChevronRight className="w-4 h-4" />
                                 </button>
                             </div>
@@ -408,7 +408,7 @@ function TableRow({ id, amount, type, date, status, color, onView }: any) {
         emerald: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
     };
     return (
-        <tr className="hover:bg-muted transition-colors">
+        <tr className="hover:bg-emerald-500/5 transition-colors">
             <td className="py-4 text-muted-foreground font-medium">{id}</td>
             <td className="py-4 text-muted-foreground">{type}</td>
             <td className="py-4 text-emerald-400 font-bold">{amount}</td>
@@ -417,7 +417,7 @@ function TableRow({ id, amount, type, date, status, color, onView }: any) {
                 <span className={`px-2.5 py-1 rounded text-[10px] font-bold tracking-wide uppercase ${bgMap[color]}`}>{status}</span>
             </td>
             <td className="py-4 text-right">
-                <button onClick={onView} className="px-3.5 py-1.5 rounded-lg bg-surface text-muted-foreground text-xs font-bold hover:bg-emerald-500/20 hover:text-emerald-400 transition-colors active:scale-95">
+                <button onClick={onView} className="px-3.5 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-100/70 text-xs font-bold hover:bg-emerald-500/20 hover:text-emerald-400 transition-colors active:scale-95">
                     Xem
                 </button>
             </td>
@@ -444,8 +444,8 @@ function TopCourt({ name, bookings, revenue, status, statusColor, onClick }: any
 }
 function ModalWrapper({ title, onClose, children, maxWidth = "max-w-2xl" }: { title: string, onClose: () => void, children: React.ReactNode, maxWidth?: string }) {
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-card backdrop-blur-sm animate-in fade-in duration-200">
-            <div className={`w-full ${maxWidth} bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]`}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className={`w-full ${maxWidth} bg-card border border-white/5 rounded-2xl shadow-2xl shadow-emerald-900/20 overflow-hidden flex flex-col max-h-[90vh]`}>
                 <div className="flex items-center justify-between p-5 border-b border-border">
                     <h2 className="text-lg font-bold text-foreground">{title}</h2>
                     <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface text-muted-foreground hover:text-foreground transition-colors">
@@ -481,11 +481,11 @@ function MarketingCampaignModal({ data, onClose }: { data: any, onClose: () => v
                 </div>
 
                 <div className="flex justify-end gap-3 pt-4 border-t border-border">
-                    <button onClick={onClose} className="px-5 py-2.5 rounded-xl font-semibold text-muted-foreground hover:text-foreground hover:bg-surface transition-colors">Hủy</button>
+                    <button onClick={onClose} className="px-5 py-2.5 rounded-xl font-semibold text-emerald-100/70 hover:text-emerald-50 hover:bg-emerald-500/10 transition-colors">Hủy</button>
                     <button onClick={() => {
                         useAlertStore.getState().showAlert('Đã khởi tạo chiến dịch thành công!', 'Thành công', 'success');
                         onClose();
-                    }} className="px-5 py-2.5 rounded-xl font-bold bg-emerald-500 text-foreground hover:bg-emerald-600 transition-colors">Kích hoạt ngay</button>
+                    }} className="px-5 py-2.5 rounded-xl font-bold bg-emerald-500 text-emerald-950 hover:bg-emerald-400 transition-colors">Kích hoạt ngay</button>
                 </div>
             </div>
         </ModalWrapper>
@@ -498,29 +498,29 @@ function BookingDetailModal({ data, onClose }: { data: any, onClose: () => void 
         <ModalWrapper title={"Chi tiết đơn đặt sân #" + data.bookingCode} onClose={onClose}>
             <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-xl bg-background border border-border">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Khách hàng</p>
+                    <div className="p-4 rounded-xl bg-white/5">
+                        <p className="text-xs font-semibold text-emerald-100/50 uppercase mb-1">Khách hàng</p>
                         <div className="flex items-center gap-2">
                             <UserIcon className="w-4 h-4 text-emerald-500" />
                             <p className="font-bold text-foreground">{data.userId?.displayName || 'Khách vãng lai'}</p>
                         </div>
                     </div>
-                    <div className="p-4 rounded-xl bg-background border border-border">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Số tiền</p>
+                    <div className="p-4 rounded-xl bg-white/5">
+                        <p className="text-xs font-semibold text-emerald-100/50 uppercase mb-1">Số tiền</p>
                         <div className="flex items-center gap-2">
                             <DollarSign className="w-4 h-4 text-emerald-500" />
                             <p className="font-bold text-emerald-400">{data.finalAmount?.toLocaleString()}đ</p>
                         </div>
                     </div>
-                    <div className="p-4 rounded-xl bg-background border border-border">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Sân / Môn</p>
+                    <div className="p-4 rounded-xl bg-white/5">
+                        <p className="text-xs font-semibold text-emerald-100/50 uppercase mb-1">Sân / Môn</p>
                         <div className="flex items-center gap-2">
                             <MapPin className="w-4 h-4 text-emerald-500" />
                             <p className="font-bold text-foreground">{data.courtId?.name} ({data.courtId?.sportType})</p>
                         </div>
                     </div>
-                    <div className="p-4 rounded-xl bg-background border border-border">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Ngày chơi</p>
+                    <div className="p-4 rounded-xl bg-white/5">
+                        <p className="text-xs font-semibold text-emerald-100/50 uppercase mb-1">Ngày chơi</p>
                         <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-emerald-500" />
                             <p className="font-bold text-foreground">{dayjs(data.date).format('DD/MM/YYYY')}</p>
@@ -599,7 +599,7 @@ function AllBookingsModal({ onClose }: { onClose: () => void }) {
                         </thead>
                         <tbody className="divide-y divide-border">
                             {bookings.map((booking: any) => (
-                                <tr key={booking._id} className="hover:bg-muted transition-colors">
+                                <tr key={booking._id} className="hover:bg-emerald-500/5 transition-colors">
                                     <td className="py-4 text-muted-foreground font-medium">#{booking.bookingCode}</td>
                                     <td className="py-4 text-muted-foreground">{booking.userId?.displayName || 'N/A'}</td>
                                     <td className="py-4 text-emerald-400 font-bold">{booking.finalAmount?.toLocaleString()}đ</td>

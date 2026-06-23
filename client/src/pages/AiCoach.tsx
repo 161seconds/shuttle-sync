@@ -122,7 +122,7 @@ export default function AiCoach() {
             {/* Header */}
             <div className="relative z-20 flex items-center justify-between px-5 py-5.5 bg-background/40 backdrop-blur-2xl border-b border-border/50 shadow-sm">
                 <div className="flex items-center gap-3">
-                    <button onClick={() => navigate(-1)} className="p-2 -ml-2 mr-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                    <button onClick={() => navigate(-1)} className="p-2 -ml-2 mr-1 rounded-full text-emerald-100/70 hover:text-emerald-50 hover:bg-emerald-500/10 transition-colors">
                         <ArrowLeft size={20} />
                     </button>
                     <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 shadow-glow">
@@ -220,7 +220,7 @@ export default function AiCoach() {
                                     <div className="w-1.5 h-1.5 bg-emerald-400/70 rounded-full animate-bounce" />
                                     <div className="w-1.5 h-1.5 bg-emerald-400/70 rounded-full animate-bounce [animation-delay:150ms]" />
                                     <div className="w-1.5 h-1.5 bg-emerald-400/70 rounded-full animate-bounce [animation-delay:300ms]" />
-                                    <span className="text-[10px] text-muted-foreground/60 ml-2 italic font-medium">Coach đang phân tích...</span>
+                                    <span className="text-[10px] text-emerald-100/60 ml-2 italic font-medium">Coach đang phân tích...</span>
                                 </div>
                             </div>
                         </div>
@@ -240,16 +240,16 @@ export default function AiCoach() {
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyDown={handleKeyDown}
                             placeholder="Nhập câu hỏi về cầu lông..."
-                            className="w-full bg-card/80 backdrop-blur-xl border border-border rounded-2xl py-4 pl-5 pr-14 text-sm text-foreground focus:outline-none focus:border-emerald-500/50 focus:bg-card focus:shadow-glow transition-all placeholder:text-muted-foreground shadow-2xl"
+                            className="w-full bg-card/80 backdrop-blur-xl border border-border rounded-2xl py-4 pl-5 pr-14 text-sm text-foreground focus:outline-none focus:border-emerald-500/50 focus:bg-card focus:shadow-glow transition-all placeholder:text-emerald-100/50 shadow-lg shadow-emerald-500/10"
                         />
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground pointer-events-none">
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-emerald-100/50 pointer-events-none">
                             {inputValue.length}/100
                         </div>
                     </div>
                     <button
                         onClick={() => handleSendMessage()}
                         disabled={!inputValue.trim() || isTyping}
-                        className="p-4 transition-all rounded-2xl bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed border border-emerald-500/30 hover:border-emerald-400 shadow-glow hover:shadow-glow-lg"
+                        className="p-4 transition-all rounded-2xl bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-emerald-950 disabled:opacity-30 disabled:cursor-not-allowed border border-emerald-500/30 hover:border-emerald-400 shadow-glow hover:shadow-glow-lg"
                     >
                         <Send size={18} />
                     </button>
