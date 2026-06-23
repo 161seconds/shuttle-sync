@@ -5,10 +5,9 @@ import { Zap } from 'lucide-react';
 interface SplashScreenProps {
   onComplete: () => void;
   isLoading?: boolean;
-  progressValue?: number;
 }
 
-export default function SplashScreen({ onComplete, isLoading = true, progressValue }: SplashScreenProps) {
+export default function SplashScreen({ onComplete, isLoading = true }: SplashScreenProps) {
   const [fakeProgress, setFakeProgress] = useState(0);
   const startTime = useRef(Date.now());
   const onCompleteRef = useRef(onComplete);
@@ -18,25 +17,19 @@ export default function SplashScreen({ onComplete, isLoading = true, progressVal
     onCompleteRef.current = onComplete;
   }, [onComplete]);
 
-  const progress = progressValue !== undefined ? progressValue : fakeProgress;
+  const progress = fakeProgress;
 
   useEffect(() => {
-    if (progressValue !== undefined) {
-      if (progressValue >= 100 && !isLoading) {
-        onCompleteRef.current();
-      }
-      return;
-    }
 
     let animationFrame: number;
-    const minSplashTime = 24000;
-    
+    const minSplashTime = 30000;
+
     const updateProgress = () => {
       const elapsed = Date.now() - startTime.current;
       const newProgress = Math.min(100, (elapsed / minSplashTime) * 100);
-      
+
       setFakeProgress(newProgress);
-      
+
       if (newProgress < 100) {
         animationFrame = requestAnimationFrame(updateProgress);
       } else {
@@ -45,11 +38,11 @@ export default function SplashScreen({ onComplete, isLoading = true, progressVal
         }
       }
     };
-    
+
     animationFrame = requestAnimationFrame(updateProgress);
-    
+
     return () => cancelAnimationFrame(animationFrame);
-  }, [isLoading, progressValue]);
+  }, [isLoading]);
 
   return (
     <motion.div
@@ -142,11 +135,28 @@ export default function SplashScreen({ onComplete, isLoading = true, progressVal
             <span>Đang tải dữ liệu</span>
             <span>{Math.floor(progress)}%</span>
           </div>
-          <div className="w-full h-1 bg-card rounded-full overflow-hidden border border-border relative">
+          <div className="w-full h-1.5 bg-card/40 rounded-full border border-emerald-500/20 relative backdrop-blur-md shadow-[inset_0_1px_3px_rgba(0,0,0,0.5)]">
+            {/* Main colored track */}
             <div
-              className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-emerald-500 to-cyan-400 shadow-glow-lg"
+              className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-emerald-500 via-emerald-400 to-cyan-400 overflow-hidden rounded-full"
               style={{ width: `${progress}%` }}
-            />
+            >
+              {/* Continuous shimmer effect inside the bar */}
+              <motion.div
+                animate={{ x: ["-100%", "200%"] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent skew-x-[-20deg]"
+              />
+            </div>
+            
+            {/* Glowing tip at the end of the progress */}
+            <div 
+              className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-[0_0_15px_4px_rgba(34,211,238,0.9)] z-10 transition-opacity duration-300 flex items-center justify-center"
+              style={{ left: `calc(${progress}% - 6px)`, opacity: progress > 1 ? 1 : 0 }}
+            >
+              <div className="absolute inset-0 rounded-full bg-cyan-300 animate-ping opacity-80" />
+              <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+            </div>
           </div>
         </motion.div>
       </div>
