@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Star, Flame, ChevronRight, ChevronLeft, Search, Users, Zap, Clock, Activity } from 'lucide-react';
+import { MapPin, Star, Flame, ChevronRight, ChevronLeft, Search, Users, Zap, Clock, Activity, Gift, Heart, Crown } from 'lucide-react';
 import { theme as t, formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
 import { courtApi } from '../api/court.api';
@@ -24,12 +24,21 @@ const MOCK_UPCOMING_GROUPS = [
     { id: 13, name: "Nhóm Khá Giỏi - Kèo Đơn", level: "Giỏi", time: "19:30 - 21:30", location: "Sân Lan Anh", slots: "1/2", price: "90K" },
 ];
 
+const PROMO_STYLES: Record<string, { bg: string, icon: any }> = {
+    discount: { bg: 'from-emerald-500 to-teal-600', icon: Clock },
+    new_user: { bg: 'from-blue-500 to-indigo-600', icon: Gift },
+    event: { bg: 'from-orange-500 to-red-600', icon: Flame },
+    couple: { bg: 'from-pink-500 to-rose-600', icon: Heart },
+    loyalty: { bg: 'from-purple-500 to-fuchsia-600', icon: Crown },
+    default: { bg: 'from-gray-500 to-slate-600', icon: Zap }
+};
+
 const PROMOTIONS = [
-    { id: 1, title: 'Giảm 20% khung giờ vàng', desc: 'Áp dụng cho các sân đặt từ 9h-15h', code: 'VANG20', bg: 'from-emerald-500 to-teal-600' },
-    { id: 2, title: 'Bạn mới giảm 50K', desc: 'Cho lần đặt sân đầu tiên trên ứng dụng', code: 'NEWBIE', bg: 'from-blue-500 to-indigo-600' },
-    { id: 3, title: 'Cuối tuần bùng nổ', desc: 'Hoàn tiền 10% khi đặt sân Thứ 7, CN', code: 'WEEKEND', bg: 'from-orange-500 to-red-600' },
-    { id: 4, title: 'Cặp đôi hoàn hảo', desc: 'Giảm 15% khi đặt sân chơi đôi nam nữ', code: 'COUPLE15', bg: 'from-pink-500 to-rose-600' },
-    { id: 5, title: 'Thẻ thành viên', desc: 'Tặng 1h chơi miễn phí khi tích đủ 10 điểm', code: 'LOYALTY', bg: 'from-purple-500 to-fuchsia-600' }
+    { id: 1, title: 'Giảm 20% khung giờ vàng', desc: 'Áp dụng cho các sân đặt từ 9h-15h', code: 'VANG20', category: 'discount' },
+    { id: 2, title: 'Bạn mới giảm 50K', desc: 'Cho lần đặt sân đầu tiên trên ứng dụng', code: 'NEWBIE', category: 'new_user' },
+    { id: 3, title: 'Cuối tuần bùng nổ', desc: 'Hoàn tiền 10% khi đặt sân Thứ 7, CN', code: 'WEEKEND', category: 'event' },
+    { id: 4, title: 'Cặp đôi hoàn hảo', desc: 'Giảm 15% khi đặt sân chơi đôi nam nữ', code: 'COUPLE15', category: 'couple' },
+    { id: 5, title: 'Thẻ thành viên', desc: 'Tặng 1h chơi miễn phí khi tích đủ 10 điểm', code: 'LOYALTY', category: 'loyalty' }
 ];
 
 export default function Dashboard() {
@@ -393,10 +402,28 @@ export default function Dashboard() {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
                             transition={{ duration: 0.3 }}
-                            className={`absolute inset-0 bg-gradient-to-r ${PROMOTIONS[currentPromoIndex].bg} p-5 flex flex-col justify-between`}
+                            className={`absolute inset-0 bg-gradient-to-r ${PROMO_STYLES[PROMOTIONS[currentPromoIndex].category]?.bg || PROMO_STYLES.default.bg} p-5 flex flex-col justify-between`}
                         >
+                            {/* Abstract Middle Elements */}
+                            <div className="absolute inset-0 opacity-15 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '16px 16px', WebkitMaskImage: 'linear-gradient(to right, transparent 20%, black 50%, transparent 80%)' }}></div>
+                            <Star className="absolute left-[45%] top-6 text-white opacity-40 animate-[spin_4s_linear_infinite] pointer-events-none" size={16} />
+                            <Star className="absolute left-[60%] bottom-8 text-white opacity-20 animate-[spin_3s_linear_infinite_reverse] pointer-events-none" size={24} />
+                            <div className="absolute left-[52%] top-[45%] w-1.5 h-1.5 rounded-full bg-white opacity-50 animate-ping pointer-events-none"></div>
+
                             <div className="absolute right-0 top-0 w-48 h-48 bg-white/20 rounded-full blur-2xl translate-x-1/3 -translate-y-1/3"></div>
-                            <div className="relative z-10 w-[85%] flex flex-col h-full">
+                            
+                            {/* Decorative Icon */}
+                            {(() => {
+                                const promo = PROMOTIONS[currentPromoIndex];
+                                const PromoIcon = PROMO_STYLES[promo.category]?.icon || PROMO_STYLES.default.icon;
+                                return (
+                                    <div className="absolute -right-6 top-1/2 -translate-y-1/2 opacity-[0.15] pointer-events-none">
+                                        <PromoIcon size={160} strokeWidth={1.5} className="text-white transform -rotate-12" />
+                                    </div>
+                                );
+                            })()}
+
+                            <div className="relative z-10 w-[70%] flex flex-col h-full">
                                 <div>
                                     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white/20 text-white text-[10px] font-bold uppercase tracking-wider mb-2">
                                         Mã: {PROMOTIONS[currentPromoIndex].code}

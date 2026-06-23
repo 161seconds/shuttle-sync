@@ -4,33 +4,23 @@ import { theme as DS } from '../utils/theme';
 import { useAppStore } from '../store';
 import { authApi } from '../api/auth.api';
 import { EmojiIcon } from '../components/EmojiIcon';
-import DotField from '../components/ui/DotField';
 import { motion } from 'framer-motion';
 
 function FloatingCards() {
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {/* Premium Interactive Grid Background */}
-            <div className="absolute inset-0 opacity-40 dark:opacity-100 z-0">
-                <DotField
-                    dotRadius={1.2}
-                    dotSpacing={22}
-                    bulgeStrength={20}
-                    glowRadius={120}
-                    sparkle={false}
-                    waveAmplitude={0}
-                    cursorRadius={120}
-                    cursorForce={1}
-                    bulgeOnly
-                    gradientFrom="#10B981"
-                    gradientTo="#3b82f6"
-                    glowColor="transparent"
-                />
-            </div>
+            {/* Animated Mesh Gradient / Glowing Orbs */}
+            <div className="absolute top-[-30%] left-[-20%] w-[800px] h-[800px] rounded-full bg-emerald-500/15 blur-[120px] animate-[float_10s_ease-in-out_infinite]" />
+            <div className="absolute bottom-[-30%] right-[-20%] w-[800px] h-[800px] rounded-full bg-blue-500/15 blur-[120px] animate-[float_12s_ease-in-out_infinite_reverse]" />
+            <div className="absolute top-[20%] left-[40%] w-[600px] h-[600px] rounded-full bg-teal-400/10 blur-[120px] animate-[float_15s_ease-in-out_infinite]" />
 
-            {/* Radial Glows for depth */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-500/10 blur-[120px]" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-500/10 blur-[120px]" />
+            {/* Giant Subtle Background Icons */}
+            <div className="absolute top-[-15%] -left-[20%] opacity-[0.04] dark:opacity-[0.02] animate-[spin_120s_linear_infinite] pointer-events-none">
+                <EmojiIcon name="badminton" className="w-[800px] h-[800px] grayscale" />
+            </div>
+            <div className="absolute -bottom-[25%] -right-[20%] opacity-[0.04] dark:opacity-[0.02] animate-[spin_90s_linear_infinite_reverse] pointer-events-none">
+                <EmojiIcon name="pickleball" className="w-[600px] h-[600px] grayscale" />
+            </div>
 
             {/* Background elements with parallax */}
             <div
