@@ -65,7 +65,7 @@ export default function ProfilePage() {
                         <UserCircle className="w-14 h-14 text-emerald-500/80" />
                     </div>
                     <h2 className="text-2xl font-black text-foreground mb-3">Chưa đăng nhập</h2>
-                    <p className="text-muted-foreground text-[14px] leading-relaxed mb-10 px-2">
+                    <p className="text-emerald-100/70 text-[14px] leading-relaxed mb-10 px-2">
                         Vui lòng đăng nhập để xem thông tin cá nhân và quản lý lịch đặt sân.
                     </p>
                     <button onClick={() => setPage('login')} className="w-full flex items-center justify-center gap-2 bg-linear-to-r from-emerald-500 to-emerald-400 hover:opacity-90 text-black font-bold py-4 px-6 rounded-2xl transition-all shadow-glow-lg active:scale-[0.98]">
@@ -108,7 +108,7 @@ export default function ProfilePage() {
                     <div className="absolute bottom-[-50%] right-[-20%] w-[150%] h-[150%] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-teal-500/10 via-transparent to-transparent blur-3xl z-0"></div>
 
                     {/* Glassmorphism Content */}
-                    <div className={`relative z-10 ${t.bg.card} bg-opacity-60 backdrop-blur-xl border border-border p-8 text-center`}>
+                    <div className={`relative z-10 bg-white/5 backdrop-blur-xl border border-white/5 p-8 text-center`}>
                         {isSyncing && (
                             <div className="absolute top-4 right-4 w-4 h-4 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin" />
                         )}
@@ -130,7 +130,7 @@ export default function ProfilePage() {
 
                         {/* User Info */}
                         <h2 className={`text-2xl font-black text-foreground tracking-tight`}>{user.displayName || 'Vợt thủ'}</h2>
-                        <p className={`text-sm ${t.text.muted} mt-1 font-medium`}>{user.email}</p>
+                        <p className={`text-sm text-emerald-100/70 mt-1 font-medium`}>{user.email}</p>
 
                         {/* Floating Stats */}
                         <div className="grid grid-cols-2 gap-4 mt-8">
@@ -140,9 +140,9 @@ export default function ProfilePage() {
                                 { label: 'Nhóm tham gia', value: user.stats?.totalGroupsJoined || '0', color: 'text-blue-400', bg: 'bg-blue-500/5' },
                                 { label: 'Điểm đánh giá', value: user.stats?.rating?.toFixed(1) || '0.0', color: 'text-purple-400', bg: 'bg-purple-500/5' },
                             ].map(s => (
-                                <div key={s.label} className={`py-4 rounded-2xl ${s.bg} bg-opacity-50 backdrop-blur-md border border-border flex flex-col items-center justify-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300`}>
+                                <div key={s.label} className={`py-4 rounded-2xl ${s.bg} bg-opacity-50 backdrop-blur-md border border-white/5 flex flex-col items-center justify-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300`}>
                                     <div className={`text-2xl font-black ${s.color} drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]`}>{s.value}</div>
-                                    <div className={`text-[11px] ${t.text.muted} mt-1 font-bold uppercase tracking-wider`}>{s.label}</div>
+                                    <div className={`text-[11px] text-emerald-100/50 mt-1 font-bold uppercase tracking-wider`}>{s.label}</div>
                                 </div>
                             ))}
                         </div>
@@ -153,11 +153,11 @@ export default function ProfilePage() {
                 <div className="space-y-2.5">
                     {MENU.map((item) => (
                         <button key={item.label} onClick={() => setSubPage(item.action)}
-                            className={`w-full flex items-center gap-4 px-5 py-4 rounded-[20px] bg-card border border-border hover:bg-muted hover:border-emerald-500/30 hover:shadow-glow transition-all duration-300 group`}>
-                            <div className={`w-10 h-10 rounded-xl bg-muted flex items-center justify-center ${t.text.muted} group-hover:text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/10 transition-all duration-300`}>
+                            className={`w-full flex items-center gap-4 px-5 py-4 rounded-[20px] bg-white/5 border border-white/5 hover:bg-emerald-500/10 hover:border-emerald-500/30 hover:shadow-glow transition-all duration-300 group`}>
+                            <div className={`w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-emerald-100/70 group-hover:text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/10 transition-all duration-300`}>
                                 {item.icon}
                             </div>
-                            <span className={`flex-1 text-left text-[15px] font-bold text-muted-foreground group-hover:text-foreground transition-colors duration-300`}>
+                            <span className={`flex-1 text-left text-[15px] font-bold text-emerald-100/70 group-hover:text-emerald-50 transition-colors duration-300`}>
                                 {item.label}
                             </span>
                             {item.badge != null && item.badge > 0 && (
@@ -165,7 +165,7 @@ export default function ProfilePage() {
                                     {item.badge}
                                 </span>
                             )}
-                            <ChevronRight className={`w-5 h-5 text-muted-foreground group-hover:text-emerald-500 group-hover:translate-x-1 transition-all duration-300`} />
+                            <ChevronRight className={`w-5 h-5 text-emerald-100/50 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all duration-300`} />
                         </button>
                     ))}
                 </div>

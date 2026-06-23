@@ -66,14 +66,14 @@ export default function SettingsPage({ onBack }: Props) {
                 {/* Bảo mật */}
                 <Section title="Bảo mật">
                     <button onClick={() => setShowChangePw(!showChangePw)}
-                        className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl bg-card border border-border hover:bg-muted hover:border-border transition-all group`}>
-                        <Lock className={`w-5 h-5 text-muted-foreground group-hover:text-emerald-400 transition-colors`} />
-                        <span className={`flex-1 text-left text-[15px] font-bold text-muted-foreground group-hover:text-foreground transition-colors`}>Đổi mật khẩu</span>
-                        <ChevronRight className={`w-5 h-5 text-muted-foreground transition-transform duration-300 ${showChangePw ? 'rotate-90 text-emerald-400' : ''}`} />
+                        className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-all group`}>
+                        <Lock className={`w-5 h-5 text-emerald-100/70 group-hover:text-emerald-400 transition-colors`} />
+                        <span className={`flex-1 text-left text-[15px] font-bold text-emerald-100/70 group-hover:text-emerald-50 transition-colors`}>Đổi mật khẩu</span>
+                        <ChevronRight className={`w-5 h-5 text-emerald-100/50 transition-transform duration-300 ${showChangePw ? 'rotate-90 text-emerald-400' : ''}`} />
                     </button>
 
                     {showChangePw && (
-                        <div className={`mt-2 p-5 rounded-2xl bg-card border border-border space-y-4`}>
+                        <div className={`mt-2 p-5 rounded-2xl bg-transparent border border-white/10 space-y-4`}>
                             <PwInput placeholder="Mật khẩu hiện tại" value={pwForm.current}
                                 onChange={v => setPwForm(p => ({ ...p, current: v }))} />
                             <PwInput placeholder="Mật khẩu mới (tối thiểu 6 ký tự)" value={pwForm.newPw}
@@ -98,7 +98,7 @@ export default function SettingsPage({ onBack }: Props) {
                         <Trash2 className="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform" />
                         <span className="text-[15px] font-black text-red-500">Xóa tài khoản</span>
                     </button>
-                    <p className={`text-[11px] font-bold text-muted-foreground mt-2 ml-2 uppercase tracking-widest`}>Hành động này không thể hoàn tác</p>
+                    <p className={`text-[11px] font-bold text-emerald-100/50 mt-2 ml-2 uppercase tracking-widest`}>Hành động này không thể hoàn tác</p>
                 </Section>
             </div>
         </div>
@@ -108,7 +108,7 @@ export default function SettingsPage({ onBack }: Props) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
     return (
         <div>
-            <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-3 ml-2">{title}</h3>
+            <h3 className="text-[11px] font-bold text-emerald-100/50 uppercase tracking-widest mb-3 ml-2">{title}</h3>
             <div className="space-y-3">{children}</div>
         </div>
     );
@@ -118,14 +118,14 @@ function ToggleRow({ icon, label, checked, onChange }: {
     icon: React.ReactNode; label: string; checked: boolean; onChange: (v: boolean) => void;
 }) {
     return (
-        <div className={`flex items-center gap-4 px-5 py-4 rounded-2xl bg-card border border-border`}>
-            <span className="text-muted-foreground">{icon}</span>
-            <span className="flex-1 text-[15px] font-bold text-muted-foreground">{label}</span>
+        <div className={`flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/5 border border-white/5`}>
+            <span className="text-emerald-100/70">{icon}</span>
+            <span className="flex-1 text-[15px] font-bold text-emerald-100/70">{label}</span>
 
             {/* iOS Neon Toggle Switch */}
             <button
                 onClick={() => onChange(!checked)}
-                className={`relative inline-flex h-[28px] w-[50px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none ${checked ? 'bg-emerald-500 shadow-glow-lg' : 'bg-card'}`}
+                className={`relative inline-flex h-[28px] w-[50px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none ${checked ? 'bg-emerald-500 shadow-glow-lg' : 'bg-white/10'}`}
             >
                 <span
                     className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-300 ease-in-out ${checked ? 'translate-x-[22px]' : 'translate-x-0'}`}
@@ -141,6 +141,6 @@ function PwInput({ placeholder, value, onChange }: { placeholder: string; value:
     return (
         <input type="password" placeholder={placeholder} value={value}
             onChange={e => onChange((e.target as HTMLInputElement).value)}
-            className="w-full h-12 px-5 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground text-[15px] font-medium outline-none focus:border-emerald-500/50 focus:bg-card focus:shadow-glow transition-all" />
+            className="w-full h-12 px-5 rounded-xl bg-white/5 border border-white/5 text-foreground placeholder:text-emerald-100/50 text-[15px] font-medium outline-none focus:border-emerald-500/50 focus:bg-white/10 focus:shadow-glow transition-all" />
     );
 }
