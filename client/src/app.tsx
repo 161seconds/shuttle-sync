@@ -113,7 +113,7 @@ function Shell() {
       try {
         const res: any = await Promise.race([
           authApi.getMe(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 25000))
         ]);
         const userData = res.data?.data?.user || res.data?.data || res.data?.user || res.data;
         setUser(userData);

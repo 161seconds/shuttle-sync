@@ -18,51 +18,27 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
   }, [onComplete]);
 
   useEffect(() => {
-    let interval: any;
-    let timeout: any;
-
-    if (isLoading) {
-      // Đang tải: bò siêu chậm đến 85% để người dùng không có cảm giác bị "nhảy"
-      interval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 85) return prev;
-          return prev + Math.max(0.1, (85 - prev) * 0.015);
-        });
-      }, 50);
-    } else {
-      // Đã tải xong: mượt mà chạy từ % hiện tại lên 100% trong khoảng thời gian còn lại
+    let animationFrame: number;
+    const minSplashTime = 24000; // 24 seconds total
+    
+    const updateProgress = () => {
       const elapsed = Date.now() - startTime.current;
-      const minSplashTime = 2000; // Tổng thời gian splash tối thiểu 2s
-      const remainingTime = Math.max(1000, minSplashTime - elapsed); // Ít nhất 1s để chạy mượt lên 100%
+      const newProgress = Math.min(100, (elapsed / minSplashTime) * 100);
       
-      const updateInterval = 20;
-      const steps = remainingTime / updateInterval;
-      let currentStep = 0;
-      const startProgress = progress;
-      const diff = 100 - startProgress;
-
-      interval = setInterval(() => {
-        currentStep++;
-        if (currentStep >= steps) {
-          clearInterval(interval);
-          setProgress(100);
-        } else {
-          // Hiệu ứng Ease-Out: lúc đầu chạy nhanh, khúc cuối chậm dần cực mượt
-          const ratio = currentStep / steps;
-          const easeOutCubic = 1 - Math.pow(1 - ratio, 3);
-          setProgress(startProgress + (diff * easeOutCubic));
+      setProgress(newProgress);
+      
+      if (newProgress < 100) {
+        animationFrame = requestAnimationFrame(updateProgress);
+      } else {
+        if (!isLoading) {
+          onCompleteRef.current();
         }
-      }, updateInterval);
-
-      timeout = setTimeout(() => {
-        onCompleteRef.current();
-      }, remainingTime + 200); // Thêm 200ms để người dùng kịp nhìn thấy số 100%
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-      if (timeout) clearTimeout(timeout);
+      }
     };
+    
+    animationFrame = requestAnimationFrame(updateProgress);
+    
+    return () => cancelAnimationFrame(animationFrame);
   }, [isLoading]);
 
   return (
