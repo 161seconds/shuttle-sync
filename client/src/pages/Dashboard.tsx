@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { MapPin, Star, Flame, ChevronRight, Search, Users, Zap, Clock } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MapPin, Star, Flame, ChevronRight, ChevronLeft, Search, Users, Zap, Clock } from 'lucide-react';
 import { theme as t, formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
 import { courtApi } from '../api/court.api';
@@ -8,10 +8,52 @@ import type { Court } from '../types';
 import { EmojiIcon } from '../components/EmojiIcon';
 
 
+const MOCK_UPCOMING_GROUPS = [
+    { id: 1, name: "Giao lưu lông thủ Q10", level: "Trung bình", time: "19:00 - 21:00", location: "Sân Vạn Thọ", slots: "3/4", price: "50K" },
+    { id: 2, name: "Pickleball Newbie", level: "Mới tập chơi", time: "20:00 - 22:00", location: "Sân Bình Thạnh", slots: "2/4", price: "70K" },
+    { id: 3, name: "Trình TB Khá - Cầu Lông", level: "TB Khá", time: "18:00 - 20:00", location: "Sân Lê Đức", slots: "5/6", price: "55K" },
+    { id: 4, name: "Giao lưu vui vẻ cuối tuần", level: "Trung bình yếu", time: "08:00 - 10:00", location: "Sân Hoàng Hoa Thám", slots: "2/8", price: "60K" },
+    { id: 5, name: "Tập luyện Pickleball", level: "Trung bình", time: "17:30 - 19:30", location: "Sân Gia Định", slots: "3/4", price: "80K" },
+    { id: 6, name: "Hội Cầu Lông Tân Bình", level: "Khá", time: "20:00 - 22:00", location: "Sân Viettel", slots: "4/6", price: "65K" },
+    { id: 7, name: "Giao lưu Pickleball Pro", level: "Chuyên nghiệp", time: "19:00 - 21:00", location: "Sân D-Court", slots: "1/4", price: "100K" },
+    { id: 8, name: "Đánh đôi nam nữ (Cầu lông)", level: "Trung bình", time: "18:30 - 20:30", location: "Sân Kỳ Hòa", slots: "3/4", price: "50K" },
+    { id: 9, name: "Nhóm Pickleball Sinh Viên", level: "Mới tập chơi", time: "16:00 - 18:00", location: "Sân Quận 7", slots: "6/8", price: "40K" },
+    { id: 10, name: "Cầu lông sáng sớm", level: "Trung bình khá", time: "05:30 - 07:30", location: "Sân Phú Thọ", slots: "2/4", price: "45K" },
+    { id: 11, name: "Giao lưu dưỡng sinh", level: "Yếu", time: "06:00 - 08:00", location: "Sân Tao Đàn", slots: "3/6", price: "30K" },
+    { id: 12, name: "Pickleball Chuyên Nghiệp", level: "Chuyên nghiệp", time: "20:00 - 23:00", location: "Sân CELADON", slots: "2/4", price: "120K" },
+    { id: 13, name: "Nhóm Khá Giỏi - Kèo Đơn", level: "Giỏi", time: "19:30 - 21:30", location: "Sân Lan Anh", slots: "1/2", price: "90K" },
+];
+
 export default function Dashboard() {
     const { user, setPage, setFilters, setBookingCourt } = useAppStore();
     const [loading, setLoading] = useState(true);
     const [popularCourts, setPopularCourts] = useState<Court[]>([]);
+    const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentGroupIndex((prev) => (prev + 1) % MOCK_UPCOMING_GROUPS.length);
+        }, 2000);
+        return () => clearInterval(timer);
+    }, [currentGroupIndex]);
+
+    const handlePrevGroup = () => {
+        setCurrentGroupIndex((prev) => (prev - 1 + MOCK_UPCOMING_GROUPS.length) % MOCK_UPCOMING_GROUPS.length);
+    };
+
+    const handleNextGroup = () => {
+        setCurrentGroupIndex((prev) => (prev + 1) % MOCK_UPCOMING_GROUPS.length);
+    };
+
+    const getVisibleDots = () => {
+        const total = MOCK_UPCOMING_GROUPS.length;
+        if (total <= 3) return Array.from({length: total}, (_, i) => i);
+        return [
+            (currentGroupIndex - 1 + total) % total,
+            currentGroupIndex,
+            (currentGroupIndex + 1) % total
+        ];
+    };
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -75,7 +117,7 @@ export default function Dashboard() {
                 </div>
             </motion.div>
 
-            {/* 2. Widget: Trận đấu sắp tới */}
+            {/* 2. Widget: Nhóm sắp diễn ra */}
             <motion.div
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                 className="w-full rounded-2xl bg-gradient-to-br from-emerald-500/10 to-card border border-emerald-500/20 p-4 relative overflow-hidden shadow-lg shadow-emerald-500/5"
@@ -83,23 +125,55 @@ export default function Dashboard() {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-2xl rounded-full"></div>
                 <div className="relative z-10 flex justify-between items-center mb-3">
                     <h3 className="text-emerald-400 font-bold flex items-center gap-2 text-sm">
-                        <Clock className="w-4 h-4" /> Trận đấu sắp diễn ra
+                        <Clock className="w-4 h-4" /> Nhóm sắp diễn ra
                     </h3>
-                    <span className="text-xs font-semibold px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg">
-                        Hôm nay
-                    </span>
+                    <div className="flex items-center gap-2">
+                        <button onClick={handlePrevGroup} className="w-6 h-6 flex items-center justify-center rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 transition-colors">
+                            <ChevronLeft className="w-3 h-3" />
+                        </button>
+                        <div className="flex gap-1.5 items-center justify-center w-[36px]">
+                            {getVisibleDots().map((idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => setCurrentGroupIndex(idx)}
+                                    className={`rounded-full transition-all shrink-0 ${idx === currentGroupIndex ? 'w-2 h-2 bg-emerald-400' : 'w-1.5 h-1.5 bg-emerald-400/20 hover:bg-emerald-400/60'}`}
+                                />
+                            ))}
+                        </div>
+                        <button onClick={handleNextGroup} className="w-6 h-6 flex items-center justify-center rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 transition-colors">
+                            <ChevronRight className="w-3 h-3" />
+                        </button>
+                    </div>
                 </div>
-                <div className="relative z-10 bg-background/60 rounded-xl p-3 border border-border flex gap-3 items-center backdrop-blur-sm">
-                    <div className="w-12 h-12 rounded-xl bg-card flex items-center justify-center shrink-0 border border-border">
-                        <EmojiIcon name="badminton" className="w-6 h-6 text-emerald-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-foreground text-sm truncate">SÂN CẦU LÔNG LÊ ĐỨC SPORT</h4>
-                        <p className="text-xs text-muted-foreground truncate mt-0.5">Sân số 3 • 20:00 - 22:00</p>
-                    </div>
-                    <button onClick={() => setPage('map')} className="px-3 py-1.5 bg-emerald-500 text-black text-xs font-bold rounded-lg shrink-0 hover:bg-emerald-400 active:scale-95 transition-all shadow-md shadow-emerald-500/20">
-                        Bản đồ
-                    </button>
+                <div className="relative z-10 h-[82px]">
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={currentGroupIndex}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            transition={{ duration: 0.3 }}
+                            className="bg-background/60 rounded-xl p-3 border border-border flex gap-3 items-center backdrop-blur-sm absolute inset-0"
+                        >
+                            <div className="w-12 h-12 rounded-xl bg-card flex items-center justify-center shrink-0 border border-border">
+                                <EmojiIcon name={MOCK_UPCOMING_GROUPS[currentGroupIndex].name.toLowerCase().includes('pickleball') ? 'pickleball' : 'badminton'} className="w-6 h-6 text-emerald-400" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h4 className="font-bold text-foreground text-sm truncate">{MOCK_UPCOMING_GROUPS[currentGroupIndex].location}</h4>
+                                <p className="text-xs font-semibold text-emerald-400 truncate mt-0.5">{MOCK_UPCOMING_GROUPS[currentGroupIndex].name} • {MOCK_UPCOMING_GROUPS[currentGroupIndex].level}</p>
+                                <p className="text-[10px] text-muted-foreground truncate mt-0.5 flex items-center gap-2">
+                                    <span>⏰ {MOCK_UPCOMING_GROUPS[currentGroupIndex].time}</span>
+                                    <span>💸 {MOCK_UPCOMING_GROUPS[currentGroupIndex].price}/người</span>
+                                </p>
+                            </div>
+                            <div className="flex flex-col items-end gap-1">
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400">{MOCK_UPCOMING_GROUPS[currentGroupIndex].slots}</span>
+                                <button onClick={() => setPage('groupplay')} className="px-3 py-1.5 bg-emerald-500 text-black text-xs font-bold rounded-lg hover:bg-emerald-400 active:scale-95 transition-all shadow-md shadow-emerald-500/20">
+                                    Vào
+                                </button>
+                            </div>
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
             </motion.div>
 
