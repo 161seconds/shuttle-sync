@@ -77,7 +77,7 @@ function PremiumBackground() {
           bulgeOnly
           gradientFrom="#10B981"
           gradientTo="#3b82f6"
-          glowColor="#043819"
+          glowColor="transparent"
         />
       </div>
 
