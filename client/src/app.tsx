@@ -4,24 +4,45 @@ import { AnimatePresence } from 'framer-motion';
 import { AppProvider, useAppStore } from './store';
 import Header from './components/layout/Header';
 import BottomNav from './components/layout/BottomNav';
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const MapPage = lazy(() => import('./pages/MapPage'));
-const SearchPage = lazy(() => import('./pages/SearchPage'));
-const ProfilePage = lazy(() => import('./pages/ProfilePage'));
-const CourtDetail = lazy(() => import('./pages/CourtDetail'));
-const Login = lazy(() => import('./pages/Login'));
-const BookingSheet = lazy(() => import('./features/booking/BookingSheet'));
-const GroupPlayPage = lazy(() => import('./pages/GroupPlay'));
-const AiCoach = lazy(() => import('./pages/AiCoach'));
-const Notifications = lazy(() => import('./pages/profile/Notifications'));
-const EditProfile = lazy(() => import('./pages/profile/EditProfile'));
-const AdminDashboard = lazy(() => import('./features/admin/AdminDashboard'));
-const MatchLeaderboard = lazy(() => import('./components/groups/MatchLeaderboard'));
-const RulesPage = lazy(() => import('./pages/RulesPage'));
-const SupplementaryPage = lazy(() => import('./pages/SupplementaryPage'));
-const ChatPage = lazy(() => import('./pages/chat/ChatPage'));
-const NewsPage = lazy(() => import('./pages/NewsPage'));
-const SupportPage = lazy(() => import('./pages/SupportPage'));
+export const pageImports = {
+  Dashboard: () => import('./pages/Dashboard'),
+  MapPage: () => import('./pages/MapPage'),
+  SearchPage: () => import('./pages/SearchPage'),
+  ProfilePage: () => import('./pages/ProfilePage'),
+  CourtDetail: () => import('./pages/CourtDetail'),
+  Login: () => import('./pages/Login'),
+  BookingSheet: () => import('./features/booking/BookingSheet'),
+  GroupPlayPage: () => import('./pages/GroupPlay'),
+  AiCoach: () => import('./pages/AiCoach'),
+  Notifications: () => import('./pages/profile/Notifications'),
+  EditProfile: () => import('./pages/profile/EditProfile'),
+  AdminDashboard: () => import('./features/admin/AdminDashboard'),
+  MatchLeaderboard: () => import('./components/groups/MatchLeaderboard'),
+  RulesPage: () => import('./pages/RulesPage'),
+  SupplementaryPage: () => import('./pages/SupplementaryPage'),
+  ChatPage: () => import('./pages/chat/ChatPage'),
+  NewsPage: () => import('./pages/NewsPage'),
+  SupportPage: () => import('./pages/SupportPage'),
+};
+
+const Dashboard = lazy(pageImports.Dashboard);
+const MapPage = lazy(pageImports.MapPage);
+const SearchPage = lazy(pageImports.SearchPage);
+const ProfilePage = lazy(pageImports.ProfilePage);
+const CourtDetail = lazy(pageImports.CourtDetail);
+const Login = lazy(pageImports.Login);
+const BookingSheet = lazy(pageImports.BookingSheet);
+const GroupPlayPage = lazy(pageImports.GroupPlayPage);
+const AiCoach = lazy(pageImports.AiCoach);
+const Notifications = lazy(pageImports.Notifications);
+const EditProfile = lazy(pageImports.EditProfile);
+const AdminDashboard = lazy(pageImports.AdminDashboard);
+const MatchLeaderboard = lazy(pageImports.MatchLeaderboard);
+const RulesPage = lazy(pageImports.RulesPage);
+const SupplementaryPage = lazy(pageImports.SupplementaryPage);
+const ChatPage = lazy(pageImports.ChatPage);
+const NewsPage = lazy(pageImports.NewsPage);
+const SupportPage = lazy(pageImports.SupportPage);
 
 import { useOnboarding, OnboardingModal, GuidedTourOverlay } from './features/onboarding';
 import { ParticleField } from './components/onboarding/Shared';
@@ -107,6 +128,8 @@ function Shell() {
 
   const [showSplash, setShowSplash] = useState(() => !sessionStorage.getItem('splashShown'));
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isPreloading, setIsPreloading] = useState(true);
+  const [preloadProgress, setPreloadProgress] = useState(0);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -124,8 +147,32 @@ function Shell() {
         setIsCheckingAuth(false);
       }
     };
+
+    const preloadPages = async () => {
+      const imports = Object.values(pageImports);
+      let loaded = 0;
+      const total = imports.length;
+
+      await Promise.all(imports.map(async (importFn) => {
+        try {
+          await importFn();
+        } catch (e) {
+          console.warn("Preload fail", e);
+        } finally {
+          loaded++;
+          setPreloadProgress(Math.min(100, (loaded / total) * 100));
+        }
+      }));
+      setIsPreloading(false);
+    };
+
     initAuth();
-  }, [setUser]);
+    if (showSplash) {
+      preloadPages();
+    } else {
+      setIsPreloading(false);
+    }
+  }, [setUser, showSplash]);
 
   useEffect(() => {
     if (!user) return;
@@ -164,7 +211,7 @@ function Shell() {
   return (
     <div className={`min-h-screen ${DS.bg.base} relative overflow-hidden`}>
       <AnimatePresence>
-        {showSplash && <SplashScreen isLoading={isCheckingAuth} onComplete={() => {
+        {showSplash && <SplashScreen isLoading={isCheckingAuth || isPreloading} progressValue={preloadProgress} onComplete={() => {
             setShowSplash(false);
             sessionStorage.setItem('splashShown', 'true');
         }} />}

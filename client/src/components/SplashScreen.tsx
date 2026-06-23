@@ -5,10 +5,11 @@ import { Zap } from 'lucide-react';
 interface SplashScreenProps {
   onComplete: () => void;
   isLoading?: boolean;
+  progressValue?: number;
 }
 
-export default function SplashScreen({ onComplete, isLoading = true }: SplashScreenProps) {
-  const [progress, setProgress] = useState(0);
+export default function SplashScreen({ onComplete, isLoading = true, progressValue }: SplashScreenProps) {
+  const [fakeProgress, setFakeProgress] = useState(0);
   const startTime = useRef(Date.now());
   const onCompleteRef = useRef(onComplete);
 
@@ -17,15 +18,24 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
     onCompleteRef.current = onComplete;
   }, [onComplete]);
 
+  const progress = progressValue !== undefined ? progressValue : fakeProgress;
+
   useEffect(() => {
+    if (progressValue !== undefined) {
+      if (progressValue >= 100 && !isLoading) {
+        onCompleteRef.current();
+      }
+      return;
+    }
+
     let animationFrame: number;
-    const minSplashTime = 24000; // 24 seconds total
+    const minSplashTime = 24000;
     
     const updateProgress = () => {
       const elapsed = Date.now() - startTime.current;
       const newProgress = Math.min(100, (elapsed / minSplashTime) * 100);
       
-      setProgress(newProgress);
+      setFakeProgress(newProgress);
       
       if (newProgress < 100) {
         animationFrame = requestAnimationFrame(updateProgress);
@@ -39,7 +49,7 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
     animationFrame = requestAnimationFrame(updateProgress);
     
     return () => cancelAnimationFrame(animationFrame);
-  }, [isLoading]);
+  }, [isLoading, progressValue]);
 
   return (
     <motion.div
@@ -135,7 +145,7 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
           <div className="w-full h-1 bg-card rounded-full overflow-hidden border border-border relative">
             <div
               className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-emerald-500 to-cyan-400 shadow-glow-lg"
-              style={{ width: `${progress}%`, transition: 'width 0.1s linear' }}
+              style={{ width: `${progress}%` }}
             />
           </div>
         </motion.div>
