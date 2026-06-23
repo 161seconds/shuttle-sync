@@ -116,7 +116,7 @@ function PremiumBackground() {
   );
 }
 
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 function Shell() {
@@ -125,6 +125,17 @@ function Shell() {
   const { showOnboarding, showTour, completeOnboarding, skipOnboarding, completeTour } = useOnboarding();
   const { showAlert } = useAlertStore();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleCompleteOnboarding = (prefs: any) => {
+    completeOnboarding(prefs);
+    navigate('/');
+  };
+
+  const handleSkipOnboarding = () => {
+    skipOnboarding();
+    navigate('/');
+  };
 
   const [showSplash, setShowSplash] = useState(() => !sessionStorage.getItem('splashShown'));
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
@@ -214,7 +225,7 @@ function Shell() {
       <PremiumBackground />
 
       <AnimatePresence>
-        {showOnboarding && !isCheckingAuth && <OnboardingModal onComplete={completeOnboarding} onSkip={skipOnboarding} />}
+        {showOnboarding && !isCheckingAuth && <OnboardingModal onComplete={handleCompleteOnboarding} onSkip={handleSkipOnboarding} />}
       </AnimatePresence>
 
       {!showOnboarding && !isCheckingAuth && (
