@@ -28,6 +28,77 @@ interface Article {
     link?: string;
 }
 
+// Module-level fetching logic
+const prefetchNews = async (): Promise<Article[]> => {
+    // Fetch song song 3 luồng RSS: Thể thao chung (VnExpress, Thanh Niên, Tuổi Trẻ)
+    const [vnexpressRes, thanhnienRes, tuoitreRes, thethao247cl, thethao247pk] = await Promise.all([
+        fetch('https://api.rss2json.com/v1/api.json?rss_url=https://vnexpress.net/rss/the-thao.rss'),
+        fetch('https://api.rss2json.com/v1/api.json?rss_url=https://thanhnien.vn/rss/the-thao.rss'),
+        fetch('https://api.rss2json.com/v1/api.json?rss_url=https://tuoitre.vn/rss/the-thao.rss'),
+        fetch('https://api.rss2json.com/v1/api.json?rss_url=https://thethao247.vn/cau-long-c44.rss'),
+        fetch('https://api.rss2json.com/v1/api.json?rss_url=https://thethao247.vn/pickleball/rss.rss')
+    ]);
+
+    const vnData = await vnexpressRes.json();
+    const tnData = await thanhnienRes.json();
+    const ttData = await tuoitreRes.json();
+    const thethao247clData = await thethao247cl.json();
+    const thethao247pkData = await thethao247pk.json();
+
+    let allItems: any[] = [];
+    if (vnData.status === 'ok') allItems = [...allItems, ...vnData.items];
+    if (tnData.status === 'ok') allItems = [...allItems, ...tnData.items];
+    if (ttData.status === 'ok') allItems = [...allItems, ...ttData.items];
+    if (thethao247clData.status === 'ok') allItems = [...allItems, ...thethao247clData.items];
+    if (thethao247pkData.status === 'ok') allItems = [...allItems, ...thethao247pkData.items];
+    
+    const articles: Article[] = allItems.map((item: any, index: number) => {
+        // Trích xuất URL ảnh (từ enclosure hoặc description)
+        let imageUrl = item.thumbnail;
+        if (!imageUrl && item.enclosure && item.enclosure.link) imageUrl = item.enclosure.link;
+        if (!imageUrl) {
+            const match = item.description.match(/<img[^>]+src=["']([^"']+)["']/);
+            if (match) imageUrl = match[1];
+        }
+
+        // Decode HTML entities trong URL ảnh (ví dụ: &amp; -> &)
+        if (imageUrl) {
+            imageUrl = imageUrl.replace(/&amp;/g, '&');
+        }
+
+        // Làm sạch HTML tag trong mô tả và decode text
+        const rawSummary = item.description.replace(/<[^>]+>/g, '').trim();
+        const summary = decodeHTMLEntities(rawSummary);
+        const cleanTitle = decodeHTMLEntities(item.title);
+        const titleLower = cleanTitle.toLowerCase();
+
+        // Phân loại tự động
+        let cat: NewsCategory = 'all';
+        if (titleLower.includes('pickleball')) cat = 'pickleball';
+        else if (titleLower.includes('vợt') || titleLower.includes('giày')) cat = 'gear';
+        else if (titleLower.includes('cầu lông') || titleLower.includes('lin dan') || titleLower.includes('axelsen') || (item.link && item.link.includes('cau-long'))) cat = 'badminton';
+
+        return {
+            id: item.guid || String(index),
+            title: cleanTitle,
+            category: cat,
+            summary: summary,
+            date: item.pubDate ? item.pubDate.split(' ')[0] : 'Gần đây',
+            imageUrl: imageUrl || 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800',
+            readTime: Math.max(2, Math.floor(summary.length / 100)),
+            isHot: index < 2,
+            link: item.link
+        };
+    });
+
+    // Sắp xếp bài mới nhất lên đầu
+    articles.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return articles;
+};
+
+// Khởi chạy fetch data ngay khi JS chunk này được tải (trong lúc splash screen đang chạy)
+const globalNewsPromise = prefetchNews();
+
 export default function NewsPage() {
     const [activeTab, setActiveTab] = useState<NewsCategory>('all');
     const [news, setNews] = useState<Article[]>([]);
@@ -36,83 +107,23 @@ export default function NewsPage() {
     const itemsPerPage = 16;
 
     useEffect(() => {
+        let isMounted = true;
         const fetchNews = async () => {
             try {
-                // Fetch song song 3 luồng RSS: Thể thao chung (VnExpress, Thanh Niên, Tuổi Trẻ)
-                const [vnexpressRes, thanhnienRes, tuoitreRes, thethao247cl, thethao247pk] = await Promise.all([
-                    fetch('https://api.rss2json.com/v1/api.json?rss_url=https://vnexpress.net/rss/the-thao.rss'),
-                    fetch('https://api.rss2json.com/v1/api.json?rss_url=https://thanhnien.vn/rss/the-thao.rss'),
-                    fetch('https://api.rss2json.com/v1/api.json?rss_url=https://tuoitre.vn/rss/the-thao.rss'),
-                    fetch('https://api.rss2json.com/v1/api.json?rss_url=https://thethao247.vn/cau-long-c44.rss'),
-                    fetch('https://api.rss2json.com/v1/api.json?rss_url=https://thethao247.vn/pickleball/rss.rss')
-                ]);
-
-                const vnData = await vnexpressRes.json();
-                const tnData = await thanhnienRes.json();
-                const ttData = await tuoitreRes.json();
-                const thethao247clData = await thethao247cl.json();
-                const thethao247pkData = await thethao247pk.json();
-
-                let allItems: any[] = [];
-                if (vnData.status === 'ok') allItems = [...allItems, ...vnData.items];
-                if (tnData.status === 'ok') allItems = [...allItems, ...tnData.items];
-                if (ttData.status === 'ok') allItems = [...allItems, ...ttData.items];
-                if (thethao247clData.status === 'ok') allItems = [...allItems, ...thethao247clData.items];
-                if (thethao247pkData.status === 'ok') allItems = [...allItems, ...thethao247pkData.items];
-                
-                const articles: Article[] = allItems.map((item: any, index: number) => {
-                    // Trích xuất URL ảnh (từ enclosure hoặc description)
-                    let imageUrl = item.thumbnail;
-                    if (!imageUrl && item.enclosure && item.enclosure.link) imageUrl = item.enclosure.link;
-                    if (!imageUrl) {
-                        const match = item.description.match(/<img[^>]+src=["']([^"']+)["']/);
-                        if (match) imageUrl = match[1];
-                    }
-
-                    // Decode HTML entities trong URL ảnh (ví dụ: &amp; -> &)
-                    if (imageUrl) {
-                        imageUrl = imageUrl.replace(/&amp;/g, '&');
-                    }
-
-                    // Làm sạch HTML tag trong mô tả và decode text
-                    const rawSummary = item.description.replace(/<[^>]+>/g, '').trim();
-                    const summary = decodeHTMLEntities(rawSummary);
-                    const cleanTitle = decodeHTMLEntities(item.title);
-                    const titleLower = cleanTitle.toLowerCase();
-
-                    // Phân loại tự động
-                    let cat: NewsCategory = 'all';
-                    if (titleLower.includes('pickleball')) cat = 'pickleball';
-                    else if (titleLower.includes('vợt') || titleLower.includes('giày')) cat = 'gear';
-                    else if (titleLower.includes('cầu lông') || titleLower.includes('lin dan') || titleLower.includes('axelsen') || (item.link && item.link.includes('cau-long'))) cat = 'badminton';
-
-                    return {
-                        id: item.guid || String(index),
-                        title: cleanTitle,
-                        category: cat,
-                        summary: summary,
-                        date: item.pubDate ? item.pubDate.split(' ')[0] : 'Gần đây',
-                        imageUrl: imageUrl || 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800',
-                        readTime: Math.max(2, Math.floor(summary.length / 100)),
-                        isHot: index < 2,
-                        link: item.link
-                    };
-                });
-
-                // Sắp xếp bài mới nhất lên đầu
-                articles.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-                // Cập nhật dữ liệu từ API
-                setNews(articles);
+                const articles = await globalNewsPromise;
+                if (isMounted) {
+                    setNews(articles);
+                }
             } catch (error) {
                 console.error("Failed to fetch news", error);
-                setNews([]); // Fallback nếu API lỗi
+                if (isMounted) setNews([]);
             } finally {
-                setLoading(false);
+                if (isMounted) setLoading(false);
             }
         };
 
         fetchNews();
+        return () => { isMounted = false; };
     }, []);
 
     const filteredNews = news.filter(n => activeTab === 'all' || n.category === activeTab);
