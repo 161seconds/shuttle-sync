@@ -62,6 +62,7 @@ export interface IUser extends ITimestamps {
     settings: IUserSettings;
     banInfo?: IBanInfo;
     lastLoginAt?: Date;
+    lastActiveDate?: Date;
 }
 
 export interface IUserStats {
@@ -71,6 +72,7 @@ export interface IUserStats {
     noShowCount: number;
     rating: number;
     reviewCount: number;
+    activityStreak: number;
 }
 
 export interface IUserSettings {

@@ -136,8 +136,12 @@ export interface User {
         totalBookings: number;
         totalGroupsCreated: number;
         totalGroupsJoined: number;
+        totalTournaments?: number;
+        noShowCount?: number;
         rating: number;
         reviewCount: number;
+        eloScore?: number;
+        activityStreak?: number;
     }; settings: { notifications: boolean; language: 'vi' | 'en'; theme: 'light' | 'dark' };
 }
 
