@@ -114,12 +114,12 @@ export default function MyGroupPlays({ onBack }: Props) {
                 
                 {/* Premium Animated Tabs */}
                 <div className="flex justify-center mb-6">
-                    <div className="relative inline-flex p-1.5 bg-card backdrop-blur-xl border border-border rounded-2xl shadow-inner">
+                    <div className="relative inline-flex p-1.5 bg-white/5 backdrop-blur-xl border border-white/5 rounded-2xl shadow-inner">
                         {['organizer', 'participant'].map((tab) => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab as any)}
-                                className={`relative px-6 py-2 text-[14px] font-bold rounded-xl transition-all duration-300 z-10 ${activeTab === tab ? 'text-black' : 'text-muted-foreground hover:text-foreground'}`}
+                                className={`relative px-6 py-2 text-[14px] font-bold rounded-xl transition-all duration-300 z-10 ${activeTab === tab ? 'text-black' : 'text-emerald-100/70 hover:text-emerald-50'}`}
                             >
                                 {activeTab === tab && (
                                     <motion.div
@@ -157,7 +157,7 @@ export default function MyGroupPlays({ onBack }: Props) {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {loading ? (
                         Array.from({ length: 4 }).map((_, i) => (
-                            <div key={i} className={`h-64 rounded-[2rem] bg-card border border-border animate-pulse`} />
+                            <div key={i} className={`h-64 rounded-[2rem] bg-white/5 border border-white/5 animate-pulse`} />
                         ))
                     ) : displayedGroups.length === 0 ? (
                         <motion.div 
@@ -167,14 +167,14 @@ export default function MyGroupPlays({ onBack }: Props) {
                         >
                             <div className="relative mb-10 group">
                                 <div className="absolute inset-0 bg-emerald-500/20 blur-3xl rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-700 animate-pulse-slow"></div>
-                                <div className="relative w-40 h-40 rounded-full bg-card flex items-center justify-center backdrop-blur-md border border-border shadow-card">
+                                <div className="relative w-40 h-40 rounded-full bg-white/5 flex items-center justify-center backdrop-blur-md border border-white/5 shadow-card">
                                     {activeTab === 'organizer' ? <Crown className="w-20 h-20 text-emerald-500/50" /> : <Users className="w-20 h-20 text-emerald-500/50" />}
                                 </div>
                             </div>
                             <p className="text-foreground font-black text-2xl mb-3 tracking-tight">
                                 {activeTab === 'organizer' ? 'Chưa tạo nhóm nào' : 'Chưa tham gia nhóm nào'}
                             </p>
-                            <p className="text-[15px] text-muted-foreground max-w-[280px] leading-relaxed">
+                            <p className="text-[15px] text-emerald-100/70 max-w-[280px] leading-relaxed">
                                 {activeTab === 'organizer' ? 'Hãy tạo một nhóm chơi mới và mời bạn bè cùng tham gia ngay!' : 'Khám phá và tham gia các nhóm chơi đang mở trên trang chủ nhé.'}
                             </p>
                         </motion.div>
@@ -216,7 +216,7 @@ export default function MyGroupPlays({ onBack }: Props) {
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, scale: 0.9 }}
                                         key={g._id} 
-                                        className={`relative flex flex-col h-full bg-card rounded-[2rem] border border-border p-6 overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-glow hover:border-emerald-500/30 group ${opacityClass}`}
+                                        className={`relative flex flex-col h-full bg-white/5 rounded-[2rem] border border-white/5 p-6 overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-glow hover:border-emerald-500/30 group ${opacityClass}`}
                                     >
                                         {/* Subtle background glow effect on hover */}
                                         <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -225,7 +225,7 @@ export default function MyGroupPlays({ onBack }: Props) {
                                             {/* Top row: Icon + Title + Price */}
                                             <div className="flex justify-between items-start mb-6">
                                                 <div className="flex items-start gap-4 pr-4">
-                                                    <div className="w-16 h-16 shrink-0 rounded-2xl bg-card border border-border flex items-center justify-center shadow-inner group-hover:scale-105 group-hover:bg-emerald-500/10 transition-all duration-300">
+                                                    <div className="w-16 h-16 shrink-0 rounded-2xl bg-transparent border border-white/10 flex items-center justify-center shadow-inner group-hover:scale-105 group-hover:bg-emerald-500/10 transition-all duration-300">
                                                         <span className="text-4xl drop-shadow-md">{sportIcon(g.sportType)}</span>
                                                     </div>
                                                     <div>
@@ -234,7 +234,7 @@ export default function MyGroupPlays({ onBack }: Props) {
                                                             <span className={`px-3 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider ${s.bg} ${s.color}`}>
                                                                 {s.label}
                                                             </span>
-                                                            <span className="text-[11px] text-muted-foreground font-bold bg-card px-3 py-1 rounded-lg border border-border tracking-wider">
+                                                            <span className="text-[11px] text-emerald-100/70 font-bold bg-white/5 px-3 py-1 rounded-lg border border-white/5 tracking-wider">
                                                                 {SKILL_LABEL[g.skillLevel] || g.skillLevel || 'Mọi trình độ'}
                                                             </span>
                                                         </div>
@@ -244,49 +244,49 @@ export default function MyGroupPlays({ onBack }: Props) {
                                                     <div className="text-2xl font-black bg-linear-to-r from-emerald-300 to-teal-400 bg-clip-text text-transparent">
                                                         {(g.pricePerPlayer || 0).toLocaleString()}đ
                                                     </div>
-                                                    <div className="text-[11px] text-muted-foreground font-bold uppercase mt-1 tracking-widest">/ người</div>
+                                                    <div className="text-[11px] text-emerald-100/50 font-bold uppercase mt-1 tracking-widest">/ người</div>
                                                 </div>
                                             </div>
 
                                             {/* Middle row: Info Grid */}
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 p-5 rounded-2xl bg-card border border-border">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 p-5 rounded-2xl bg-transparent border border-white/5">
                                                 <div className="flex items-center gap-3 font-medium col-span-1 sm:col-span-2">
                                                     <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
                                                         <MapPin className="w-4 h-4 text-emerald-400" /> 
                                                     </div>
-                                                    <span className="text-muted-foreground text-[14px] leading-relaxed truncate">{courtName}{district ? ` · ${district}` : ''}</span>
+                                                    <span className="text-emerald-100/70 text-[14px] leading-relaxed truncate">{courtName}{district ? ` · ${district}` : ''}</span>
                                                 </div>
                                                 <div className="flex items-center gap-3 font-medium">
                                                     <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0">
                                                         <Calendar className="w-4 h-4 text-blue-400" />
                                                     </div>
-                                                    <span className="text-muted-foreground text-[14px]">{formatDate(g.date)}</span>
+                                                    <span className="text-emerald-100/70 text-[14px]">{formatDate(g.date)}</span>
                                                 </div>
                                                 <div className="flex items-center gap-3 font-medium">
                                                     <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
                                                         <Clock className="w-4 h-4 text-amber-400" />
                                                     </div>
-                                                    <span className="text-muted-foreground text-[14px]">{g.startTime || '--:--'} - {g.endTime || '--:--'}</span>
+                                                    <span className="text-emerald-100/70 text-[14px]">{g.startTime || '--:--'} - {g.endTime || '--:--'}</span>
                                                 </div>
                                             </div>
 
                                             {/* Bottom row: Players & Actions */}
                                             <div className="mt-auto flex items-center justify-between pt-2">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="flex items-center gap-2 bg-card px-3 py-1.5 rounded-xl border border-border">
+                                                    <div className="flex items-center gap-2 bg-transparent px-3 py-1.5 rounded-xl border border-white/5">
                                                         <Users className="w-4 h-4 text-emerald-400" />
                                                         <span className="text-[14px] font-black text-foreground">
-                                                            {g.currentPlayers || 0} <span className="text-muted-foreground font-bold">/ {g.maxPlayers || 0}</span>
+                                                            {g.currentPlayers || 0} <span className="text-emerald-100/50 font-bold">/ {g.maxPlayers || 0}</span>
                                                         </span>
                                                     </div>
                                                     <div className="flex -space-x-2">
                                                         {(g.participants || []).slice(0, 4).map((p, i) => (
-                                                            <div key={i} className={`w-8 h-8 rounded-full bg-emerald-900 border-2 border-border flex items-center justify-center text-[11px] font-black text-emerald-400 shadow-sm z-[${4-i}]`}>
+                                                            <div key={i} className={`w-8 h-8 rounded-full bg-emerald-900 border-2 border-background flex items-center justify-center text-[11px] font-black text-emerald-400 shadow-sm z-[${4-i}]`}>
                                                                 {p?.displayName ? p.displayName.charAt(0).toUpperCase() : 'U'}
                                                             </div>
                                                         ))}
                                                         {(g.participants || []).length > 4 && (
-                                                            <div className="w-8 h-8 rounded-full bg-card backdrop-blur-md border-2 border-border flex items-center justify-center text-[11px] font-bold text-foreground shadow-sm z-0">
+                                                            <div className="w-8 h-8 rounded-full bg-white/5 backdrop-blur-md border-2 border-background flex items-center justify-center text-[11px] font-bold text-foreground shadow-sm z-0">
                                                                 +{(g.participants || []).length - 4}
                                                             </div>
                                                         )}
