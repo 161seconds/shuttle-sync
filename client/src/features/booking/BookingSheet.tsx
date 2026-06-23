@@ -285,13 +285,13 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                 <div className="flex bg-card p-1 rounded-2xl">
                                     <button 
                                         onClick={() => setBookingType('casual')}
-                                        className={`flex-1 py-3 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${bookingType === 'casual' ? 'bg-emerald-500 text-foreground shadow-lg shadow-emerald-500/25' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
+                                        className={`flex-1 py-3 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${bookingType === 'casual' ? 'bg-emerald-500 text-emerald-950 shadow-lg shadow-emerald-500/25' : 'text-emerald-100/70 hover:text-emerald-50 hover:bg-emerald-500/10'}`}
                                     >
                                         <Zap className="w-4 h-4" /> Vãng Lai
                                     </button>
                                     <button 
                                         onClick={() => setBookingType('fixed')}
-                                        className={`flex-1 py-3 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${bookingType === 'fixed' ? 'bg-emerald-500 text-foreground shadow-lg shadow-emerald-500/25' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
+                                        className={`flex-1 py-3 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${bookingType === 'fixed' ? 'bg-emerald-500 text-emerald-950 shadow-lg shadow-emerald-500/25' : 'text-emerald-100/70 hover:text-emerald-50 hover:bg-emerald-500/10'}`}
                                     >
                                         <Repeat className="w-4 h-4" /> Cố Định
                                     </button>
@@ -371,8 +371,8 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                         onClick={() => toggleDayOfWeek(day)}
                                                         className={`flex-1 py-3 rounded-2xl text-sm font-bold transition-all duration-300 ${
                                                             isActive 
-                                                            ? 'bg-emerald-500 text-foreground shadow-lg shadow-emerald-500/25'
-                                                            : 'bg-card text-muted-foreground hover:bg-muted hover:text-foreground'
+                                                            ? 'bg-emerald-500 text-emerald-950 shadow-lg shadow-emerald-500/25'
+                                                            : 'bg-card text-emerald-100/70 hover:bg-emerald-500/10 hover:text-emerald-50'
                                                         }`}
                                                     >
                                                         {label}
@@ -435,8 +435,8 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                             booked 
                                                                 ? 'bg-card text-muted-foreground/50 cursor-not-allowed'
                                                                 : isSelected
-                                                                    ? 'bg-emerald-500 text-foreground shadow-lg shadow-emerald-500/30'
-                                                                    : 'bg-card text-muted-foreground hover:bg-muted hover:text-foreground'
+                                                                    ? 'bg-emerald-500 text-emerald-950 shadow-lg shadow-emerald-500/20'
+                                                                    : 'bg-card text-emerald-100/70 hover:bg-emerald-500/10 hover:text-emerald-50'
                                                         }`}
                                                     >
                                                         <span className="relative z-10">{slot}</span>
@@ -466,7 +466,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                                 <motion.div 
                                                     key="success"
                                                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                                                    className="absolute inset-0 w-full flex justify-between items-center px-6 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-2xl overflow-hidden group shadow-lg"
+                                                    className="absolute inset-0 w-full flex justify-between items-center px-6 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-2xl overflow-hidden group shadow-lg shadow-emerald-900/20"
                                                 >
                                                     <div>
                                                         <p className="text-[12px] font-semibold text-emerald-500/80 mb-1 uppercase tracking-wider">Thời lượng</p>
@@ -488,10 +488,10 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                             <motion.div key="step2" custom={direction} variants={stepVariants} initial="enter" animate="center" exit="exit" className="flex justify-center">
                                 {/* MODERN E-TICKET */}
                                 <div 
-                                    className="relative w-full max-w-sm bg-card backdrop-blur-xl rounded-[2rem] border border-border p-8 shadow-2xl overflow-hidden"
+                                    className="relative w-full max-w-sm rounded-[2rem] border border-white/5 p-8 overflow-hidden"
                                 >
                                     <div className="flex flex-col items-center mb-8 relative z-10">
-                                        <div className="w-20 h-20 rounded-2xl overflow-hidden mb-4 shadow-xl border border-border">
+                                        <div className="w-20 h-20 rounded-2xl overflow-hidden mb-4 shadow-xl">
                                             <img src={mainPhoto} alt="" className="w-full h-full object-cover" />
                                         </div>
                                         <h3 className="font-bold text-xl text-foreground text-center">{court.name}</h3>
@@ -501,7 +501,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                     </div>
 
                                     {/* Separator */}
-                                    <div className="w-full border-b border-border my-6 relative z-10" />
+                                    <div className="w-full border-b border-white/5 my-6 relative z-10" />
 
                                     <div className="space-y-4 relative z-10">
                                         <SummaryRow label={bookingType === 'fixed' ? 'Gói cố định' : 'Ngày chơi'} value={bookingType === 'fixed' ? `${fixedMonths} Tháng (${validation.totalSessions} buổi)` : `${dates[selectedDate].date}/${dates[selectedDate].month}/${new Date().getFullYear()}`} />
@@ -510,7 +510,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                         <SummaryRow label="Phương thức" value="Thanh toán VNPay" />
                                     </div>
 
-                                    <div className="mt-8 pt-6 border-t border-border relative z-10">
+                                    <div className="mt-8 pt-6 border-t border-white/5 relative z-10">
                                         <div className="flex justify-between items-end">
                                             <span className="text-[13px] font-semibold text-muted-foreground">Tổng thanh toán</span>
                                             <span className="text-3xl font-black bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent drop-shadow-sm">
@@ -538,7 +538,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                 changeStep(2);
                             }}
                             disabled={validation.error !== '' || isLoadingSlots}
-                            className="group relative w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-foreground rounded-2xl font-bold text-lg flex items-center justify-center gap-3 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-emerald-500/20"
+                            className="group relative w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-emerald-950 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-emerald-500/20"
                         >
                             <span className="relative z-10">Tiếp tục thanh toán</span>
                             <ChevronRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
@@ -547,7 +547,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                         <button
                             onClick={handleConfirm}
                             disabled={isBooking}
-                            className="group relative w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-foreground rounded-2xl font-bold text-lg flex items-center justify-center gap-3 overflow-hidden disabled:opacity-70 transition-all shadow-lg shadow-emerald-500/20"
+                            className="group relative w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-emerald-950 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 overflow-hidden disabled:opacity-70 transition-all shadow-lg shadow-emerald-500/20"
                         >
                             {isBooking && (
                                 <div className="absolute inset-0 bg-muted flex items-center justify-center z-20">

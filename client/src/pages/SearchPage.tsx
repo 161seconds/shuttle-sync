@@ -134,13 +134,13 @@ export default function SearchPage() {
 
                 {/* 1. Smart Sort Tags */}
                 <div className="flex items-center gap-2 mt-4 overflow-x-auto custom-scrollbar pb-2">
-                    <button onClick={() => handleFilterChange({ sortBy: 'distance' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'distance' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-card text-muted-foreground hover:bg-muted'}`}>
+                    <button onClick={() => handleFilterChange({ sortBy: 'distance' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'distance' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-emerald-500/5 text-emerald-100/70 hover:bg-emerald-500/10'}`}>
                         Gần tôi nhất
                     </button>
-                    <button onClick={() => handleFilterChange({ sortBy: 'price_asc' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'price_asc' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-card text-muted-foreground hover:bg-muted'}`}>
+                    <button onClick={() => handleFilterChange({ sortBy: 'price_asc' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'price_asc' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-emerald-500/5 text-emerald-100/70 hover:bg-emerald-500/10'}`}>
                         Giá rẻ nhất
                     </button>
-                    <button onClick={() => handleFilterChange({ sortBy: 'rating' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'rating' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-card text-muted-foreground hover:bg-muted'}`}>
+                    <button onClick={() => handleFilterChange({ sortBy: 'rating' })} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 ${filters.sortBy === 'rating' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-emerald-500/5 text-emerald-100/70 hover:bg-emerald-500/10'}`}>
                         Đánh giá cao
                     </button>
                 </div>
@@ -171,7 +171,7 @@ export default function SearchPage() {
                                 </p>
                                 <button
                                     onClick={() => { setFilters({ sport: 'all', district: 'Tất cả', sortBy: 'rating', keyword: '' }); setPriceMax(200000); }}
-                                    className="px-6 py-2.5 bg-white text-emerald-600 font-bold rounded-xl hover:scale-105 active:scale-95 transition-transform"
+                                    className="px-6 py-2.5 bg-emerald-500 text-black font-bold rounded-xl hover:scale-105 active:scale-95 transition-transform shadow-lg shadow-emerald-500/20"
                                 >
                                     Xóa bộ lọc
                                 </button>
@@ -193,13 +193,13 @@ export default function SearchPage() {
                                         />
                                         {/* Khoảng cách */}
                                         {court.distance !== undefined && (
-                                            <div className="absolute top-2 left-2 bg-card backdrop-blur-md text-foreground text-[10px] font-semibold px-2 py-1 rounded-lg border border-border">
+                                            <div className="absolute top-2 left-2 bg-black/40 backdrop-blur-md text-white text-[10px] font-semibold px-2 py-1 rounded-lg border border-white/10">
                                                 {court.distance < 1 ? `${(court.distance * 1000).toFixed(0)}m` : `${court.distance.toFixed(1)}km`}
                                             </div>
                                         )}
                                         {/* 3. Availability Badge */}
                                         <div className="absolute bottom-2 left-2 bg-emerald-500/90 text-black text-[9px] font-bold px-2 py-1 rounded-md flex items-center gap-1.5 backdrop-blur-md shadow-lg">
-                                            <div className="w-1.5 h-1.5 bg-foreground rounded-full animate-pulse"></div>
+                                            <div className="w-1.5 h-1.5 bg-black/60 rounded-full animate-pulse"></div>
                                             Có slot
                                         </div>
                                     </div>
@@ -214,8 +214,8 @@ export default function SearchPage() {
                                             </p>
                                         </div>
                                         <div className="flex items-center justify-between mt-3">
-                                            <span className="flex items-center gap-1 text-[11px] bg-card px-2 py-1 rounded-md border border-border">
-                                                <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                                            <span className="flex items-center gap-1 text-[11px] rounded-md">
+                                                <Star className="w-3 h-3 fill-amber-400 text-amber-400 drop-shadow-sm" />
                                                 <span className={`${t.text.primary} font-bold`}>{court.averageRating?.toFixed(1) || '5.0'}</span>
                                                 <span className={t.text.muted}>({court.reviewCount || 0})</span>
                                             </span>
