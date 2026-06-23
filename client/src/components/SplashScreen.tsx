@@ -9,6 +9,8 @@ interface SplashScreenProps {
 
 export default function SplashScreen({ onComplete, isLoading = true }: SplashScreenProps) {
   const [fakeProgress, setFakeProgress] = useState(0);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [rawMouse, setRawMouse] = useState({ x: 0, y: 0 });
   const startTime = useRef(Date.now());
   const onCompleteRef = useRef(onComplete);
 
@@ -18,6 +20,18 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
   }, [onComplete]);
 
   const progress = fakeProgress;
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setRawMouse({ x: e.clientX, y: e.clientY });
+      setMousePos({
+        x: (e.clientX / window.innerWidth) * 2 - 1,
+        y: (e.clientY / window.innerHeight) * 2 - 1
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   useEffect(() => {
 
@@ -67,6 +81,16 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
         className="absolute w-[400px] h-[400px] bg-cyan-500/10 blur-[80px] rounded-full"
       />
 
+      {/* Interactive Mouse Glow */}
+      <motion.div
+        animate={{
+          x: rawMouse.x - 300,
+          y: rawMouse.y - 300,
+        }}
+        transition={{ type: "tween", ease: "backOut", duration: 0.5 }}
+        className="absolute top-0 left-0 w-[600px] h-[600px] bg-emerald-500/15 rounded-full blur-[100px] pointer-events-none mix-blend-screen"
+      />
+
       {/* Trailing Comet / Shuttlecock effect */}
       <motion.div
         initial={{ x: '-150vw', y: '100vh', rotate: 45 }}
@@ -86,9 +110,18 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
         {/* Logo Icon */}
         <motion.div
           initial={{ opacity: 0, y: 30, scale: 0.8 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.2, type: "spring", bounce: 0.5 }}
-          className="relative mb-6"
+          animate={{ 
+            opacity: 1, 
+            y: 0, 
+            scale: 1,
+            rotateX: mousePos.y * -20,
+            rotateY: mousePos.x * 20
+          }}
+          transition={{ duration: 0.1, type: "tween", ease: "linear" }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          className="relative mb-6 cursor-pointer"
+          style={{ transformStyle: "preserve-3d" }}
         >
           <div className="w-24 h-24 bg-gradient-to-br from-emerald-400/20 to-emerald-900/40 rounded-[2rem] border border-emerald-500/30 flex items-center justify-center shadow-glow-lg backdrop-blur-xl relative overflow-hidden">
             {/* Shimmer sweep effect */}
@@ -164,10 +197,16 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
       {/* Grid Floor */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.15 }}
-        transition={{ duration: 2, delay: 1 }}
-        className="absolute bottom-0 left-0 right-0 h-[40vh] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:linear-gradient(to_bottom,transparent,black)]"
-        style={{ transform: 'perspective(1000px) rotateX(60deg) translateY(100px) scale(2.5)' }}
+        animate={{ 
+          opacity: 0.15,
+          rotateX: 60 - mousePos.y * 15,
+          rotateY: mousePos.x * 10,
+          y: 100,
+          scale: 2.5
+        }}
+        transition={{ duration: 0.2, type: "tween", ease: "linear" }}
+        className="absolute bottom-0 left-0 right-0 h-[40vh] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:linear-gradient(to_bottom,transparent,black)] pointer-events-none"
+        style={{ transformPerspective: 1000 }}
       />
     </motion.div>
   );

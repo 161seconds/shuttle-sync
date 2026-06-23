@@ -30,7 +30,7 @@ const defaultFilters: CourtFilters = {
     sport: 'all',
     district: 'Tất cả',
     keyword: '',
-    sortBy: 'distance',
+    sortBy: 'rating',
 };
 
 const AppContext = createContext<AppState | null>(null);
