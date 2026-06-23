@@ -129,7 +129,6 @@ function Shell() {
   const [showSplash, setShowSplash] = useState(() => !sessionStorage.getItem('splashShown'));
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isPreloading, setIsPreloading] = useState(true);
-  const [preloadProgress, setPreloadProgress] = useState(0);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -150,17 +149,12 @@ function Shell() {
 
     const preloadPages = async () => {
       const imports = Object.values(pageImports);
-      let loaded = 0;
-      const total = imports.length;
 
       await Promise.all(imports.map(async (importFn) => {
         try {
           await importFn();
         } catch (e) {
           console.warn("Preload fail", e);
-        } finally {
-          loaded++;
-          setPreloadProgress(Math.min(100, (loaded / total) * 100));
         }
       }));
       setIsPreloading(false);
@@ -211,7 +205,7 @@ function Shell() {
   return (
     <div className={`min-h-screen ${DS.bg.base} relative overflow-hidden`}>
       <AnimatePresence>
-        {showSplash && <SplashScreen isLoading={isCheckingAuth || isPreloading} progressValue={preloadProgress} onComplete={() => {
+        {showSplash && <SplashScreen isLoading={isCheckingAuth || isPreloading} onComplete={() => {
             setShowSplash(false);
             sessionStorage.setItem('splashShown', 'true');
         }} />}
