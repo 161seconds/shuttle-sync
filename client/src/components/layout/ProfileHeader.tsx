@@ -8,11 +8,11 @@ interface ProfileHeaderProps {
 
 export default function ProfileHeader({ title, onBack, rightContent }: ProfileHeaderProps) {
     return (
-        <div className={`sticky top-16 z-30 bg-black/40 backdrop-blur-xl border-b border-white/5 overflow-hidden`}>
+        <div className={`sticky top-16 z-30 bg-background/60 backdrop-blur-2xl border-b border-border/50 overflow-hidden`}>
             {/* Ambient Aurora Glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent opacity-60 pointer-events-none" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-500/5 via-transparent to-transparent opacity-50 pointer-events-none" />
 
-            <div className="relative flex items-center justify-between px-4 sm:px-6 h-16 max-w-5xl mx-auto">
+            <div className="relative flex items-center justify-between px-4 sm:px-6 h-14 max-w-5xl mx-auto">
                 {/* Back Button */}
                 <button
                     onClick={onBack}

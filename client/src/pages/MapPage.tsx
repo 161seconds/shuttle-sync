@@ -471,20 +471,28 @@ export default function MapPage() {
             {/* DANH SÁCH CAROUSEL CÁC SÂN */}
             {!selected && courts.length > 0 && (
                 <div className="absolute bottom-16.5 left-0 right-0 z-20 w-full pointer-events-none">
-                    <div className="flex overflow-x-auto px-4 pb-4 gap-3 snap-x snap-mandatory hide-scrollbar pointer-events-auto">
+                    <div className="flex overflow-x-auto px-4 pb-4 gap-4 snap-x snap-mandatory hide-scrollbar pointer-events-auto">
                         {courts.slice(0, 10).map((court) => {
                             const coords = getCourtCoords(court);
                             return (
                                 <div key={court._id} onClick={() => { setSelected(court); setShowRoute(false); setRouteInfo(null); if (coords) map.current?.flyTo({ center: coords, zoom: 15.5, pitch: 60, duration: 1500 }); }}
-                                    className="min-w-65 md:min-w-70 snap-center shrink-0 bg-card/80 backdrop-blur-2xl rounded-2xl border border-border p-2.5 shadow-2xl cursor-pointer hover:border-emerald-500/40 hover:bg-surface/90 transition-all duration-300 group">
-                                    <div className="flex gap-3 items-center">
-                                        <img src={mainPhoto(court)} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0 group-hover:scale-105 transition-transform duration-500" />
-                                        <div className="flex-1 min-w-0 py-0.5">
-                                            <h3 className="font-bold text-[14px] text-foreground truncate group-hover:text-emerald-400 transition-colors">{court.name}</h3>
-                                            <p className="text-[12px] text-muted-foreground truncate mt-0.5 flex items-center gap-1"><MapPin className="w-3 h-3" /> {court.address?.district}</p>
-                                            <div className="flex items-center justify-between mt-2">
-                                                <span className="text-emerald-400 font-bold text-[13px] bg-emerald-500/10 px-1.5 py-0.5 rounded-lg">{formatPrice(court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0)}/h</span>
-                                                <span className="text-[11px] font-bold bg-surface text-amber-400 px-1.5 py-0.5 rounded-lg flex items-center gap-1 border border-border">⭐ {court.averageRating?.toFixed(1) || '5.0'}</span>
+                                    className="min-w-65 md:min-w-80 snap-center shrink-0 bg-card/70 backdrop-blur-3xl rounded-3xl border border-white/5 p-3 shadow-2xl cursor-pointer hover:border-emerald-500/40 hover:bg-surface/90 hover:-translate-y-1 transition-all duration-300 group">
+                                    <div className="flex gap-4 items-center h-full">
+                                        <div className="w-20 h-20 shrink-0 relative overflow-hidden rounded-2xl shadow-lg">
+                                            <img src={mainPhoto(court)} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
+                                        </div>
+                                        <div className="flex-1 min-w-0 py-1 flex flex-col justify-between h-full">
+                                            <div>
+                                                <h3 className="font-extrabold text-[15px] text-foreground truncate group-hover:text-emerald-400 transition-colors leading-tight">{court.name}</h3>
+                                                <p className="text-[12px] font-medium text-muted-foreground truncate mt-1 flex items-center gap-1.5">
+                                                    <MapPin className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> 
+                                                    {court.address?.district}
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center justify-between mt-auto">
+                                                <span className="text-emerald-400 font-black text-[14px] bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-lg shadow-inner">{formatPrice(court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0)}<span className="text-[10px] font-semibold text-emerald-500/60 ml-0.5">/h</span></span>
+                                                <span className="text-[12px] font-bold bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-lg flex items-center gap-1 border border-amber-500/20 shadow-inner"><Star className="w-3 h-3 fill-amber-400" /> {court.averageRating?.toFixed(1) || '5.0'}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -497,36 +505,52 @@ export default function MapPage() {
 
             {/* POPUP CHI TIẾT SÂN */}
             {selected && (
-                <div className="absolute bottom-28 left-4 right-4 md:left-auto md:right-8 md:w-88 z-30 bg-card/95 backdrop-blur-2xl rounded-3xl border border-border p-4 shadow-card transition-all animate-in fade-in slide-in-from-bottom-8">
+                <div className="absolute bottom-28 left-4 right-4 md:left-auto md:right-8 md:w-96 z-30 bg-card/80 backdrop-blur-3xl rounded-[2rem] border border-white/5 p-5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] transition-all animate-in fade-in slide-in-from-bottom-8 overflow-hidden group/popup">
+                    <div className="absolute -right-20 -top-20 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    
                     <button onClick={() => {
                         setSelected(null);
                         setShowRoute(false);
                         setRouteInfo(null);
                         clearRoute();
                         map.current?.flyTo({ pitch: 0, duration: 1000 }); // Đóng popup thì trả góc cam
-                    }} className="absolute top-6 right-6 w-8 h-8 rounded-full bg-card backdrop-blur-md border border-border flex items-center justify-center text-foreground/80 hover:text-foreground hover:bg-foreground/5 hover:border-foreground/10 active:scale-95 transition-all z-10">
+                    }} className="absolute top-7 right-7 w-9 h-9 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white/80 hover:text-white hover:bg-black/60 active:scale-95 transition-all z-20 shadow-lg">
                         <X className="w-4 h-4 stroke-[2.5px]" />
                     </button>
-                    <div className="flex flex-col gap-3">
-                        <img src={mainPhoto(selected)} alt="" className="w-full h-32 rounded-2xl object-cover shrink-0" />
+                    
+                    <div className="flex flex-col gap-4 relative z-10">
+                        <div className="relative w-full h-40 rounded-2xl overflow-hidden shadow-lg border border-white/5">
+                            <img src={mainPhoto(selected)} alt="" className="w-full h-full object-cover group-hover/popup:scale-105 transition-transform duration-1000 ease-out" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#08090a] via-transparent to-black/20" />
+                            <div className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center gap-1.5">
+                                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                                <span className="text-white font-bold text-[13px]">{selected.averageRating?.toFixed(1) || '5.0'}</span>
+                                <span className="text-white/60 text-[11px] ml-0.5">({selected.reviewCount || 0})</span>
+                            </div>
+                        </div>
+                        
                         <div className="flex-1 min-w-0">
-                            <h3 className="font-extrabold text-[16px] text-foreground leading-tight">{selected.name}</h3>
-                            <p className="text-[12px] text-muted-foreground flex items-start gap-1.5 mt-1.5"><MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5 text-emerald-500" /><span className="line-clamp-2">{selected.address?.fullAddress || selected.address.district}</span></p>
-                            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
-                                <span className="flex items-center gap-1.5 text-[13px] bg-surface px-2.5 py-1 rounded-xl border border-border"><Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /><span className="text-foreground font-bold">{selected.averageRating?.toFixed(1) || '5.0'}</span></span>
-                                <span className="text-emerald-400 text-[14px] font-black bg-emerald-500/10 px-2.5 py-1 rounded-xl flex-1 text-center border border-emerald-500/20">{formatPrice(selected.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0)} / Giờ</span>
+                            <h3 className="font-black text-[18px] text-foreground leading-tight tracking-tight">{selected.name}</h3>
+                            <p className="text-[13px] font-medium text-muted-foreground flex items-start gap-1.5 mt-2"><MapPin className="w-4 h-4 shrink-0 mt-0.5 text-emerald-500" /><span className="line-clamp-2">{selected.address?.fullAddress || selected.address.district}</span></p>
+                            <div className="flex items-center gap-3 mt-4 pt-4 border-t border-white/5">
+                                <div className="bg-surface/50 border border-border px-3 py-1.5 rounded-xl flex items-center gap-2">
+                                    <span className="text-[12px] font-bold text-muted-foreground uppercase tracking-wider">{selected.sportTypes?.includes('badminton') ? '🏸 Cầu lông' : '🎾 Pickleball'}</span>
+                                </div>
+                                <div className="text-emerald-400 text-[16px] font-black bg-emerald-500/10 px-3 py-1.5 rounded-xl flex-1 text-center border border-emerald-500/20 shadow-inner">
+                                    {formatPrice(selected.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 0)} <span className="text-xs text-emerald-500/50">/ Giờ</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                     {routeInfo && (
-                        <div className="flex items-center justify-between gap-2 mt-3 px-3 py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20">
-                            <span className="flex items-center gap-1.5 text-[12px] font-bold text-blue-400"><Ruler className="w-4 h-4" /> {routeInfo.distance}</span>
-                            <span className="flex items-center gap-1.5 text-[12px] font-bold text-blue-400"><Clock className="w-4 h-4" /> {routeInfo.duration}</span>
+                        <div className="flex items-center justify-between gap-3 mt-4 px-4 py-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 relative z-10 shadow-inner">
+                            <span className="flex items-center gap-2 text-[13px] font-bold text-blue-400"><Ruler className="w-4 h-4" /> {routeInfo.distance}</span>
+                            <span className="flex items-center gap-2 text-[13px] font-bold text-blue-400"><Clock className="w-4 h-4" /> {routeInfo.duration}</span>
                         </div>
                     )}
-                    <div className="flex gap-2 mt-4">
-                        <button onClick={handleGetDirections} className={`flex-1 py-3 rounded-xl text-[14px] font-bold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] ${showRoute ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40' : 'bg-blue-500/5 text-blue-400/80 border border-blue-500/10 hover:bg-blue-500/10 hover:text-blue-400'}`}><Route className="w-4 h-4" /> Tìm đường</button>
-                        <button onClick={() => setBookingCourt(selected)} className="flex-1 py-3 rounded-xl bg-linear-to-r from-emerald-500 to-emerald-400 text-black text-[14px] font-bold flex items-center justify-center gap-1.5 hover:opacity-90 transition-opacity shadow-glow-lg active:scale-[0.98]"><Calendar className="w-4 h-4" /> Đặt lịch</button>
+                    <div className="flex gap-3 mt-5 relative z-10">
+                        <button onClick={handleGetDirections} className={`flex-1 py-3.5 rounded-2xl text-[14px] font-black flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg ${showRoute ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40 shadow-blue-500/10' : 'bg-surface border border-border text-foreground hover:bg-blue-500/10 hover:text-blue-400 hover:border-blue-500/20'}`}><Route className="w-4 h-4" /> ĐƯỜNG ĐI</button>
+                        <button onClick={() => setBookingCourt(selected)} className="flex-[1.5] py-3.5 rounded-2xl bg-emerald-500 text-black text-[14px] font-black flex items-center justify-center gap-2 hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/25 active:scale-[0.98]"><Calendar className="w-4 h-4" /> ĐẶT LỊCH</button>
                     </div>
                 </div>
             )}

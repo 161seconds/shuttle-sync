@@ -142,25 +142,27 @@ export default function AdminDashboard() {
                 {/* ================= HÀNG 1: WELCOME & IDEAS ================= */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                    <div className="lg:col-span-2 rounded-xl p-8 bg-emerald-950 border border-emerald-500/30 flex flex-col justify-center relative overflow-hidden shadow-glow">
-                        <div className="absolute -right-10 -top-20 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
-                        <div className="absolute right-32 -bottom-20 w-48 h-48 bg-emerald-900 opacity-20 rounded-full blur-2xl"></div>
+                    <div className="lg:col-span-2 rounded-3xl p-8 lg:p-10 bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-800 dark:from-emerald-950 dark:via-black dark:to-[#052e16] border border-emerald-500/30 flex flex-col justify-center relative overflow-hidden shadow-[0_0_50px_-12px_rgba(16,185,129,0.3)]">
+                        <div className="absolute -right-20 -top-20 w-80 h-80 bg-white/20 dark:bg-emerald-500/20 rounded-full blur-[100px]"></div>
+                        <div className="absolute left-10 -bottom-20 w-64 h-64 bg-black/10 dark:bg-emerald-700/20 rounded-full blur-[80px]"></div>
 
-                        <h2 className="text-4xl font-black text-white mb-3 tracking-tight relative z-10">Xin chào {user?.displayName || 'Admin'},</h2>
-                        <p className="text-emerald-50 max-w-lg text-base font-medium opacity-90 leading-relaxed mb-8 relative z-10">
+                        <h2 className="text-4xl lg:text-5xl font-black text-white mb-4 tracking-tight relative z-10 leading-tight">Xin chào {user?.displayName || 'Admin'},</h2>
+                        <p className="text-emerald-50 max-w-xl text-[15px] font-medium leading-relaxed mb-10 relative z-10">
                             Chào mừng đến với Bảng điều khiển ShuttleSync! Theo dõi doanh thu, quản lý sân và nắm bắt mọi thông tin chi tiết về hệ thống một cách trực quan.
                         </p>
                         <button
                             onClick={handleScrollToStats}
-                            className="bg-black text-emerald-400 font-black uppercase tracking-wider px-8 py-3.5 rounded-xl w-max hover:bg-emerald-400 hover:text-black transition-all shadow-xl shadow-black/20 relative z-10 active:scale-95"
+                            className="bg-emerald-500 text-black font-black uppercase tracking-widest text-[14px] px-8 py-4 rounded-xl w-max hover:bg-emerald-400 transition-all shadow-[0_0_30px_-5px_rgba(16,185,129,0.5)] hover:shadow-[0_0_40px_0px_rgba(16,185,129,0.6)] relative z-10 active:scale-95 flex items-center gap-2"
                         >
-                            Khám phá ngay
+                            Khám phá ngay <ArrowDownRight className="w-5 h-5" />
                         </button>
                     </div>
 
                     {/* Thẻ Ideas for You */}
-                    <div className="rounded-xl p-6 bg-card border-2 border-white/5 flex flex-col justify-between shadow-sm">
-                        <div className="flex justify-between items-center mb-4">
+                    <div className="rounded-3xl p-7 bg-white/50 dark:bg-black/40 backdrop-blur-3xl border border-black/5 dark:border-white/10 flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.05)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)] relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                        
+                        <div className="flex justify-between items-center mb-4 relative z-10">
                             <h3 className="text-sm font-semibold text-muted-foreground">Gợi ý cho bạn ({currentIdea + 1}/{IDEAS.length})</h3>
                             <div className="flex gap-2">
                                 <button onClick={prevIdea} className="w-7 h-7 rounded bg-emerald-500/10 text-emerald-100/70 flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-50 transition-colors active:scale-90">
@@ -171,7 +173,7 @@ export default function AdminDashboard() {
                                 </button>
                             </div>
                         </div>
-                        <div className="animate-in fade-in slide-in-from-right-4 duration-300" key={currentIdea}>
+                        <div className="animate-in fade-in slide-in-from-right-4 duration-300 relative z-10" key={currentIdea}>
                             <h2 className="text-lg font-bold text-foreground mb-2">{IDEAS[currentIdea].title}</h2>
                             <p className="text-sm text-muted-foreground mb-5 line-clamp-3 leading-relaxed min-h-15">
                                 {IDEAS[currentIdea].desc}
@@ -200,7 +202,7 @@ export default function AdminDashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                     {/* Biểu đồ Doanh thu (Recharts AreaChart) */}
-                    <div className="lg:col-span-2 rounded-xl p-6 bg-card border-2 border-white/5 shadow-sm flex flex-col relative overflow-hidden group">
+                    <div className="lg:col-span-2 rounded-3xl p-7 bg-white/50 dark:bg-black/40 backdrop-blur-3xl border border-black/5 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.05)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)] flex flex-col relative overflow-hidden group">
                         <h3 className="text-lg font-black uppercase tracking-wider text-foreground mb-6">Biến động Doanh thu</h3>
                         <div className="flex gap-6 mb-8">
                             <div className="p-4 rounded-xl bg-card border border-border flex-1">
@@ -247,7 +249,7 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* Biểu đồ Tròn (Recharts Donut Chart) - Chỉ Cầu lông và Pickleball */}
-                    <div className="rounded-xl p-6 bg-card border-2 border-white/5 shadow-sm flex flex-col">
+                    <div className="rounded-3xl p-7 bg-white/50 dark:bg-black/40 backdrop-blur-3xl border border-black/5 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.05)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)] flex flex-col relative overflow-hidden">
                         <h3 className="text-lg font-black uppercase tracking-wider text-foreground mb-2">Tỉ trọng đặt sân</h3>
 
                         <div className="w-full flex-1 min-h-55 relative">
@@ -297,7 +299,7 @@ export default function AdminDashboard() {
 
                 {/* ================= HÀNG 4: BẢNG DỮ LIỆU VÀ SÂN HOT ================= */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 rounded-xl p-6 bg-card border-2 border-white/5 shadow-sm flex flex-col min-w-0">
+                    <div className="lg:col-span-2 rounded-3xl p-7 bg-white/50 dark:bg-black/40 backdrop-blur-3xl border border-black/5 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.05)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)] flex flex-col min-w-0">
                         <div className="flex items-center justify-between mb-6 shrink-0">
                             <h3 className="text-lg font-black uppercase tracking-wider text-foreground">Đơn đặt gần đây</h3>
                             <button 
@@ -342,7 +344,7 @@ export default function AdminDashboard() {
                         </div>
                     </div>
 
-                    <div className="rounded-xl p-6 bg-card border-2 border-white/5 shadow-sm min-w-0">
+                    <div className="rounded-3xl p-7 bg-white/50 dark:bg-black/40 backdrop-blur-3xl border border-black/5 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.05)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)] min-w-0">
                         <h3 className="text-lg font-black uppercase tracking-wider text-foreground mb-6">Sân Hot Nhất</h3>
                         <div className="space-y-5">
                             {topCourts?.map((court: any) => (
@@ -383,17 +385,19 @@ export default function AdminDashboard() {
 
 function StatCard({ title, value, trend, isPositive, icon, iconBg }: any) {
     return (
-        <div className="rounded-xl p-6 bg-card border-2 border-white/5 flex flex-col justify-between shadow-sm hover:border-emerald-500/50 transition-all group relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="flex items-center gap-4 mb-5 relative z-10">
-                <div className={`w-12 h-12 rounded-xl shadow-lg flex items-center justify-center ${iconBg}`}>
+        <div className="rounded-3xl p-7 bg-white/50 dark:bg-black/40 backdrop-blur-3xl border border-black/5 dark:border-white/10 flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.05)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)] hover:border-emerald-500/50 transition-all duration-300 group relative overflow-hidden hover:-translate-y-1">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 opacity-0 group-hover:opacity-100 transition-all duration-500" />
+            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-colors" />
+            
+            <div className="flex items-center gap-4 mb-6 relative z-10">
+                <div className={`w-14 h-14 rounded-2xl shadow-inner border border-black/5 dark:border-white/5 flex items-center justify-center ${iconBg}`}>
                     {icon}
                 </div>
                 <span className="text-[13px] font-black uppercase tracking-wider text-muted-foreground">{title}</span>
             </div>
             <div className="flex items-end justify-between relative z-10">
-                <span className="text-[32px] font-black tracking-tight text-foreground leading-none">{value}</span>
-                <span className={`text-sm font-black flex items-center gap-0.5 ${isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
+                <span className="text-[36px] font-black tracking-tight text-foreground leading-none">{value}</span>
+                <span className={`text-[15px] font-black flex items-center gap-0.5 px-3 py-1.5 rounded-xl bg-surface border border-black/5 dark:border-white/5 shadow-inner ${isPositive ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>
                     {trend} {isPositive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                 </span>
             </div>
@@ -445,15 +449,16 @@ function TopCourt({ name, bookings, revenue, status, statusColor, onClick }: any
 }
 function ModalWrapper({ title, onClose, children, maxWidth = "max-w-2xl" }: { title: string, onClose: () => void, children: React.ReactNode, maxWidth?: string }) {
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/90 backdrop-blur-md animate-in fade-in duration-200">
-            <div className={`w-full ${maxWidth} bg-card border-2 border-white/10 rounded-xl shadow-2xl shadow-emerald-900/20 overflow-hidden flex flex-col max-h-[90vh]`}>
-                <div className="flex items-center justify-between p-5 border-b border-border">
-                    <h2 className="text-lg font-bold text-foreground">{title}</h2>
-                    <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface text-muted-foreground hover:text-foreground transition-colors">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300">
+            <div className={`w-full ${maxWidth} bg-white/90 dark:bg-black/80 backdrop-blur-3xl border border-black/5 dark:border-white/10 rounded-3xl shadow-[0_0_60px_-15px_rgba(16,185,129,0.3)] overflow-hidden flex flex-col max-h-[90vh]`}>
+                <div className="flex items-center justify-between p-6 border-b border-black/5 dark:border-white/5 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <h2 className="text-xl font-black text-foreground relative z-10">{title}</h2>
+                    <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full bg-surface border border-black/5 dark:border-white/5 text-muted-foreground hover:text-foreground dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors relative z-10 shadow-inner">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
-                <div className="p-6 overflow-y-auto custom-scrollbar">
+                <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar relative z-10">
                     {children}
                 </div>
             </div>
