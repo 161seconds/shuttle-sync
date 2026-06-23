@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Bot, Sparkles, Loader2, Activity } from 'lucide-react';
-//import { useNavigate } from 'react-router-dom';
+import { Send, Bot, Sparkles, Loader2, Activity, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import PremiumBackground from '../components/ui/PremiumBackground';
 import axiosClient from '../api/axiosClient';
 import Markdown from 'react-markdown';
 
@@ -15,7 +16,7 @@ interface Message {
 }
 
 export default function AiCoach() {
-    //const navigate = useNavigate();
+    const navigate = useNavigate();
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -116,17 +117,14 @@ export default function AiCoach() {
 
     return (
         <div className="flex flex-col h-[calc(100vh-64px)] bg-background relative overflow-hidden">
-            {/* Ambient bg - breathing orbs */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-[120px] transition-all duration-[3000ms] ${isTyping ? 'bg-emerald-500/15 scale-125' : 'bg-emerald-500/5 scale-100'}`} />
-                <div className={`absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-[100px] transition-all duration-[3000ms] ${isTyping ? 'bg-teal-500/10 scale-125' : 'bg-teal-500/5 scale-100'}`} />
-                {/* Subtle noise texture */}
-                <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-            </div>
+            <PremiumBackground />
 
             {/* Header */}
-            <div className="relative z-20 flex items-center justify-between px-5 py-5.5 bg-background/80 backdrop-blur-xl border-b border-border shadow-sm">
+            <div className="relative z-20 flex items-center justify-between px-5 py-5.5 bg-background/40 backdrop-blur-2xl border-b border-border/50 shadow-sm">
                 <div className="flex items-center gap-3">
+                    <button onClick={() => navigate(-1)} className="p-2 -ml-2 mr-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                        <ArrowLeft size={20} />
+                    </button>
                     <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 shadow-glow">
                         <Bot size={20} className="text-emerald-400" />
                         <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-background rounded-full flex items-center justify-center">
@@ -232,7 +230,7 @@ export default function AiCoach() {
             </div>
 
             {/* Input */}
-            <div className="relative z-20 shrink-0 w-full px-4 pt-4 pb-6 bg-gradient-to-t from-background via-background/95 to-transparent">
+            <div className="relative z-20 shrink-0 w-full px-4 pt-4 pb-6 bg-background/40 backdrop-blur-2xl border-t border-border/50">
                 <div className="relative flex items-center max-w-4xl gap-3 mx-auto">
                     <div className="relative flex-1 group">
                         <input

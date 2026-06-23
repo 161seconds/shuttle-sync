@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Newspaper, Clock, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { EmojiIcon } from '../components/EmojiIcon';
+import PremiumBackground from '../components/ui/PremiumBackground';
 
 type NewsCategory = 'all' | 'badminton' | 'pickleball' | 'gear';
 
@@ -129,13 +130,7 @@ export default function NewsPage() {
     return (
         <div className="w-full h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar news-container bg-background relative font-sans text-muted-foreground">
 
-            {/* Animated Ambient Background */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[50%] rounded-full bg-blue-500/30 dark:bg-blue-600/10 blur-[120px] dark:mix-blend-screen animate-pulse" style={{ animationDuration: '8s' }} />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[50%] rounded-full bg-purple-500/30 dark:bg-purple-600/10 blur-[120px] dark:mix-blend-screen animate-pulse" style={{ animationDuration: '10s', animationDelay: '2s' }} />
-                <div className="absolute top-[30%] left-[30%] w-[40%] h-[40%] rounded-full bg-emerald-500/20 dark:bg-emerald-500/5 blur-[100px] dark:mix-blend-screen animate-pulse" style={{ animationDuration: '12s', animationDelay: '4s' }} />
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-            </div>
+            <PremiumBackground />
 
             <div className="max-w-[1400px] mx-auto p-6 md:p-10 pb-24 space-y-12 relative z-10">
                 {/* Header */}

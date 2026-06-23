@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AlertTriangle, CheckCircle2, Info, Swords, ShieldBan, Zap, Target } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EmojiIcon } from '../components/EmojiIcon';
+import PremiumBackground from '../components/ui/PremiumBackground';
 
 
 // ═══ DỮ LIỆU LUẬT & KỸ THUẬT CHO CẢ 2 MÔN ═══
@@ -108,12 +109,7 @@ export default function RulesPage() {
     return (
         <div className="w-full h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-background relative font-sans text-muted-foreground">
 
-            {/* Animated Ambient Background */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-                <div className={`absolute top-[-10%] left-[-10%] w-[40%] h-[50%] rounded-full blur-[120px] dark:mix-blend-screen animate-pulse transition-colors duration-1000 ${activeTab === 'badminton' ? 'bg-emerald-500/30 dark:bg-emerald-600/10' : 'bg-orange-500/30 dark:bg-orange-600/10'}`} style={{ animationDuration: '8s' }} />
-                <div className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[50%] rounded-full blur-[120px] dark:mix-blend-screen animate-pulse transition-colors duration-1000 ${activeTab === 'badminton' ? 'bg-blue-500/30 dark:bg-blue-600/10' : 'bg-red-500/30 dark:bg-red-600/10'}`} style={{ animationDuration: '10s', animationDelay: '2s' }} />
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-            </div>
+            <PremiumBackground />
 
             <div className="max-w-[1400px] mx-auto p-6 md:p-10 pb-24 space-y-12 relative z-10">
 
