@@ -203,6 +203,49 @@ class AuthController {
             // Điểm đánh giá: lấy từ trường rating của User (nếu có), mặc định ban đầu là 5.0 tinh khôi
             let rating = (user as any).rating || 5.0;
 
+            // Xử lý chuỗi hoạt động (activity streak)
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+            let currentStreak = user.stats?.activityStreak || 0;
+            let lastActive = user.lastActiveDate;
+            let needsSave = false;
+
+            if (lastActive) {
+                const lastActiveStr = lastActive.toISOString().split('T')[0];
+                if (lastActiveStr !== todayStr) {
+                    const yesterday = new Date(now);
+                    yesterday.setDate(now.getDate() - 1);
+                    const yesterdayStr = yesterday.toISOString().split('T')[0];
+                    
+                    if (lastActiveStr === yesterdayStr) {
+                        currentStreak += 1;
+                    } else {
+                        currentStreak = 1;
+                    }
+                    user.lastActiveDate = now;
+                    if (!user.stats) user.stats = {} as any;
+                    user.stats.activityStreak = currentStreak;
+                    needsSave = true;
+                }
+            } else {
+                currentStreak = 1;
+                user.lastActiveDate = now;
+                if (!user.stats) user.stats = {} as any;
+                user.stats.activityStreak = currentStreak;
+                needsSave = true;
+            }
+
+            if (needsSave) {
+                // Không select password nên có thể save bình thường, 
+                // nhưng để tránh lỗi validation do thiếu field required, ta dùng updateOne hoặc cẩn thận.
+                await User.updateOne({ _id: user._id }, { 
+                    $set: { 
+                        lastActiveDate: now,
+                        'stats.activityStreak': currentStreak 
+                    } 
+                });
+            }
+
             // 3. Tiến hành truy vấn đếm số lượng từ các Model khác
             try {
                 const mongoose = require('mongoose');
@@ -240,12 +283,13 @@ class AuthController {
                 totalBookings: totalBookings,
                 totalGroupsCreated: totalGroupsCreated,
                 totalGroupsJoined: totalGroupsJoined,
-                // Bổ sung 4 trường còn thiếu để TS hết chửi:
+                // Bổ sung các trường còn thiếu:
                 totalTournaments: currentStats.totalTournaments || 0,
                 noShowCount: currentStats.noShowCount || 0,
                 rating: currentStats.rating || 5.0,
                 reviewCount: currentStats.reviewCount || 0,
-                eloScore: currentStats.eloScore || 1000 // Điểm Elo khởi đầu thường là 1000 hoặc 1200
+                eloScore: currentStats.eloScore || 1000,
+                activityStreak: currentStreak,
             };
 
             // 5. Trả dữ liệu về cho Frontend hưởng lạc

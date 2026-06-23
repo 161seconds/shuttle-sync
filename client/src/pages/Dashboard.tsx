@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Star, Flame, ChevronRight, ChevronLeft, Search, Users, Zap, Clock } from 'lucide-react';
 import { theme as t, formatPrice } from '../utils/theme';
@@ -24,16 +24,44 @@ const MOCK_UPCOMING_GROUPS = [
     { id: 13, name: "Nhóm Khá Giỏi - Kèo Đơn", level: "Giỏi", time: "19:30 - 21:30", location: "Sân Lan Anh", slots: "1/2", price: "90K" },
 ];
 
+const PROMOTIONS = [
+    { id: 1, title: 'Giảm 20% khung giờ vàng', desc: 'Áp dụng cho các sân đặt từ 9h-15h', code: 'VANG20', bg: 'from-emerald-500 to-teal-600' },
+    { id: 2, title: 'Bạn mới giảm 50K', desc: 'Cho lần đặt sân đầu tiên trên ứng dụng', code: 'NEWBIE', bg: 'from-blue-500 to-indigo-600' },
+    { id: 3, title: 'Cuối tuần bùng nổ', desc: 'Hoàn tiền 10% khi đặt sân Thứ 7, CN', code: 'WEEKEND', bg: 'from-orange-500 to-red-600' },
+    { id: 4, title: 'Cặp đôi hoàn hảo', desc: 'Giảm 15% khi đặt sân chơi đôi nam nữ', code: 'COUPLE15', bg: 'from-pink-500 to-rose-600' },
+    { id: 5, title: 'Thẻ thành viên', desc: 'Tặng 1h chơi miễn phí khi tích đủ 10 điểm', code: 'LOYALTY', bg: 'from-purple-500 to-fuchsia-600' }
+];
+
 export default function Dashboard() {
     const { user, setPage, setFilters, setBookingCourt } = useAppStore();
     const [loading, setLoading] = useState(true);
     const [popularCourts, setPopularCourts] = useState<Court[]>([]);
     const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!scrollContainerRef.current || popularCourts.length === 0) return;
+
+        const interval = setInterval(() => {
+            const container = scrollContainerRef.current;
+            if (!container) return;
+
+            const maxScrollLeft = container.scrollWidth - container.clientWidth;
+
+            if (container.scrollLeft >= maxScrollLeft - 10) {
+                container.scrollTo({ left: 0, behavior: 'smooth' });
+            } else {
+                container.scrollTo({ left: container.scrollLeft + 272, behavior: 'smooth' });
+            }
+        }, 10000);
+
+        return () => clearInterval(interval);
+    }, [popularCourts]);
 
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentGroupIndex((prev) => (prev + 1) % MOCK_UPCOMING_GROUPS.length);
-        }, 2000);
+        }, 6000);
         return () => clearInterval(timer);
     }, [currentGroupIndex]);
 
@@ -47,7 +75,7 @@ export default function Dashboard() {
 
     const getVisibleDots = () => {
         const total = MOCK_UPCOMING_GROUPS.length;
-        if (total <= 3) return Array.from({length: total}, (_, i) => i);
+        if (total <= 3) return Array.from({ length: total }, (_, i) => i);
         return [
             (currentGroupIndex - 1 + total) % total,
             currentGroupIndex,
@@ -61,7 +89,7 @@ export default function Dashboard() {
                 setLoading(true);
                 const response = await courtApi.searchCourts({
                     page: 1,
-                    limit: 4,
+                    limit: 20,
                     sortBy: 'rating'
                 });
 
@@ -90,32 +118,71 @@ export default function Dashboard() {
 
     const getGreeting = () => {
         const hour = new Date().getHours();
-        if (hour < 12) return 'Chào buổi sáng';
-        if (hour < 18) return 'Chào buổi chiều';
-        return 'Chào buổi tối';
+        if (hour < 5) return 'Ngủ muộn hay dậy sớm thế';
+        if (hour < 11) return 'Khởi động ngày mới rực rỡ nào';
+        if (hour < 14) return 'Nghỉ trưa nhớ chốt kèo chiều nhé';
+        if (hour < 18) return 'Chiều năng động, xách vợt ra sân thôi';
+        if (hour < 22) return 'Tối mát mẻ, làm vài ván giao lưu không';
+        return 'Khuya rồi, nghỉ ngơi dưỡng sức mai chiến';
     };
 
     return (
-        <div className="max-w-7xl mx-auto px-4 pb-24 md:pb-8 pt-6 space-y-8 overflow-x-hidden">
+        <div className="max-w-7xl mx-auto px-4 pb-64 md:pb-12 pt-6 space-y-8 overflow-x-hidden">
             {/* 1. Header & Lời chào */}
-            <motion.div
-                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                className="flex items-center justify-between"
-            >
-                <div>
-                    <p className={`text-sm ${t.text.muted}`}>{getGreeting()},</p>
-                    <h1 className={`text-2xl font-bold flex items-center gap-2 ${t.text.primary}`}>
-                        {user?.name || 'Lông thủ'} <EmojiIcon name="badminton" className="w-8 h-8" />
-                    </h1>
-                </div>
-                <div
-                    id="tour-matchmaking"
-                    onClick={() => setPage('groupplay')}
-                    className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 cursor-pointer hover:bg-emerald-500/20 transition-colors"
+            <div className="relative">
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center justify-between relative z-10"
                 >
-                    <Users className="w-5 h-5 text-emerald-400" />
-                </div>
-            </motion.div>
+                    <div>
+                        <motion.p 
+                            initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}
+                            className={`text-sm font-medium ${t.text.muted} mb-1`}
+                        >
+                            {getGreeting()},
+                        </motion.p>
+                        <motion.h1 
+                            initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
+                            className="text-2xl font-black flex items-center gap-2"
+                        >
+                            <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                                {user?.name || 'Lông thủ'}
+                            </span>
+                            <motion.div 
+                                animate={{ rotate: [0, 15, -10, 0], y: [0, -5, 0] }} 
+                                transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                            >
+                                <EmojiIcon name="badminton" className="w-8 h-8 drop-shadow-md" />
+                            </motion.div>
+                        </motion.h1>
+                        
+                        {(user?.stats?.activityStreak && user.stats.activityStreak > 0) ? (
+                            <motion.div 
+                                initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+                                className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 shadow-sm shadow-orange-500/5"
+                            >
+                                <Flame className="w-3.5 h-3.5 text-orange-500" />
+                                <span className="text-[10px] font-bold text-orange-400 uppercase tracking-wider">Chuỗi {user.stats.activityStreak} ngày hoạt động</span>
+                            </motion.div>
+                        ) : null}
+                    </div>
+                    
+                    <motion.div
+                        id="tour-matchmaking"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}
+                        onClick={() => setPage('groupplay')}
+                        className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500/20 to-teal-500/10 flex items-center justify-center border border-emerald-500/30 cursor-pointer shadow-lg shadow-emerald-500/10 relative group"
+                    >
+                        <div className="absolute inset-0 rounded-full bg-emerald-400/20 animate-ping opacity-20"></div>
+                        <Users className="w-6 h-6 text-emerald-400 group-hover:text-emerald-300 transition-colors relative z-10" />
+                        
+                        {/* Notification dot */}
+                        <div className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-background"></div>
+                    </motion.div>
+                </motion.div>
+            </div>
 
             {/* 2. Widget: Nhóm sắp diễn ra */}
             <motion.div
@@ -132,13 +199,20 @@ export default function Dashboard() {
                             <ChevronLeft className="w-3 h-3" />
                         </button>
                         <div className="flex gap-1.5 items-center justify-center w-[36px]">
-                            {getVisibleDots().map((idx) => (
-                                <button
-                                    key={idx}
-                                    onClick={() => setCurrentGroupIndex(idx)}
-                                    className={`rounded-full transition-all shrink-0 ${idx === currentGroupIndex ? 'w-2 h-2 bg-emerald-400' : 'w-1.5 h-1.5 bg-emerald-400/20 hover:bg-emerald-400/60'}`}
-                                />
-                            ))}
+                            <AnimatePresence mode="popLayout">
+                                {getVisibleDots().map((idx) => (
+                                    <motion.button
+                                        layout
+                                        initial={{ opacity: 0, scale: 0 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0 }}
+                                        transition={{ duration: 0.2 }}
+                                        key={idx}
+                                        onClick={() => setCurrentGroupIndex(idx)}
+                                        className={`rounded-full shrink-0 ${idx === currentGroupIndex ? 'w-2 h-2 bg-emerald-400' : 'w-1.5 h-1.5 bg-emerald-400/20 hover:bg-emerald-400/60'}`}
+                                    />
+                                ))}
+                            </AnimatePresence>
                         </div>
                         <button onClick={handleNextGroup} className="w-6 h-6 flex items-center justify-center rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 transition-colors">
                             <ChevronRight className="w-3 h-3" />
@@ -244,11 +318,11 @@ export default function Dashboard() {
                     </button>
                 </div>
 
-                <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
+                <div ref={scrollContainerRef} className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
                     {loading ? (
                         /* Skeleton Loading */
-                        Array.from({ length: 3 }).map((_, i) => (
-                            <div key={i} className={`w-64 shrink-0 snap-start rounded-2xl ${t.bg.card} border ${t.border.subtle} p-3 animate-pulse`}>
+                        Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className={`w-59 shrink-0 snap-start rounded-2xl ${t.bg.card} border ${t.border.subtle} p-3 animate-pulse`}>
                                 <div className="w-full h-32 bg-card rounded-xl mb-3"></div>
                                 <div className="h-4 bg-card rounded w-3/4 mb-2"></div>
                                 <div className="h-3 bg-card rounded w-1/2"></div>
@@ -260,7 +334,7 @@ export default function Dashboard() {
                             <div
                                 key={court._id}
                                 onClick={() => setBookingCourt(court)}
-                                className={`w-64 shrink-0 snap-start rounded-2xl ${t.bg.card} border ${t.border.subtle} p-3 hover:border-emerald-500/20 transition-all cursor-pointer group`}
+                                className={`w-59 shrink-0 snap-start rounded-2xl ${t.bg.card} border ${t.border.subtle} p-3 hover:border-emerald-500/20 transition-all cursor-pointer group`}
                             >
                                 <div className="relative w-full h-32 mb-3 overflow-hidden rounded-xl">
                                     <img
@@ -294,21 +368,34 @@ export default function Dashboard() {
                 </div>
             </motion.div>
 
-            {/* 5. Banner Quảng cáo / Sự kiện */}
-            <motion.div
-                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-                className="w-full rounded-2xl bg-linear-to-r from-emerald-500 to-teal-600 p-5 relative overflow-hidden shadow-xl shadow-emerald-500/20"
-            >
-                <div className="absolute right-0 top-0 w-32 h-32 bg-card rounded-full blur-2xl translate-x-1/2 -translate-y-1/2"></div>
-                <div className="relative z-10 w-2/3">
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-card text-foreground text-[10px] font-bold uppercase tracking-wider mb-2">
-                        <Zap className="w-3 h-3" /> Khuyến mãi
-                    </span>
-                    <h3 className="text-xl font-black text-foreground mb-1 leading-tight">Giảm 20% khung giờ vàng</h3>
-                    <p className="text-foreground/80 text-xs mb-3">Áp dụng cho các sân đặt từ 9h-15h</p>
-                    <button onClick={() => setPage('search')} className="px-4 py-2 bg-white text-emerald-600 text-sm font-bold rounded-xl shadow-sm active:scale-95 transition-transform">
-                        Đặt ngay
-                    </button>
+            {/* 6. Banner Quảng cáo / Sự kiện */}
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className={`text-lg font-bold ${t.text.primary} flex items-center gap-2`}>
+                        <Zap className="w-5 h-5 text-yellow-500" /> Ưu đãi cho bạn
+                    </h2>
+                </div>
+                <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
+                    {PROMOTIONS.map((promo) => (
+                        <div
+                            key={promo.id}
+                            className={`w-80 shrink-0 snap-start rounded-2xl bg-gradient-to-r ${promo.bg} p-5 relative overflow-hidden shadow-lg flex flex-col`}
+                        >
+                            <div className="absolute right-0 top-0 w-32 h-32 bg-white/20 rounded-full blur-2xl translate-x-1/2 -translate-y-1/2"></div>
+                            <div className="relative z-10 w-[85%] flex flex-col flex-1">
+                                <div>
+                                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white/20 text-white text-[10px] font-bold uppercase tracking-wider mb-2">
+                                        Mã: {promo.code}
+                                    </span>
+                                    <h3 className="text-xl font-black text-white mb-2 leading-tight">{promo.title}</h3>
+                                    <p className="text-white/80 text-xs mb-3">{promo.desc}</p>
+                                </div>
+                                <button onClick={() => setPage('search')} className="mt-auto self-start px-4 py-2 bg-white text-gray-900 text-sm font-bold rounded-xl shadow-sm active:scale-95 transition-transform hover:bg-gray-50">
+                                    Dùng ngay
+                                </button>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </motion.div>
         </div>

@@ -26,6 +26,7 @@ export interface IUserDocument extends Document {
         rating: number; // Đánh giá thái độ (1-5 sao)
         reviewCount: number;
         eloScore: number; 
+        activityStreak: number;
     };
     settings: {
         notifications: boolean;
@@ -41,6 +42,7 @@ export interface IUserDocument extends Document {
     };
     refreshTokens: string[];
     lastLoginAt?: Date;
+    lastActiveDate?: Date;
     comparePassword(candidatePassword: string): Promise<boolean>;
     toPublicProfile(): Record<string, unknown>;
 }
@@ -99,6 +101,7 @@ const userSchema = new Schema<IUserDocument>(
             rating: { type: Number, default: 0 },
             reviewCount: { type: Number, default: 0 },
             eloScore: { type: Number, default: 1200 }, // Khởi đầu ai cũng có 1200 điểm Elo
+            activityStreak: { type: Number, default: 0 },
         },
         settings: {
             notifications: { type: Boolean, default: true },
@@ -114,6 +117,7 @@ const userSchema = new Schema<IUserDocument>(
         },
         refreshTokens: { type: [String], select: false, default: [] },
         lastLoginAt: { type: Date },
+        lastActiveDate: { type: Date },
     },
     {
         timestamps: true,
@@ -154,6 +158,7 @@ userSchema.methods.toPublicProfile = function () {
             totalGroupsCreated: this.stats.totalGroupsCreated,
             totalGroupsJoined: this.stats.totalGroupsJoined,
             eloScore: this.stats.eloScore, 
+            activityStreak: this.stats.activityStreak,
         },
     };
 };
