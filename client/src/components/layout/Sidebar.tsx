@@ -2,7 +2,7 @@ import {
     Bot,
     UserCircle, BookOpen, Dumbbell,
     Zap, ChevronRight,
-    BarChart2, Newspaper, Settings, HelpCircle, LogOut, LogIn
+    BarChart2, Newspaper, Settings, HelpCircle, LogOut
 } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { theme as t } from '../../utils/theme';
@@ -29,14 +29,14 @@ export default function AppSidebar() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={toggleSidebar}
-                        className="fixed inset-0 z-40 bg-card backdrop-blur-sm lg:hidden"
+                        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
                     />
                 )}
             </AnimatePresence>
 
             {/* SIDEBAR DẠNG DRAWER */}
             <aside
-                className={`fixed left-0 top-16 bottom-0 z-50 w-64 ${t.bg.base} border-r ${t.border.subtle} flex flex-col h-[calc(100vh-64px)] shadow-2xl transition-transform duration-300 ease-out ${isSideBarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                className={`fixed left-0 top-16 bottom-0 z-50 w-64 bg-background/60 backdrop-blur-3xl border-r ${t.border.subtle} flex flex-col h-[calc(100vh-64px)] shadow-2xl transition-transform duration-300 ease-out ${isSideBarOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
                 {/* KHU VỰC 1: TÊN NGƯỜI DÙNG */}
                 <button
