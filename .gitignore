@@ -8,3 +8,6 @@ uploads/
 coverage/
 .nyc_output/
 *.tsbuildinfo
+
+# AI Agent Configs
+.gemini/
