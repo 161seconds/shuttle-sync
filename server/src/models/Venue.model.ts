@@ -24,6 +24,7 @@ export interface IVenueDocument extends Document {
         reviewsCount: number;
     };
     isActive: boolean;
+    images: string[];
     createdAt: Date;
 }
 
@@ -51,6 +52,7 @@ const VenueSchema = new Schema<IVenueDocument>({
         reviewsCount: { type: Number, default: 0 }
     },
     isActive: { type: Boolean, default: true },
+    images: { type: [String], default: [] },
     createdAt: { type: Date, default: Date.now }
 });
 

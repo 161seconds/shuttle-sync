@@ -41,7 +41,13 @@ class CourtService {
             status: venue.isActive ? 'active' : 'closed',
             isVerified: true,
             totalBookings: 0,
-            photos: venue.photos || [],
+            photos: venue.images?.length > 0 
+                ? venue.images.map((url: string, index: number) => ({
+                    url,
+                    isMain: index === 0,
+                    source: 'google'
+                }))
+                : venue.photos || [],
             amenities: venue.amenities || [],
 
             courts: formattedSubCourts || [],
