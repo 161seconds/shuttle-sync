@@ -142,24 +142,24 @@ export default function AdminDashboard() {
                 {/* ================= HÀNG 1: WELCOME & IDEAS ================= */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                    <div className="lg:col-span-2 rounded-2xl p-8 bg-gradient-to-r from-emerald-900 via-emerald-700 to-emerald-500 flex flex-col justify-center relative overflow-hidden shadow-glow">
+                    <div className="lg:col-span-2 rounded-xl p-8 bg-emerald-950 border border-emerald-500/30 flex flex-col justify-center relative overflow-hidden shadow-glow">
                         <div className="absolute -right-10 -top-20 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
                         <div className="absolute right-32 -bottom-20 w-48 h-48 bg-emerald-900 opacity-20 rounded-full blur-2xl"></div>
 
-                        <h2 className="text-3xl font-bold text-white mb-2 relative z-10">Xin chào {user?.displayName || 'Admin'},</h2>
-                        <p className="text-emerald-50 max-w-lg text-sm leading-relaxed mb-6 relative z-10">
+                        <h2 className="text-4xl font-black text-white mb-3 tracking-tight relative z-10">Xin chào {user?.displayName || 'Admin'},</h2>
+                        <p className="text-emerald-50 max-w-lg text-base font-medium opacity-90 leading-relaxed mb-8 relative z-10">
                             Chào mừng đến với Bảng điều khiển ShuttleSync! Theo dõi doanh thu, quản lý sân và nắm bắt mọi thông tin chi tiết về hệ thống một cách trực quan.
                         </p>
                         <button
                             onClick={handleScrollToStats}
-                            className="bg-background text-emerald-400 font-bold px-6 py-2.5 rounded-lg w-max hover:bg-emerald-50 hover:text-emerald-950 transition-colors shadow-sm relative z-10 border border-emerald-800 active:scale-95"
+                            className="bg-black text-emerald-400 font-black uppercase tracking-wider px-8 py-3.5 rounded-xl w-max hover:bg-emerald-400 hover:text-black transition-all shadow-xl shadow-black/20 relative z-10 active:scale-95"
                         >
                             Khám phá ngay
                         </button>
                     </div>
 
                     {/* Thẻ Ideas for You */}
-                    <div className="rounded-2xl p-6 bg-card border border-border flex flex-col justify-between shadow-sm">
+                    <div className="rounded-xl p-6 bg-card border-2 border-white/5 flex flex-col justify-between shadow-sm">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-sm font-semibold text-muted-foreground">Gợi ý cho bạn ({currentIdea + 1}/{IDEAS.length})</h3>
                             <div className="flex gap-2">
@@ -200,15 +200,15 @@ export default function AdminDashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                     {/* Biểu đồ Doanh thu (Recharts AreaChart) */}
-                    <div className="lg:col-span-2 rounded-2xl p-6 bg-card border border-border shadow-sm flex flex-col">
-                        <h3 className="text-base font-bold text-foreground mb-6">Biến động Doanh thu</h3>
+                    <div className="lg:col-span-2 rounded-xl p-6 bg-card border-2 border-white/5 shadow-sm flex flex-col relative overflow-hidden group">
+                        <h3 className="text-lg font-black uppercase tracking-wider text-foreground mb-6">Biến động Doanh thu</h3>
                         <div className="flex gap-6 mb-8">
                             <div className="p-4 rounded-xl bg-card border border-border flex-1">
                                 <div className="flex items-center gap-2 mb-1">
                                     <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
                                     <span className="text-xs font-semibold text-muted-foreground">Tổng doanh thu</span>
                                 </div>
-                                <p className="text-2xl font-bold text-foreground">{(totalRevenue / 1000)?.toLocaleString() || '0'}K</p>
+                                <p className="text-3xl font-black tracking-tight text-foreground">{(totalRevenue / 1000)?.toLocaleString() || '0'}K</p>
                             </div>
                         </div>
 
@@ -247,8 +247,8 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* Biểu đồ Tròn (Recharts Donut Chart) - Chỉ Cầu lông và Pickleball */}
-                    <div className="rounded-2xl p-6 bg-card border border-border shadow-sm flex flex-col">
-                        <h3 className="text-base font-bold text-foreground mb-2">Tỉ trọng đặt sân</h3>
+                    <div className="rounded-xl p-6 bg-card border-2 border-white/5 shadow-sm flex flex-col">
+                        <h3 className="text-lg font-black uppercase tracking-wider text-foreground mb-2">Tỉ trọng đặt sân</h3>
 
                         <div className="w-full flex-1 min-h-55 relative">
                             <ResponsiveContainer width="100%" height="100%">
@@ -276,7 +276,7 @@ export default function AdminDashboard() {
                             {/* Chữ hiển thị ở giữa Donut */}
                             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                 <span className="text-muted-foreground text-xs">Tổng số</span>
-                                <span className="text-2xl font-bold text-foreground">{totalPieValue}</span>
+                                <span className="text-3xl font-black text-foreground">{totalPieValue}</span>
                             </div>
                         </div>
 
@@ -297,9 +297,9 @@ export default function AdminDashboard() {
 
                 {/* ================= HÀNG 4: BẢNG DỮ LIỆU VÀ SÂN HOT ================= */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 rounded-2xl p-6 bg-card border border-border shadow-sm flex flex-col min-w-0">
+                    <div className="lg:col-span-2 rounded-xl p-6 bg-card border-2 border-white/5 shadow-sm flex flex-col min-w-0">
                         <div className="flex items-center justify-between mb-6 shrink-0">
-                            <h3 className="text-base font-bold text-foreground">Đơn đặt gần đây</h3>
+                            <h3 className="text-lg font-black uppercase tracking-wider text-foreground">Đơn đặt gần đây</h3>
                             <button 
                                 onClick={() => setActiveModal('allBookings')}
                                 className="text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
@@ -342,8 +342,8 @@ export default function AdminDashboard() {
                         </div>
                     </div>
 
-                    <div className="rounded-2xl p-6 bg-card border border-border shadow-sm min-w-0">
-                        <h3 className="text-base font-bold text-foreground mb-6">Sân Hot Nhất</h3>
+                    <div className="rounded-xl p-6 bg-card border-2 border-white/5 shadow-sm min-w-0">
+                        <h3 className="text-lg font-black uppercase tracking-wider text-foreground mb-6">Sân Hot Nhất</h3>
                         <div className="space-y-5">
                             {topCourts?.map((court: any) => (
                                 <TopCourt
@@ -383,16 +383,17 @@ export default function AdminDashboard() {
 
 function StatCard({ title, value, trend, isPositive, icon, iconBg }: any) {
     return (
-        <div className="rounded-2xl p-6 bg-card border border-border flex flex-col justify-between shadow-sm hover:border-border transition-colors">
-            <div className="flex items-center gap-4 mb-5">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${iconBg}`}>
+        <div className="rounded-xl p-6 bg-card border-2 border-white/5 flex flex-col justify-between shadow-sm hover:border-emerald-500/50 transition-all group relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="flex items-center gap-4 mb-5 relative z-10">
+                <div className={`w-12 h-12 rounded-xl shadow-lg flex items-center justify-center ${iconBg}`}>
                     {icon}
                 </div>
-                <span className="text-sm font-semibold text-muted-foreground">{title}</span>
+                <span className="text-[13px] font-black uppercase tracking-wider text-muted-foreground">{title}</span>
             </div>
-            <div className="flex items-end justify-between">
-                <span className="text-[28px] font-bold text-foreground leading-none">{value}</span>
-                <span className={`text-sm font-bold flex items-center gap-0.5 ${isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
+            <div className="flex items-end justify-between relative z-10">
+                <span className="text-[32px] font-black tracking-tight text-foreground leading-none">{value}</span>
+                <span className={`text-sm font-black flex items-center gap-0.5 ${isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
                     {trend} {isPositive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                 </span>
             </div>
@@ -444,8 +445,8 @@ function TopCourt({ name, bookings, revenue, status, statusColor, onClick }: any
 }
 function ModalWrapper({ title, onClose, children, maxWidth = "max-w-2xl" }: { title: string, onClose: () => void, children: React.ReactNode, maxWidth?: string }) {
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className={`w-full ${maxWidth} bg-card border border-white/5 rounded-2xl shadow-2xl shadow-emerald-900/20 overflow-hidden flex flex-col max-h-[90vh]`}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/90 backdrop-blur-md animate-in fade-in duration-200">
+            <div className={`w-full ${maxWidth} bg-card border-2 border-white/10 rounded-xl shadow-2xl shadow-emerald-900/20 overflow-hidden flex flex-col max-h-[90vh]`}>
                 <div className="flex items-center justify-between p-5 border-b border-border">
                     <h2 className="text-lg font-bold text-foreground">{title}</h2>
                     <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface text-muted-foreground hover:text-foreground transition-colors">

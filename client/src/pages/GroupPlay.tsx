@@ -222,12 +222,12 @@ export default function GroupPlayPage() {
             <div className="flex gap-3 mb-6 relative z-10">
                 <div className="relative flex-1 group">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500" />
-                    <div className="relative flex items-center bg-card border border-border rounded-2xl h-14 overflow-hidden">
-                        <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
+                    <div className="relative flex items-center bg-card border border-border rounded-2xl h-14 overflow-hidden shadow-sm">
+                        <Search className="absolute left-4 w-5 h-5 text-emerald-100/50" />
                         <input
                             type="text" placeholder="Tìm tên nhóm, sân, khu vực..." value={searchVal}
                             onChange={e => setSearchVal(e.target.value)}
-                            className="w-full h-full pl-12 pr-4 bg-transparent text-foreground text-sm outline-none placeholder:text-muted-foreground"
+                            className="w-full h-full pl-12 pr-4 bg-transparent text-foreground text-sm outline-none placeholder:text-emerald-100/50"
                         />
                     </div>
                 </div>
@@ -239,7 +239,7 @@ export default function GroupPlayPage() {
                     const isActive = sportFilter === f.id;
                     return (
                         <button key={f.id} onClick={() => setSportFilter(f.id)}
-                            className={`relative px-6 py-2.5 rounded-xl text-sm font-bold transition-colors duration-300 z-10 flex items-center gap-2 ${isActive ? 'text-black' : 'text-muted-foreground hover:text-foreground'}`}>
+                            className={`relative px-6 py-2.5 rounded-xl text-sm font-bold transition-colors duration-300 z-10 flex items-center gap-2 ${isActive ? 'text-black' : 'text-emerald-100/70 hover:text-emerald-50 hover:bg-emerald-500/10'}`}>
                             {isActive && (
                                 <motion.div layoutId="sport-pill-bg"
                                     className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-xl -z-10 shadow-lg shadow-emerald-500/20"
@@ -297,26 +297,26 @@ export default function GroupPlayPage() {
                                 </div>
 
                                 {/* Info Grid */}
-                                <div className="grid grid-cols-2 gap-y-3 gap-x-4 mb-5 p-4 rounded-2xl bg-card border border-border">
-                                    <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                                <div className="grid grid-cols-2 gap-y-3 gap-x-4 mb-5 p-4 rounded-2xl bg-white/5 border border-white/5">
+                                    <div className="flex items-center gap-2.5 text-sm text-emerald-100/70">
                                         <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
                                             <MapPin className="w-3.5 h-3.5 text-emerald-400" />
                                         </div>
                                         <span className="truncate">{typeof g.courtId === 'object' && g.courtId ? g.courtId.name : 'Sân cầu lông'}</span>
                                     </div>
-                                    <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                                    <div className="flex items-center gap-2.5 text-sm text-emerald-100/70">
                                         <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
                                             <Calendar className="w-3.5 h-3.5 text-emerald-400" />
                                         </div>
                                         <span>{formatDate(g.date)}</span>
                                     </div>
-                                    <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                                    <div className="flex items-center gap-2.5 text-sm text-emerald-100/70">
                                         <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
                                             <Clock className="w-3.5 h-3.5 text-emerald-400" />
                                         </div>
                                         <span>{g.startTime} - {g.endTime}</span>
                                     </div>
-                                    <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                                    <div className="flex items-center gap-2.5 text-sm text-emerald-100/70">
                                         <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
                                             <Users className="w-3.5 h-3.5 text-emerald-400" />
                                         </div>
@@ -341,9 +341,9 @@ export default function GroupPlayPage() {
                                                 </div>
                                             )}
                                         </div>
-                                        {g.participants.length === 0 && <span className="text-xs text-muted-foreground italic">Chưa có ai tham gia</span>}
+                                        {g.participants.length === 0 && <span className="text-xs text-emerald-100/50 italic">Chưa có ai tham gia</span>}
                                     </div>
-                                    <div className={`w-8 h-8 rounded-full bg-card flex items-center justify-center transition-transform duration-300 ${expandedId === g._id ? 'rotate-180 bg-emerald-500/20 text-emerald-400' : 'text-muted-foreground'}`}>
+                                    <div className={`w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-transform duration-300 ${expandedId === g._id ? 'rotate-180 bg-emerald-500/20 text-emerald-400' : 'text-emerald-100/50 hover:bg-emerald-500/10 hover:text-emerald-50'}`}>
                                         <ChevronDown className="w-4 h-4" />
                                     </div>
                                 </div>
@@ -356,7 +356,7 @@ export default function GroupPlayPage() {
                                         <div className="px-6 pb-6 pt-2 space-y-5">
                                             <div className="h-px w-full bg-gradient-to-r from-transparent via-foreground/10 to-transparent mb-4" />
 
-                                            {g.description && <p className="text-sm text-muted-foreground leading-relaxed bg-card p-4 rounded-2xl border border-border">"{g.description}"</p>}
+                                            {g.description && <p className="text-sm text-emerald-100/80 leading-relaxed bg-white/5 p-4 rounded-2xl border border-white/5">"{g.description}"</p>}
 
                                             {g.requirements && (
                                                 <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200/80 flex gap-3 items-start">
@@ -370,14 +370,14 @@ export default function GroupPlayPage() {
 
                                             {/* Participants List */}
                                             {g.participants.length > 0 && (
-                                                <div className="bg-card p-4 rounded-2xl border border-border">
+                                                <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
                                                     <h4 className="text-emerald-400 font-bold text-sm mb-3 flex items-center gap-2">
                                                         <Users className="w-4 h-4" /> Danh sách người chơi ({g.participants.length})
                                                     </h4>
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
                                                         {g.participants.map((p, i) => (
-                                                            <div key={i} className="flex items-center gap-3 bg-card p-2 rounded-xl border border-border">
-                                                                <div className="w-10 h-10 rounded-full border-2 border-border bg-card flex items-center justify-center text-xs font-bold text-foreground overflow-hidden shrink-0 shadow-sm">
+                                                            <div key={i} className="flex items-center gap-3 bg-transparent p-2 rounded-xl">
+                                                                <div className="w-10 h-10 rounded-full border border-white/10 bg-black/20 flex items-center justify-center text-xs font-bold text-emerald-100/80 overflow-hidden shrink-0 shadow-sm">
                                                                     {p.avatar ? <img src={p.avatar} alt="avt" className="w-full h-full object-cover" /> : p.displayName.charAt(0)}
                                                                 </div>
                                                                 <div className="flex-1 min-w-0">
@@ -385,7 +385,7 @@ export default function GroupPlayPage() {
                                                                         {p.displayName}
                                                                         {p.role === 'organizer' && <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />}
                                                                     </div>
-                                                                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                                                                    <div className="text-[10px] text-emerald-100/50 uppercase tracking-wider">
                                                                         {p.role === 'organizer' ? 'Trưởng nhóm' : 'Thành viên'}
                                                                     </div>
                                                                 </div>
@@ -576,7 +576,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                             <span className="text-xs text-muted-foreground font-medium ml-1">Bước {step}/2</span>
                         </div>
                     </div>
-                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted hover:rotate-90 transition-all shadow-sm"><X className="w-5 h-5" /></button>
+                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-emerald-100/70 hover:text-emerald-50 hover:bg-emerald-500/10 hover:rotate-90 transition-all shadow-sm"><X className="w-5 h-5" /></button>
                 </div>
 
                 <div className="relative p-6 flex-1 overflow-y-auto custom-scrollbar z-10">
@@ -617,17 +617,17 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                 <button 
                                                     onClick={() => setBookingPage(p => Math.max(0, p - 1))} 
                                                     disabled={bookingPage === 0}
-                                                    className="w-7 h-7 rounded-lg bg-card border border-border flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+                                                    className="w-7 h-7 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-emerald-500/10 hover:text-emerald-50 transition-colors"
                                                 >
-                                                    <ChevronLeft className="w-4 h-4 text-foreground" />
+                                                    <ChevronLeft className="w-4 h-4 text-emerald-100/70" />
                                                 </button>
-                                                <span className="text-xs text-muted-foreground font-bold">{bookingPage + 1} / {Math.ceil(myBookings.length / 4)}</span>
+                                                <span className="text-xs text-emerald-100/70 font-bold">{bookingPage + 1} / {Math.ceil(myBookings.length / 4)}</span>
                                                 <button 
                                                     onClick={() => setBookingPage(p => Math.min(Math.ceil(myBookings.length / 4) - 1, p + 1))} 
                                                     disabled={bookingPage >= Math.ceil(myBookings.length / 4) - 1}
-                                                    className="w-7 h-7 rounded-lg bg-card border border-border flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+                                                    className="w-7 h-7 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-emerald-500/10 hover:text-emerald-50 transition-colors"
                                                 >
-                                                    <ChevronRight className="w-4 h-4 text-foreground" />
+                                                    <ChevronRight className="w-4 h-4 text-emerald-100/70" />
                                                 </button>
                                             </div>
                                         )}
@@ -644,7 +644,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                     whileTap={{ scale: 0.96 }}
                                                     key={b._id}
                                                     onClick={() => setSelectedBookingId(b._id)}
-                                                    className={`relative w-full text-left p-5 rounded-[24px] border transition-all duration-300 flex flex-col group overflow-hidden ${isSelected ? 'bg-emerald-500/10 border-emerald-500 shadow-glow' : 'bg-card border-border hover:border-border hover:bg-muted hover:-translate-y-0.5'}`}
+                                                    className={`relative w-full text-left p-5 rounded-[24px] border transition-all duration-300 flex flex-col group overflow-hidden ${isSelected ? 'bg-emerald-500/10 border-emerald-500 shadow-glow' : 'bg-white/5 border-white/5 hover:border-emerald-500/30 hover:bg-emerald-500/5 hover:-translate-y-0.5'}`}
                                                 >
                                                     <div className={`absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent transition-opacity duration-300 ${isSelected ? 'opacity-100' : 'opacity-0'}`} />
 
@@ -657,11 +657,11 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                         {courtName}
                                                     </div>
                                                     
-                                                    <div className="space-y-2 mt-auto relative z-10 bg-card p-2.5 rounded-xl border border-border">
-                                                        <div className="flex items-center gap-2 text-[11px] text-muted-foreground font-medium">
+                                                    <div className="space-y-2 mt-auto relative z-10 bg-transparent p-2.5 rounded-xl">
+                                                        <div className="flex items-center gap-2 text-[11px] text-emerald-100/70 font-medium">
                                                             <Calendar className="w-3.5 h-3.5 text-emerald-400" /> {dateStr}
                                                         </div>
-                                                        <div className="flex items-center gap-2 text-[11px] text-muted-foreground font-medium">
+                                                        <div className="flex items-center gap-2 text-[11px] text-emerald-100/70 font-medium">
                                                             <Clock className="w-3.5 h-3.5 text-emerald-400" /> {b.startTime} - {b.endTime}
                                                         </div>
                                                     </div>
@@ -696,13 +696,13 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                     </div>
                                     
                                     <div className="space-y-3">
-                                        <input type="text" placeholder="Tên nhóm chơi (Ví dụ: Kèo tối thứ 3 vui vẻ...)" className="w-full h-14 bg-card border border-border rounded-2xl px-5 text-sm text-foreground placeholder-gray-400 focus:border-blue-500 focus:bg-surface transition-all outline-none shadow-inner" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
-                                        <textarea placeholder="Mô tả ngắn gọn, yêu cầu trình độ, liên hệ..." className="w-full h-24 bg-card border border-border rounded-2xl p-5 text-sm text-foreground placeholder-gray-400 focus:border-blue-500 focus:bg-surface transition-all outline-none resize-none custom-scrollbar shadow-inner" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+                                        <input type="text" placeholder="Tên nhóm chơi (Ví dụ: Kèo tối thứ 3 vui vẻ...)" className="w-full h-14 bg-white/5 border border-white/5 rounded-2xl px-5 text-sm text-foreground placeholder:text-emerald-100/50 focus:border-blue-500 focus:bg-white/10 transition-all outline-none shadow-inner" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
+                                        <textarea placeholder="Mô tả ngắn gọn, yêu cầu trình độ, liên hệ..." className="w-full h-24 bg-white/5 border border-white/5 rounded-2xl p-5 text-sm text-foreground placeholder:text-emerald-100/50 focus:border-blue-500 focus:bg-white/10 transition-all outline-none resize-none custom-scrollbar shadow-inner" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
                                     </div>
                                     
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {/* Số lượng Slot */}
-                                        <div className="p-4 bg-card border border-border rounded-2xl flex items-center justify-between transition-colors hover:bg-muted">
+                                        <div className="p-4 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-between transition-colors hover:bg-emerald-500/10">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
                                                     <Users className="w-5 h-5 text-blue-400" />
@@ -712,8 +712,8 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                     <p className="text-sm font-black text-foreground">{form.maxPlayers} người</p>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-1 bg-card rounded-xl p-1 border border-border">
-                                                <button onClick={() => setForm(f => ({ ...f, maxPlayers: Math.max(2, f.maxPlayers - 1) }))} className="w-8 h-8 rounded-lg bg-card hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">-</button>
+                                            <div className="flex items-center gap-1 bg-transparent rounded-xl p-1">
+                                                <button onClick={() => setForm(f => ({ ...f, maxPlayers: Math.max(2, f.maxPlayers - 1) }))} className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-emerald-100/70 hover:text-emerald-50 transition-colors">-</button>
                                                 <input 
                                                     type="number" 
                                                     className="text-sm font-bold w-10 bg-transparent text-center text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
@@ -729,12 +729,12 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                         setForm(f => ({ ...f, maxPlayers: val }));
                                                     }}
                                                 />
-                                                <button onClick={() => setForm(f => ({ ...f, maxPlayers: Math.min(20, f.maxPlayers + 1) }))} className="w-8 h-8 rounded-lg bg-card hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">+</button>
+                                                <button onClick={() => setForm(f => ({ ...f, maxPlayers: Math.min(20, f.maxPlayers + 1) }))} className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-emerald-100/70 hover:text-emerald-50 transition-colors">+</button>
                                             </div>
                                         </div>
 
                                         {/* Tổng Tiền */}
-                                        <div className="p-4 bg-card border border-border rounded-2xl space-y-3 flex flex-col justify-center transition-colors hover:bg-muted">
+                                        <div className="p-4 bg-white/5 border border-white/5 rounded-2xl space-y-3 flex flex-col justify-center transition-colors hover:bg-emerald-500/10">
                                             <div className="flex items-center gap-2">
                                                 <Zap className="w-4 h-4 text-amber-400" />
                                                 <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Tổng tiền / Người</p>
@@ -745,7 +745,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                                     type="number" 
                                                     value={form.pricePerPlayer || ''} 
                                                     onChange={e => setForm({ ...form, pricePerPlayer: parseInt(e.target.value) || 0 })}
-                                                    className="w-full bg-card border border-border rounded-xl py-2 px-3 text-base font-black text-amber-400 focus:border-amber-500/50 focus:bg-amber-500/5 outline-none transition-all placeholder:text-muted-foreground shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    className="w-full bg-white/5 border border-white/5 rounded-xl py-2 px-3 text-base font-black text-amber-400 focus:border-amber-500/50 focus:bg-amber-500/5 outline-none transition-all placeholder:text-emerald-100/50 shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                     placeholder="0"
                                                 />
                                                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground uppercase tracking-wider">VNĐ</span>
@@ -767,7 +767,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                                     </div>
                                     
                                     <div className="pt-4 flex gap-3">
-                                        <motion.button whileTap={{ scale: 0.95 }} onClick={() => setStep(1)} className="px-5 py-4 rounded-2xl bg-card border border-border font-bold text-sm text-foreground hover:bg-muted transition-colors flex items-center gap-2 shadow-sm">
+                                        <motion.button whileTap={{ scale: 0.95 }} onClick={() => setStep(1)} className="px-5 py-4 rounded-2xl bg-white/5 border border-white/5 font-bold text-sm text-emerald-100/70 hover:text-emerald-50 hover:bg-emerald-500/10 transition-colors flex items-center gap-2 shadow-sm">
                                             <ChevronLeft className="w-5 h-5" />
                                         </motion.button>
                                         <motion.button whileTap={{ scale: 0.98 }} onClick={handleCreate} disabled={creating} className="relative flex-1 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 overflow-hidden group shadow-lg shadow-emerald-500/10">
