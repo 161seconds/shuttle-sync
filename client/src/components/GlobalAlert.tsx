@@ -29,8 +29,8 @@ export default function GlobalAlert() {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className={`relative w-full max-w-sm rounded-3xl border border-border bg-card p-6 shadow-2xl flex flex-col items-center text-center animate-in zoom-in-95 duration-300`}>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className={`relative w-full max-w-sm rounded-3xl border border-border bg-card p-5 sm:p-6 shadow-2xl flex flex-col items-center text-center animate-in zoom-in-95 duration-300 mx-auto`}>
                 
                 {/* Nút Đóng (Góc trên phải) */}
                 {!isConfirm && (

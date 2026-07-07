@@ -8,7 +8,7 @@ import NotificationDropdown from './NotificationDropdown';
 import { ModeToggle } from '../ModeToggle';
 
 export default function Header() {
-    const { page, setPage, user, isSideBarOpen, toggleSidebar } = useAppStore();
+    const { setPage, user, isSideBarOpen, toggleSidebar } = useAppStore();
     const [hasUnread, setHasUnread] = useState(false);
     const [hidden, setHidden] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -58,7 +58,7 @@ export default function Header() {
                     {/* NÚT BẬT TẮT SIDEBAR */}
                     <button
                         onClick={toggleSidebar}
-                        className={`p-2 rounded-xl transition-all ${isSideBarOpen ? 'bg-emerald-500/10 text-emerald-400' : 'hover:bg-muted text-muted-foreground hover:text-foreground'} ${page !== 'map' ? 'md:hidden' : ''}`}
+                        className={`p-2 rounded-xl transition-all ${isSideBarOpen ? 'bg-emerald-500/10 text-emerald-400' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
                     >
                         <Menu className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
