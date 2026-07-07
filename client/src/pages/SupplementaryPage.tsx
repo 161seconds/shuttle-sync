@@ -107,7 +107,7 @@ export default function SupplementaryPage() {
     }
 
     return (
-        <div className="w-full h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-background relative font-sans text-muted-foreground">
+        <div className="w-full min-h-[calc(100vh-64px)] bg-background relative font-sans text-muted-foreground">
             
             <PremiumBackground />
 
