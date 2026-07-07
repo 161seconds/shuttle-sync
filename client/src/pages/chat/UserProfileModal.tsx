@@ -116,17 +116,18 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                     {!isMe && (
                         <div className="flex justify-center mt-3 gap-2">
                             {isFriend ? (
-                                <button 
-                                    onClick={async () => {
-                                        if (!confirm('Bạn có chắc chắn muốn xóa bạn bè với người này?')) return;
-                                        try {
-                                            await friendApi.deleteFriend(user.id);
-                                            fetchFriends();
-                                            showAlert('Đã hủy kết bạn thành công', 'Thông báo', 'success');
-                                        } catch (e) {
-                                            console.error(e);
-                                            showAlert('Có lỗi xảy ra', 'Lỗi', 'error');
-                                        }
+                                <button
+                                    onClick={() => {
+                                        useAlertStore.getState().showConfirm('Bạn có chắc chắn muốn xóa bạn bè với người này?', async () => {
+                                            try {
+                                                await friendApi.deleteFriend(user.id);
+                                                fetchFriends();
+                                                useAlertStore.getState().showAlert('Đã hủy kết bạn thành công', 'Thông báo', 'success');
+                                            } catch (e) {
+                                                console.error(e);
+                                                useAlertStore.getState().showAlert('Có lỗi xảy ra', 'Lỗi', 'error');
+                                            }
+                                        });
                                     }}
                                     className="px-4 py-1.5 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 text-[13px] font-bold flex items-center gap-1.5 transition-colors"
                                 >
