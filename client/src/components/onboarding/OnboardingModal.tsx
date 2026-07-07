@@ -54,11 +54,11 @@ export default function OnboardingModal({ onComplete, onSkip }: Props) {
             />
 
             <motion.div
-                className="relative w-full h-[85vh] max-h-[700px] sm:max-w-md sm:h-[650px] bg-background/80 backdrop-blur-2xl sm:rounded-[2rem] border border-border shadow-glow overflow-hidden flex flex-col"
+                className="relative w-full h-[85vh] max-h-[700px] sm:max-w-md sm:h-[650px] bg-background/80 backdrop-blur-2xl rounded-3xl sm:rounded-[2rem] border border-border shadow-glow overflow-hidden flex flex-col"
                 layout
             >
                 {/* Inner glass shine */}
-                <div className="absolute inset-0 rounded-[2rem] border-t border-border pointer-events-none" />
+                <div className="absolute inset-0 rounded-3xl sm:rounded-[2rem] border-t border-border pointer-events-none" />
 
                 <div className="flex items-center justify-between relative z-20 shrink-0 p-6 pb-2">
                     <ProgressBar current={step} total={totalSteps} />

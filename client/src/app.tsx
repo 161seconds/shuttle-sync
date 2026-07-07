@@ -234,7 +234,7 @@ function Shell() {
           {!isLoginPage && <AppSidebar />}
 
           <main
-            className={`flex-1 transition-all duration-300 ease-in-out ${!isLoginPage ? 'pt-16' : ''} ${(isSideBarOpen && !isLoginPage && !isMapPage) ? 'md:pl-64 pl-0' : 'pl-0'
+            className={`flex-1 transition-all duration-300 ease-in-out ${!isLoginPage ? 'pt-16 md:pt-16 pb-20 md:pb-0' : ''} ${(!isLoginPage && !isMapPage) ? 'md:pl-64 pl-0' : 'pl-0'
               } w-full min-h-screen`}
           >
             <Suspense fallback={

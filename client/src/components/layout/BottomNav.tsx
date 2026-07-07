@@ -19,7 +19,7 @@ export default function BottomNav() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="fixed bottom-4 left-0 right-0 z-50 flex justify-center pointer-events-none px-4"
+            className="fixed bottom-4 left-0 right-0 z-50 flex justify-center pointer-events-none px-4 md:hidden"
             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
             <nav className="pointer-events-auto w-full max-w-75 bg-card border border-border rounded-[18px] shadow-card flex items-center justify-around px-1.5 py-1.5">
