@@ -84,8 +84,8 @@ function PremiumBackground() {
       <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-emerald-500/10 blur-[150px]" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-500/10 blur-[150px]" />
 
-      {/* 2. Interactive DotField */}
-      <div className="absolute inset-0 opacity-70 dark:opacity-100 z-0">
+      {/* 2. Interactive DotField (Hidden on mobile) */}
+      <div className="absolute inset-0 opacity-70 dark:opacity-100 z-0 hidden md:block">
         <DotField
           dotRadius={1.2}
           dotSpacing={22}
@@ -102,14 +102,14 @@ function PremiumBackground() {
         />
       </div>
 
-      {/* 3. Mouse Follower Glow (Ánh sáng mềm mại đi theo chuột) */}
+      {/* 3. Mouse Follower Glow (Ánh sáng mềm mại đi theo chuột) (Hidden on mobile) */}
       <div
         ref={lightRef}
-        className="absolute top-0 left-0 w-[800px] h-[800px] bg-emerald-500/10 dark:bg-emerald-400/5 rounded-full blur-[100px] will-change-transform"
+        className="absolute top-0 left-0 w-[800px] h-[800px] bg-emerald-500/10 dark:bg-emerald-400/5 rounded-full blur-[100px] will-change-transform hidden md:block"
       />
 
-      {/* 4. Particle Field cũ được điều chỉnh để hiển thị tốt trên nền sáng */}
-      <div className="opacity-40 dark:opacity-20 dark:mix-blend-screen">
+      {/* 4. Particle Field cũ được điều chỉnh (Hidden on mobile) */}
+      <div className="opacity-40 dark:opacity-20 dark:mix-blend-screen hidden md:block">
         <ParticleField />
       </div>
     </div>
@@ -158,16 +158,9 @@ function Shell() {
       }
     };
 
-    const preloadPages = async () => {
-      const imports = Object.values(pageImports);
-
-      await Promise.all(imports.map(async (importFn) => {
-        try {
-          await importFn();
-        } catch (e) {
-          console.warn("Preload fail", e);
-        }
-      }));
+    const preloadPages = () => {
+      // Bỏ preload tất cả trang cùng lúc để tránh giật lag (chặn luồng main thread).
+      // Các chunk sẽ được load lazy khi user bấm vào.
       setIsPreloading(false);
     };
 
@@ -234,8 +227,7 @@ function Shell() {
           {!isLoginPage && <AppSidebar />}
 
           <main
-            className={`flex-1 transition-all duration-300 ease-in-out ${!isLoginPage ? 'pt-16 md:pt-16 pb-20 md:pb-0' : ''} ${(!isLoginPage && !isMapPage) ? 'md:pl-64 pl-0' : 'pl-0'
-              } w-full min-h-screen`}
+            className={`flex-1 transition-all duration-300 ease-in-out ${!isLoginPage ? 'pt-16 pb-20' : ''} pl-0 w-full min-h-screen`}
           >
             <Suspense fallback={
               <div className="flex-1 flex flex-col items-center justify-center min-h-[50vh]">

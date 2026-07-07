@@ -36,7 +36,7 @@ export default function AppSidebar() {
 
             {/* SIDEBAR DẠNG DRAWER */}
             <aside
-                className={`fixed left-0 top-16 bottom-0 z-50 w-64 bg-background/60 backdrop-blur-3xl border-r ${t.border.subtle} flex flex-col h-[calc(100vh-64px)] shadow-2xl transition-transform duration-300 ease-out ${isSideBarOpen ? 'translate-x-0' : '-translate-x-full'} ${page === 'map' ? (isSideBarOpen ? 'md:translate-x-0' : 'md:-translate-x-full') : 'md:translate-x-0'}`}
+                className={`fixed left-0 top-16 bottom-0 z-50 w-64 bg-background/60 backdrop-blur-3xl border-r ${t.border.subtle} flex flex-col h-[calc(100vh-64px)] shadow-2xl transition-transform duration-300 ease-out ${isSideBarOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
                 {/* KHU VỰC 1: TÊN NGƯỜI DÙNG */}
                 <button
