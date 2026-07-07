@@ -33,8 +33,8 @@ export default function GuidedTourOverlay({ onComplete }: Props) {
     const spotW = rect ? rect.width + pad * 2 : 0;
     const spotH = rect ? rect.height + pad * 2 : 0;
 
-    const tooltipWidth = 288; // w-72 = 288px
     const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 400;
+    const tooltipWidth = Math.min(288, windowWidth - 32); // w-72 = 288px
 
     const targetCenterX = spotX + spotW / 2;
 
@@ -71,15 +71,19 @@ export default function GuidedTourOverlay({ onComplete }: Props) {
             )}
 
             <motion.div
-                className="absolute z-10 w-72 bg-card backdrop-blur-xl border border-emerald-500/20 rounded-2xl p-5 shadow-2xl shadow-emerald-500/10"
+                className="absolute z-10 bg-card backdrop-blur-xl border border-emerald-500/20 rounded-2xl p-5 shadow-2xl shadow-emerald-500/10"
                 style={rect ? {
+                    width: tooltipWidth,
                     left: tooltipLeft,
-                    // Nếu là mục tiêu ở trên cùng (như cái Cup), ta ép nó hiện ở dưới (bottom)
-                    top: step.position === 'bottom' || spotY < 200 ? spotY + spotH + 16 : spotY - 180,
+                    ...(step.position === 'bottom' || spotY < 200 
+                        ? { top: spotY + spotH + 16 } 
+                        : { bottom: typeof window !== 'undefined' ? window.innerHeight - spotY + 16 : 0 })
                 } : {
+                    width: tooltipWidth,
                     left: '50%', top: '50%',
+                    transform: 'translate(-50%, -50%)'
                 }}
-                initial={{ opacity: 0, x: rect ? 0 : '-50%', y: rect ? 10 : '-50%' }}
+                initial={{ opacity: 0, x: rect ? 0 : '-50%', y: rect ? ((step.position === 'bottom' || spotY < 200) ? -10 : 10) : '-50%' }}
                 animate={{ opacity: 1, x: rect ? 0 : '-50%', y: rect ? 0 : '-50%' }}
                 key={stepIdx} transition={{ duration: 0.3 }}
             >
