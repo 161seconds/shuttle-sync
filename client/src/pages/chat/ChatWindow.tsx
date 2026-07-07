@@ -9,6 +9,7 @@ import type { ChatRoom, ChatUser } from './mockData';
 import dayjs from 'dayjs';
 import { type ChatMessage } from '../../api/chat.api';
 import { useAlertStore } from '../../stores/useAlertStore';
+import ScrollEndEffect from '../../components/ScrollEndEffect';
 
 interface ChatWindowProps {
     room: ChatRoom;
@@ -34,6 +35,7 @@ export default function ChatWindow({
     onDeleteMessage
 }: ChatWindowProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
     const [showMenu, setShowMenu] = useState(false);
     const [showInfo, setShowInfo] = useState(false);
@@ -261,7 +263,9 @@ export default function ChatWindow({
             )}
 
             {/* Message List */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar flex flex-col">
+            <div className="relative flex-1 flex flex-col min-h-0">
+                <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar flex flex-col">
+                
                 {messages.length === 0 ? (
                     <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
                         <div className="w-16 h-16 rounded-full bg-card flex items-center justify-center mb-4">
@@ -292,6 +296,8 @@ export default function ChatWindow({
                         <div ref={messagesEndRef} className="h-1" />
                     </div>
                 )}
+                </div>
+                <ScrollEndEffect containerRef={scrollContainerRef} />
             </div>
 
             {/* Input */}
