@@ -51,6 +51,8 @@ import { theme as DS } from './utils/theme';
 import type { Court } from './types';
 import { authApi } from './api/auth.api';
 import SplashScreen from './components/SplashScreen';
+
+import ScrollEndEffect from './components/ScrollEndEffect';
 import AppSidebar from './components/layout/Sidebar';
 import GlobalAlert from './components/GlobalAlert';
 import { useAlertStore } from './stores/useAlertStore';
@@ -204,7 +206,6 @@ function Shell() {
   }
 
   const isLoginPage = location.pathname === '/login';
-  const isMapPage = location.pathname === '/map';
 
   return (
     <div className={`min-h-screen ${DS.bg.base} relative overflow-hidden`}>
@@ -227,7 +228,7 @@ function Shell() {
           {!isLoginPage && <AppSidebar />}
 
           <main
-            className={`flex-1 transition-all duration-300 ease-in-out ${!isLoginPage ? 'pt-16 pb-20' : ''} pl-0 w-full min-h-screen`}
+            className={`flex-1 transition-all duration-300 ease-in-out ${!isLoginPage ? 'pt-16' : ''} pl-0 w-full min-h-screen`}
           >
             <Suspense fallback={
               <div className="flex-1 flex flex-col items-center justify-center min-h-[50vh]">
@@ -257,6 +258,8 @@ function Shell() {
               </AnimatePresence>
             </Suspense>
           </main>
+          
+          <ScrollEndEffect />
 
           <AnimatePresence>
             {['/', '/map', '/search', '/profile'].includes(location.pathname) && !isSideBarOpen && (
