@@ -14,6 +14,8 @@ import { bookingApi } from '../api/booking.api';
 import PriceConfigModal from '../components/groups/PriceConfigModal';
 //import GroupChat from '../components/groups/GroupChat';
 import { EmojiIcon } from '../components/EmojiIcon';
+import PullToRefresh from '../components/ui/PullToRefresh';
+import { ListCardSkeleton } from '../components/ui/Skeleton';
 
 // ═══ Types ═══
 interface GroupPlay {
@@ -160,8 +162,9 @@ export default function GroupPlayPage() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto px-4 pb-28 md:pb-8 pt-6 relative min-h-screen">
-            {/* Background Glows */}
+        <PullToRefresh onRefresh={fetchGroups}>
+        <div className="max-w-4xl mx-auto px-4 pt-4 pb-32 space-y-8 font-sans text-muted-foreground overflow-x-hidden min-h-screen">
+            {/* Header Hero Section */}
             <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[30%] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute top-[20%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -255,7 +258,9 @@ export default function GroupPlayPage() {
             {/* List */}
             <div className="space-y-4">
                 {loading ? (
-                    <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-emerald-500 animate-spin" /></div>
+                    <div className="space-y-4">
+                        {Array(4).fill(0).map((_, i) => <ListCardSkeleton key={i} />)}
+                    </div>
                 ) : filtered.map((g) => {
                     const skill = SKILL_MAP[g.skillLevel] || SKILL_MAP.tb;
                     const status = STATUS_MAP[g.status] || STATUS_MAP.open;
@@ -465,6 +470,7 @@ export default function GroupPlayPage() {
             </AnimatePresence>
 
         </div>
+        </PullToRefresh>
     );
 }
 

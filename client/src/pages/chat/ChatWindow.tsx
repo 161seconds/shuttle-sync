@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import { type ChatMessage } from '../../api/chat.api';
 import { useAlertStore } from '../../stores/useAlertStore';
 import ScrollEndEffect from '../../components/ScrollEndEffect';
+import { playNotificationSound } from '../../utils/audio';
 
 interface ChatWindowProps {
     room: ChatRoom;
@@ -68,9 +69,19 @@ export default function ChatWindow({
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    const prevMessagesLength = useRef(messages.length);
+
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+        
+        if (messages.length > prevMessagesLength.current) {
+            const lastMessage = messages[messages.length - 1];
+            if (lastMessage.senderId !== currentUser.id) {
+                playNotificationSound();
+            }
+        }
+        prevMessagesLength.current = messages.length;
+    }, [messages, currentUser.id]);
 
     const organizerIdString = typeof room.organizerId === 'object' ? (room.organizerId as any)?._id : room.organizerId;
     const isOwner = String(currentUser.id) === String(organizerIdString);

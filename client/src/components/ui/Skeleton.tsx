@@ -36,3 +36,22 @@ export function ListCardSkeleton() {
         </div>
     );
 }
+
+export function NewsCardSkeleton() {
+    return (
+        <div className="relative rounded-3xl bg-card border border-border/50 overflow-hidden shadow-lg p-5">
+            <div className="flex gap-4">
+                <Skeleton className="w-[100px] h-[100px] md:w-[120px] md:h-[120px] rounded-2xl shrink-0" />
+                <div className="flex-1 space-y-3 py-1">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-5 w-[90%]" />
+                    <Skeleton className="h-4 w-[70%]" />
+                    <div className="flex justify-between items-center pt-2">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-8 w-8 rounded-full" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

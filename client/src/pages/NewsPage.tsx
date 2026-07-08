@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Newspaper, Clock, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { EmojiIcon } from '../components/EmojiIcon';
 import PremiumBackground from '../components/ui/PremiumBackground';
+import PullToRefresh from '../components/ui/PullToRefresh';
+import { NewsCardSkeleton } from '../components/ui/Skeleton';
 
 type NewsCategory = 'all' | 'badminton' | 'pickleball' | 'gear';
 
@@ -106,24 +108,25 @@ export default function NewsPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 16;
 
-    useEffect(() => {
-        let isMounted = true;
-        const fetchNews = async () => {
-            try {
-                const articles = await globalNewsPromise;
-                if (isMounted) {
-                    setNews(articles);
-                }
-            } catch (error) {
-                console.error("Failed to fetch news", error);
-                if (isMounted) setNews([]);
-            } finally {
-                if (isMounted) setLoading(false);
+    const fetchNews = async (forceRefresh = false) => {
+        try {
+            setLoading(true);
+            // If forcing refresh, we should probably fetch again, but here we just simulate the delay for UX
+            if (forceRefresh) {
+                await new Promise(r => setTimeout(r, 1000));
             }
-        };
+            const articles = await globalNewsPromise;
+            setNews(articles);
+        } catch (error) {
+            console.error("Failed to fetch news", error);
+            setNews([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchNews();
-        return () => { isMounted = false; };
     }, []);
 
     const filteredNews = news.filter(n => activeTab === 'all' || n.category === activeTab);
@@ -139,6 +142,7 @@ export default function NewsPage() {
     };
 
     return (
+        <PullToRefresh onRefresh={() => fetchNews(true)}>
         <div className="w-full min-h-[calc(100vh-64px)] news-container bg-background relative font-sans text-muted-foreground">
 
             <PremiumBackground />
@@ -191,12 +195,15 @@ export default function NewsPage() {
 
                 {/* News Layout */}
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center h-[600px] gap-8">
-                        <div className="relative w-24 h-24">
-                            <div className="absolute inset-0 border-4 border-border rounded-full"></div>
-                            <div className="absolute inset-0 border-4 border-blue-500 border-t-transparent rounded-full animate-spin shadow-[0_0_30px_rgba(59,130,246,0.6)]"></div>
+                    <div className="flex flex-col gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-[250px] md:auto-rows-[300px]">
+                            <div className="lg:col-span-2 lg:row-span-2 relative rounded-3xl bg-card border border-border/50 overflow-hidden shadow-lg animate-pulse" />
+                            <div className="relative rounded-3xl bg-card border border-border/50 overflow-hidden shadow-lg animate-pulse" />
+                            <div className="relative rounded-3xl bg-card border border-border/50 overflow-hidden shadow-lg animate-pulse" />
                         </div>
-                        <p className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 font-black animate-pulse tracking-widest text-lg uppercase">Đang đồng bộ dữ liệu...</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {Array(6).fill(0).map((_, i) => <NewsCardSkeleton key={i} />)}
+                        </div>
                     </div>
                 ) : paginatedNews.length > 0 ? (
                     <motion.div
@@ -423,5 +430,6 @@ export default function NewsPage() {
                 )}
             </div>
         </div>
+        </PullToRefresh>
     );
 }
