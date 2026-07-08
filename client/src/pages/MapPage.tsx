@@ -35,7 +35,7 @@ function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): nu
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-function distanceToRoute(loc: {lat: number, lng: number}, routeCoords: [number, number][]): number {
+function distanceToRoute(loc: { lat: number, lng: number }, routeCoords: [number, number][]): number {
     if (!routeCoords || routeCoords.length === 0) return Infinity;
     let minDist = Infinity;
     for (const coord of routeCoords) {
@@ -56,11 +56,11 @@ function calculateBearing(lat1: number, lng1: number, lat2: number, lng2: number
     return (toDeg(Math.atan2(y, x)) + 360) % 360;
 }
 
-function getRouteBearing(loc: {lat: number, lng: number}, routeCoords: [number, number][]): number {
+function getRouteBearing(loc: { lat: number, lng: number }, routeCoords: [number, number][]): number {
     if (!routeCoords || routeCoords.length < 2) return 0;
     let minDist = Infinity;
     let minIdx = 0;
-    for (let i=0; i<routeCoords.length; i++) {
+    for (let i = 0; i < routeCoords.length; i++) {
         const dist = haversineKm(loc.lat, loc.lng, routeCoords[i][1], routeCoords[i][0]);
         if (dist < minDist) {
             minDist = dist;
@@ -125,7 +125,7 @@ export default function MapPage() {
     const userMarkerRef = useRef<any | null>(null);
     const radiusLayerRef = useRef<boolean>(false);
     const watchIdRef = useRef<number | null>(null);
-    const lastRouteUpdateLoc = useRef<{lat: number, lng: number} | null>(null);
+    const lastRouteUpdateLoc = useRef<{ lat: number, lng: number } | null>(null);
 
     const { theme } = useTheme();
     const isDark = theme === 'dark';
@@ -150,7 +150,7 @@ export default function MapPage() {
     const drawRoutes = useCallback((routes: any[], selectedIdx: number) => {
         if (!map.current) return;
         clearRoute();
-        
+
         // Vẽ các đường phụ trước (nằm dưới)
         routes.forEach((route, i) => {
             if (i === selectedIdx) return;
@@ -188,12 +188,15 @@ export default function MapPage() {
         }
     }, [clearRoute]);
 
+    const [errorState, setErrorState] = useState<'api_error' | 'no_results' | null>(null);
+
     // ═══ FETCH SÂN CÓ ĐIỀU KIỆN ═══
     const fetchCourts = useCallback(async (opts?: {
         lat?: number; lng?: number; q?: string;
         sportType?: string; sortBy?: string; maxPrice?: number; limit?: number;
     }) => {
         try {
+            setErrorState(null);
             const params: any = { limit: opts?.limit || 100 };
             if (opts?.lat && opts?.lng) { params.lat = opts.lat; params.lng = opts.lng; }
             if (opts?.q) params.q = opts.q;
@@ -202,9 +205,16 @@ export default function MapPage() {
             if (opts?.maxPrice) params.maxPrice = opts.maxPrice;
 
             const res = await courtApi.searchCourts(params);
-            if (res.data?.data) setCourts(res.data.data as any);
+            const dataPayload = res.data?.data;
+            const courtsArray = Array.isArray(dataPayload) ? dataPayload : (dataPayload?.courts || []);
+            setCourts(courtsArray as any);
+            if (courtsArray.length === 0) {
+                setErrorState('no_results');
+            }
         } catch (error) {
             console.error("Lỗi fetch sân:", error);
+            setErrorState('api_error');
+            setCourts([]);
         }
     }, []);
 
@@ -228,7 +238,7 @@ export default function MapPage() {
         clearRoute();
         map.current?.flyTo({ pitch: 0, duration: 1000 }); // Đóng popup thì trả về góc nhìn từ trên xuống
         switch (chipId) {
-            case 'all': fetchCourts({ limit: 1000 }); break;
+            case 'all': fetchCourts({ limit: 100 }); break;
             case 'badminton': fetchCourts({ sportType: 'badminton', lat: userLoc?.lat, lng: userLoc?.lng }); break;
             case 'pickleball': fetchCourts({ sportType: 'pickleball', lat: userLoc?.lat, lng: userLoc?.lng }); break;
             case 'nearby': handleLocateMe(); break;
@@ -241,7 +251,7 @@ export default function MapPage() {
     useEffect(() => {
         if (!mapContainer.current || !VIETMAP_KEY || !vietmapgl) return;
         if (!map.current) {
-            const styleUrl = isDark 
+            const styleUrl = isDark
                 ? `https://maps.vietmap.vn/maps/styles/dm/style.json?apikey=${VIETMAP_KEY}`
                 : `https://maps.vietmap.vn/api/maps/light/styles.json?apikey=${VIETMAP_KEY}`;
 
@@ -255,7 +265,7 @@ export default function MapPage() {
             map.current.addControl(new vietmapgl.NavigationControl(), 'top-right');
             map.current.on('click', () => {
                 if (showRouteRef.current) return;
-                
+
                 setSelected(null);
                 setShowRoute(false);
                 setIsNavigating(false);
@@ -275,7 +285,7 @@ export default function MapPage() {
             map.current.on('pitchend', () => {
                 setIs3D(map.current.getPitch() > 40);
             });
-            
+
             // Tự động thêm layer toà nhà 3D mỗi khi style tải xong
             map.current.on('style.load', () => {
                 if (!map.current) return;
@@ -314,12 +324,12 @@ export default function MapPage() {
     // Lắng nghe thay đổi theme để đổi màu bản đồ
     useEffect(() => {
         if (!map.current || !vietmapgl) return;
-        const styleUrl = isDark 
+        const styleUrl = isDark
             ? `https://maps.vietmap.vn/maps/styles/dm/style.json?apikey=${VIETMAP_KEY}`
             : `https://maps.vietmap.vn/api/maps/light/styles.json?apikey=${VIETMAP_KEY}`;
-        
+
         map.current.setStyle(styleUrl);
-        
+
         // Vẽ lại các layer (bán kính, đường đi) sau khi style mới load xong
         map.current.once('style.load', () => {
             if (userLoc && radiusLayerRef.current) {
@@ -484,7 +494,7 @@ export default function MapPage() {
                         }
                         return prev;
                     });
-                    
+
                     if (userMarkerRef.current) {
                         userMarkerRef.current.setLngLat([lng, lat]);
                     }
@@ -492,7 +502,7 @@ export default function MapPage() {
                     // Nếu đang trong chế độ dẫn đường và following, tự động focus camera và bearing
                     if (isNavigatingRef.current && isFollowingRef.current && map.current && allRoutesRef.current.length > 0) {
                         const currentRouteCoords = allRoutesRef.current[selectedRouteIdxRef.current]?.geometry?.coordinates;
-                        const bearing = getRouteBearing({lat, lng}, currentRouteCoords);
+                        const bearing = getRouteBearing({ lat, lng }, currentRouteCoords);
                         map.current.easeTo({
                             center: [lng, lat],
                             bearing: bearing,
@@ -511,7 +521,7 @@ export default function MapPage() {
                 watchIdRef.current = null;
             }
         }
-        
+
         return () => {
             if (watchIdRef.current !== null) {
                 navigator.geolocation.clearWatch(watchIdRef.current);
@@ -538,7 +548,7 @@ export default function MapPage() {
                 }
             }
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userLoc, showRoute, isNavigating, selected]); // Không thêm allRoutes vào đây để tránh loop
 
     // ═══ CHỈ ĐƯỜNG BẰNG ĐƯỜNG THẬT (OSRM API - FREE & UNLIMITED) ═══
@@ -583,7 +593,7 @@ export default function MapPage() {
             if (data.routes && data.routes.length > 0) {
                 setAllRoutes(data.routes);
                 setSelectedRouteIdx(0);
-                
+
                 const route = data.routes[0];
                 const distKm = (route.distance / 1000).toFixed(1);
                 const durMin = Math.ceil(route.duration / 60);
@@ -664,11 +674,11 @@ export default function MapPage() {
                 <>
                     <button onClick={() => {
                         if (map.current) map.current.flyTo({ pitch: is3D ? 0 : 60, duration: 1000 });
-                    }} className={`absolute right-4 z-20 w-12 h-12 rounded-full font-black text-[15px] flex items-center justify-center transition-all duration-300 active:scale-95 shadow-lg ${is3D ? 'bg-emerald-500 text-black shadow-glow-lg border-emerald-500' : 'bg-card/90 backdrop-blur-md text-foreground border border-border'} ${selected ? 'bottom-72' : 'bottom-64'}`}>
+                    }} className={`absolute right-4 z-20 w-12 h-12 rounded-full font-black text-[15px] flex items-center justify-center transition-all duration-300 active:scale-95 shadow-lg ${is3D ? 'bg-emerald-500 text-black shadow-glow-lg border-emerald-500' : 'bg-card/90 backdrop-blur-md text-foreground border border-border'} ${selected ? 'bottom-80' : (courts.length > 0 ? 'bottom-72' : 'bottom-40')}`}>
                         3D
                     </button>
 
-                    <button onClick={handleLocateMe} className={`absolute right-4 z-20 px-4 py-3 rounded-full bg-emerald-500 text-black text-sm font-bold flex items-center gap-2.5 shadow-glow-lg hover:bg-emerald-400 hover:scale-105 transition-all duration-300 active:scale-95 ${selected ? 'bottom-56' : 'bottom-48'}`}>
+                    <button onClick={handleLocateMe} className={`absolute right-4 z-20 px-4 py-3 rounded-full bg-emerald-500 text-black text-sm font-bold flex items-center gap-2.5 shadow-glow-lg hover:bg-emerald-400 hover:scale-105 transition-all duration-300 active:scale-95 ${selected ? 'bottom-64' : (courts.length > 0 ? 'bottom-56' : 'bottom-24')}`}>
                         <Navigation className="w-4 h-4" /> Sân gần tôi
                     </button>
                 </>
@@ -677,7 +687,7 @@ export default function MapPage() {
             {/* DANH SÁCH CAROUSEL CÁC SÂN */}
             {!selected && !showRoute && courts.length > 0 && (
                 <div className="absolute bottom-16.5 left-0 right-0 z-20 w-full pointer-events-none">
-                    <div className="flex overflow-x-auto px-4 pb-4 gap-4 snap-x snap-mandatory hide-scrollbar pointer-events-auto">
+                    <div className="flex overflow-x-auto px-4 pb-5 pt-2 gap-4 snap-x snap-mandatory hide-scrollbar pointer-events-auto">
                         {courts.slice(0, 10).map((court) => {
                             const coords = getCourtCoords(court);
                             return (
@@ -692,7 +702,7 @@ export default function MapPage() {
                                             <div>
                                                 <h3 className="font-extrabold text-[15px] text-foreground truncate group-hover:text-emerald-400 transition-colors leading-tight">{court.name}</h3>
                                                 <p className="text-[12px] font-medium text-muted-foreground truncate mt-1 flex items-center gap-1.5">
-                                                    <MapPin className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> 
+                                                    <MapPin className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                                                     {court.address?.district}
                                                 </p>
                                             </div>
@@ -705,6 +715,34 @@ export default function MapPage() {
                                 </div>
                             );
                         })}
+                    </div>
+                </div>
+            )}
+
+            {/* THÔNG BÁO LỖI HOẶC KHÔNG TÌM THẤY SÂN */}
+            {!selected && !showRoute && courts.length === 0 && errorState && (
+                <div className="absolute bottom-16.5 left-4 right-4 z-20 pointer-events-auto flex justify-center">
+                    <div className="bg-card/70 backdrop-blur-3xl border border-white/5 rounded-3xl p-5 shadow-2xl animate-in fade-in slide-in-from-bottom-8 flex flex-col items-center justify-center text-center w-full max-w-sm">
+                        {errorState === 'api_error' ? (
+                            <>
+                                <div className="w-12 h-12 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center mb-3">
+                                    <X className="w-6 h-6 text-red-500" />
+                                </div>
+                                <h3 className="text-[16px] font-bold text-foreground mb-1">Mất kết nối máy chủ</h3>
+                                <p className="text-[13px] font-medium text-muted-foreground">Không thể lấy dữ liệu sân. Vui lòng kiểm tra kết nối mạng.</p>
+                            </>
+                        ) : (
+                            <>
+                                <div className="w-12 h-12 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center mb-3">
+                                    <Search className="w-5 h-5 text-amber-500" />
+                                </div>
+                                <h3 className="text-[16px] font-bold text-foreground mb-1">Không tìm thấy sân</h3>
+                                <p className="text-[13px] font-medium text-muted-foreground">Bạn đang ở quá xa hoặc không có sân nào phù hợp với bộ lọc hiện tại.</p>
+                            </>
+                        )}
+                        <button onClick={() => handleFilterChip('all')} className="mt-4 px-6 py-2.5 bg-emerald-500/20 text-emerald-400 font-bold rounded-xl text-[13px] hover:bg-emerald-500/30 transition-all border border-emerald-500/30 shadow-inner active:scale-95">
+                            Bỏ lọc / Xem tất cả
+                        </button>
                     </div>
                 </div>
             )}
@@ -733,13 +771,13 @@ export default function MapPage() {
                         <div className="bg-surface/90 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-border flex items-center justify-between">
                             <div className="flex flex-col">
                                 <span className="font-black text-xl text-foreground flex items-center gap-2">
-                                    <Clock className="w-5 h-5 text-blue-500"/> {routeInfo?.duration}
+                                    <Clock className="w-5 h-5 text-blue-500" /> {routeInfo?.duration}
                                 </span>
                                 <span className="text-muted-foreground text-sm font-medium mt-1">
                                     Khoảng cách: {routeInfo?.distance}
                                 </span>
                             </div>
-                            
+
                             {!isNavigating ? (
                                 <button onClick={() => {
                                     setIsNavigating(true);
@@ -791,7 +829,7 @@ export default function MapPage() {
             {selected && !showRoute && (
                 <div className="absolute bottom-28 left-4 right-4 md:left-auto md:right-8 md:w-96 z-30 bg-card/80 backdrop-blur-3xl rounded-[2rem] border border-white/5 p-5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] transition-all animate-in fade-in slide-in-from-bottom-8 overflow-hidden group/popup">
                     <div className="absolute -right-20 -top-20 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                    
+
                     <button onClick={() => {
                         setSelected(null);
                         setShowRoute(false);
@@ -801,7 +839,7 @@ export default function MapPage() {
                     }} className="absolute top-7 right-7 w-9 h-9 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white/80 hover:text-white hover:bg-black/60 active:scale-95 transition-all z-20 shadow-lg">
                         <X className="w-4 h-4 stroke-[2.5px]" />
                     </button>
-                    
+
                     <div className="flex flex-col gap-4 relative z-10">
                         <div className="relative w-full h-40 rounded-2xl overflow-hidden shadow-lg border border-white/5">
                             <img src={mainPhoto(selected)} alt="" className="w-full h-full object-cover group-hover/popup:scale-105 transition-transform duration-1000 ease-out" />
@@ -812,7 +850,7 @@ export default function MapPage() {
                                 <span className="text-white/60 text-[11px] ml-0.5">({selected.reviewCount || 0})</span>
                             </div>
                         </div>
-                        
+
                         <div className="flex-1 min-w-0">
                             <h3 className="font-black text-[18px] text-foreground leading-tight tracking-tight">{selected.name}</h3>
                             <p className="text-[13px] font-medium text-muted-foreground flex items-start gap-1.5 mt-2"><MapPin className="w-4 h-4 shrink-0 mt-0.5 text-emerald-500" /><span className="line-clamp-2">{selected.address?.fullAddress || selected.address.district}</span></p>
