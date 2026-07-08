@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, SlidersHorizontal, Navigation, MapPin, Star, Calendar, X, Route, Clock, Ruler } from 'lucide-react';
+import { Search, SlidersHorizontal, Navigation, MapPin, Star, Calendar, X, Route, Clock, LocateFixed } from 'lucide-react';
 import { formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
 import { courtApi } from '../api/court.api';
@@ -35,6 +35,49 @@ function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): nu
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+function distanceToRoute(loc: {lat: number, lng: number}, routeCoords: [number, number][]): number {
+    if (!routeCoords || routeCoords.length === 0) return Infinity;
+    let minDist = Infinity;
+    for (const coord of routeCoords) {
+        const dist = haversineKm(loc.lat, loc.lng, coord[1], coord[0]);
+        if (dist < minDist) minDist = dist;
+    }
+    return minDist;
+}
+
+function calculateBearing(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const toRad = (deg: number) => deg * Math.PI / 180;
+    const toDeg = (rad: number) => rad * 180 / Math.PI;
+    const dLng = toRad(lng2 - lng1);
+    const radLat1 = toRad(lat1);
+    const radLat2 = toRad(lat2);
+    const y = Math.sin(dLng) * Math.cos(radLat2);
+    const x = Math.cos(radLat1) * Math.sin(radLat2) - Math.sin(radLat1) * Math.cos(radLat2) * Math.cos(dLng);
+    return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
+function getRouteBearing(loc: {lat: number, lng: number}, routeCoords: [number, number][]): number {
+    if (!routeCoords || routeCoords.length < 2) return 0;
+    let minDist = Infinity;
+    let minIdx = 0;
+    for (let i=0; i<routeCoords.length; i++) {
+        const dist = haversineKm(loc.lat, loc.lng, routeCoords[i][1], routeCoords[i][0]);
+        if (dist < minDist) {
+            minDist = dist;
+            minIdx = i;
+        }
+    }
+    let p1, p2;
+    if (minIdx < routeCoords.length - 1) {
+        p1 = routeCoords[minIdx];
+        p2 = routeCoords[minIdx + 1];
+    } else {
+        p1 = routeCoords[minIdx - 1];
+        p2 = routeCoords[minIdx];
+    }
+    return calculateBearing(p1[1], p1[0], p2[1], p2[0]);
+}
+
 const FILTER_CHIPS = [
     { id: 'all', label: 'Tất cả' },
     { id: 'badminton', label: 'Cầu lông' },
@@ -52,13 +95,37 @@ export default function MapPage() {
     const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null);
     const [routeInfo, setRouteInfo] = useState<{ distance: string; duration: string } | null>(null);
     const [showRoute, setShowRoute] = useState(false);
+    const showRouteRef = useRef(false);
+    useEffect(() => {
+        showRouteRef.current = showRoute;
+    }, [showRoute]);
+
+    const [isLoadingRoute, setIsLoadingRoute] = useState(false);
+    const [allRoutes, setAllRoutes] = useState<any[]>([]);
+    const [selectedRouteIdx, setSelectedRouteIdx] = useState(0);
     const [is3D, setIs3D] = useState(false);
+    const [isNavigating, setIsNavigating] = useState(false);
+    const [isFollowing, setIsFollowing] = useState(false);
+
+    const isNavigatingRef = useRef(false);
+    const isFollowingRef = useRef(false);
+    const allRoutesRef = useRef<any[]>([]);
+    const selectedRouteIdxRef = useRef(0);
+
+    useEffect(() => {
+        isNavigatingRef.current = isNavigating;
+        isFollowingRef.current = isFollowing;
+        allRoutesRef.current = allRoutes;
+        selectedRouteIdxRef.current = selectedRouteIdx;
+    }, [isNavigating, isFollowing, allRoutes, selectedRouteIdx]);
 
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<any | null>(null);
     const markersRef = useRef<any[]>([]);
     const userMarkerRef = useRef<any | null>(null);
     const radiusLayerRef = useRef<boolean>(false);
+    const watchIdRef = useRef<number | null>(null);
+    const lastRouteUpdateLoc = useRef<{lat: number, lng: number} | null>(null);
 
     const { theme } = useTheme();
     const isDark = theme === 'dark';
@@ -69,13 +136,57 @@ export default function MapPage() {
     const clearRoute = useCallback(() => {
         if (!map.current) return;
         try {
-            if (map.current.getLayer('route-line')) map.current.removeLayer('route-line');
-            if (map.current.getLayer('route-outline')) map.current.removeLayer('route-outline');
-            if (map.current.getSource('route')) map.current.removeSource('route');
+            for (let i = 0; i < 3; i++) {
+                if (map.current.getLayer(`route-line-${i}`)) map.current.removeLayer(`route-line-${i}`);
+                if (map.current.getLayer(`route-outline-${i}`)) map.current.removeLayer(`route-outline-${i}`);
+                if (map.current.getSource(`route-${i}`)) map.current.removeSource(`route-${i}`);
+            }
         } catch (err) {
             // Bỏ qua lỗi nếu layer/source không tồn tại
         }
     }, []);
+
+    // ═══ HÀM VẼ NHIỀU ĐƯỜNG ĐI ═══
+    const drawRoutes = useCallback((routes: any[], selectedIdx: number) => {
+        if (!map.current) return;
+        clearRoute();
+        
+        // Vẽ các đường phụ trước (nằm dưới)
+        routes.forEach((route, i) => {
+            if (i === selectedIdx) return;
+            const routeCoords = route.geometry.coordinates;
+            map.current.addSource(`route-${i}`, {
+                type: 'geojson',
+                data: { type: 'Feature', geometry: { type: 'LineString', coordinates: routeCoords }, properties: {} },
+            });
+            map.current.addLayer({
+                id: `route-outline-${i}`, type: 'line', source: `route-${i}`,
+                paint: { 'line-color': '#000', 'line-width': 6, 'line-opacity': 0.3 },
+            });
+            map.current.addLayer({
+                id: `route-line-${i}`, type: 'line', source: `route-${i}`,
+                paint: { 'line-color': '#64748b', 'line-width': 3, 'line-opacity': 0.8 },
+            });
+        });
+
+        // Vẽ đường chính sau (nằm trên)
+        const selectedRoute = routes[selectedIdx];
+        if (selectedRoute) {
+            const routeCoords = selectedRoute.geometry.coordinates;
+            map.current.addSource(`route-${selectedIdx}`, {
+                type: 'geojson',
+                data: { type: 'Feature', geometry: { type: 'LineString', coordinates: routeCoords }, properties: {} },
+            });
+            map.current.addLayer({
+                id: `route-outline-${selectedIdx}`, type: 'line', source: `route-${selectedIdx}`,
+                paint: { 'line-color': '#000', 'line-width': 8, 'line-opacity': 0.4 },
+            });
+            map.current.addLayer({
+                id: `route-line-${selectedIdx}`, type: 'line', source: `route-${selectedIdx}`,
+                paint: { 'line-color': '#3b82f6', 'line-width': 4, 'line-opacity': 1 },
+            });
+        }
+    }, [clearRoute]);
 
     // ═══ FETCH SÂN CÓ ĐIỀU KIỆN ═══
     const fetchCourts = useCallback(async (opts?: {
@@ -143,12 +254,24 @@ export default function MapPage() {
             });
             map.current.addControl(new vietmapgl.NavigationControl(), 'top-right');
             map.current.on('click', () => {
+                if (showRouteRef.current) return;
+                
                 setSelected(null);
                 setShowRoute(false);
+                setIsNavigating(false);
+                setIsFollowing(false);
+                setAllRoutes([]);
                 setRouteInfo(null);
                 clearRoute();
-                map.current?.flyTo({ pitch: 0, duration: 1000 });
+                map.current?.flyTo({ pitch: 0, bearing: 0, duration: 1000 });
             });
+
+            // Lắng nghe sự kiện kéo bản đồ để tắt isFollowing
+            const disableFollowing = () => setIsFollowing(false);
+            map.current.on('dragstart', disableFollowing);
+            map.current.on('touchstart', disableFollowing);
+            map.current.on('mousedown', disableFollowing);
+            map.current.on('wheel', disableFollowing);
             map.current.on('pitchend', () => {
                 setIs3D(map.current.getPitch() > 40);
             });
@@ -203,7 +326,7 @@ export default function MapPage() {
                 drawRadiusCircle(userLoc.lng, userLoc.lat, 5);
             }
             if (showRoute && selected) {
-                handleGetDirections();
+                handleGetDirections(false);
             }
         });
     }, [isDark, VIETMAP_KEY]);
@@ -283,9 +406,12 @@ export default function MapPage() {
                 e.stopPropagation();
                 setSelected(court);
                 setShowRoute(false);
+                setIsNavigating(false);
+                setIsFollowing(false);
+                setAllRoutes([]);
                 setRouteInfo(null);
                 clearRoute();
-                map.current?.flyTo({ center: coords, zoom: 15.5, pitch: 60, duration: 1500 });
+                map.current?.flyTo({ center: coords, zoom: 15.5, pitch: 60, bearing: 0, duration: 1500 });
             });
 
             const marker = new vietmapgl.Marker({ element: el, anchor: 'bottom' }).setLngLat(coords).addTo(map.current!);
@@ -345,26 +471,109 @@ export default function MapPage() {
         );
     };
 
-    // ═══ CHỈ ĐƯỜNG BẰNG ĐƯỜNG THẬT (OSRM API - FREE & UNLIMITED) ═══
-    const handleGetDirections = async () => {
-        if (!userLoc || !selected || !map.current) {
-            if (!userLoc) {
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => { setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude }); setTimeout(() => handleGetDirections(), 100); },
-                    () => useAlertStore.getState().showAlert('Cần bật GPS để tìm đường', 'Thông báo', 'info'), { enableHighAccuracy: true }
-                );
+    // ═══ THEO DÕI VỊ TRÍ THỜI GIAN THỰC KHI ĐI ĐƯỜNG ═══
+    useEffect(() => {
+        if (showRoute && selected && navigator.geolocation) {
+            watchIdRef.current = navigator.geolocation.watchPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    setUserLoc(prev => {
+                        if (!prev || haversineKm(prev.lat, prev.lng, lat, lng) > 0.005) {
+                            return { lat, lng };
+                        }
+                        return prev;
+                    });
+                    
+                    if (userMarkerRef.current) {
+                        userMarkerRef.current.setLngLat([lng, lat]);
+                    }
+
+                    // Nếu đang trong chế độ dẫn đường và following, tự động focus camera và bearing
+                    if (isNavigatingRef.current && isFollowingRef.current && map.current && allRoutesRef.current.length > 0) {
+                        const currentRouteCoords = allRoutesRef.current[selectedRouteIdxRef.current]?.geometry?.coordinates;
+                        const bearing = getRouteBearing({lat, lng}, currentRouteCoords);
+                        map.current.easeTo({
+                            center: [lng, lat],
+                            bearing: bearing,
+                            pitch: 60,
+                            zoom: 17,
+                            duration: 1000
+                        });
+                    }
+                },
+                (err) => console.warn('Lỗi watchPosition:', err),
+                { enableHighAccuracy: true, maximumAge: 5000, timeout: 5000 }
+            );
+        } else {
+            if (watchIdRef.current !== null) {
+                navigator.geolocation.clearWatch(watchIdRef.current);
+                watchIdRef.current = null;
             }
-            return;
         }
+        
+        return () => {
+            if (watchIdRef.current !== null) {
+                navigator.geolocation.clearWatch(watchIdRef.current);
+                watchIdRef.current = null;
+            }
+        };
+    }, [showRoute, selected]);
 
-        const courtCoords = getCourtCoords(selected);
-        if (!courtCoords) return;
+    // ═══ THEO DÕI ĐI LỆCH HƯỚNG VÀ RE-ROUTING ═══
+    useEffect(() => {
+        if (showRoute && isNavigating && userLoc && selected && allRoutes.length > 0) {
+            const currentRouteCoords = allRoutes[selectedRouteIdx]?.geometry?.coordinates;
+            if (currentRouteCoords) {
+                const distToRoute = distanceToRoute(userLoc, currentRouteCoords);
+                // Nếu đi lệch khỏi đường đã chọn quá 50m (0.05 km), tìm đường mới
+                if (distToRoute > 0.05) {
+                    const last = lastRouteUpdateLoc.current;
+                    // Đảm bảo user đã di chuyển ít nhất 30m kể từ lần update route cuối để tránh re-route liên tục
+                    if (!last || haversineKm(last.lat, last.lng, userLoc.lat, userLoc.lng) > 0.03) {
+                        lastRouteUpdateLoc.current = userLoc;
+                        // eslint-disable-next-line react-hooks/exhaustive-deps
+                        handleGetDirections(true);
+                    }
+                }
+            }
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [userLoc, showRoute, isNavigating, selected]); // Không thêm allRoutes vào đây để tránh loop
 
-        setShowRoute(true);
+    // ═══ CHỈ ĐƯỜNG BẰNG ĐƯỜNG THẬT (OSRM API - FREE & UNLIMITED) ═══
+    const handleGetDirections = async (isUpdate = false) => {
+        if (!isUpdate) setIsLoadingRoute(true);
 
         try {
-            // Dùng OSRM API công cộng (Miễn phí, vẽ đường bám theo đường thật)
-            const url = `https://router.project-osrm.org/route/v1/driving/${userLoc.lng},${userLoc.lat};${courtCoords[0]},${courtCoords[1]}?overview=full&geometries=geojson`;
+            let currentLoc = userLoc;
+            if (!currentLoc && !isUpdate) {
+                try {
+                    currentLoc = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(
+                            (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+                            (err) => reject(err),
+                            { enableHighAccuracy: true }
+                        );
+                    });
+                    setUserLoc(currentLoc);
+                } catch (err) {
+                    useAlertStore.getState().showAlert('Cần bật GPS để tìm đường', 'Thông báo', 'info');
+                    return;
+                }
+            }
+
+            if (!currentLoc || !selected || !map.current) {
+                return;
+            }
+
+            const courtCoords = getCourtCoords(selected);
+            if (!courtCoords) return;
+
+            setShowRoute(true);
+
+            // Lấy nhiều đường với alternatives=true
+            const url = `https://router.project-osrm.org/route/v1/driving/${currentLoc.lng},${currentLoc.lat};${courtCoords[0]},${courtCoords[1]}?overview=full&geometries=geojson&alternatives=true`;
             const res = await fetch(url);
 
             if (!res.ok) throw new Error('OSRM API Error');
@@ -372,50 +581,41 @@ export default function MapPage() {
             const data = await res.json();
 
             if (data.routes && data.routes.length > 0) {
+                setAllRoutes(data.routes);
+                setSelectedRouteIdx(0);
+                
                 const route = data.routes[0];
                 const distKm = (route.distance / 1000).toFixed(1);
                 const durMin = Math.ceil(route.duration / 60);
 
                 setRouteInfo({ distance: `${distKm} km`, duration: `${durMin} phút` });
 
-                const routeCoords = route.geometry.coordinates; // Dữ liệu đường cong
-                clearRoute(); // Xóa đường cũ nếu có
-                try {
-                    map.current.removeLayer('route-line');
-                    map.current.removeLayer('route-outline');
-                    map.current.removeSource('route');
-                } catch { /* ignore */ }
+                drawRoutes(data.routes, 0);
 
-                map.current.addSource('route', {
-                    type: 'geojson',
-                    data: { type: 'Feature', geometry: { type: 'LineString', coordinates: routeCoords }, properties: {} },
-                });
-
-                // Viền ngoài màu đen
-                map.current.addLayer({
-                    id: 'route-outline', type: 'line', source: 'route',
-                    paint: { 'line-color': '#000', 'line-width': 8, 'line-opacity': 0.4 },
-                });
-
-                // Đường chỉ dẫn màu xanh dương
-                map.current.addLayer({
-                    id: 'route-line', type: 'line', source: 'route',
-                    paint: { 'line-color': '#3b82f6', 'line-width': 4, 'line-opacity': 1 },
-                });
-
-                // Zoom theo đường đi và nghiêng cam 45 độ
-                const routeBounds = new vietmapgl.LngLatBounds();
-                routeCoords.forEach((c: [number, number]) => routeBounds.extend(c));
-                map.current.fitBounds(routeBounds, { padding: { top: 100, bottom: 300, left: 80, right: 80 }, pitch: 45, duration: 1500 });
+                if (isUpdate === true) {
+                    // Nếu là update thời gian thực, có thể center camera theo người dùng
+                    map.current.easeTo({ center: [currentLoc.lng, currentLoc.lat], duration: 1000 });
+                } else {
+                    // Zoom theo đường đi và nghiêng cam 45 độ
+                    const routeCoords = route.geometry.coordinates;
+                    const routeBounds = new vietmapgl.LngLatBounds();
+                    routeCoords.forEach((c: [number, number]) => routeBounds.extend(c));
+                    map.current.fitBounds(routeBounds, { padding: { top: 100, bottom: 300, left: 80, right: 80 }, pitch: 45, duration: 1500 });
+                }
             }
         } catch (err) {
             console.error('Lỗi routing OSRM:', err);
             // Fallback lỡ OSRM sập mạng
-            const dist = haversineKm(userLoc.lat, userLoc.lng, courtCoords[1], courtCoords[0]);
-            setRouteInfo({
-                distance: `~${dist.toFixed(1)} km`,
-                duration: `~${Math.ceil(dist * 3)} phút`
-            });
+            const courtCoords = selected ? getCourtCoords(selected) : null;
+            if (userLoc && courtCoords) {
+                const dist = haversineKm(userLoc.lat, userLoc.lng, courtCoords[1], courtCoords[0]);
+                setRouteInfo({
+                    distance: `~${dist.toFixed(1)} km`,
+                    duration: `~${Math.ceil(dist * 3)} phút`
+                });
+            }
+        } finally {
+            if (!isUpdate) setIsLoadingRoute(false);
         }
     };
 
@@ -431,45 +631,51 @@ export default function MapPage() {
             <div className="absolute bottom-0 left-0 right-0 h-64 bg-linear-to-t from-background via-background/80 to-transparent z-10 pointer-events-none" />
 
             {/* TÌM KIẾM & CHIP FILTER */}
-            <div className="absolute top-6 left-4 right-4 z-20 pointer-events-none">
-                <div className="relative max-w-md mx-auto pointer-events-auto group">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-emerald-400 transition-colors" />
-                    <input
-                        type="text" placeholder="Tìm sân trên bản đồ..." value={searchVal} onChange={(e) => setSearchVal(e.target.value)}
-                        className="w-full h-14 pl-12 pr-14 rounded-2xl bg-card/70 backdrop-blur-2xl border border-border text-foreground placeholder:text-muted-foreground text-[15px] outline-none shadow-xl shadow-black/10 focus:border-emerald-500/50 focus:bg-card/90 transition-all"
-                    />
-                    {searchVal && (
-                        <button onClick={() => { setSearchVal(''); fetchCourts({ lat: userLoc?.lat, lng: userLoc?.lng }); }} className="absolute right-14 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
-                            <X className="w-3 h-3" />
+            {!showRoute && (
+                <div className="absolute top-6 left-4 right-4 z-20 pointer-events-none">
+                    <div className="relative max-w-md mx-auto pointer-events-auto group">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-emerald-400 transition-colors" />
+                        <input
+                            type="text" placeholder="Tìm sân trên bản đồ..." value={searchVal} onChange={(e) => setSearchVal(e.target.value)}
+                            className="w-full h-14 pl-12 pr-14 rounded-2xl bg-card/70 backdrop-blur-2xl border border-border text-foreground placeholder:text-muted-foreground text-[15px] outline-none shadow-xl shadow-black/10 focus:border-emerald-500/50 focus:bg-card/90 transition-all"
+                        />
+                        {searchVal && (
+                            <button onClick={() => { setSearchVal(''); fetchCourts({ lat: userLoc?.lat, lng: userLoc?.lng }); }} className="absolute right-14 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+                                <X className="w-3 h-3" />
+                            </button>
+                        )}
+                        <button className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-card hover:bg-muted flex items-center justify-center text-muted-foreground transition-colors border border-border">
+                            <SlidersHorizontal className="w-5 h-5" />
                         </button>
-                    )}
-                    <button className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-card hover:bg-muted flex items-center justify-center text-muted-foreground transition-colors border border-border">
-                        <SlidersHorizontal className="w-5 h-5" />
+                    </div>
+
+                    <div className="max-w-md mx-auto mt-4 flex gap-2.5 overflow-x-auto hide-scrollbar pointer-events-auto snap-x pb-2">
+                        {FILTER_CHIPS.map((chip) => (
+                            <button key={chip.id} onClick={() => handleFilterChip(chip.id)}
+                                className={`snap-start shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full border text-[12px] font-medium transition-all duration-300 shadow-lg ${activeFilter === chip.id ? 'bg-emerald-500 text-black border-emerald-500 shadow-glow-lg' : 'bg-card/80 backdrop-blur-xl border-border text-muted-foreground hover:border-emerald-500/50'}`}>
+                                {chip.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {!showRoute && (
+                <>
+                    <button onClick={() => {
+                        if (map.current) map.current.flyTo({ pitch: is3D ? 0 : 60, duration: 1000 });
+                    }} className={`absolute right-4 z-20 w-12 h-12 rounded-full font-black text-[15px] flex items-center justify-center transition-all duration-300 active:scale-95 shadow-lg ${is3D ? 'bg-emerald-500 text-black shadow-glow-lg border-emerald-500' : 'bg-card/90 backdrop-blur-md text-foreground border border-border'} ${selected ? 'bottom-72' : 'bottom-64'}`}>
+                        3D
                     </button>
-                </div>
 
-                <div className="max-w-md mx-auto mt-4 flex gap-2.5 overflow-x-auto hide-scrollbar pointer-events-auto snap-x pb-2">
-                    {FILTER_CHIPS.map((chip) => (
-                        <button key={chip.id} onClick={() => handleFilterChip(chip.id)}
-                            className={`snap-start shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full border text-[12px] font-medium transition-all duration-300 shadow-lg ${activeFilter === chip.id ? 'bg-emerald-500 text-black border-emerald-500 shadow-glow-lg' : 'bg-card/80 backdrop-blur-xl border-border text-muted-foreground hover:border-emerald-500/50'}`}>
-                            {chip.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            <button onClick={() => {
-                if (map.current) map.current.flyTo({ pitch: is3D ? 0 : 60, duration: 1000 });
-            }} className={`absolute right-4 z-20 w-12 h-12 rounded-full font-black text-[15px] flex items-center justify-center transition-all duration-300 active:scale-95 shadow-lg ${is3D ? 'bg-emerald-500 text-black shadow-glow-lg border-emerald-500' : 'bg-card/90 backdrop-blur-md text-foreground border border-border'} ${selected ? 'bottom-72' : 'bottom-64'}`}>
-                3D
-            </button>
-
-            <button onClick={handleLocateMe} className={`absolute right-4 z-20 px-4 py-3 rounded-full bg-emerald-500 text-black text-sm font-bold flex items-center gap-2.5 shadow-glow-lg hover:bg-emerald-400 hover:scale-105 transition-all duration-300 active:scale-95 ${selected ? 'bottom-56' : 'bottom-48'}`}>
-                <Navigation className="w-4 h-4" /> Sân gần tôi
-            </button>
+                    <button onClick={handleLocateMe} className={`absolute right-4 z-20 px-4 py-3 rounded-full bg-emerald-500 text-black text-sm font-bold flex items-center gap-2.5 shadow-glow-lg hover:bg-emerald-400 hover:scale-105 transition-all duration-300 active:scale-95 ${selected ? 'bottom-56' : 'bottom-48'}`}>
+                        <Navigation className="w-4 h-4" /> Sân gần tôi
+                    </button>
+                </>
+            )}
 
             {/* DANH SÁCH CAROUSEL CÁC SÂN */}
-            {!selected && courts.length > 0 && (
+            {!selected && !showRoute && courts.length > 0 && (
                 <div className="absolute bottom-16.5 left-0 right-0 z-20 w-full pointer-events-none">
                     <div className="flex overflow-x-auto px-4 pb-4 gap-4 snap-x snap-mandatory hide-scrollbar pointer-events-auto">
                         {courts.slice(0, 10).map((court) => {
@@ -503,8 +709,86 @@ export default function MapPage() {
                 </div>
             )}
 
+            {/* THÔNG TIN KHI TÌM ĐƯỜNG HOẶC NAVIGATION */}
+            {selected && showRoute && (
+                <>
+                    {/* Navigation Bar (Top) */}
+                    <div className="absolute top-4 left-4 right-4 z-20 flex flex-col gap-2 pointer-events-auto">
+                        {!isNavigating && allRoutes.length > 1 && (
+                            <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+                                {allRoutes.map((r, i) => (
+                                    <button key={i} onClick={() => {
+                                        setSelectedRouteIdx(i);
+                                        const distKm = (r.distance / 1000).toFixed(1);
+                                        const durMin = Math.ceil(r.duration / 60);
+                                        setRouteInfo({ distance: `${distKm} km`, duration: `${durMin} phút` });
+                                        drawRoutes(allRoutes, i);
+                                    }} className={`shrink-0 px-3 py-1.5 rounded-lg text-[13px] font-bold border transition-all shadow-md ${i === selectedRouteIdx ? 'bg-blue-600 text-white border-blue-700 shadow-blue-500/30' : 'bg-surface text-foreground border-border hover:bg-surface/80'}`}>
+                                        Tuyến {i + 1}: {(r.distance / 1000).toFixed(1)}km
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="bg-surface/90 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-border flex items-center justify-between">
+                            <div className="flex flex-col">
+                                <span className="font-black text-xl text-foreground flex items-center gap-2">
+                                    <Clock className="w-5 h-5 text-blue-500"/> {routeInfo?.duration}
+                                </span>
+                                <span className="text-muted-foreground text-sm font-medium mt-1">
+                                    Khoảng cách: {routeInfo?.distance}
+                                </span>
+                            </div>
+                            
+                            {!isNavigating ? (
+                                <button onClick={() => {
+                                    setIsNavigating(true);
+                                    setIsFollowing(true);
+                                    if (map.current && userLoc && allRoutes.length > 0) {
+                                        const routeCoords = allRoutes[selectedRouteIdx]?.geometry?.coordinates;
+                                        const bearing = getRouteBearing(userLoc, routeCoords);
+                                        map.current.flyTo({ center: [userLoc.lng, userLoc.lat], zoom: 17, pitch: 60, bearing: bearing, duration: 1500 });
+                                    }
+                                }} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2">
+                                    <Navigation className="w-5 h-5" /> BẮT ĐẦU
+                                </button>
+                            ) : (
+                                <button onClick={() => {
+                                    setShowRoute(false);
+                                    setIsNavigating(false);
+                                    setIsFollowing(false);
+                                    setAllRoutes([]);
+                                    setRouteInfo(null);
+                                    clearRoute();
+                                    map.current?.flyTo({ pitch: 0, bearing: 0, duration: 1000 });
+                                }} className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-red-500/30 transition-all active:scale-95 flex items-center gap-2">
+                                    <X className="w-5 h-5" /> THOÁT
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Nút Re-center khi Navigation bị kéo lệch */}
+                    {isNavigating && !isFollowing && (
+                        <div className="absolute bottom-32 left-1/2 -translate-x-1/2 z-50 pointer-events-auto animate-in slide-in-from-bottom-4 fade-in">
+                            <button onPointerDown={(e) => e.stopPropagation()} onClick={(e) => {
+                                e.stopPropagation();
+                                setIsFollowing(true);
+                                if (map.current && userLoc && allRoutes.length > 0) {
+                                    const routeCoords = allRoutes[selectedRouteIdx]?.geometry?.coordinates;
+                                    const bearing = getRouteBearing(userLoc, routeCoords);
+                                    map.current.flyTo({ center: [userLoc.lng, userLoc.lat], zoom: 17, pitch: 60, bearing: bearing, duration: 1000 });
+                                }
+                            }} className="bg-surface/90 backdrop-blur-md text-blue-500 border border-blue-500/20 font-bold py-3 px-6 rounded-full shadow-xl transition-all active:scale-95 flex items-center gap-2">
+                                <LocateFixed className="w-5 h-5" /> Về giữa
+                            </button>
+                        </div>
+                    )}
+                </>
+            )}
+
             {/* POPUP CHI TIẾT SÂN */}
-            {selected && (
+            {selected && !showRoute && (
                 <div className="absolute bottom-28 left-4 right-4 md:left-auto md:right-8 md:w-96 z-30 bg-card/80 backdrop-blur-3xl rounded-[2rem] border border-white/5 p-5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] transition-all animate-in fade-in slide-in-from-bottom-8 overflow-hidden group/popup">
                     <div className="absolute -right-20 -top-20 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
                     
@@ -542,14 +826,20 @@ export default function MapPage() {
                             </div>
                         </div>
                     </div>
-                    {routeInfo && (
-                        <div className="flex items-center justify-between gap-3 mt-4 px-4 py-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 relative z-10 shadow-inner">
-                            <span className="flex items-center gap-2 text-[13px] font-bold text-blue-400"><Ruler className="w-4 h-4" /> {routeInfo.distance}</span>
-                            <span className="flex items-center gap-2 text-[13px] font-bold text-blue-400"><Clock className="w-4 h-4" /> {routeInfo.duration}</span>
-                        </div>
-                    )}
+
                     <div className="flex gap-3 mt-5 relative z-10">
-                        <button onClick={handleGetDirections} className={`flex-1 py-3.5 rounded-2xl text-[14px] font-black flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg ${showRoute ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40 shadow-blue-500/10' : 'bg-surface border border-border text-foreground hover:bg-blue-500/10 hover:text-blue-400 hover:border-blue-500/20'}`}><Route className="w-4 h-4" /> ĐƯỜNG ĐI</button>
+                        <button disabled={isLoadingRoute} onClick={() => handleGetDirections()} className={`flex-1 py-3.5 rounded-2xl text-[14px] font-black flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg bg-surface border border-border text-foreground hover:bg-blue-500/10 hover:text-blue-400 hover:border-blue-500/20 ${isLoadingRoute ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                            {isLoadingRoute ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                    ĐANG TÌM...
+                                </>
+                            ) : (
+                                <>
+                                    <Route className="w-4 h-4" /> ĐƯỜNG ĐI
+                                </>
+                            )}
+                        </button>
                         <button onClick={() => setBookingCourt(selected)} className="flex-[1.5] py-3.5 rounded-2xl bg-emerald-500 text-black text-[14px] font-black flex items-center justify-center gap-2 hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/25 active:scale-[0.98]"><Calendar className="w-4 h-4" /> ĐẶT LỊCH</button>
                     </div>
                 </div>
