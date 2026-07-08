@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function ScrollEndEffect({ containerRef }: { containerRef?: React.RefObject<HTMLElement> }) {
     const [isAtBottom, setIsAtBottom] = useState(false);
     const wasAtBottomRef = useRef(false);
-    const timeoutRef = useRef<NodeJS.Timeout>();
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         const handleScroll = () => {

@@ -6,6 +6,8 @@ import { useAppStore } from '../store';
 import { courtApi } from '../api/court.api';
 import type { Court } from '../types';
 import { EmojiIcon } from '../components/EmojiIcon';
+import PullToRefresh from '../components/ui/PullToRefresh';
+import { CourtCardSkeleton } from '../components/ui/Skeleton';
 
 
 const MOCK_UPCOMING_GROUPS = [
@@ -100,26 +102,26 @@ export default function Dashboard() {
         ];
     };
 
-    useEffect(() => {
-        const fetchDashboardData = async () => {
-            try {
-                setLoading(true);
-                const response = await courtApi.searchCourts({
-                    page: 1,
-                    limit: 20,
-                    sortBy: 'rating'
-                });
+    const fetchDashboardData = async () => {
+        try {
+            setLoading(true);
+            const response = await courtApi.searchCourts({
+                page: 1,
+                limit: 5,
+                sortBy: 'rating'
+            });
 
-                if (response.data && response.data.data) {
-                    setPopularCourts(response.data.data.courts || (response.data.data as any));
-                }
-            } catch (error) {
-                console.error('Lỗi khi lấy dữ liệu trang chủ:', error);
-            } finally {
-                setLoading(false);
+            if (response.data && response.data.data) {
+                setPopularCourts(response.data.data.courts || (response.data.data as any));
             }
-        };
+        } catch (error) {
+            console.error('Lỗi khi lấy dữ liệu trang chủ:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchDashboardData();
     }, []);
 
@@ -144,6 +146,7 @@ export default function Dashboard() {
     };
 
     return (
+        <PullToRefresh onRefresh={fetchDashboardData}>
         <div className="max-w-7xl mx-auto px-4 pb-24 pt-6 space-y-8 overflow-x-hidden">
             {/* 1. Header & Lời chào */}
             <div className="relative">
@@ -339,16 +342,12 @@ export default function Dashboard() {
 
                 <div ref={scrollContainerRef} className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
                     {loading ? (
-                        /* Skeleton Loading */
-                        Array.from({ length: 5 }).map((_, i) => (
-                            <div key={i} className={`w-59 shrink-0 snap-start rounded-2xl ${t.bg.card} border ${t.border.subtle} p-3 animate-pulse`}>
-                                <div className="w-full h-32 bg-card rounded-xl mb-3"></div>
-                                <div className="h-4 bg-card rounded w-3/4 mb-2"></div>
-                                <div className="h-3 bg-card rounded w-1/2"></div>
+                        Array(3).fill(0).map((_, i) => (
+                            <div key={i} className="min-w-[280px] w-[80vw] sm:w-[320px] snap-center shrink-0">
+                                <CourtCardSkeleton />
                             </div>
                         ))
                     ) : (
-                        /* Data thật từ API */
                         popularCourts.map((court) => (
                             <div
                                 key={court._id}
@@ -452,5 +451,6 @@ export default function Dashboard() {
             </motion.div>
 
         </div>
+        </PullToRefresh>
     );
 }
