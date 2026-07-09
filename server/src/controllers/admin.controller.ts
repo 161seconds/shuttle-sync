@@ -136,6 +136,7 @@ class AdminController {
         try {
             const { bookings, pagination } = await adminService.getAllBookings({
                 status: req.query.status as any,
+                date: req.query.date as string,
                 page: req.query.page ? Number(req.query.page) : undefined,
                 limit: req.query.limit ? Number(req.query.limit) : undefined,
             });
