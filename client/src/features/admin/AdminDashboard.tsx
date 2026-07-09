@@ -221,9 +221,18 @@ export default function AdminDashboard() {
                                     data={chartData} 
                                     margin={{ top: 10, right: 0, left: -20, bottom: 0 }}
                                     onClick={(e: any) => {
-                                        if (e && e.activePayload && e.activePayload.length > 0) {
-                                            setSelectedData(e.activePayload[0].payload);
-                                            setActiveModal('chartDetail');
+                                        console.log("Chart clicked:", e);
+                                        if (e) {
+                                            if (e.activePayload && e.activePayload.length > 0) {
+                                                setSelectedData(e.activePayload[0].payload);
+                                                setActiveModal('chartDetail');
+                                            } else if (e.activeLabel) {
+                                                const item = chartData.find((d: any) => d.name === e.activeLabel);
+                                                if (item) {
+                                                    setSelectedData(item);
+                                                    setActiveModal('chartDetail');
+                                                }
+                                            }
                                         }
                                     }}
                                     style={{ cursor: 'pointer' }}
@@ -631,16 +640,28 @@ function AllBookingsModal({ onClose }: { onClose: () => void }) {
 }
 
 function ChartDetailModal({ data, onClose }: { data: any, onClose: () => void }) {
+    const [bookings, setBookings] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!data?.fullDate) return;
+        setLoading(true);
+        const dateStr = dayjs(data.fullDate).format('YYYY-MM-DD');
+        adminApi.getAllBookings({ date: dateStr, limit: 100 }).then(res => {
+            setBookings(res.data?.data?.bookings || res.data?.data || []);
+        }).finally(() => setLoading(false));
+    }, [data]);
+
     if (!data) return null;
     return (
-        <ModalWrapper title={`Thống kê ngày ${data.name}`} onClose={onClose}>
+        <ModalWrapper title={`Thống kê ngày ${data.name}`} onClose={onClose} maxWidth="max-w-4xl">
             <div className="space-y-6">
-                <div className="flex justify-between items-center p-4 rounded-xl bg-background border border-border">
-                    <div>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-xl bg-background border border-border">
                         <p className="text-sm text-muted-foreground">Số đơn đặt</p>
                         <p className="text-2xl font-bold text-foreground mt-1">{data.count || 0} đơn</p>
                     </div>
-                    <div className="text-right">
+                    <div className="p-4 rounded-xl bg-background border border-border text-right">
                         <p className="text-sm text-muted-foreground">Doanh thu trong ngày</p>
                         <p className="text-2xl font-bold text-emerald-400 mt-1">{(data.income)?.toLocaleString() || 0}đ</p>
                     </div>
@@ -652,6 +673,49 @@ function ChartDetailModal({ data, onClose }: { data: any, onClose: () => void })
                         Ngày {data.name} có tổng cộng {data.count || 0} lượt đặt mang về {(data.income)?.toLocaleString() || 0}đ. Bạn có thể xem xét gửi Email Marketing hoặc tạo chiến dịch Push Notification kèm mã ưu đãi cho các khách hàng cũ nhằm lấp đầy các khung giờ trống và tối đa hóa doanh thu nhé!
                     </p>
                     <button className="mt-4 px-4 py-2 bg-background border border-blue-500/50 text-blue-400 text-sm font-semibold rounded-lg hover:bg-blue-500 hover:text-foreground transition-colors">Tạo chiến dịch ngay</button>
+                </div>
+
+                <div>
+                    <h3 className="text-lg font-black uppercase tracking-wider text-foreground mb-4">Chi tiết các đơn đặt sân</h3>
+                    {loading ? (
+                        <div className="flex justify-center py-6"><Loader2 className="w-8 h-8 text-emerald-500 animate-spin" /></div>
+                    ) : (
+                        <div className="overflow-x-auto rounded-xl border border-border bg-background/50">
+                            <table className="w-full text-left text-sm whitespace-nowrap">
+                                <thead className="text-muted-foreground border-b border-border bg-muted/50">
+                                    <tr>
+                                        <th className="p-4 font-semibold">Mã đơn</th>
+                                        <th className="p-4 font-semibold">Khách</th>
+                                        <th className="p-4 font-semibold">Sân</th>
+                                        <th className="p-4 font-semibold">Thời gian</th>
+                                        <th className="p-4 font-semibold">Số tiền</th>
+                                        <th className="p-4 font-semibold">Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-border">
+                                    {bookings.map((booking: any) => (
+                                        <tr key={booking._id} className="hover:bg-emerald-500/5 transition-colors">
+                                            <td className="p-4 text-muted-foreground font-medium">#{booking.bookingCode}</td>
+                                            <td className="p-4 text-foreground font-semibold">{booking.userId?.displayName || 'N/A'}</td>
+                                            <td className="p-4 text-muted-foreground">{booking.courtId?.name || 'N/A'}</td>
+                                            <td className="p-4 text-muted-foreground">{booking.startTime} - {booking.endTime}</td>
+                                            <td className="p-4 text-emerald-400 font-bold">{booking.finalAmount?.toLocaleString()}đ</td>
+                                            <td className="p-4">
+                                                <span className={`px-2.5 py-1 rounded text-[10px] font-bold tracking-wide uppercase ${booking.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : booking.status === 'cancelled' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-orange-500/10 text-orange-400 border border-orange-500/20'}`}>
+                                                    {booking.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {bookings.length === 0 && (
+                                        <tr>
+                                            <td colSpan={6} className="p-8 text-center text-muted-foreground">Không có đơn đặt sân nào trong ngày này.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
             </div>
         </ModalWrapper>

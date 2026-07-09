@@ -425,11 +425,19 @@ class AdminService {
      */
     async getAllBookings(params: {
         status?: BookingStatus;
+        date?: string;
         page?: number;
         limit?: number;
     }) {
         const filter: any = {};
         if (params.status) filter.status = params.status;
+        if (params.date) {
+            const startDate = new Date(params.date);
+            startDate.setUTCHours(0, 0, 0, 0);
+            const endDate = new Date(params.date);
+            endDate.setUTCHours(23, 59, 59, 999);
+            filter.createdAt = { $gte: startDate, $lte: endDate };
+        }
 
         const total = await Booking.countDocuments(filter);
         const { page, limit, totalPages, skip } = calculatePagination(
