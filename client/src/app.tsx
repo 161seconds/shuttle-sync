@@ -23,6 +23,8 @@ export const pageImports = {
   ChatPage: () => import('./pages/chat/ChatPage'),
   OwnerCourts: () => import('./features/owner/OwnerCourts').then(m => ({ default: m.OwnerCourts })),
   OwnerSchedule: () => import('./features/owner/OwnerSchedule').then(m => ({ default: m.OwnerSchedule })),
+  OwnerBookings: () => import('./features/owner/OwnerBookings').then(m => ({ default: m.OwnerBookings })),
+  OwnerSettings: () => import('./features/owner/OwnerSettings').then(m => ({ default: m.OwnerSettings })),
   NewsPage: () => import('./pages/NewsPage'),
   SupportPage: () => import('./pages/SupportPage'),
   OwnerLayout: () => import('./features/owner/OwnerLayout').then(m => ({ default: m.OwnerLayout })),
@@ -48,6 +50,8 @@ const SupplementaryPage = lazy(pageImports.SupplementaryPage);
 const ChatPage = lazy(pageImports.ChatPage);
 const OwnerCourts = lazy(pageImports.OwnerCourts);
 const OwnerSchedule = lazy(pageImports.OwnerSchedule);
+const OwnerBookings = lazy(pageImports.OwnerBookings);
+const OwnerSettings = lazy(pageImports.OwnerSettings);
 const NewsPage = lazy(pageImports.NewsPage);
 const SupportPage = lazy(pageImports.SupportPage);
 const OwnerLayout = lazy(pageImports.OwnerLayout);
@@ -265,6 +269,8 @@ function Shell() {
               <Route path="dashboard" element={<OwnerDashboard />} />
               <Route path="courts" element={<OwnerCourts />} />
               <Route path="schedule" element={<OwnerSchedule />} />
+              <Route path="bookings" element={<OwnerBookings />} />
+              <Route path="settings" element={<OwnerSettings />} />
             </Route>
             <Route path="onboarding" element={<OwnerOnboarding />} />
           </Route>

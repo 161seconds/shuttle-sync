@@ -24,6 +24,15 @@ export const ownerApi = {
         images: string[];
     }) => api.post('/owner/venue', data).then(res => res.data.data),
 
+    updateVenue: (data: Partial<{
+        name: string;
+        location: { type: string, coordinates: number[] };
+        address: { street: string; city: string; state: string; countryCode: string; };
+        contact: { phone: string; website: string; };
+        sports: string[];
+        images: string[];
+    }>) => api.put('/owner/venue', data).then(res => res.data.data),
+
     getStats: (): Promise<OwnerStats> => api.get('/owner/stats').then(res => res.data.data),
 
     getCourts: () => api.get('/owner/courts').then(res => res.data.data),
@@ -51,4 +60,6 @@ export const ownerApi = {
         date: string;
         notes?: string;
     }) => api.post('/owner/schedule/block', data).then(res => res.data.data),
+
+    getBookings: () => api.get('/owner/bookings').then(res => res.data.data),
 };

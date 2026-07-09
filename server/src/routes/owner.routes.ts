@@ -12,6 +12,7 @@ router.use(authorize(UserRole.COURT_OWNER));
 // Quản lý Venue
 router.get('/venue', ownerController.getVenue);
 router.post('/venue', ownerController.createVenue);
+router.put('/venue', ownerController.updateVenue);
 
 // Quản lý Sân nhỏ (Courts)
 router.get('/courts', ownerController.getCourts);
@@ -24,5 +25,8 @@ router.get('/stats', ownerController.getDashboardStats);
 // Lưới Lịch
 router.get('/schedule', ownerController.getSchedule);
 router.post('/schedule/block', ownerController.blockSlot);
+
+// Quản lý Đặt Sân (Bookings)
+router.get('/bookings', ownerController.getBookings);
 
 export default router;
