@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ownerApi } from '../../services/ownerApi';
 import { Loader2, Calendar, User, Phone, Clock, CheckCircle, XCircle } from 'lucide-react';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 
 export const OwnerBookings = () => {
     const [bookings, setBookings] = useState<any[]>([]);
@@ -83,7 +83,7 @@ export const OwnerBookings = () => {
                                         <div className="flex flex-col gap-1">
                                             <span className="flex items-center gap-1 text-white">
                                                 <Calendar className="w-4 h-4 text-purple-400" />
-                                                {format(new Date(booking.date), 'dd/MM/yyyy')}
+                                                {dayjs(booking.date).format('DD/MM/YYYY')}
                                             </span>
                                             <span className="flex items-center gap-1 text-gray-400">
                                                 <Clock className="w-4 h-4" />
