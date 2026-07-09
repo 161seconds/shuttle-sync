@@ -10,6 +10,7 @@ import {
     userRoutes, reviewRoutes, notificationRoutes,
     eventRoutes, ownerApplicationRoutes, reportRoutes,
 } from './other.routes';
+import ownerRoutes from './owner.routes';
 
 const router = Router();
 
@@ -35,6 +36,7 @@ router.use('/notifications', notificationRoutes);
 router.use('/owner-applications', ownerApplicationRoutes);
 router.use('/reports', reportRoutes);
 router.use('/admin', adminRoutes);
+router.use('/owner', ownerRoutes);
 router.use('/tournaments', require('./tournament.routes').default);
 router.use('/chat', require('./chat.routes').default);
 router.use('/friends', require('./friendship.routes').default);

@@ -21,8 +21,13 @@ export const pageImports = {
   RulesPage: () => import('./pages/RulesPage'),
   SupplementaryPage: () => import('./pages/SupplementaryPage'),
   ChatPage: () => import('./pages/chat/ChatPage'),
+  OwnerCourts: () => import('./features/owner/OwnerCourts').then(m => ({ default: m.OwnerCourts })),
+  OwnerSchedule: () => import('./features/owner/OwnerSchedule').then(m => ({ default: m.OwnerSchedule })),
   NewsPage: () => import('./pages/NewsPage'),
   SupportPage: () => import('./pages/SupportPage'),
+  OwnerLayout: () => import('./features/owner/OwnerLayout').then(m => ({ default: m.OwnerLayout })),
+  OwnerOnboarding: () => import('./features/owner/OwnerOnboarding').then(m => ({ default: m.OwnerOnboarding })),
+  OwnerDashboard: () => import('./features/owner/OwnerDashboard').then(m => ({ default: m.OwnerDashboard })),
 };
 
 const Dashboard = lazy(pageImports.Dashboard);
@@ -41,8 +46,13 @@ const MatchLeaderboard = lazy(pageImports.MatchLeaderboard);
 const RulesPage = lazy(pageImports.RulesPage);
 const SupplementaryPage = lazy(pageImports.SupplementaryPage);
 const ChatPage = lazy(pageImports.ChatPage);
+const OwnerCourts = lazy(pageImports.OwnerCourts);
+const OwnerSchedule = lazy(pageImports.OwnerSchedule);
 const NewsPage = lazy(pageImports.NewsPage);
 const SupportPage = lazy(pageImports.SupportPage);
+const OwnerLayout = lazy(pageImports.OwnerLayout);
+const OwnerOnboarding = lazy(pageImports.OwnerOnboarding);
+const OwnerDashboard = lazy(pageImports.OwnerDashboard);
 
 import { useOnboarding, OnboardingModal, GuidedTourOverlay } from './features/onboarding';
 import { ParticleField } from './components/onboarding/Shared';
@@ -238,7 +248,11 @@ function Shell() {
               <AnimatePresence mode="wait">
                 <Routes location={location} key={location.pathname}>
                   <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
-                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/" element={
+                    user?.role === 'court_owner' ? <Navigate to="/owner/dashboard" replace /> :
+                    user?.role === 'admin' ? <Navigate to="/admin" replace /> :
+                    <Dashboard />
+                  } />
                   <Route path="/map" element={<MapPage />} />
                   <Route path="/search" element={<SearchPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
@@ -246,6 +260,14 @@ function Shell() {
                   <Route path="/groupplay" element={<GroupPlayPage />} />
                   <Route path="/aicoach" element={<AiCoach />} />
                   <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="owner">
+            <Route element={<OwnerLayout />}>
+              <Route path="dashboard" element={<OwnerDashboard />} />
+              <Route path="courts" element={<OwnerCourts />} />
+              <Route path="schedule" element={<OwnerSchedule />} />
+            </Route>
+            <Route path="onboarding" element={<OwnerOnboarding />} />
+          </Route>
                   <Route path="/notifications" element={<Notifications onBack={() => window.history.back()} />} />
                   <Route path="/match-leaderboard" element={<MatchLeaderboard onBack={() => window.history.back()} />} />
                   <Route path="/rules" element={<RulesPage />} />
