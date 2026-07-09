@@ -131,6 +131,17 @@ class OwnerService {
         };
     }
 
+    async getBookings(ownerId: string) {
+        const venue = await this.getVenueByOwnerId(ownerId);
+        if (!venue) throw new ApiError(400, 'Cần tạo cơ sở trước khi xem danh sách đặt sân');
+
+        return Booking.find({ courtId: venue._id })
+            .sort({ createdAt: -1 })
+            .populate('userId', 'displayName email phone avatar')
+            .populate('subCourtId', 'name sportType')
+            .lean();
+    }
+
     async getSchedule(ownerId: string, dateStr: string) {
         const venue = await this.getVenueByOwnerId(ownerId);
         if (!venue) throw new ApiError(400, 'Cần tạo cơ sở trước khi xem lịch');

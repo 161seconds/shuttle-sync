@@ -22,6 +22,15 @@ class OwnerController {
         }
     }
 
+    async updateVenue(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const venue = await ownerService.updateVenue(req.userId!, req.body);
+            sendSuccess(res, venue, 'Cập nhật cơ sở thành công');
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async getDashboardStats(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             const stats = await ownerService.getDashboardStats(req.userId!);
@@ -52,6 +61,15 @@ class OwnerController {
         try {
             const court = await ownerService.updateCourt(req.userId!, req.params.courtId, req.body);
             sendSuccess(res, court, 'Cập nhật sân thành công');
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getBookings(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const bookings = await ownerService.getBookings(req.userId!);
+            sendSuccess(res, bookings);
         } catch (error) {
             next(error);
         }

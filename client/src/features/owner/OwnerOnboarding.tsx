@@ -13,7 +13,7 @@ export const OwnerOnboarding = () => {
         name: '',
         phone: '',
         street: '',
-        city: '',
+        city: 'Hồ Chí Minh',
         state: '',
         imageUrl: '',
         subImages: ['', '', '', ''],
@@ -128,25 +128,34 @@ export const OwnerOnboarding = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-1">Quận/Huyện</label>
-                                <input 
-                                    type="text"
+                                <label className="block text-sm font-medium text-gray-300 mb-1">Quận/Huyện <span className="text-red-500">*</span></label>
+                                <select 
                                     value={formData.state}
                                     onChange={e => setFormData({...formData, state: e.target.value})}
-                                    placeholder="VD: Quận 1"
                                     className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                                />
+                                    required
+                                >
+                                    <option value="" disabled>-- Chọn Quận/Huyện --</option>
+                                    {[
+                                        'Quận 1', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7', 'Quận 8', 'Quận 10', 'Quận 11', 'Quận 12',
+                                        'Bình Tân', 'Bình Thạnh', 'Gò Vấp', 'Phú Nhuận', 'Tân Bình', 'Tân Phú', 'Thành phố Thủ Đức',
+                                        'Huyện Bình Chánh', 'Huyện Cần Giờ', 'Huyện Củ Chi', 'Huyện Hóc Môn', 'Huyện Nhà Bè'
+                                    ].map(d => (
+                                        <option key={d} value={d}>{d}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-300 mb-1">Tỉnh/Thành phố <span className="text-red-500">*</span></label>
-                                <input 
-                                    type="text"
+                                <select 
                                     value={formData.city}
                                     onChange={e => setFormData({...formData, city: e.target.value})}
-                                    placeholder="VD: Hồ Chí Minh"
-                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                                     required
-                                />
+                                    disabled
+                                >
+                                    <option value="Hồ Chí Minh">Hồ Chí Minh</option>
+                                </select>
                             </div>
                         </div>
                     </div>
