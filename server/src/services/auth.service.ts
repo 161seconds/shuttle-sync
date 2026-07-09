@@ -19,16 +19,22 @@ class AuthService {
         password: string;
         displayName: string;
         phone?: string;
+        role?: string;
     }): Promise<{ user: IUserDocument; tokens: TokenPair }> {
         const existingUser = await User.findByEmail(data.email);
         if (existingUser) {
             throw ApiError.conflict('Email đã được sử dụng');
         }
 
+        let assignedRole = UserRole.USER;
+        if (data.role === 'OWNER' || data.role === UserRole.COURT_OWNER) {
+            assignedRole = UserRole.COURT_OWNER;
+        }
+
         const user = await User.create({
             ...data,
             authProvider: AuthProvider.LOCAL,
-            role: UserRole.USER,
+            role: assignedRole,
             status: UserStatus.ACTIVE,
         });
 

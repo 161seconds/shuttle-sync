@@ -58,8 +58,8 @@ export default function AdminDashboard() {
 
         loadStats(); // Tải lần đầu
 
-        // Polling mỗi 10 giây để dashboard luôn được cập nhật khi có dữ liệu mới
-        const interval = setInterval(loadStats, 10000);
+        // Polling mỗi 60 giây để dashboard luôn được cập nhật khi có dữ liệu mới
+        const interval = setInterval(loadStats, 60000);
         return () => clearInterval(interval);
     }, []);
 
