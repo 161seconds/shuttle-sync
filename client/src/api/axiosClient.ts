@@ -58,6 +58,9 @@ axiosClient.interceptors.response.use(
                 return axiosClient(original);
             } catch (err) {
                 processQueue(err);
+                // Lỗi khi refresh token -> Đăng xuất người dùng hoặc tải lại trang để chuyển về trang login
+                localStorage.removeItem('user');
+                window.location.href = '/login'; 
                 return Promise.reject(err);
             } finally {
                 isRefreshing = false;
