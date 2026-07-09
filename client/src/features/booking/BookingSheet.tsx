@@ -47,6 +47,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
     const [step, setStep] = useState(1);
     const [direction, setDirection] = useState(1);
     const [selectedDate, setSelectedDate] = useState(0);
+    const [selectedSubCourt, setSelectedSubCourt] = useState<string | null>(court.courts?.[0]?._id || null);
 
     const [rangeStart, setRangeStart] = useState<string | null>(null);
     const [rangeEnd, setRangeEnd] = useState<string | null>(null);
@@ -94,7 +95,10 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
 
                 const ranges: { start: number; end: number }[] = [];
                 (res.data.data || []).forEach((b: any) => {
-                    if (b.startTime && b.endTime && b.status !== 'CANCELLED' && b.status !== 'REJECTED') {
+                    if (
+                        (selectedSubCourt ? b.subCourtId === selectedSubCourt : true) &&
+                        b.startTime && b.endTime && b.status !== 'CANCELLED' && b.status !== 'REJECTED'
+                    ) {
                         ranges.push({
                             start: timeToMins(b.startTime),
                             end: timeToMins(b.endTime)
@@ -113,7 +117,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
         };
 
         fetchBookedSlots();
-    }, [selectedDate, court._id]);
+    }, [selectedDate, court._id, selectedSubCourt]);
 
     const isSlotBooked = (slot: string) => {
         const pointMins = timeToMins(slot);
@@ -193,7 +197,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
         try {
             const res = await bookingApi.createBooking({
                 courtId: court._id,
-                subCourtId: court.courts?.[0]?._id || '663344556677889900112288',
+                subCourtId: selectedSubCourt || court.courts?.[0]?._id,
                 slotIds: [], 
                 date: dates[selectedDate].fullDate,
                 startTime: finalStartTime!,
@@ -281,6 +285,29 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                         {step === 1 ? (
                             <motion.div key="step1" custom={direction} variants={stepVariants} initial="enter" animate="center" exit="exit" className="space-y-8">
                                 
+                                {/* SUB COURT SELECTOR */}
+                                <div>
+                                    <label className="text-sm font-bold text-muted-foreground mb-4 block">Chọn sân</label>
+                                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
+                                        {court.courts?.map((c: any) => (
+                                            <button
+                                                key={c._id}
+                                                onClick={() => setSelectedSubCourt(c._id)}
+                                                className={`shrink-0 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 snap-center ${
+                                                    selectedSubCourt === c._id 
+                                                    ? 'bg-emerald-500 text-emerald-950 shadow-lg shadow-emerald-500/25' 
+                                                    : 'bg-card text-emerald-100/70 hover:bg-emerald-500/10 hover:text-emerald-50'
+                                                }`}
+                                            >
+                                                {c.name}
+                                            </button>
+                                        ))}
+                                        {(!court.courts || court.courts.length === 0) && (
+                                            <span className="text-sm text-muted-foreground">Không có sân nhỏ nào</span>
+                                        )}
+                                    </div>
+                                </div>
+
                                 {/* TYPE SELECTOR */}
                                 <div className="flex bg-card p-1 rounded-2xl">
                                     <button 

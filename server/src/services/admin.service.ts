@@ -70,7 +70,7 @@ class AdminService {
             { $project: { date: '$_id', count: 1, revenue: 1, _id: 0 } },
         ]);
 
-        // Top courts
+        // Top courts (Venues)
         const topCourts = await Booking.aggregate([
             { $match: { status: BookingStatus.CONFIRMED } },
             {
@@ -84,17 +84,17 @@ class AdminService {
             { $limit: 10 },
             {
                 $lookup: {
-                    from: 'courts',
+                    from: 'venues',
                     localField: '_id',
                     foreignField: '_id',
-                    as: 'court',
+                    as: 'venueInfo',
                 },
             },
-            { $unwind: '$court' },
+            { $unwind: '$venueInfo' },
             {
                 $project: {
                     courtId: '$_id',
-                    name: '$court.name',
+                    name: '$venueInfo.name',
                     bookings: 1,
                     revenue: 1,
                     _id: 0,
@@ -103,35 +103,44 @@ class AdminService {
         ]);
 
         // Recent bookings
-        const recentBookings = await Booking.find()
+        const recentBookingsRaw = await Booking.find()
             .sort({ createdAt: -1 })
             .limit(10)
-            .populate('courtId', 'name sportType')
+            .populate({ path: 'courtId', model: 'Venue', select: 'name sports' })
             .populate('userId', 'displayName email')
-            .lean();
+            .lean() as any[];
+
+        const recentBookings = recentBookingsRaw.map(b => ({
+            ...b,
+            courtId: b.courtId ? {
+                _id: b.courtId._id,
+                name: b.courtId.name,
+                sportType: b.courtId.sports?.[0] || 'Unknown'
+            } : null
+        }));
 
         // Booking ratio by sport
         const bookingRatioAgg = await Booking.aggregate([
             { $match: { status: BookingStatus.CONFIRMED } },
             {
                 $lookup: {
-                    from: 'courts',
+                    from: 'venues',
                     localField: 'courtId',
                     foreignField: '_id',
-                    as: 'court'
+                    as: 'venue'
                 }
             },
-            { $unwind: '$court' },
+            { $unwind: '$venue' },
             {
                 $group: {
-                    _id: '$court.sportType',
+                    _id: { $arrayElemAt: ['$venue.sports', 0] },
                     count: { $sum: 1 }
                 }
             }
         ]);
         
         const bookingRatio = bookingRatioAgg.map(item => ({
-            name: item._id,
+            name: item._id || 'Khác',
             value: item.count
         }));
 
