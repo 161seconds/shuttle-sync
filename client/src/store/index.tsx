@@ -91,7 +91,11 @@ export function AppProvider({ children }: AppProviderProps) {
             return;
         }
         setPage(newPage);
-        if (newPage === 'home') navigate('/');
+        if (newPage === 'home') {
+            if (user?.role === 'court_owner') navigate('/owner/dashboard');
+            else if (user?.role === 'admin') navigate('/admin');
+            else navigate('/');
+        }
         else if (newPage === 'edit-profile') navigate('/edit-profile');
         else if (newPage === 'match-leaderboard') navigate('/match-leaderboard');
         else navigate(`/${newPage}`);
