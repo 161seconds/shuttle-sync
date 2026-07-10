@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ownerApi } from '../../services/ownerApi';
 import { useAlertStore } from '../../stores/useAlertStore';
-import { Calendar, ChevronLeft, ChevronRight, Loader2, Lock, User } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Loader2, Lock, User, X, Clock, Info } from 'lucide-react';
 import dayjs from 'dayjs';
 
 interface CourtData {
@@ -14,11 +14,17 @@ interface CourtData {
 
 interface BookingData {
     _id: string;
+    bookingCode?: string;
     subCourtId: string;
     startTime: string;
     endTime: string;
     status: string;
     type: string;
+    finalAmount?: number;
+    payment?: {
+        method: string;
+        status: string;
+    };
     userId?: {
         _id: string;
         displayName: string;
@@ -36,6 +42,7 @@ export const OwnerSchedule = () => {
 
     // Modal
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedBooking, setSelectedBooking] = useState<BookingData | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [blockData, setBlockData] = useState({
         subCourtId: '',
@@ -220,7 +227,11 @@ export const OwnerSchedule = () => {
                                                     return (
                                                         <div 
                                                             key={booking._id}
-                                                            className={`absolute top-1.5 bottom-1.5 rounded-md px-2.5 py-1 text-xs overflow-hidden border shadow-sm z-10 transition-all hover:scale-[1.01] hover:z-20 cursor-default flex flex-col justify-center
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setSelectedBooking(booking);
+                                                            }}
+                                                            className={`absolute top-1.5 bottom-1.5 rounded-md px-2.5 py-1 text-xs overflow-hidden border shadow-sm z-10 transition-all hover:scale-[1.01] hover:z-20 cursor-pointer flex flex-col justify-center
                                                                 ${isOffline 
                                                                     ? 'bg-gradient-to-r from-gray-700/90 to-gray-800/90 border-gray-600 text-gray-300' 
                                                                     : 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/40 text-emerald-100 hover:border-emerald-400/70 hover:from-emerald-500/30 hover:to-teal-500/30 hover:shadow-emerald-500/20'
@@ -229,14 +240,14 @@ export const OwnerSchedule = () => {
                                                             style={getBookingStyle(booking.startTime, booking.endTime)}
                                                             title={`${booking.startTime} - ${booking.endTime}\n${isOffline ? 'Khách Offline / Bảo trì' : `Khách App: ${booking.userId?.displayName || 'Khách'}`}`}
                                                         >
-                                                            <div className="font-medium whitespace-nowrap text-[10px] opacity-80 mb-0.5 tracking-wide">
+                                                            <div className="font-medium truncate text-[10px] opacity-80 mb-0.5 tracking-wide">
                                                                 {booking.startTime} - {booking.endTime}
                                                             </div>
-                                                            <div className="flex items-center gap-1.5 whitespace-nowrap font-medium text-[11px]">
+                                                            <div className="flex items-center gap-1.5 truncate font-medium text-[11px]">
                                                                 {isOffline ? (
                                                                     <><Lock className="h-3 w-3 shrink-0 opacity-70" /> <span className="truncate">Offline</span></>
                                                                 ) : (
-                                                                    <><User className="h-3 w-3 shrink-0 opacity-70 text-emerald-400" /> <span className="truncate">{booking.userId?.displayName || 'Khách'}</span></>
+                                                                    <><User className="h-3 w-3 shrink-0 opacity-70 text-emerald-400" /> <span className="truncate">{booking.userId?.displayName?.split(' ')[0] || 'Khách'}</span></>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -254,8 +265,8 @@ export const OwnerSchedule = () => {
 
             {/* Modal Thêm Lịch Offline */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                    <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md overflow-hidden shadow-2xl">
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}>
+                    <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
                         <div className="p-6 border-b border-gray-700">
                             <h2 className="text-xl font-semibold text-white flex items-center gap-2">
                                 <Lock className="h-5 w-5 text-emerald-400" />
@@ -330,6 +341,70 @@ export const OwnerSchedule = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+            {/* Modal Chi tiết Booking */}
+            {selectedBooking && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedBooking(null)}>
+                    <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+                        <div className="p-6 border-b border-gray-700 flex justify-between items-center">
+                            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                                <Info className="h-5 w-5 text-emerald-400" />
+                                Chi tiết Lượt đặt
+                            </h2>
+                            <button onClick={() => setSelectedBooking(null)} className="text-gray-400 hover:text-white transition-colors">
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                        <div className="p-6 space-y-4 text-sm">
+                            <div className="flex justify-between border-b border-gray-700/50 pb-3">
+                                <span className="text-gray-400 flex items-center gap-2"><User className="h-4 w-4" /> Khách hàng</span>
+                                <span className="text-white font-medium">{selectedBooking.userId?.displayName || 'Khách vãng lai / Offline'}</span>
+                            </div>
+                            <div className="flex justify-between border-b border-gray-700/50 pb-3">
+                                <span className="text-gray-400 flex items-center gap-2">Số điện thoại</span>
+                                <span className="text-white font-medium">{selectedBooking.userId?.phone || 'Chưa cập nhật'}</span>
+                            </div>
+                            <div className="flex justify-between border-b border-gray-700/50 pb-3">
+                                <span className="text-gray-400 flex items-center gap-2">Mã đơn</span>
+                                <span className="text-emerald-400 font-medium tracking-wider">{selectedBooking.bookingCode || '---'}</span>
+                            </div>
+                            <div className="flex justify-between border-b border-gray-700/50 pb-3">
+                                <span className="text-gray-400 flex items-center gap-2"><Clock className="h-4 w-4" /> Thời gian</span>
+                                <span className="text-white font-medium">{selectedBooking.startTime} - {selectedBooking.endTime}</span>
+                            </div>
+                            <div className="flex justify-between border-b border-gray-700/50 pb-3">
+                                <span className="text-gray-400 flex items-center gap-2">Loại đặt sân</span>
+                                <span className="text-white font-medium capitalize">{selectedBooking.type === 'casual' ? 'Vãng lai' : selectedBooking.type}</span>
+                            </div>
+                            <div className="flex justify-between border-b border-gray-700/50 pb-3">
+                                <span className="text-gray-400 flex items-center gap-2">Tổng tiền</span>
+                                <span className="text-emerald-400 font-bold text-base">
+                                    {selectedBooking.finalAmount != null ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedBooking.finalAmount) : '0 đ'}
+                                </span>
+                            </div>
+                            <div className="flex justify-between border-b border-gray-700/50 pb-3">
+                                <span className="text-gray-400 flex items-center gap-2">Trạng thái thanh toán</span>
+                                <span className={`font-medium px-2 py-0.5 rounded-full text-xs ${selectedBooking.payment?.status === 'paid' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-orange-500/10 text-orange-400 border border-orange-500/20'}`}>
+                                    {selectedBooking.payment?.status === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                                </span>
+                            </div>
+                            {selectedBooking.notes && (
+                                <div className="flex justify-between pt-1">
+                                    <span className="text-gray-400 flex items-center gap-2">Ghi chú</span>
+                                    <span className="text-gray-300 font-medium max-w-[200px] text-right break-words">{selectedBooking.notes}</span>
+                                </div>
+                            )}
+                        </div>
+                        <div className="p-4 bg-gray-900/50 border-t border-gray-700 flex justify-end">
+                            <button 
+                                onClick={() => setSelectedBooking(null)}
+                                className="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition-colors font-medium"
+                            >
+                                Đóng
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
