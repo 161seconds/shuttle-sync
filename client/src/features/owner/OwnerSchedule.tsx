@@ -120,7 +120,7 @@ export const OwnerSchedule = () => {
     if (isLoading && courts.length === 0) {
         return (
             <div className="flex items-center justify-center h-full">
-                <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+                <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
             </div>
         );
     }
@@ -145,7 +145,7 @@ export const OwnerSchedule = () => {
                         onClick={handleToday}
                         className="px-4 py-2 hover:bg-gray-700 rounded-lg text-white font-medium transition-colors flex items-center gap-2"
                     >
-                        <Calendar className="h-4 w-4 text-purple-400" />
+                        <Calendar className="h-4 w-4 text-emerald-400" />
                         {dayjs(selectedDate).format('DD/MM/YYYY')}
                     </button>
                     <button 
@@ -161,89 +161,93 @@ export const OwnerSchedule = () => {
             <div className="bg-gray-800 rounded-2xl border border-gray-700 flex flex-col flex-1 min-h-0 overflow-hidden relative">
                 {isLoading && (
                     <div className="absolute inset-0 z-50 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center">
-                        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+                        <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
                     </div>
                 )}
                 
-                {/* Fixed Header Row */}
-                <div className="flex border-b border-gray-700 bg-gray-800/80 sticky top-0 z-20 shrink-0">
-                    <div className="w-48 shrink-0 p-4 border-r border-gray-700 font-medium text-gray-400 flex items-center justify-center bg-gray-800/80">
-                        Danh sách Sân
-                    </div>
-                    <div className="flex-1 relative min-w-[800px] flex">
-                        {hours.map(hour => (
-                            <div key={`header-${hour}`} className="flex-1 border-r border-gray-700/50 p-2 text-center text-sm font-medium text-gray-400">
-                                {hour.toString().padStart(2, '0')}:00
+                {/* Scrollable Container */}
+                <div className="flex-1 overflow-auto bg-gray-900/50 scroll-smooth">
+                    <div className="min-w-[1440px] flex flex-col min-h-full">
+                        
+                        {/* Fixed Header Row */}
+                        <div className="flex border-b border-gray-700 bg-gray-800 sticky top-0 z-30 shrink-0 shadow-sm">
+                            <div className="w-48 shrink-0 p-4 border-r border-gray-700 font-medium text-emerald-400 flex items-center justify-center bg-gray-800 sticky left-0 z-40">
+                                Danh sách Sân
                             </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Scrollable Body */}
-                <div className="flex-1 overflow-auto">
-                    <div className="min-w-[800px] flex flex-col">
-                        {courts.length === 0 ? (
-                            <div className="p-12 text-center text-gray-400">
-                                Chưa có sân nào. Vui lòng vào mục "Sân bóng" để thêm sân trước.
+                            <div className="flex-1 flex">
+                                {hours.map(hour => (
+                                    <div key={`header-${hour}`} className="flex-1 border-r border-gray-700/50 p-2 text-center text-sm font-medium text-gray-400">
+                                        {hour.toString().padStart(2, '0')}:00
+                                    </div>
+                                ))}
                             </div>
-                        ) : (
-                            courts.map(court => {
-                                const courtBookings = bookings.filter(b => b.subCourtId === court._id);
-                                return (
-                                    <div key={court._id} className="flex border-b border-gray-700/50 min-h-[80px] hover:bg-gray-700/20 transition-colors group">
-                                        {/* Row Label */}
-                                        <div className="w-48 shrink-0 p-4 border-r border-gray-700 bg-gray-800/50 flex flex-col justify-center sticky left-0 z-10">
-                                            <span className="font-semibold text-white truncate" title={court.name}>{court.name}</span>
-                                            <span className="text-xs text-gray-500">{court.sportType}</span>
-                                        </div>
+                        </div>
 
-                                        {/* Row Timeline */}
-                                        <div className="flex-1 relative cursor-crosshair">
-                                            {/* Grid Lines & Clickable slots */}
-                                            <div className="absolute inset-0 flex">
-                                                {hours.map(hour => (
-                                                    <div 
-                                                        key={`grid-${hour}`} 
-                                                        className="flex-1 border-r border-gray-700/20 hover:bg-white/5 transition-colors"
-                                                        onClick={() => openBlockModal(court._id, hour)}
-                                                        title="Click để thêm lịch Offline"
-                                                    />
-                                                ))}
+                        {/* Body */}
+                        <div className="flex flex-col flex-1">
+                            {courts.length === 0 ? (
+                                <div className="p-12 text-center text-gray-400">
+                                    Chưa có sân nào. Vui lòng vào mục "Cấu hình giá sân" để thêm sân trước.
+                                </div>
+                            ) : (
+                                courts.map(court => {
+                                    const courtBookings = bookings.filter(b => b.subCourtId === court._id);
+                                    return (
+                                        <div key={court._id} className="flex border-b border-gray-700/50 min-h-[80px] hover:bg-gray-700/20 transition-colors group">
+                                            {/* Row Label */}
+                                            <div className="w-48 shrink-0 p-4 border-r border-gray-700 bg-gray-800/90 flex flex-col justify-center sticky left-0 z-20 shadow-[2px_0_8px_-4px_rgba(0,0,0,0.5)]">
+                                                <span className="font-semibold text-white truncate" title={court.name}>{court.name}</span>
+                                                <span className="text-xs text-emerald-400/70 mt-0.5 font-medium">{court.sportType}</span>
                                             </div>
 
-                                            {/* Booking Blocks */}
-                                            {courtBookings.map(booking => {
-                                                const isOffline = booking.notes?.includes('Offline') || !booking.userId;
-                                                return (
-                                                    <div 
-                                                        key={booking._id}
-                                                        className={`absolute top-2 bottom-2 rounded-lg p-2 text-xs overflow-hidden border shadow-lg z-10 transition-transform hover:scale-[1.02] cursor-default
-                                                            ${isOffline 
-                                                                ? 'bg-gray-700/90 border-gray-600 text-gray-300' 
-                                                                : 'bg-purple-500/20 border-purple-500/50 text-purple-200'
-                                                            }
-                                                        `}
-                                                        style={getBookingStyle(booking.startTime, booking.endTime)}
-                                                        title={`${booking.startTime} - ${booking.endTime}\n${isOffline ? 'Khách Offline / Bảo trì' : `Khách App: ${booking.userId?.displayName || 'Khách'}`}`}
-                                                    >
-                                                        <div className="font-semibold truncate">
-                                                            {booking.startTime} - {booking.endTime}
+                                            {/* Row Timeline */}
+                                            <div className="flex-1 relative cursor-crosshair">
+                                                {/* Grid Lines & Clickable slots */}
+                                                <div className="absolute inset-0 flex">
+                                                    {hours.map(hour => (
+                                                        <div 
+                                                            key={`grid-${hour}`} 
+                                                            className="flex-1 border-r border-gray-700/20 hover:bg-white/5 transition-colors"
+                                                            onClick={() => openBlockModal(court._id, hour)}
+                                                            title="Click để thêm lịch Offline"
+                                                        />
+                                                    ))}
+                                                </div>
+
+                                                {/* Booking Blocks */}
+                                                {courtBookings.map(booking => {
+                                                    const isOffline = booking.notes?.includes('Offline') || !booking.userId;
+                                                    return (
+                                                        <div 
+                                                            key={booking._id}
+                                                            className={`absolute top-1.5 bottom-1.5 rounded-md px-2.5 py-1 text-xs overflow-hidden border shadow-sm z-10 transition-all hover:scale-[1.01] hover:z-20 cursor-default flex flex-col justify-center
+                                                                ${isOffline 
+                                                                    ? 'bg-gradient-to-r from-gray-700/90 to-gray-800/90 border-gray-600 text-gray-300' 
+                                                                    : 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/40 text-emerald-100 hover:border-emerald-400/70 hover:from-emerald-500/30 hover:to-teal-500/30 hover:shadow-emerald-500/20'
+                                                                }
+                                                            `}
+                                                            style={getBookingStyle(booking.startTime, booking.endTime)}
+                                                            title={`${booking.startTime} - ${booking.endTime}\n${isOffline ? 'Khách Offline / Bảo trì' : `Khách App: ${booking.userId?.displayName || 'Khách'}`}`}
+                                                        >
+                                                            <div className="font-medium whitespace-nowrap text-[10px] opacity-80 mb-0.5 tracking-wide">
+                                                                {booking.startTime} - {booking.endTime}
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5 whitespace-nowrap font-medium text-[11px]">
+                                                                {isOffline ? (
+                                                                    <><Lock className="h-3 w-3 shrink-0 opacity-70" /> <span className="truncate">Offline</span></>
+                                                                ) : (
+                                                                    <><User className="h-3 w-3 shrink-0 opacity-70 text-emerald-400" /> <span className="truncate">{booking.userId?.displayName || 'Khách'}</span></>
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                        <div className="flex items-center gap-1 mt-1 truncate">
-                                                            {isOffline ? (
-                                                                <><Lock className="h-3 w-3" /> Offline</>
-                                                            ) : (
-                                                                <><User className="h-3 w-3" /> {booking.userId?.displayName}</>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            })
-                        )}
+                                    );
+                                })
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -254,7 +258,7 @@ export const OwnerSchedule = () => {
                     <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md overflow-hidden shadow-2xl">
                         <div className="p-6 border-b border-gray-700">
                             <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                                <Lock className="h-5 w-5 text-purple-400" />
+                                <Lock className="h-5 w-5 text-emerald-400" />
                                 Khóa Slot / Lịch Offline
                             </h2>
                         </div>
@@ -263,7 +267,7 @@ export const OwnerSchedule = () => {
                                 <label className="block text-sm font-medium text-gray-400 mb-1.5">Sân</label>
                                 <select 
                                     required
-                                    className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                                    className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
                                     value={blockData.subCourtId}
                                     onChange={e => setBlockData({...blockData, subCourtId: e.target.value})}
                                 >
@@ -280,7 +284,7 @@ export const OwnerSchedule = () => {
                                     <input 
                                         type="time" 
                                         required
-                                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
                                         value={blockData.startTime}
                                         onChange={e => setBlockData({...blockData, startTime: e.target.value})}
                                     />
@@ -290,7 +294,7 @@ export const OwnerSchedule = () => {
                                     <input 
                                         type="time" 
                                         required
-                                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
                                         value={blockData.endTime}
                                         onChange={e => setBlockData({...blockData, endTime: e.target.value})}
                                     />
@@ -301,7 +305,7 @@ export const OwnerSchedule = () => {
                                 <label className="block text-sm font-medium text-gray-400 mb-1.5">Ghi chú (Tùy chọn)</label>
                                 <input 
                                     type="text" 
-                                    className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                                    className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
                                     placeholder="VD: Khách lẻ vãng lai, Dọn vệ sinh..."
                                     value={blockData.notes}
                                     onChange={e => setBlockData({...blockData, notes: e.target.value})}
@@ -319,7 +323,7 @@ export const OwnerSchedule = () => {
                                 <button 
                                     type="submit"
                                     disabled={isSaving}
-                                    className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2.5 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                                    className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
                                 >
                                     {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
                                     Lưu lại

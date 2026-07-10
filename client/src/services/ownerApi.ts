@@ -9,7 +9,10 @@ export interface OwnerStats {
     totalBookings: number;
     totalRevenue: number;
     bookingTrend: { date: string; revenue: number; count: number }[];
+    bookingTrendBySport: any[];
+    bookingsByStatus: { name: string; value: number }[];
     recentBookings: any[];
+    venueSports: string[];
 }
 
 export const ownerApi = {

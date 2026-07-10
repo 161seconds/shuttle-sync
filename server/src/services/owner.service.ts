@@ -71,8 +71,11 @@ class OwnerService {
                 totalBookings: 0,
                 totalRevenue: 0,
                 bookingTrend: [],
+                bookingTrendBySport: [],
+                bookingsByStatus: [],
                 recentBookings: [],
-                hasVenue: false
+                hasVenue: false,
+                venueSports: []
             };
         }
 
@@ -119,14 +122,86 @@ class OwnerService {
             count: t.count
         }));
 
+        // Doanh thu 30 ngày qua theo môn thể thao
+        const bookingTrendBySportAgg = await Booking.aggregate([
+            {
+                $match: {
+                    courtId: venue._id,
+                    createdAt: { $gte: thirtyDaysAgo },
+                    status: 'confirmed'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'courts',
+                    localField: 'subCourtId',
+                    foreignField: '_id',
+                    as: 'courtInfo'
+                }
+            },
+            { $unwind: "$courtInfo" },
+            {
+                $group: {
+                    _id: {
+                        date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                        sportType: "$courtInfo.sportType"
+                    },
+                    revenue: { $sum: "$finalAmount" }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id.date",
+                    revenues: {
+                        $push: {
+                            sport: "$_id.sportType",
+                            amount: "$revenue"
+                        }
+                    }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        const bookingTrendBySport = bookingTrendBySportAgg.map(t => {
+            const res: any = { date: t._id };
+            t.revenues.forEach((r: any) => {
+                res[r.sport] = r.amount;
+            });
+            return res;
+        });
+
+        // Booking theo trạng thái trong 30 ngày qua
+        const bookingsByStatusAgg = await Booking.aggregate([
+            {
+                $match: {
+                    courtId: venue._id,
+                    createdAt: { $gte: thirtyDaysAgo }
+                }
+            },
+            {
+                $group: {
+                    _id: "$status",
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+        const bookingsByStatus = bookingsByStatusAgg.map(t => ({
+            name: t._id,
+            value: t.count
+        }));
+
         return {
             hasVenue: true,
             venueId: venue._id,
             venueName: venue.name,
+            venueSports: venue.sports || [],
             totalCourts,
             totalBookings,
             totalRevenue,
             bookingTrend,
+            bookingTrendBySport,
+            bookingsByStatus,
             recentBookings
         };
     }

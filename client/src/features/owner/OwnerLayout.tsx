@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useAppStore } from '../../store';
 import { ownerApi } from '../../services/ownerApi';
-import { LayoutDashboard, LogOut, Settings, CalendarDays, Loader2, Dumbbell, Clock } from 'lucide-react';
+import { LayoutDashboard, LogOut, Settings, CalendarDays, Loader2, Dumbbell, Clock, HelpCircle } from 'lucide-react';
 
 
 export const OwnerLayout = () => {
@@ -43,26 +43,26 @@ export const OwnerLayout = () => {
     if (isLoading) {
         return (
             <div className="flex h-screen items-center justify-center bg-gray-900">
-                <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+                <Loader2 className="h-10 w-10 animate-spin text-emerald-500" />
             </div>
         );
     }
 
     const navigation = [
         { name: 'Dashboard', href: '/owner/dashboard', icon: LayoutDashboard },
-        { name: 'Sân bóng', href: '/owner/courts', icon: Dumbbell },
+        { name: 'Cấu hình giá sân', href: '/owner/courts', icon: Dumbbell },
         { name: 'Lịch Đặt', href: '/owner/bookings', icon: CalendarDays },
         { name: 'Lịch hoạt động', href: '/owner/schedule', icon: Clock },
         { name: 'Cài đặt', href: '/owner/settings', icon: Settings },
     ];
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white font-sans flex">
+        <div className="h-[calc(100vh-64px)] bg-gray-900 text-white font-sans flex">
             {/* Sidebar chỉ hiển thị khi đã có Venue (không ở trang onboarding) */}
             {hasVenue && !location.pathname.includes('/onboarding') && (
                 <aside className="w-64 bg-gray-800 border-r border-gray-700 flex flex-col hidden md:flex">
                     <div className="h-16 flex items-center px-6 border-b border-gray-700">
-                        <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500">
+                        <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-teal-500">
                             Owner Portal
                         </span>
                     </div>
@@ -88,7 +88,7 @@ export const OwnerLayout = () => {
                                     onClick={() => navigate(item.href)}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                                         isActive 
-                                            ? 'bg-purple-500/20 text-purple-400 font-medium' 
+                                            ? 'bg-emerald-500/20 text-emerald-400 font-medium' 
                                             : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
                                     }`}
                                 >
@@ -99,7 +99,14 @@ export const OwnerLayout = () => {
                         })}
                     </nav>
 
-                    <div className="p-4 border-t border-gray-700">
+                    <div className="p-4 border-t border-gray-700 space-y-2">
+                        <button
+                            onClick={() => navigate('/support')}
+                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-purple-400 hover:bg-purple-500/10 transition-all duration-200"
+                        >
+                            <HelpCircle className="h-5 w-5" />
+                            Hỗ trợ
+                        </button>
                         <button
                             onClick={handleLogout}
                             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all duration-200"
@@ -111,7 +118,7 @@ export const OwnerLayout = () => {
                 </aside>
             )}
 
-            <main className="flex-1 flex flex-col h-screen overflow-hidden">
+            <main className="flex-1 flex flex-col h-full overflow-hidden">
                 <div className="flex-1 overflow-y-auto">
                     <Outlet />
                 </div>

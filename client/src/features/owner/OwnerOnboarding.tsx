@@ -65,8 +65,8 @@ export const OwnerOnboarding = () => {
     return (
         <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4 relative overflow-hidden">
             {/* Background elements */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-pink-600/20 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-emerald-600/20 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-teal-600/20 rounded-full blur-[120px] pointer-events-none" />
 
             <div className="w-full max-w-2xl bg-gray-800/60 backdrop-blur-xl rounded-2xl border border-gray-700/50 shadow-2xl p-8 relative z-10">
                 <div className="text-center mb-10">
@@ -77,7 +77,7 @@ export const OwnerOnboarding = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* General Info */}
                     <div className="space-y-4">
-                        <h2 className="text-lg font-medium text-purple-400 flex items-center gap-2">
+                        <h2 className="text-lg font-medium text-emerald-400 flex items-center gap-2">
                             <Building2 className="w-5 h-5" /> Thông tin chung
                         </h2>
                         
@@ -89,7 +89,7 @@ export const OwnerOnboarding = () => {
                                     value={formData.name}
                                     onChange={e => setFormData({...formData, name: e.target.value})}
                                     placeholder="VD: Sân Cầu Lông ABC"
-                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                                     required
                                 />
                             </div>
@@ -102,7 +102,7 @@ export const OwnerOnboarding = () => {
                                         value={formData.phone}
                                         onChange={e => setFormData({...formData, phone: e.target.value})}
                                         placeholder="0912..."
-                                        className="w-full bg-gray-900/50 border border-gray-700 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                                        className="w-full bg-gray-900/50 border border-gray-700 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                                         required
                                     />
                                 </div>
@@ -112,7 +112,7 @@ export const OwnerOnboarding = () => {
 
                     {/* Address */}
                     <div className="space-y-4 pt-4 border-t border-gray-700/50">
-                        <h2 className="text-lg font-medium text-purple-400 flex items-center gap-2">
+                        <h2 className="text-lg font-medium text-emerald-400 flex items-center gap-2">
                             <MapPin className="w-5 h-5" /> Vị trí
                         </h2>
                         
@@ -124,7 +124,7 @@ export const OwnerOnboarding = () => {
                                     value={formData.street}
                                     onChange={e => setFormData({...formData, street: e.target.value})}
                                     placeholder="VD: 123 Đường Số 4"
-                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                                 />
                             </div>
                             <div>
@@ -132,7 +132,7 @@ export const OwnerOnboarding = () => {
                                 <select 
                                     value={formData.state}
                                     onChange={e => setFormData({...formData, state: e.target.value})}
-                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                                     required
                                 >
                                     <option value="" disabled>-- Chọn Quận/Huyện --</option>
@@ -150,7 +150,7 @@ export const OwnerOnboarding = () => {
                                 <select 
                                     value={formData.city}
                                     onChange={e => setFormData({...formData, city: e.target.value})}
-                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                                     required
                                     disabled
                                 >
@@ -162,13 +162,13 @@ export const OwnerOnboarding = () => {
 
                     {/* Image */}
                     <div className="space-y-4 pt-4 border-t border-gray-700/50">
-                        <h2 className="text-lg font-medium text-purple-400">Hình ảnh đại diện (URL)</h2>
+                        <h2 className="text-lg font-medium text-emerald-400">Hình ảnh đại diện (URL)</h2>
                         <input 
                             type="url"
                             value={formData.imageUrl}
                             onChange={e => setFormData({...formData, imageUrl: e.target.value})}
                             placeholder="https://example.com/image.jpg"
-                            className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                            className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                         />
                         {formData.imageUrl && (
                             <div className="mt-2 w-full h-40 rounded-lg overflow-hidden border border-gray-700">
@@ -179,7 +179,7 @@ export const OwnerOnboarding = () => {
 
                     {/* Sub Images */}
                     <div className="space-y-4 pt-4 border-t border-gray-700/50">
-                        <h2 className="text-lg font-medium text-purple-400">Hình ảnh phụ (Tối đa 4 ảnh)</h2>
+                        <h2 className="text-lg font-medium text-emerald-400">Hình ảnh phụ (Tối đa 4 ảnh)</h2>
                         <div className="grid grid-cols-2 gap-4">
                             {[0, 1, 2, 3].map(index => (
                                 <div key={index}>
@@ -192,7 +192,7 @@ export const OwnerOnboarding = () => {
                                             setFormData({...formData, subImages: newSubImages});
                                         }}
                                         placeholder={`Link ảnh phụ ${index + 1}`}
-                                        className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm"
+                                        className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-sm"
                                     />
                                     {formData.subImages[index] && (
                                         <div className="mt-2 w-full h-24 rounded-lg overflow-hidden border border-gray-700">
@@ -206,7 +206,7 @@ export const OwnerOnboarding = () => {
 
                     {/* Sports */}
                     <div className="space-y-4 pt-4 border-t border-gray-700/50">
-                        <h2 className="text-lg font-medium text-purple-400">Các môn hỗ trợ</h2>
+                        <h2 className="text-lg font-medium text-emerald-400">Các môn hỗ trợ</h2>
                         <div className="flex gap-4">
                             {['BADMINTON', 'PICKLEBALL', 'TENNIS'].map(sport => (
                                 <button
@@ -215,7 +215,7 @@ export const OwnerOnboarding = () => {
                                     onClick={() => handleSportToggle(sport)}
                                     className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
                                         formData.sports.includes(sport)
-                                            ? 'bg-purple-600 border-purple-500 text-white'
+                                            ? 'bg-emerald-600 border-emerald-500 text-white'
                                             : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-500'
                                     }`}
                                 >
@@ -228,7 +228,7 @@ export const OwnerOnboarding = () => {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full mt-8 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg transform transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70"
+                        className="w-full mt-8 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg transform transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70"
                     >
                         {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : (
                             <>Hoàn tất Thiết lập <ArrowRight className="w-5 h-5" /></>
