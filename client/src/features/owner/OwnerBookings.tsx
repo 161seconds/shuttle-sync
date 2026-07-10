@@ -6,6 +6,8 @@ import dayjs from 'dayjs';
 export const OwnerBookings = () => {
     const [bookings, setBookings] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 10;
 
     useEffect(() => {
         ownerApi.getBookings()
@@ -21,7 +23,7 @@ export const OwnerBookings = () => {
     if (isLoading) {
         return (
             <div className="flex h-full items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+                <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
             </div>
         );
     }
@@ -53,7 +55,7 @@ export const OwnerBookings = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-700/50">
-                            {bookings.map((booking: any) => (
+                            {bookings.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((booking: any) => (
                                 <tr key={booking._id} className="hover:bg-gray-700/30 transition-colors">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
@@ -82,7 +84,7 @@ export const OwnerBookings = () => {
                                     <td className="px-6 py-4">
                                         <div className="flex flex-col gap-1">
                                             <span className="flex items-center gap-1 text-white">
-                                                <Calendar className="w-4 h-4 text-purple-400" />
+                                                <Calendar className="w-4 h-4 text-emerald-400" />
                                                 {dayjs(booking.date).format('DD/MM/YYYY')}
                                             </span>
                                             <span className="flex items-center gap-1 text-gray-400">
@@ -113,7 +115,7 @@ export const OwnerBookings = () => {
                                                 <XCircle className="w-3.5 h-3.5" /> Đã hủy
                                             </span>
                                         ) : (
-                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                                                 <Clock className="w-3.5 h-3.5" /> {booking.status}
                                             </span>
                                         )}
@@ -123,6 +125,54 @@ export const OwnerBookings = () => {
                         </tbody>
                     </table>
                 </div>
+                {bookings.length > pageSize && (
+                    <div className="p-4 border-t border-gray-700 bg-gray-900/50 flex items-center justify-between text-sm">
+                        <span className="text-gray-400">
+                            Hiển thị {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, bookings.length)} trên tổng {bookings.length} lượt đặt
+                        </span>
+                        <div className="flex items-center gap-2">
+                            <button 
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="px-3 py-1.5 rounded-lg bg-gray-800 text-white disabled:opacity-50 hover:bg-gray-700 transition-colors border border-gray-700"
+                            >
+                                Trước
+                            </button>
+                            <span className="text-emerald-400 font-medium px-2 flex items-center gap-2">
+                                Trang 
+                                <input 
+                                    type="number" 
+                                    min={1} 
+                                    max={Math.ceil(bookings.length / pageSize)}
+                                    defaultValue={currentPage}
+                                    key={currentPage} // Forces re-render when currentPage changes via buttons
+                                    onBlur={(e) => {
+                                        let val = parseInt(e.target.value);
+                                        const maxPage = Math.ceil(bookings.length / pageSize);
+                                        if (isNaN(val) || val < 1) val = 1;
+                                        if (val > maxPage) val = maxPage;
+                                        setCurrentPage(val);
+                                        e.target.value = val.toString();
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.currentTarget.blur();
+                                        }
+                                    }}
+                                    className="w-16 px-1 py-0.5 text-center bg-gray-900 border border-emerald-500/30 rounded text-emerald-400 focus:outline-none focus:border-emerald-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                />
+                                / {Math.ceil(bookings.length / pageSize)}
+                            </span>
+                            <button 
+                                onClick={() => setCurrentPage(p => Math.min(Math.ceil(bookings.length / pageSize), p + 1))}
+                                disabled={currentPage === Math.ceil(bookings.length / pageSize)}
+                                className="px-3 py-1.5 rounded-lg bg-gray-800 text-white disabled:opacity-50 hover:bg-gray-700 transition-colors border border-gray-700"
+                            >
+                                Sau
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

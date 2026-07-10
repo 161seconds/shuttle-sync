@@ -109,7 +109,7 @@ export const OwnerCourts = () => {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full">
-                <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+                <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
             </div>
         );
     }
@@ -118,12 +118,12 @@ export const OwnerCourts = () => {
         <div className="p-6 max-w-7xl mx-auto space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Quản lý Sân bóng</h1>
+                    <h1 className="text-2xl font-bold text-white">Cấu hình giá sân</h1>
                     <p className="text-gray-400">Thiết lập danh sách sân và bảng giá giờ</p>
                 </div>
                 <button 
                     onClick={() => handleOpenModal()}
-                    className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-xl hover:opacity-90 transition-all font-medium"
+                    className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-4 py-2 rounded-xl hover:opacity-90 transition-all font-medium"
                 >
                     <Plus className="h-5 w-5" />
                     Thêm sân mới
@@ -137,7 +137,7 @@ export const OwnerCourts = () => {
                     <p className="text-gray-400 max-w-md mx-auto mb-6">Hãy thêm các sân cụ thể (Sân 1, Sân VIP,...) và thiết lập giá để khách hàng có thể bắt đầu đặt chỗ.</p>
                     <button 
                         onClick={() => handleOpenModal()}
-                        className="bg-purple-500 text-white px-6 py-2.5 rounded-xl hover:bg-purple-600 transition-all font-medium"
+                        className="bg-emerald-500 text-white px-6 py-2.5 rounded-xl hover:bg-emerald-600 transition-all font-medium"
                     >
                         Thêm sân đầu tiên
                     </button>
@@ -168,10 +168,10 @@ export const OwnerCourts = () => {
                             <div className="p-5 space-y-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2 text-gray-300">
-                                        <Wallet className="h-4 w-4 text-purple-400" />
+                                        <Wallet className="h-4 w-4 text-emerald-400" />
                                         <span>Giá mỗi giờ</span>
                                     </div>
-                                    <span className="font-semibold text-purple-400">{formatPrice(court.pricePerHour)}</span>
+                                    <span className="font-semibold text-emerald-400">{formatPrice(court.pricePerHour)}</span>
                                 </div>
 
                                 <div className="flex items-center justify-between pt-2">
@@ -212,7 +212,7 @@ export const OwnerCourts = () => {
                                 <input 
                                     required
                                     type="text" 
-                                    className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                                    className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
                                     placeholder="VD: Sân số 1"
                                     value={formData.name}
                                     onChange={e => setFormData({...formData, name: e.target.value})}
@@ -223,7 +223,7 @@ export const OwnerCourts = () => {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Môn thể thao</label>
                                     <select 
-                                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
                                         value={formData.sportType}
                                         onChange={e => setFormData({...formData, sportType: e.target.value})}
                                     >
@@ -235,7 +235,7 @@ export const OwnerCourts = () => {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Mặt sân</label>
                                     <select 
-                                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
                                         value={formData.surfaceType}
                                         onChange={e => setFormData({...formData, surfaceType: e.target.value})}
                                     >
@@ -251,7 +251,7 @@ export const OwnerCourts = () => {
                                 <input 
                                     required
                                     type="number" 
-                                    className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                                    className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
                                     placeholder="VD: 80000"
                                     value={formData.pricePerHour}
                                     onChange={e => setFormData({...formData, pricePerHour: Number(e.target.value)})}
@@ -272,7 +272,7 @@ export const OwnerCourts = () => {
                                 <button 
                                     type="submit"
                                     disabled={isSaving}
-                                    className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2.5 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                                    className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
                                 >
                                     {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
                                     Lưu lại

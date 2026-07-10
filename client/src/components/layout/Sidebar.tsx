@@ -113,16 +113,6 @@ export default function AppSidebar() {
 
                     <div className="relative flex items-center justify-around bg-card/90 backdrop-blur-3xl border border-border rounded-3xl p-2 shadow-card hover:border-emerald-500/30 hover:shadow-glow transition-all duration-500">
                         <button
-                            onClick={() => { setPage('edit-profile'); if (isSideBarOpen) toggleSidebar(); }}
-                            className="p-3 rounded-[1.2rem] text-muted-foreground hover:text-foreground hover:bg-muted transition-all group"
-                            title="Chỉnh sửa tài khoản"
-                        >
-                            <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-700" />
-                        </button>
-
-                        <div className="w-px h-6 bg-gradient-to-b from-transparent via-foreground/10 to-transparent" />
-
-                        <button
                             onClick={() => { setPage('support' as any); if (isSideBarOpen) toggleSidebar(); }}
                             className="p-3 rounded-[1.2rem] text-muted-foreground hover:text-purple-400 hover:bg-purple-500/10 transition-all group"
                             title="Hỗ trợ & Báo lỗi"

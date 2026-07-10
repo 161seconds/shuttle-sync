@@ -96,6 +96,9 @@ export function AppProvider({ children }: AppProviderProps) {
             else if (user?.role === 'admin') navigate('/admin');
             else navigate('/');
         }
+        else if (newPage === 'profile' && user?.role === 'court_owner') {
+            navigate('/owner/settings');
+        }
         else if (newPage === 'edit-profile') navigate('/edit-profile');
         else if (newPage === 'match-leaderboard') navigate('/match-leaderboard');
         else navigate(`/${newPage}`);
