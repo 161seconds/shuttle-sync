@@ -5,6 +5,17 @@ import { useAlertStore } from '../../stores/useAlertStore';
 import { useAppStore } from '../../store';
 import axiosClient from '../../api/axiosClient';
 
+const PRESET_IMAGES = [
+    { label: 'Không chọn', value: '' },
+    { label: 'Sân Cầu Lông (Góc cao)', value: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800&q=80' },
+    { label: 'Sân Cầu Lông (Mặt sân)', value: 'https://images.unsplash.com/photo-1613918431703-93108990a886?w=800&q=80' },
+    { label: 'Sân Pickleball (Ngoài trời)', value: 'https://images.unsplash.com/photo-1698224564244-6720d2d3e23f?w=800&q=80' },
+    { label: 'Vợt & Bóng Pickleball', value: 'https://images.unsplash.com/photo-1707248107936-d249f61b7fcf?w=800&q=80' },
+    { label: 'Sân Tennis (Đất nện)', value: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&q=80' },
+    { label: 'Sân Tennis (Cứng)', value: 'https://images.unsplash.com/photo-1582236528771-4091c0e3eb4c?w=800&q=80' },
+    { label: 'Phòng thể thao đa năng', value: 'https://images.unsplash.com/photo-1576086701831-236b701d1fa0?w=800&q=80' }
+];
+
 export const OwnerSettings = () => {
     const { showAlert } = useAlertStore();
     const { user, setUser } = useAppStore();
@@ -329,14 +340,16 @@ export const OwnerSettings = () => {
                     </div>
 
                     <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 space-y-6">
-                        <h2 className="text-lg font-medium text-emerald-400">Hình ảnh đại diện (URL)</h2>
-                        <input 
-                            type="url"
+                        <h2 className="text-lg font-medium text-emerald-400">Hình ảnh đại diện (Main Avatar)</h2>
+                        <select 
                             value={formData.imageUrl}
                             onChange={e => setFormData({...formData, imageUrl: e.target.value})}
-                            placeholder="https://example.com/image.jpg"
                             className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                        />
+                        >
+                            {PRESET_IMAGES.map(img => (
+                                <option key={`main-${img.label}`} value={img.value}>{img.label}</option>
+                            ))}
+                        </select>
                         {formData.imageUrl && (
                             <div className="mt-2 w-full h-40 rounded-lg overflow-hidden border border-gray-700">
                                 <img src={formData.imageUrl} className="w-full h-full object-cover" alt="Preview" />
@@ -347,17 +360,19 @@ export const OwnerSettings = () => {
                         <div className="grid grid-cols-2 gap-4">
                             {[0, 1, 2, 3].map(index => (
                                 <div key={index}>
-                                    <input 
-                                        type="url"
+                                    <select 
                                         value={formData.subImages[index]}
                                         onChange={e => {
                                             const newSubImages = [...formData.subImages];
                                             newSubImages[index] = e.target.value;
                                             setFormData({...formData, subImages: newSubImages});
                                         }}
-                                        placeholder={`Link ảnh phụ ${index + 1}`}
                                         className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-sm"
-                                    />
+                                    >
+                                        {PRESET_IMAGES.map(img => (
+                                            <option key={`sub-${index}-${img.label}`} value={img.value}>{img.label === 'Không chọn' ? `-- Ảnh phụ ${index + 1} --` : img.label}</option>
+                                        ))}
+                                    </select>
                                     {formData.subImages[index] && (
                                         <div className="mt-2 w-full h-24 rounded-lg overflow-hidden border border-gray-700">
                                             <img src={formData.subImages[index]} className="w-full h-full object-cover" alt="Preview" />
