@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     ShoppingCart, DollarSign, Activity,
     ArrowUpRight, ArrowDownRight, ChevronLeft, ChevronRight, Loader2, X, Calendar, MapPin, User as UserIcon
@@ -42,7 +43,15 @@ export default function AdminDashboard() {
         setSelectedData(null);
     };
 
+    const navigate = useNavigate();
+
     useEffect(() => {
+        if (!user || user.role !== 'admin') {
+            useAlertStore.getState().showAlert('Bạn không có quyền truy cập trang quản trị', 'Truy cập bị từ chối', 'error');
+            navigate('/', { replace: true });
+            return;
+        }
+
         const loadStats = () => {
             adminApi.getDashboardStats()
                 .then(res => {

@@ -250,7 +250,7 @@ function Shell() {
               </div>
             }>
               <AnimatePresence mode="wait">
-                <Routes location={location} key={location.pathname}>
+                <Routes location={location} key={location.pathname.split('/')[1] || '/'}>
                   <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
                   <Route path="/" element={
                     user?.role === 'court_owner' ? <Navigate to="/owner/dashboard" replace /> :
