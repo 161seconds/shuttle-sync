@@ -42,10 +42,10 @@ export const OwnerBookings = () => {
             <h1 className="text-3xl font-bold text-white mb-2">Lịch Đặt Sân</h1>
             <p className="text-gray-400 mb-8">Quản lý và xem lịch sử đặt sân của khách hàng.</p>
 
-            <div className="bg-gray-800 border border-gray-700 rounded-2xl overflow-hidden">
+            <div className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm text-gray-300">
-                        <thead className="bg-gray-900/50 text-xs uppercase text-gray-400 border-b border-gray-700">
+                        <thead className="bg-white/5 text-[11px] font-bold uppercase tracking-wider text-gray-400 border-b border-white/5">
                             <tr>
                                 <th className="px-6 py-4 font-medium">Khách hàng</th>
                                 <th className="px-6 py-4 font-medium">Sân</th>
@@ -54,16 +54,16 @@ export const OwnerBookings = () => {
                                 <th className="px-6 py-4 font-medium">Trạng thái</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-700/50">
+                        <tbody className="divide-y divide-white/5">
                             {bookings.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((booking: any) => (
-                                <tr key={booking._id} className="hover:bg-gray-700/30 transition-colors">
+                                <tr key={booking._id} className="hover:bg-white/5 transition-colors group">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
                                             {booking.userId?.avatar ? (
-                                                <img src={booking.userId.avatar} alt="Avatar" className="w-10 h-10 rounded-full" />
+                                                <img src={booking.userId.avatar} alt="Avatar" className="w-10 h-10 rounded-full border border-white/10 shadow-sm" />
                                             ) : (
-                                                <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
-                                                    <User className="w-5 h-5 text-gray-400" />
+                                                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-inner">
+                                                    <User className="w-5 h-5 text-gray-400 group-hover:text-emerald-400 transition-colors" />
                                                 </div>
                                             )}
                                             <div>
@@ -99,9 +99,9 @@ export const OwnerBookings = () => {
                                                 {formatCurrency(booking.finalAmount)}
                                             </span>
                                             {booking.payment?.status === 'paid' ? (
-                                                <span className="text-xs text-gray-400 bg-gray-700 px-2 py-0.5 rounded-full w-fit">Đã thanh toán</span>
+                                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 bg-white/10 px-2 py-0.5 rounded-full w-fit border border-white/5">Đã thanh toán</span>
                                             ) : (
-                                                <span className="text-xs text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full w-fit border border-orange-500/20">Chưa thanh toán</span>
+                                                <span className="text-[10px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full w-fit border border-orange-500/20 shadow-[0_0_10px_rgba(249,115,22,0.1)]">Chưa thanh toán</span>
                                             )}
                                         </div>
                                     </td>
@@ -130,7 +130,7 @@ export const OwnerBookings = () => {
                     </table>
                 </div>
                 {bookings.length > pageSize && (
-                    <div className="p-4 border-t border-gray-700 bg-gray-900/50 flex items-center justify-between text-sm">
+                    <div className="p-4 border-t border-white/5 bg-black/20 flex items-center justify-between text-sm">
                         <span className="text-gray-400">
                             Hiển thị {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, bookings.length)} trên tổng {bookings.length} lượt đặt
                         </span>
@@ -138,7 +138,7 @@ export const OwnerBookings = () => {
                             <button 
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
-                                className="px-3 py-1.5 rounded-lg bg-gray-800 text-white disabled:opacity-50 hover:bg-gray-700 transition-colors border border-gray-700"
+                                className="px-3 py-1.5 rounded-lg bg-white/5 text-white disabled:opacity-50 hover:bg-white/10 transition-colors border border-white/10 shadow-sm"
                             >
                                 Trước
                             </button>
@@ -170,7 +170,7 @@ export const OwnerBookings = () => {
                             <button 
                                 onClick={() => setCurrentPage(p => Math.min(Math.ceil(bookings.length / pageSize), p + 1))}
                                 disabled={currentPage === Math.ceil(bookings.length / pageSize)}
-                                className="px-3 py-1.5 rounded-lg bg-gray-800 text-white disabled:opacity-50 hover:bg-gray-700 transition-colors border border-gray-700"
+                                className="px-3 py-1.5 rounded-lg bg-white/5 text-white disabled:opacity-50 hover:bg-white/10 transition-colors border border-white/10 shadow-sm"
                             >
                                 Sau
                             </button>

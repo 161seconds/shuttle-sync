@@ -145,19 +145,19 @@ export const OwnerCourts = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {courts.map(court => (
-                        <div key={court._id} className="bg-gray-800 rounded-2xl border border-gray-700 overflow-hidden relative group">
+                        <div key={court._id} className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_40px_rgba(16,185,129,0.15)] hover:border-emerald-500/30 group">
                             {/* Card Header */}
-                            <div className="p-5 border-b border-gray-700/50 flex justify-between items-start">
+                            <div className="p-5 border-b border-white/5 flex justify-between items-start bg-white/5">
                                 <div>
-                                    <h3 className="text-lg font-semibold text-white mb-1">{court.name}</h3>
+                                    <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-emerald-400 transition-colors">{court.name}</h3>
                                     <div className="flex items-center gap-2 text-sm text-gray-400">
-                                        <span className="bg-gray-700/50 px-2 py-0.5 rounded text-xs">{court.sportType}</span>
-                                        <span className="bg-gray-700/50 px-2 py-0.5 rounded text-xs">Mặt: {court.surfaceType}</span>
+                                        <span className="bg-black/30 border border-white/10 shadow-inner px-2 py-0.5 rounded text-xs uppercase tracking-wider">{court.sportType}</span>
+                                        <span className="bg-black/30 border border-white/10 shadow-inner px-2 py-0.5 rounded text-xs uppercase tracking-wider">Mặt: {court.surfaceType}</span>
                                     </div>
                                 </div>
                                 <button 
                                     onClick={() => handleOpenModal(court)}
-                                    className="text-gray-400 hover:text-white p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                                    className="text-gray-400 hover:text-emerald-400 p-2 hover:bg-emerald-500/10 rounded-lg transition-colors border border-transparent hover:border-emerald-500/20"
                                     title="Chỉnh sửa sân"
                                 >
                                     <Edit2 className="h-4 w-4" />
@@ -199,10 +199,10 @@ export const OwnerCourts = () => {
 
             {/* Modal Thêm/Sửa Sân */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                    <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md overflow-hidden shadow-2xl">
-                        <div className="p-6 border-b border-gray-700">
-                            <h2 className="text-xl font-semibold text-white">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+                    <div className="bg-[#0a0f16]/90 backdrop-blur-3xl rounded-3xl border border-white/10 w-full max-w-md overflow-hidden shadow-[0_10px_50px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in-95 duration-200">
+                        <div className="p-6 border-b border-white/5 bg-white/5">
+                            <h2 className="text-xl font-bold text-white">
                                 {editingCourt ? 'Chỉnh sửa sân' : 'Thêm sân mới'}
                             </h2>
                         </div>
@@ -212,7 +212,7 @@ export const OwnerCourts = () => {
                                 <input 
                                     required
                                     type="text" 
-                                    className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none shadow-inner transition-all hover:border-white/20"
                                     placeholder="VD: Sân số 1"
                                     value={formData.name}
                                     onChange={e => setFormData({...formData, name: e.target.value})}
@@ -223,7 +223,7 @@ export const OwnerCourts = () => {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Môn thể thao</label>
                                     <select 
-                                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none shadow-inner transition-all hover:border-white/20"
                                         value={formData.sportType}
                                         onChange={e => setFormData({...formData, sportType: e.target.value})}
                                     >
@@ -235,7 +235,7 @@ export const OwnerCourts = () => {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Mặt sân</label>
                                     <select 
-                                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none shadow-inner transition-all hover:border-white/20"
                                         value={formData.surfaceType}
                                         onChange={e => setFormData({...formData, surfaceType: e.target.value})}
                                     >
@@ -251,8 +251,8 @@ export const OwnerCourts = () => {
                                 <input 
                                     required
                                     type="number" 
-                                    className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none"
-                                    placeholder="VD: 80000"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none shadow-inner transition-all hover:border-white/20"
+                                    placeholder="VD: 150000"
                                     value={formData.pricePerHour}
                                     onChange={e => setFormData({...formData, pricePerHour: Number(e.target.value)})}
                                     min={0}
@@ -265,17 +265,16 @@ export const OwnerCourts = () => {
                                 <button 
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2.5 rounded-xl font-medium transition-colors"
+                                    className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 text-white rounded-xl hover:bg-white/10 transition-colors font-medium shadow-sm"
                                 >
                                     Hủy
                                 </button>
                                 <button 
                                     type="submit"
                                     disabled={isSaving}
-                                    className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                                    className="flex-1 px-4 py-2.5 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-50 flex items-center justify-center font-bold shadow-[0_0_15px_rgba(16,185,129,0.3)]"
                                 >
-                                    {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-                                    Lưu lại
+                                    {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Lưu lại'}
                                 </button>
                             </div>
                         </form>

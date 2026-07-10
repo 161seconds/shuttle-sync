@@ -41,7 +41,7 @@ export const OwnerDashboard = () => {
     }
 
     const StatCard = ({ title, value, icon: Icon, color }: any) => (
-        <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 flex items-center gap-4">
+        <div className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 rounded-2xl p-6 flex items-center gap-4 shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_40px_rgba(16,185,129,0.15)] hover:border-emerald-500/30 group">
             <div className={`p-4 rounded-xl ${color}`}>
                 <Icon className="w-6 h-6 text-white" />
             </div>
@@ -65,8 +65,8 @@ export const OwnerDashboard = () => {
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-gray-800 border border-gray-700 p-4 rounded-xl shadow-xl min-w-[160px]">
-                    <p className="text-gray-300 font-medium mb-3 border-b border-gray-700 pb-2">Ngày: <span className="text-white font-bold">{formatShortDate(label)}</span></p>
+                <div className="bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.5)] min-w-[160px]">
+                    <p className="text-gray-300 font-medium mb-3 border-b border-white/10 pb-2">Ngày: <span className="text-white font-bold">{formatShortDate(label)}</span></p>
                     <div className="space-y-2">
                         {payload.map((entry: any, index: number) => {
                             const name = entry.name === 'revenue' ? 'Tổng Doanh Thu' : entry.name === 'count' ? 'Lượt đặt' : entry.name === 'BADMINTON' ? 'Cầu Lông' : entry.name === 'PICKLEBALL' ? 'Pickleball' : entry.name === 'TENNIS' ? 'Tennis' : entry.name;
@@ -126,7 +126,7 @@ export const OwnerDashboard = () => {
 
             {/* Chart Area */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-gray-800 border border-gray-700 rounded-2xl p-6">
+                <div className="lg:col-span-2 bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-2xl p-6 transition-all hover:border-emerald-500/20">
                     <h3 className="text-xl font-bold text-white mb-6">Xu Hướng Doanh Thu (30 Ngày)</h3>
                     <div className="h-80 w-full">
                         {stats.venueSports && stats.venueSports.length > 1 ? (
@@ -203,7 +203,7 @@ export const OwnerDashboard = () => {
                     </div>
                 </div>
 
-                <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6">
+                <div className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-2xl p-6 transition-all hover:border-emerald-500/20">
                     <h3 className="text-xl font-bold text-white mb-6">Tình Trạng Lịch Đặt</h3>
                     <div className="h-80 w-full">
                         <ResponsiveContainer width="100%" height="100%">
@@ -242,12 +242,12 @@ export const OwnerDashboard = () => {
             </div>
 
             {/* Recent Bookings */}
-            <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6">
+            <div className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-2xl p-6 transition-all hover:border-emerald-500/20">
                 <h3 className="text-xl font-bold text-white mb-6">Đơn Đặt Mới Nhất</h3>
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                     {stats.recentBookings.map((booking: any) => (
-                        <div key={booking._id} className="flex items-center gap-3 p-4 bg-gray-900/50 rounded-xl border border-gray-700/50 hover:border-emerald-500/30 transition-colors">
-                            <img src={booking.userId?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=user"} className="w-12 h-12 rounded-full border border-gray-700" alt="avatar" />
+                        <div key={booking._id} className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-emerald-500/30 hover:bg-white/10 transition-colors shadow-inner">
+                            <img src={booking.userId?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=user"} className="w-12 h-12 rounded-full border border-white/10 shadow-sm" alt="avatar" />
                             <div className="flex-1 min-w-0">
                                 <p className="text-sm font-bold text-white truncate">{booking.userId?.displayName || 'Khách Vãng Lai'}</p>
                                 <p className="text-xs text-gray-400 mt-0.5 truncate">{booking.subCourtId?.name || 'Sân VIP'} • {new Date(booking.date).toLocaleDateString('vi-VN')} {booking.startTime}</p>
@@ -278,16 +278,16 @@ export const OwnerDashboard = () => {
 
             {/* Modal for Chart Details */}
             {selectedDay && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedDay(null)}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md" onClick={() => setSelectedDay(null)}>
                     <div 
-                        className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+                        className="bg-[#0a0f16]/90 backdrop-blur-3xl rounded-3xl border border-white/10 w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-[0_10px_50px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in-95 duration-200"
                         onClick={e => e.stopPropagation()}
                     >
-                        <div className="p-5 border-b border-gray-700 flex justify-between items-center bg-gray-800/80 shrink-0">
+                        <div className="p-5 border-b border-white/5 flex justify-between items-center bg-white/5 shrink-0">
                             <h2 className="text-xl font-bold text-white">Báo cáo chi tiết ngày {new Date(selectedDay.date).toLocaleDateString('vi-VN')}</h2>
                             <button 
                                 onClick={() => setSelectedDay(null)}
-                                className="p-2 text-gray-400 hover:text-white bg-gray-700/50 hover:bg-gray-700 rounded-lg transition-colors"
+                                className="p-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/10 rounded-lg transition-colors shadow-sm"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -295,14 +295,14 @@ export const OwnerDashboard = () => {
                         
                         <div className="flex flex-col md:flex-row flex-1 min-h-0 overflow-hidden">
                             {/* Left column: Stats */}
-                            <div className="w-full md:w-1/3 p-5 border-b md:border-b-0 md:border-r border-gray-700 bg-gray-900/30 overflow-y-auto custom-scrollbar space-y-6">
+                            <div className="w-full md:w-1/3 p-5 border-b md:border-b-0 md:border-r border-white/5 bg-transparent overflow-y-auto custom-scrollbar space-y-6">
                                 <div>
                                     <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Tóm tắt Doanh Thu</h3>
                                     <div className="space-y-3">
                                         {selectedDay.payload.map((entry: any, index: number) => {
                                             const name = entry.name === 'revenue' ? 'Tổng Doanh Thu' : entry.name === 'count' ? 'Lượt đặt' : entry.name === 'BADMINTON' ? 'Cầu Lông' : entry.name === 'PICKLEBALL' ? 'Pickleball' : entry.name === 'TENNIS' ? 'Tennis' : entry.name;
                                             return (
-                                                <div key={index} className="flex justify-between items-center p-3 rounded-xl bg-gray-800 border border-gray-700">
+                                                <div key={index} className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/10 shadow-inner">
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
                                                         <span className="text-gray-300 font-medium">{name}</span>
@@ -320,7 +320,7 @@ export const OwnerDashboard = () => {
                                     <div>
                                         <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Thông số Phụ</h3>
                                         <div className="space-y-3">
-                                            <div className="p-4 rounded-xl bg-gray-800 border border-gray-700">
+                                            <div className="p-4 rounded-xl bg-white/5 border border-white/10 shadow-inner">
                                                 <p className="text-xs text-gray-400 mb-1">Trung bình chi tiêu / đơn</p>
                                                 <p className="text-lg font-bold text-emerald-400">
                                                     {Math.round(daySchedule.bookings.reduce((sum: number, b: any) => sum + (b.finalAmount || 0), 0) / daySchedule.bookings.length).toLocaleString()}đ
@@ -335,7 +335,7 @@ export const OwnerDashboard = () => {
                                                 });
                                                 const peakHour = Object.keys(hourCounts).sort((a, b) => hourCounts[b] - hourCounts[a])[0];
                                                 return peakHour ? (
-                                                    <div className="p-4 rounded-xl bg-gray-800 border border-gray-700">
+                                                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 shadow-inner">
                                                         <p className="text-xs text-gray-400 mb-1">Giờ cao điểm</p>
                                                         <p className="text-lg font-bold text-orange-400">
                                                             {peakHour}:00 - {parseInt(peakHour)+1}:00
@@ -350,7 +350,7 @@ export const OwnerDashboard = () => {
                             </div>
 
                             {/* Right column: Bookings */}
-                            <div className="w-full md:w-2/3 p-5 overflow-y-auto custom-scrollbar bg-gray-800">
+                            <div className="w-full md:w-2/3 p-5 overflow-y-auto custom-scrollbar bg-transparent">
                                 <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 flex items-center justify-between">
                                     <span>Danh sách Đơn Đặt ({daySchedule?.bookings.length || 0})</span>
                                 </h3>
@@ -367,8 +367,8 @@ export const OwnerDashboard = () => {
                                 ) : (
                                     <div className="space-y-3">
                                         {daySchedule?.bookings.map((booking: any) => (
-                                            <div key={booking._id} className="flex items-center gap-4 p-4 bg-gray-900/50 rounded-xl border border-gray-700/50 hover:border-emerald-500/30 transition-colors group">
-                                                <div className="flex flex-col items-center justify-center w-16 h-16 rounded-xl bg-gray-800 border border-gray-700 shrink-0 shadow-inner">
+                                            <div key={booking._id} className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-emerald-500/30 hover:bg-white/10 transition-colors shadow-inner group">
+                                                <div className="flex flex-col items-center justify-center w-16 h-16 rounded-xl bg-black/40 border border-white/10 shrink-0 shadow-inner">
                                                     <span className="text-sm font-black text-emerald-400">{booking.startTime}</span>
                                                     <span className="text-[10px] text-gray-500 font-medium">{booking.endTime}</span>
                                                 </div>

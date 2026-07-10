@@ -151,7 +151,7 @@ export const OwnerSettings = () => {
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-4 mb-8 border-b border-gray-700">
+            <div className="flex gap-4 mb-8 border-b border-white/10">
                 <button
                     onClick={() => setActiveTab('profile')}
                     className={`pb-4 px-2 text-sm font-medium border-b-2 transition-colors ${
@@ -182,13 +182,13 @@ export const OwnerSettings = () => {
 
             {activeTab === 'profile' ? (
                 <form onSubmit={handleSaveProfile} className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 space-y-6">
+                    <div className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 rounded-2xl p-6 space-y-6 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
                         <h2 className="text-lg font-medium text-emerald-400 flex items-center gap-2">
                             <User className="w-5 h-5" /> Thông tin cơ bản
                         </h2>
                         
                         <div className="flex items-center gap-6">
-                            <div className="relative w-24 h-24 shrink-0 rounded-2xl overflow-hidden bg-gray-700 border-2 border-emerald-500/20">
+                            <div className="relative w-24 h-24 shrink-0 rounded-2xl overflow-hidden bg-black/40 border border-emerald-500/30 shadow-inner">
                                 {profileData.avatar ? (
                                     <img src={profileData.avatar} alt="Avatar" className="w-full h-full object-cover" />
                                 ) : (
@@ -212,7 +212,7 @@ export const OwnerSettings = () => {
                                     value={profileData.displayName}
                                     onChange={e => setProfileData({...profileData, displayName: e.target.value})}
                                     placeholder="Tên của bạn"
-                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all hover:border-white/20 shadow-inner"
                                     required
                                 />
                             </div>
@@ -223,13 +223,13 @@ export const OwnerSettings = () => {
                                     value={profileData.phone}
                                     onChange={e => setProfileData({...profileData, phone: e.target.value})}
                                     placeholder="0912..."
-                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all hover:border-white/20 shadow-inner"
                                 />
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 space-y-6">
+                    <div className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 rounded-2xl p-6 space-y-6 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
                         <h2 className="text-lg font-medium text-emerald-400 flex items-center gap-2">
                             <ImageIcon className="w-5 h-5" /> Ảnh đại diện (URL)
                         </h2>
@@ -238,7 +238,7 @@ export const OwnerSettings = () => {
                             value={profileData.avatar}
                             onChange={e => setProfileData({...profileData, avatar: e.target.value})}
                             placeholder="https://example.com/avatar.jpg"
-                            className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all hover:border-white/20 shadow-inner"
                         />
                     </div>
 
@@ -246,7 +246,7 @@ export const OwnerSettings = () => {
                         <button
                             type="submit"
                             disabled={isSaving}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-8 rounded-xl shadow-lg transition-colors flex items-center gap-2 disabled:opacity-70"
+                            className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all flex items-center gap-2 disabled:opacity-70"
                         >
                             {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                             Lưu Hồ Sơ
@@ -255,7 +255,7 @@ export const OwnerSettings = () => {
                 </form>
             ) : (
                 <form onSubmit={handleSaveVenue} className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 space-y-6">
+                    <div className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 rounded-2xl p-6 space-y-6 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
                         <h2 className="text-lg font-medium text-emerald-400 flex items-center gap-2">
                             <Building2 className="w-5 h-5" /> Thông tin chung
                         </h2>
@@ -268,26 +268,26 @@ export const OwnerSettings = () => {
                                     value={formData.name}
                                     onChange={e => setFormData({...formData, name: e.target.value})}
                                     placeholder="VD: Sân Cầu Lông ABC"
-                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all hover:border-white/20 shadow-inner"
                                     required
                                 />
                             </div>
                             <div className="relative">
                                 <label className="block text-sm font-medium text-gray-300 mb-2">Số điện thoại liên hệ *</label>
-                                <Phone className="absolute left-3 top-10 w-5 h-5 text-gray-500" />
+                                <Phone className="absolute left-3 top-[2.4rem] w-5 h-5 text-gray-500" />
                                 <input 
                                     type="tel"
                                     value={formData.phone}
                                     onChange={e => setFormData({...formData, phone: e.target.value})}
                                     placeholder="0912..."
-                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all hover:border-white/20 shadow-inner"
                                     required
                                 />
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 space-y-6">
+                    <div className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 rounded-2xl p-6 space-y-6 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
                         <h2 className="text-lg font-medium text-emerald-400 flex items-center gap-2">
                             <MapPin className="w-5 h-5" /> Vị trí
                         </h2>
@@ -300,7 +300,7 @@ export const OwnerSettings = () => {
                                     value={formData.street}
                                     onChange={e => setFormData({...formData, street: e.target.value})}
                                     placeholder="VD: 123 Đường Số 4"
-                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all hover:border-white/20 shadow-inner"
                                 />
                             </div>
                             <div>
@@ -308,7 +308,7 @@ export const OwnerSettings = () => {
                                 <select 
                                     value={formData.state}
                                     onChange={e => setFormData({...formData, state: e.target.value})}
-                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all hover:border-white/20 shadow-inner [color-scheme:dark]"
                                     required
                                 >
                                     <option value="" disabled>-- Chọn Quận/Huyện --</option>
@@ -329,7 +329,7 @@ export const OwnerSettings = () => {
                                 <select 
                                     value={formData.city}
                                     onChange={e => setFormData({...formData, city: e.target.value})}
-                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all shadow-inner opacity-70 cursor-not-allowed [color-scheme:dark]"
                                     required
                                     disabled
                                 >
@@ -339,19 +339,19 @@ export const OwnerSettings = () => {
                         </div>
                     </div>
 
-                    <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 space-y-6">
+                    <div className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 rounded-2xl p-6 space-y-6 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
                         <h2 className="text-lg font-medium text-emerald-400">Hình ảnh đại diện (Main Avatar)</h2>
                         <select 
                             value={formData.imageUrl}
                             onChange={e => setFormData({...formData, imageUrl: e.target.value})}
-                            className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all hover:border-white/20 shadow-inner [color-scheme:dark]"
                         >
                             {PRESET_IMAGES.map(img => (
                                 <option key={`main-${img.label}`} value={img.value}>{img.label}</option>
                             ))}
                         </select>
                         {formData.imageUrl && (
-                            <div className="mt-2 w-full h-40 rounded-lg overflow-hidden border border-gray-700">
+                            <div className="mt-2 w-full h-40 rounded-xl overflow-hidden border border-white/10 shadow-sm">
                                 <img src={formData.imageUrl} className="w-full h-full object-cover" alt="Preview" />
                             </div>
                         )}
@@ -367,14 +367,14 @@ export const OwnerSettings = () => {
                                             newSubImages[index] = e.target.value;
                                             setFormData({...formData, subImages: newSubImages});
                                         }}
-                                        className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-sm"
+                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all hover:border-white/20 shadow-inner text-sm [color-scheme:dark]"
                                     >
                                         {PRESET_IMAGES.map(img => (
                                             <option key={`sub-${index}-${img.label}`} value={img.value}>{img.label === 'Không chọn' ? `-- Ảnh phụ ${index + 1} --` : img.label}</option>
                                         ))}
                                     </select>
                                     {formData.subImages[index] && (
-                                        <div className="mt-2 w-full h-24 rounded-lg overflow-hidden border border-gray-700">
+                                        <div className="mt-2 w-full h-24 rounded-xl overflow-hidden border border-white/10 shadow-sm">
                                             <img src={formData.subImages[index]} className="w-full h-full object-cover" alt="Preview" />
                                         </div>
                                     )}
@@ -383,7 +383,7 @@ export const OwnerSettings = () => {
                         </div>
                     </div>
 
-                    <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 space-y-6">
+                    <div className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 rounded-2xl p-6 space-y-6 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
                         <h2 className="text-lg font-medium text-emerald-400">Các môn hỗ trợ</h2>
                         <div className="flex gap-4">
                             {['BADMINTON', 'PICKLEBALL', 'TENNIS'].map(sport => (
@@ -391,10 +391,10 @@ export const OwnerSettings = () => {
                                     key={sport}
                                     type="button"
                                     onClick={() => handleSportToggle(sport)}
-                                    className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                                    className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all ${
                                         formData.sports.includes(sport)
-                                            ? 'bg-emerald-600 border-emerald-500 text-white'
-                                            : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-500'
+                                            ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
+                                            : 'bg-black/40 border-white/10 text-gray-400 hover:border-white/20 hover:bg-white/5 shadow-inner'
                                     }`}
                                 >
                                     {sport === 'BADMINTON' ? 'Cầu lông' : sport === 'PICKLEBALL' ? 'Pickleball' : 'Tennis'}
@@ -407,7 +407,7 @@ export const OwnerSettings = () => {
                         <button
                             type="submit"
                             disabled={isSaving}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-8 rounded-xl shadow-lg transition-colors flex items-center gap-2 disabled:opacity-70"
+                            className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all flex items-center gap-2 disabled:opacity-70"
                         >
                             {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                             Lưu Cài Đặt Cơ Sở
