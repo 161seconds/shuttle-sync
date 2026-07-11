@@ -4,6 +4,7 @@ import { useAppStore } from '../../store';
 import { ownerApi } from '../../services/ownerApi';
 import { LayoutDashboard, LogOut, Settings, CalendarDays, Loader2, Dumbbell, Clock, HelpCircle } from 'lucide-react';
 import PremiumBackground from '../../components/ui/PremiumBackground';
+import { OwnerWelcomeFlow } from './OwnerWelcomeFlow';
 
 
 export const OwnerLayout = () => {
@@ -63,6 +64,7 @@ export const OwnerLayout = () => {
             
             {/* Main content wrapper to sit above background */}
             <div className="flex w-full h-full relative z-10">
+                {hasVenue && !location.pathname.includes('/onboarding') && <OwnerWelcomeFlow />}
                 {/* Sidebar chỉ hiển thị khi đã có Venue (không ở trang onboarding) */}
                 {hasVenue && !location.pathname.includes('/onboarding') && (
                     <aside className="w-64 bg-[#0a0f16]/60 backdrop-blur-3xl border-r border-white/5 flex flex-col hidden md:flex shrink-0">

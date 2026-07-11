@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react';
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import axiosClient from '../../api/axiosClient';
 import NotificationDropdown from './NotificationDropdown';
-import { ModeToggle } from '../ModeToggle';
 
 export default function Header() {
     const { setPage, user, isSideBarOpen, toggleSidebar } = useAppStore();
@@ -100,7 +99,6 @@ export default function Header() {
 
                 {/* RIGHT */}
                 <div className="flex items-center justify-end gap-3">
-                    <ModeToggle />
                     {user ? (
                         <>
                             <div className="relative flex items-center">
