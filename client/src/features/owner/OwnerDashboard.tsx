@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ownerApi, type OwnerStats } from '../../services/ownerApi';
 import { Building2, DollarSign, Users, CalendarCheck, Loader2, X } from 'lucide-react';
 import { AreaChart, Area, LineChart, Line, BarChart, Bar, Cell, Legend, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -280,8 +281,8 @@ export const OwnerDashboard = () => {
             </div>
 
             {/* Modal for Chart Details */}
-            {selectedDay && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md" onClick={() => setSelectedDay(null)}>
+            {selectedDay && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md" onClick={() => setSelectedDay(null)}>
                     <div 
                         className="bg-[#0a0f16]/90 backdrop-blur-3xl rounded-3xl border border-white/10 w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-[0_10px_50px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in-95 duration-200"
                         onClick={e => e.stopPropagation()}
@@ -409,7 +410,8 @@ export const OwnerDashboard = () => {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
