@@ -177,6 +177,7 @@ class AuthController {
             setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
             sendSuccess(res, null, 'Làm mới token thành công');
         } catch (error) {
+            clearAuthCookies(res);
             next(error);
         }
     }

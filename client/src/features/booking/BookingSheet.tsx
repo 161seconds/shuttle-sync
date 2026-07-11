@@ -179,12 +179,52 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
             error = 'Vui lòng chọn khung giờ hợp lệ!';
         }
 
-        const basePrice = court.pricePerHour?.[0]?.timeSlots?.[0]?.pricePerHour || 100000;
+        let total = 0;
         const totalSessions = bookingType === 'fixed' ? fixedMonths * 4 * selectedDaysOfWeek.length : 1;
-        const total = error === '' ? basePrice * durationHours * totalSessions : 0;
+
+        if (error === '') {
+            const dateStr = dates[selectedDate].fullDate;
+            const dateObj = new Date(dateStr);
+            const basePrice = typeof court.pricePerHour === 'number' ? court.pricePerHour : 100000;
+            const configs = court.pricingConfigs || [];
+
+            if (bookingType === 'fixed') {
+                let totalAllSessions = 0;
+                const sessionsPerDay = fixedMonths * 4;
+                for (const day of selectedDaysOfWeek) {
+                    let dayTotal = 0;
+                    for (let m = startMins; m < endMins; m += 30) {
+                        const chunkStartMins = m;
+                        const match = configs.find(cfg => {
+                            if (!cfg.daysOfWeek.includes(day)) return false;
+                            const cfgStartMins = timeToMins(cfg.startTime);
+                            const cfgEndMins = timeToMins(cfg.endTime);
+                            return chunkStartMins >= cfgStartMins && chunkStartMins < cfgEndMins;
+                        });
+                        const chunkPrice = match ? match.pricePerHour : basePrice;
+                        dayTotal += chunkPrice * 0.5;
+                    }
+                    totalAllSessions += dayTotal * sessionsPerDay;
+                }
+                total = totalAllSessions;
+            } else {
+                const day = dateObj.getDay();
+                for (let m = startMins; m < endMins; m += 30) {
+                    const chunkStartMins = m;
+                    const match = configs.find(cfg => {
+                        if (!cfg.daysOfWeek.includes(day)) return false;
+                        const cfgStartMins = timeToMins(cfg.startTime);
+                        const cfgEndMins = timeToMins(cfg.endTime);
+                        return chunkStartMins >= cfgStartMins && chunkStartMins < cfgEndMins;
+                    });
+                    const chunkPrice = match ? match.pricePerHour : basePrice;
+                    total += chunkPrice * 0.5;
+                }
+            }
+        }
 
         return { error, durationHours, total, totalSessions };
-    }, [finalStartTime, finalEndTime, court, bookingType, fixedMonths, selectedDaysOfWeek]);
+    }, [finalStartTime, finalEndTime, court, bookingType, fixedMonths, selectedDaysOfWeek, selectedDate, dates]);
 
     const handleConfirm = async () => {
         if (!user) {

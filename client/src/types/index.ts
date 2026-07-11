@@ -41,6 +41,13 @@ export interface CourtPhoto {
     source: 'upload' | 'google';
 }
 
+export interface IPricingConfig {
+    startTime: string; // HH:mm
+    endTime: string;   // HH:mm
+    daysOfWeek: number[]; // 0-6 (0 is Sunday)
+    pricePerHour: number;
+}
+
 export interface Court {
     _id: string;
     name: string;
@@ -54,7 +61,8 @@ export interface Court {
     contact: { phone: string; email?: string; website?: string; facebook?: string; zalo?: string };
     amenities: string[];
     operatingHours: { dayOfWeek: number; open: string; close: string; isOpen: boolean }[];
-    pricePerHour: { sportType: SportType; timeSlots: { label: string; startTime: string; endTime: string; pricePerHour: number; daysOfWeek: number[] }[] }[];
+    pricePerHour: number;
+    pricingConfigs?: IPricingConfig[];
     courts: SubCourt[];
     photos: CourtPhoto[];
     googlePlaceId?: string;
