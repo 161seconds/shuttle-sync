@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../store';
 import { ownerApi } from '../../services/ownerApi';
@@ -48,7 +49,7 @@ export const OwnerWelcomeFlow = () => {
 
     const totalRevenue = todayBookings.reduce((sum, b) => sum + (b.finalAmount || 0), 0);
 
-    return (
+    const content = (
         <AnimatePresence mode="wait">
             {step === 'greeting' && (
                 <motion.div
@@ -57,7 +58,7 @@ export const OwnerWelcomeFlow = () => {
                     animate={{ opacity: 1, y: 20 }}
                     exit={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
                     transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                    className="fixed top-4 left-0 right-0 z-[100] flex justify-center pointer-events-none px-4"
+                    className="fixed top-4 left-0 right-0 z-[9999] flex justify-center pointer-events-none px-4"
                 >
                     <div className="bg-[#0a0f16]/90 backdrop-blur-xl border border-emerald-500/30 shadow-[0_0_40px_rgba(16,185,129,0.2)] px-4 sm:px-6 py-3 sm:py-4 rounded-full flex items-center gap-3 max-w-full">
                         <img 
@@ -79,7 +80,7 @@ export const OwnerWelcomeFlow = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
                     onClick={handleClose}
                 >
                     <motion.div
@@ -131,33 +132,67 @@ export const OwnerWelcomeFlow = () => {
                                 {isLoading ? (
                                     <div className="text-center text-gray-400 py-4">Đang tải dữ liệu...</div>
                                 ) : todayBookings.length > 0 ? (
-                                    todayBookings.map((booking, idx) => (
-                                        <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4 hover:border-emerald-500/30 transition-colors">
-                                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                <div className="flex-shrink-0 bg-emerald-500/10 text-emerald-400 p-2 rounded-lg">
-                                                    <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
+                                    todayBookings.map((booking, idx) => {
+                                        const statusKey = String(booking.status).toLowerCase();
+                                        const statusConfig = (() => {
+                                            switch (statusKey) {
+                                                case 'confirmed':
+                                                    return { text: 'Đã chốt', className: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', theme: 'emerald' };
+                                                case 'completed':
+                                                    return { text: 'Hoàn thành', className: 'bg-blue-500/10 text-blue-400 border-blue-500/20', theme: 'blue' };
+                                                case 'pending_payment':
+                                                    return { text: 'Chờ thanh toán', className: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20', theme: 'yellow' };
+                                                case 'cancelled':
+                                                    return { text: 'Đã hủy', className: 'bg-red-500/10 text-red-400 border-red-500/20', theme: 'red' };
+                                                case 'no_show':
+                                                    return { text: 'Bỏ cọc', className: 'bg-gray-500/10 text-gray-400 border-gray-500/20', theme: 'gray' };
+                                                default:
+                                                    return { text: booking.status, className: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20', theme: 'yellow' };
+                                            }
+                                        })();
+
+                                        const getThemeClasses = (theme: string, type: 'icon' | 'amount') => {
+                                            if (type === 'amount') {
+                                                if (theme === 'emerald') return 'text-emerald-400';
+                                                if (theme === 'blue') return 'text-blue-400';
+                                                if (theme === 'red') return 'text-red-400 line-through opacity-70';
+                                                if (theme === 'gray') return 'text-gray-400 line-through opacity-70';
+                                                return 'text-yellow-500';
+                                            }
+                                            // icon
+                                            if (theme === 'emerald') return 'bg-emerald-500/10 text-emerald-400';
+                                            if (theme === 'blue') return 'bg-blue-500/10 text-blue-400';
+                                            if (theme === 'red') return 'bg-red-500/10 text-red-400';
+                                            if (theme === 'gray') return 'bg-gray-500/10 text-gray-400';
+                                            return 'bg-yellow-500/10 text-yellow-500';
+                                        };
+
+                                        return (
+                                            <div key={idx} className={`flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4 hover:border-${statusConfig.theme}-500/30 transition-colors`}>
+                                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                    <div className={`flex-shrink-0 p-2 rounded-lg ${getThemeClasses(statusConfig.theme, 'icon')}`}>
+                                                        <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-white font-medium text-sm sm:text-base truncate">
+                                                            {booking.userId?.displayName || 'Khách vãng lai'}
+                                                        </p>
+                                                        <p className="text-xs sm:text-sm text-gray-400 truncate">
+                                                            {booking.subCourtId?.name} • {booking.startTime} - {booking.endTime}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-white font-medium text-sm sm:text-base truncate">
-                                                        {booking.userId?.displayName || 'Khách vãng lai'}
+                                                <div className="flex sm:flex-col justify-between items-center sm:items-end sm:text-right mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-0 border-white/5 shrink-0">
+                                                    <p className={`font-bold text-sm sm:text-base ${getThemeClasses(statusConfig.theme, 'amount')}`}>
+                                                        {(booking.finalAmount || 0).toLocaleString()}đ
                                                     </p>
-                                                    <p className="text-xs sm:text-sm text-gray-400 truncate">
-                                                        {booking.subCourtId?.name} • {booking.startTime} - {booking.endTime}
-                                                    </p>
+                                                    <span className={`inline-block px-2 py-0.5 sm:mt-1 rounded text-[10px] sm:text-xs font-medium border uppercase ${statusConfig.className}`}>
+                                                        {statusConfig.text}
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div className="flex sm:flex-col justify-between items-center sm:items-end sm:text-right mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-0 border-white/5 shrink-0">
-                                                <p className="text-emerald-400 font-bold text-sm sm:text-base">{(booking.finalAmount || 0).toLocaleString()}đ</p>
-                                                <span className={`inline-block px-2 py-0.5 sm:mt-1 rounded text-[10px] sm:text-xs font-medium border uppercase ${
-                                                    booking.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                                                    booking.status === 'completed' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
-                                                    'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
-                                                }`}>
-                                                    {booking.status === 'confirmed' ? 'Đã chốt' : booking.status === 'completed' ? 'Hoàn thành' : booking.status}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    ))
+                                        );
+                                    })
                                 ) : (
                                     <div className="text-center bg-white/5 border border-white/10 rounded-xl p-8">
                                         <Calendar className="w-10 h-10 text-gray-500 mx-auto mb-3" />
@@ -178,4 +213,6 @@ export const OwnerWelcomeFlow = () => {
             )}
         </AnimatePresence>
     );
+
+    return createPortal(content, document.body);
 };

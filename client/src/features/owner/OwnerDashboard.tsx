@@ -211,10 +211,11 @@ export const OwnerDashboard = () => {
                                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" horizontal={true} vertical={false}/>
                                 <XAxis type="number" stroke="#9ca3af" fontSize={12} />
                                 <YAxis dataKey="name" type="category" stroke="#9ca3af" fontSize={12} tickFormatter={(val) => {
-                                    if (val === 'confirmed') return 'Đã chốt';
-                                    if (val === 'pending_payment') return 'Chờ TT';
-                                    if (val === 'cancelled') return 'Đã hủy';
-                                    if (val === 'completed') return 'Hoàn tất';
+                                    const v = String(val).toLowerCase();
+                                    if (v === 'confirmed') return 'Đã chốt';
+                                    if (v === 'pending_payment') return 'Chờ TT';
+                                    if (v === 'cancelled') return 'Đã hủy';
+                                    if (v === 'completed') return 'Hoàn tất';
                                     return val;
                                 }}/>
                                 <Tooltip 
@@ -231,7 +232,7 @@ export const OwnerDashboard = () => {
                                                 'pending_payment': '#f59e0b',
                                                 'cancelled': '#ef4444'
                                             };
-                                            return <Cell key={`cell-${index}`} fill={colors[entry.name] || '#9ca3af'} />
+                                            return <Cell key={`cell-${index}`} fill={colors[String(entry.name).toLowerCase()] || '#9ca3af'} />
                                         })
                                     }
                                 </Bar>
@@ -245,7 +246,9 @@ export const OwnerDashboard = () => {
             <div className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-2xl p-6 transition-all hover:border-emerald-500/20">
                 <h3 className="text-xl font-bold text-white mb-6">Đơn Đặt Mới Nhất</h3>
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                    {stats.recentBookings.map((booking: any) => (
+                    {stats.recentBookings.map((booking: any) => {
+                        const statusKey = String(booking.status).toLowerCase();
+                        return (
                         <div key={booking._id} className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-emerald-500/30 hover:bg-white/10 transition-colors shadow-inner">
                             <img src={booking.userId?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=user"} className="w-12 h-12 rounded-full border border-white/10 shadow-sm" alt="avatar" />
                             <div className="flex-1 min-w-0">
@@ -253,21 +256,21 @@ export const OwnerDashboard = () => {
                                 <p className="text-xs text-gray-400 mt-0.5 truncate">{booking.subCourtId?.name || 'Sân VIP'} • {new Date(booking.date).toLocaleDateString('vi-VN')} {booking.startTime}</p>
                             </div>
                             <div className="text-right whitespace-nowrap">
-                                <p className="text-sm font-bold text-emerald-400">{booking.finalAmount.toLocaleString()}đ</p>
+                                <p className={`text-sm font-bold ${statusKey === 'pending_payment' ? 'text-yellow-500' : statusKey === 'cancelled' ? 'text-red-400 line-through opacity-70' : 'text-emerald-400'}`}>{booking.finalAmount.toLocaleString()}đ</p>
                                 <span className={`inline-block px-2 py-0.5 mt-1 rounded-full text-[10px] font-medium border uppercase ${
-                                    booking.status === 'confirmed'
+                                    statusKey === 'confirmed'
                                         ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                                        : booking.status === 'completed'
+                                        : statusKey === 'completed'
                                             ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                                        : booking.status === 'cancelled'
+                                        : statusKey === 'cancelled'
                                             ? 'bg-red-500/10 text-red-400 border-red-500/20'
                                             : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
                                 }`}>
-                                    {booking.status === 'confirmed' ? 'Đã chốt' : booking.status === 'completed' ? 'Hoàn thành' : booking.status === 'cancelled' ? 'Đã hủy' : booking.status}
+                                    {statusKey === 'confirmed' ? 'Đã chốt' : statusKey === 'completed' ? 'Hoàn thành' : statusKey === 'cancelled' ? 'Đã hủy' : statusKey === 'pending_payment' ? 'Chờ thanh toán' : booking.status}
                                 </span>
                             </div>
                         </div>
-                    ))}
+                    )})}
                     {stats.recentBookings.length === 0 && (
                         <div className="col-span-full py-8 text-center text-gray-400">
                             Chưa có đơn đặt nào.
@@ -366,7 +369,9 @@ export const OwnerDashboard = () => {
                                     </div>
                                 ) : (
                                     <div className="space-y-3">
-                                        {daySchedule?.bookings.map((booking: any) => (
+                                        {daySchedule?.bookings.map((booking: any) => {
+                                            const statusKey = String(booking.status).toLowerCase();
+                                            return (
                                             <div key={booking._id} className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-emerald-500/30 hover:bg-white/10 transition-colors shadow-inner group">
                                                 <div className="flex flex-col items-center justify-center w-16 h-16 rounded-xl bg-black/40 border border-white/10 shrink-0 shadow-inner">
                                                     <span className="text-sm font-black text-emerald-400">{booking.startTime}</span>
@@ -384,21 +389,21 @@ export const OwnerDashboard = () => {
                                                 </div>
                                                 
                                                 <div className="text-right shrink-0">
-                                                    <p className="text-base font-bold text-emerald-400">{booking.finalAmount.toLocaleString()}đ</p>
+                                                    <p className={`text-base font-bold ${statusKey === 'pending_payment' ? 'text-yellow-500' : statusKey === 'cancelled' ? 'text-red-400 line-through opacity-70' : 'text-emerald-400'}`}>{booking.finalAmount.toLocaleString()}đ</p>
                                                     <span className={`inline-block px-2.5 py-1 mt-1.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${
-                                                        booking.status === 'confirmed'
+                                                        statusKey === 'confirmed'
                                                             ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                                                            : booking.status === 'completed'
+                                                            : statusKey === 'completed'
                                                                 ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                                                            : booking.status === 'cancelled'
+                                                            : statusKey === 'cancelled'
                                                                 ? 'bg-red-500/10 text-red-400 border-red-500/20'
                                                                 : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
                                                     }`}>
-                                                        {booking.status === 'confirmed' ? 'Đã chốt' : booking.status === 'completed' ? 'Hoàn thành' : booking.status === 'cancelled' ? 'Đã hủy' : booking.status}
+                                                        {statusKey === 'confirmed' ? 'Đã chốt' : statusKey === 'completed' ? 'Hoàn thành' : statusKey === 'cancelled' ? 'Đã hủy' : statusKey === 'pending_payment' ? 'Chờ thanh toán' : booking.status}
                                                     </span>
                                                 </div>
                                             </div>
-                                        ))}
+                                        )})}
                                     </div>
                                 )}
                             </div>

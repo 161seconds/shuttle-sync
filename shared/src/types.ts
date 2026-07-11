@@ -146,7 +146,8 @@ export interface ICourt extends ITimestamps {
     contact: ICourtContact;
     amenities: string[];
     operatingHours: IOperatingHours[];
-    pricePerHour: IPricing[];
+    pricePerHour: number;
+    pricingConfigs?: IPricingConfig[];
     courts: ISubCourt[];
     photos: ICourtPhoto[];
     googlePlaceId?: string;
@@ -182,17 +183,11 @@ export interface IOperatingHours {
     isOpen: boolean;
 }
 
-export interface IPricing {
-    sportType: SportType;
-    timeSlots: IPriceTimeSlot[];
-}
-
-export interface IPriceTimeSlot {
-    label: string;       // "Sáng", "Chiều", "Tối", "Cuối tuần"
+export interface IPricingConfig {
     startTime: string;   // HH:mm
     endTime: string;     // HH:mm
-    pricePerHour: number;
     daysOfWeek: number[]; // [0,1,2,3,4,5,6]
+    pricePerHour: number;
 }
 
 export interface ISubCourt {

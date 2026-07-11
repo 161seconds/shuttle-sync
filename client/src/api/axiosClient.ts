@@ -60,7 +60,11 @@ axiosClient.interceptors.response.use(
                 processQueue(err);
                 // Lỗi khi refresh token -> Đăng xuất người dùng hoặc tải lại trang để chuyển về trang login
                 localStorage.removeItem('user');
-                window.location.href = '/login'; 
+                
+                // Tránh lặp vô hạn và không redirect khách truy cập (guest) khi check auth
+                if (!original.url?.includes('/auth/profile') && window.location.pathname !== '/login') {
+                    window.location.href = '/login'; 
+                }
                 return Promise.reject(err);
             } finally {
                 isRefreshing = false;
