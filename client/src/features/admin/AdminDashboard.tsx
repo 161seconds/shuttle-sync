@@ -101,7 +101,7 @@ export default function AdminDashboard() {
 
     if (loading) {
         return (
-            <div className="w-full h-[calc(100vh-76px)] flex items-center justify-center bg-transparent">
+            <div className="min-h-screen w-full flex items-center justify-center bg-white dark:bg-[#0a0f16]">
                 <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
             </div>
         );

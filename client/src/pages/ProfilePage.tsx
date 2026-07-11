@@ -86,9 +86,11 @@ export default function ProfilePage() {
 
     const MENU: { icon: React.ReactNode; label: string; badge: number | null; action: SubPage }[] = [
         { icon: <Edit className="w-4 h-4" />, label: 'Chỉnh sửa hồ sơ', badge: null, action: 'edit' },
-        { icon: <History className="w-4 h-4" />, label: 'Lịch sử đặt sân', badge: user.stats?.totalBookings || null, action: 'history' },
-        { icon: <Award className="w-4 h-4" />, label: 'Giải đấu của tôi', badge: null, action: 'tournaments' },
-        { icon: <Users className="w-4 h-4" />, label: 'Quản lý nhóm chơi', badge: (user.stats?.totalGroupsCreated || 0) + (user.stats?.totalGroupsJoined || 0) || null, action: 'groups' },
+        ...(user.role !== 'admin' ? [
+            { icon: <History className="w-4 h-4" />, label: 'Lịch sử đặt sân', badge: user.stats?.totalBookings || null, action: 'history' },
+            { icon: <Award className="w-4 h-4" />, label: 'Giải đấu của tôi', badge: null, action: 'tournaments' },
+            { icon: <Users className="w-4 h-4" />, label: 'Quản lý nhóm chơi', badge: (user.stats?.totalGroupsCreated || 0) + (user.stats?.totalGroupsJoined || 0) || null, action: 'groups' },
+        ] : []),
         { icon: <Bell className="w-4 h-4" />, label: 'Thông báo', badge: null, action: 'notifications' },
         { icon: <Settings className="w-4 h-4" />, label: 'Cài đặt', badge: null, action: 'settings' },
     ];

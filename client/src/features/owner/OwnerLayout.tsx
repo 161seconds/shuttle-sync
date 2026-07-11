@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useAppStore } from '../../store';
 import { ownerApi } from '../../services/ownerApi';
@@ -127,7 +127,13 @@ export const OwnerLayout = () => {
 
                 <main className="flex-1 flex flex-col h-full overflow-hidden bg-transparent">
                     <div className="flex-1 overflow-y-auto">
-                        <Outlet />
+                        <Suspense fallback={
+                            <div className="flex-1 flex flex-col items-center justify-center min-h-[50vh]">
+                                <div className="w-8 h-8 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin"></div>
+                            </div>
+                        }>
+                            <Outlet />
+                        </Suspense>
                     </div>
                 </main>
             </div>

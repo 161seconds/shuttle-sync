@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, Bot, Sparkles, Loader2, Activity, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import PremiumBackground from '../components/ui/PremiumBackground';
 import axiosClient from '../api/axiosClient';
 import Markdown from 'react-markdown';
 
@@ -116,9 +115,7 @@ export default function AiCoach() {
     const formatTime = (d: Date) => d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
     return (
-        <div className="flex flex-col h-[calc(100vh-64px)] bg-background relative overflow-hidden">
-            <PremiumBackground />
-
+        <div className="flex flex-col h-[calc(100vh-64px)] font-sans">
             {/* Header */}
             <div className="relative z-20 flex items-center justify-between px-5 py-5.5 bg-background/40 backdrop-blur-2xl border-b border-border/50 shadow-sm">
                 <div className="flex items-center gap-3">
