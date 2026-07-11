@@ -2,7 +2,7 @@ import {
     Bot,
     UserCircle, BookOpen, Dumbbell,
     Zap, ChevronRight,
-    BarChart2, Newspaper, Settings, HelpCircle, LogOut
+    BarChart2, Newspaper, HelpCircle, LogOut
 } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { theme as t } from '../../utils/theme';
