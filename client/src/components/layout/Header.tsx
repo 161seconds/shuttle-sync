@@ -55,12 +55,14 @@ export default function Header() {
                 {/* LEFT */}
                 <div className="flex items-center justify-start gap-1 sm:gap-3">
                     {/* NÚT BẬT TẮT SIDEBAR */}
-                    <button
-                        onClick={toggleSidebar}
-                        className={`p-2 rounded-xl transition-all ${isSideBarOpen ? 'bg-emerald-500/10 text-emerald-400' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
-                    >
-                        <Menu className="w-5 h-5 md:w-6 md:h-6" />
-                    </button>
+                    {user?.role !== 'court_owner' && (
+                        <button
+                            onClick={toggleSidebar}
+                            className={`p-2 rounded-xl transition-all ${isSideBarOpen ? 'bg-emerald-500/10 text-emerald-400' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
+                        >
+                            <Menu className="w-5 h-5 md:w-6 md:h-6" />
+                        </button>
+                    )}
 
                     {/* 🔥 KHU VỰC LOGO MỚI (LUCIDE SYSTEM) */}
                     <button
@@ -84,17 +86,21 @@ export default function Header() {
 
                 {/* CENTER */}
                 <nav className="hidden md:flex items-center justify-center gap-3">
-                    <NavBtn
-                        icon={<Calendar className="w-4 h-4" />}
-                        label="Đặt sân"
-                        onClick={() => setPage('home')}
-                    />
+                    {user?.role !== 'court_owner' && (
+                        <>
+                            <NavBtn
+                                icon={<Calendar className="w-4 h-4" />}
+                                label="Đặt sân"
+                                onClick={() => setPage('home')}
+                            />
 
-                    <NavBtn
-                        icon={<Search className="w-4 h-4" />}
-                        label="Tìm sân"
-                        onClick={() => setPage('search')}
-                    />
+                            <NavBtn
+                                icon={<Search className="w-4 h-4" />}
+                                label="Tìm sân"
+                                onClick={() => setPage('search')}
+                            />
+                        </>
+                    )}
                 </nav>
 
                 {/* RIGHT */}

@@ -6,14 +6,7 @@ import { theme as t } from '../../utils/theme';
 import axiosClient from '../../api/axiosClient';
 import type { Booking } from '../../types';
 import { useAlertStore } from '../../stores/useAlertStore';
-
-const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
-    pending_payment: { label: 'Chờ thanh toán', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
-    confirmed: { label: 'Đã xác nhận', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]' },
-    completed: { label: 'Hoàn thành', color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
-    cancelled: { label: 'Đã hủy', color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20' },
-    no_show: { label: 'Vắng mặt', color: 'text-orange-400', bg: 'bg-orange-500/10 border-orange-500/20' },
-};
+import { getBookingStatusConfig } from '../../utils/bookingStatus';
 
 interface Props {
     onBack: () => void;
@@ -162,7 +155,7 @@ export default function BookingHistory({ onBack }: Props) {
                             <AnimatePresence mode="popLayout">
                                 {displayedBookings.map((b, i) => {
                                     const statusKey = b.status?.toLowerCase() || 'pending_payment';
-                                    const s = STATUS_MAP[statusKey] || STATUS_MAP.confirmed;
+                                    const s = getBookingStatusConfig(statusKey);
                                     const courtObj = (b as any).courtId || (b as any).court;
                                     const courtName = typeof courtObj === 'object' ? courtObj?.name : 'Sân (Không xác định)';
                                     const courtDistrict = typeof courtObj === 'object' ? courtObj?.address?.district : '';
@@ -262,7 +255,7 @@ export default function BookingHistory({ onBack }: Props) {
                     const b = bookings.find(x => x._id === expanded);
                     if (!b) return null;
                     const statusKey = b.status?.toLowerCase() || 'pending_payment';
-                    const s = STATUS_MAP[statusKey] || STATUS_MAP.confirmed;
+                    const s = getBookingStatusConfig(statusKey);
                     const courtObj = (b as any).courtId || (b as any).court;
                     const courtName = typeof courtObj === 'object' ? courtObj?.name : 'Sân (Không xác định)';
                     const courtDistrict = typeof courtObj === 'object' ? courtObj?.address?.district : '';
