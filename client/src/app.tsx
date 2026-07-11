@@ -1,9 +1,10 @@
 import './app.css';
-import { lazy, Suspense, useState, useEffect, useRef } from 'react';
+import { lazy, Suspense, useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { AppProvider, useAppStore } from './store';
 import Header from './components/layout/Header';
 import BottomNav from './components/layout/BottomNav';
+import { Loader2 } from 'lucide-react';
 export const pageImports = {
   Dashboard: () => import('./pages/Dashboard'),
   MapPage: () => import('./pages/MapPage'),
@@ -59,8 +60,7 @@ const OwnerOnboarding = lazy(pageImports.OwnerOnboarding);
 const OwnerDashboard = lazy(pageImports.OwnerDashboard);
 
 import { useOnboarding, OnboardingModal, GuidedTourOverlay } from './features/onboarding';
-import { ParticleField } from './components/onboarding/Shared';
-import DotField from './components/ui/DotField';
+import PremiumBackground from './components/ui/PremiumBackground';
 import { theme as DS } from './utils/theme';
 import type { Court } from './types';
 import { authApi } from './api/auth.api';
@@ -73,64 +73,7 @@ import { useAlertStore } from './stores/useAlertStore';
 import { socketService } from './utils/socket';
 import { ThemeProvider } from './components/theme-provider';
 
-function PremiumBackground() {
-  const lightRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    let rafId: number;
-    const handleMouseMove = (e: MouseEvent) => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        if (lightRef.current) {
-          // Di chuyển đốm sáng đi theo chuột (trừ đi một nửa kích thước để căn giữa)
-          lightRef.current.style.transform = `translate(${e.clientX - 400}px, ${e.clientY - 400}px)`;
-        }
-      });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(rafId);
-    };
-  }, []);
-
-  return (
-    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-background">
-      {/* 1. Aurora Gradient Glows (Góc trái trên và góc phải dưới) */}
-      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-emerald-500/10 blur-[150px]" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-500/10 blur-[150px]" />
-
-      {/* 2. Interactive DotField (Hidden on mobile) */}
-      <div className="absolute inset-0 opacity-70 dark:opacity-100 z-0 hidden md:block">
-        <DotField
-          dotRadius={1.2}
-          dotSpacing={22}
-          bulgeStrength={20}
-          glowRadius={120}
-          sparkle={false}
-          waveAmplitude={0}
-          cursorRadius={120}
-          cursorForce={1}
-          bulgeOnly
-          gradientFrom="#10B981"
-          gradientTo="#3b82f6"
-          glowColor="transparent"
-        />
-      </div>
-
-      {/* 3. Mouse Follower Glow (Ánh sáng mềm mại đi theo chuột) (Hidden on mobile) */}
-      <div
-        ref={lightRef}
-        className="absolute top-0 left-0 w-[800px] h-[800px] bg-emerald-500/10 dark:bg-emerald-400/5 rounded-full blur-[100px] will-change-transform hidden md:block"
-      />
-
-      {/* 4. Particle Field cũ được điều chỉnh (Hidden on mobile) */}
-      <div className="opacity-40 dark:opacity-20 dark:mix-blend-screen hidden md:block">
-        <ParticleField />
-      </div>
-    </div>
-  );
-}
 
 import { BrowserRouter, Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -263,7 +206,15 @@ function Shell() {
                   <Route path="/edit-profile" element={<EditProfile onBack={() => window.history.back()} />} />
                   <Route path="/groupplay" element={<GroupPlayPage />} />
                   <Route path="/aicoach" element={<AiCoach />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/admin" element={
+                    <Suspense fallback={
+                      <div className="min-h-screen w-full bg-white dark:bg-[#0a0f16] flex items-center justify-center">
+                        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                      </div>
+                    }>
+                      <AdminDashboard />
+                    </Suspense>
+                  } />
                   <Route path="owner">
             <Route element={<OwnerLayout />}>
               <Route index element={<Navigate to="dashboard" replace />} />
@@ -291,7 +242,7 @@ function Shell() {
           <ScrollEndEffect />
 
           <AnimatePresence>
-            {['/', '/map', '/search', '/profile'].includes(location.pathname) && !isSideBarOpen && (
+            {['/', '/map', '/search', '/profile', '/admin'].includes(location.pathname) && !isSideBarOpen && (
               <BottomNav key="bottom-nav" />
             )}
           </AnimatePresence>

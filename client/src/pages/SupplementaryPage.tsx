@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import PremiumBackground from '../components/ui/PremiumBackground';
 import { Dumbbell, Timer, PlayCircle, Zap, Activity, HeartPulse, ShieldPlus, Move, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -107,9 +106,7 @@ export default function SupplementaryPage() {
     }
 
     return (
-        <div className="w-full min-h-[calc(100vh-64px)] bg-background relative font-sans text-muted-foreground">
-            
-            <PremiumBackground />
+        <div className="w-full min-h-[calc(100vh-64px)] bg-transparent relative font-sans text-muted-foreground">
 
             <div className="max-w-[1400px] mx-auto p-6 md:p-10 pb-24 space-y-12 relative z-10">
 

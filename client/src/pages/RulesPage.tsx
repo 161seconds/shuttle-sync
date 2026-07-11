@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { AlertTriangle, CheckCircle2, Info, Swords, ShieldBan, Zap, Target } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Info, Swords, ShieldBan, Zap, Target, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EmojiIcon } from '../components/EmojiIcon';
-import PremiumBackground from '../components/ui/PremiumBackground';
 
 
 // ═══ DỮ LIỆU LUẬT & KỸ THUẬT CHO CẢ 2 MÔN ═══
@@ -107,9 +106,7 @@ export default function RulesPage() {
     const data = KNOWLEDGE_BASE[activeTab];
 
     return (
-        <div className="w-full min-h-[calc(100vh-64px)] bg-background relative font-sans text-muted-foreground">
-
-            <PremiumBackground />
+        <div className="w-full min-h-[calc(100vh-64px)] bg-transparent relative font-sans text-muted-foreground">
 
             <div className="max-w-[1400px] mx-auto p-6 md:p-10 pb-24 space-y-12 relative z-10">
 
