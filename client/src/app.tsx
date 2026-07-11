@@ -239,7 +239,7 @@ function Shell() {
       {!showOnboarding && !isCheckingAuth && (
         <div className="relative z-10 flex flex-col min-h-screen">
           {!isLoginPage && <Header />}
-          {!isLoginPage && <AppSidebar />}
+          {!isLoginPage && user?.role !== 'court_owner' && <AppSidebar />}
 
           <main
             className={`flex-1 transition-all duration-300 ease-in-out ${!isLoginPage ? 'pt-16' : ''} pl-0 w-full min-h-screen`}
@@ -266,6 +266,7 @@ function Shell() {
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="owner">
             <Route element={<OwnerLayout />}>
+              <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<OwnerDashboard />} />
               <Route path="courts" element={<OwnerCourts />} />
               <Route path="schedule" element={<OwnerSchedule />} />

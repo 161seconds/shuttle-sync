@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ownerApi } from '../../services/ownerApi';
 import { Loader2, Calendar, User, Phone, Clock, CheckCircle, XCircle } from 'lucide-react';
 import dayjs from 'dayjs';
+import { getBookingStatusConfig } from '../../utils/bookingStatus';
 
 export const OwnerBookings = () => {
     const [bookings, setBookings] = useState<any[]>([]);
@@ -106,23 +107,13 @@ export const OwnerBookings = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        {booking.status === 'confirmed' ? (
-                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                                <CheckCircle className="w-3.5 h-3.5" /> Thành công
-                                            </span>
-                                        ) : booking.status === 'completed' ? (
-                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                                <CheckCircle className="w-3.5 h-3.5" /> Hoàn thành
-                                            </span>
-                                        ) : booking.status === 'cancelled' ? (
-                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
-                                                <XCircle className="w-3.5 h-3.5" /> Đã hủy
-                                            </span>
-                                        ) : (
-                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                                <Clock className="w-3.5 h-3.5" /> {booking.status}
-                                            </span>
-                                        )}
+                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${getBookingStatusConfig(booking.status).bg} ${getBookingStatusConfig(booking.status).color}`}>
+                                            {booking.status === 'confirmed' ? <CheckCircle className="w-3.5 h-3.5" /> : 
+                                             booking.status === 'completed' ? <CheckCircle className="w-3.5 h-3.5" /> : 
+                                             booking.status === 'cancelled' ? <XCircle className="w-3.5 h-3.5" /> : 
+                                             <Clock className="w-3.5 h-3.5" />}
+                                            {getBookingStatusConfig(booking.status).label}
+                                        </span>
                                     </td>
                                 </tr>
                             ))}

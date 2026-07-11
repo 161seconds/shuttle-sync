@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import {
     ShoppingCart, DollarSign, Activity,
@@ -12,6 +13,7 @@ import {
 import { adminApi } from '../../api/admin.api';
 import dayjs from 'dayjs';
 import { EmojiIcon } from '../../components/EmojiIcon';
+import { getBookingStatusConfig } from '../../utils/bookingStatus';
 
 const IDEAS = [
     {
@@ -33,6 +35,8 @@ export default function AdminDashboard() {
     const [currentIdea, setCurrentIdea] = useState(0);
     const [stats, setStats] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [recentPage, setRecentPage] = useState(1);
+    const RECENT_PAGE_SIZE = 5;
 
     // Quản lý trạng thái Modal
     const [activeModal, setActiveModal] = useState<'none' | 'marketing' | 'allBookings' | 'bookingDetail' | 'courtDetail' | 'chartDetail'>('none');
@@ -97,7 +101,7 @@ export default function AdminDashboard() {
 
     if (loading) {
         return (
-            <div className="w-full h-[calc(100vh-76px)] flex items-center justify-center bg-background">
+            <div className="w-full h-[calc(100vh-76px)] flex items-center justify-center bg-transparent">
                 <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
             </div>
         );
@@ -105,8 +109,11 @@ export default function AdminDashboard() {
 
     const {
         totalUsers, totalCourts, totalBookings, totalRevenue,
-        bookingTrend, topCourts, recentBookings, bookingRatio, userGrowth
+        bookingTrend, topCourts, recentBookings: rawRecentBookings, bookingRatio, userGrowth
     } = stats || {};
+
+    const totalRecentPages = Math.ceil((rawRecentBookings?.length || 0) / RECENT_PAGE_SIZE);
+    const recentBookings = rawRecentBookings?.slice((recentPage - 1) * RECENT_PAGE_SIZE, recentPage * RECENT_PAGE_SIZE);
 
     const chartData = (bookingTrend || []).map((item: any) => ({
         name: dayjs(item.date).format('DD/MM'),
@@ -145,18 +152,36 @@ export default function AdminDashboard() {
     const totalPieValue = pieData.reduce((acc: number, cur: any) => acc + cur.value, 0);
 
     return (
-        <div className="w-full h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar p-6 bg-background text-muted-foreground font-sans">
+        <div className="w-full h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar p-6 text-muted-foreground font-sans relative z-0 bg-[#0a0f16]">
+            {/* Background elements độc quyền lấy từ Owner */}
+            <div className="fixed inset-0 z-[-1] pointer-events-none">
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-[#0a0f16] to-[#0a0f16]"></div>
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/10 blur-[120px]"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-500/10 blur-[120px]"></div>
+                
+                {/* Dot grid mờ ảo */}
+                <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
+                
+                {/* Giant Subtle Background Icons */}
+                <div className="absolute top-[-15%] -left-[20%] opacity-[0.08] dark:opacity-[0.05] animate-[spin_120s_linear_infinite] pointer-events-none">
+                    <EmojiIcon name="badminton" className="w-[800px] h-[800px] grayscale" />
+                </div>
+                <div className="absolute -bottom-[25%] -right-[20%] opacity-[0.08] dark:opacity-[0.05] animate-[spin_90s_linear_infinite_reverse] pointer-events-none">
+                    <EmojiIcon name="pickleball" className="w-[600px] h-[600px] grayscale" />
+                </div>
+            </div>
             <div className="max-w-400 mx-auto space-y-6 pb-12">
 
                 {/* ================= HÀNG 1: WELCOME & IDEAS ================= */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                    <div className="lg:col-span-2 rounded-3xl p-8 lg:p-10 bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-800 dark:from-emerald-950 dark:via-black dark:to-[#052e16] border border-emerald-500/30 flex flex-col justify-center relative overflow-hidden shadow-[0_0_50px_-12px_rgba(16,185,129,0.3)]">
-                        <div className="absolute -right-20 -top-20 w-80 h-80 bg-white/20 dark:bg-emerald-500/20 rounded-full blur-[100px]"></div>
-                        <div className="absolute left-10 -bottom-20 w-64 h-64 bg-black/10 dark:bg-emerald-700/20 rounded-full blur-[80px]"></div>
+                    <div className="lg:col-span-2 rounded-3xl p-8 lg:p-10 bg-white/50 dark:bg-black/20 backdrop-blur-3xl border border-black/5 dark:border-emerald-500/20 flex flex-col justify-center relative overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.05)] dark:shadow-[0_0_50px_-12px_rgba(16,185,129,0.15)]">
+                        {/* Hiệu ứng loang màu */}
+                        <div className="absolute -right-10 -top-20 w-80 h-80 bg-emerald-500/20 dark:bg-emerald-500/15 rounded-full blur-[100px] pointer-events-none"></div>
+                        <div className="absolute left-[-10%] -bottom-20 w-80 h-80 bg-indigo-500/20 dark:bg-indigo-500/15 rounded-full blur-[100px] pointer-events-none"></div>
 
-                        <h2 className="text-4xl lg:text-5xl font-black text-white mb-4 tracking-tight relative z-10 leading-tight">Xin chào {user?.displayName || 'Admin'},</h2>
-                        <p className="text-emerald-50 max-w-xl text-[15px] font-medium leading-relaxed mb-10 relative z-10">
+                        <h2 className="text-4xl lg:text-5xl font-black text-foreground mb-4 tracking-tight relative z-10 leading-tight">Xin chào {user?.displayName || 'Admin'},</h2>
+                        <p className="text-muted-foreground max-w-xl text-[15px] font-medium leading-relaxed mb-10 relative z-10">
                             Chào mừng đến với Bảng điều khiển ShuttleSync! Theo dõi doanh thu, quản lý sân và nắm bắt mọi thông tin chi tiết về hệ thống một cách trực quan.
                         </p>
                         <button
@@ -316,7 +341,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* ================= HÀNG 4: BẢNG DỮ LIỆU VÀ SÂN HOT ================= */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                     <div className="lg:col-span-2 rounded-3xl p-7 bg-white/50 dark:bg-black/40 backdrop-blur-3xl border border-black/5 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.05)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)] flex flex-col min-w-0">
                         <div className="flex items-center justify-between mb-6 shrink-0">
                             <h3 className="text-lg font-black uppercase tracking-wider text-foreground">Đơn đặt gần đây</h3>
@@ -327,19 +352,19 @@ export default function AdminDashboard() {
                                 Xem toàn bộ
                             </button>
                         </div>
-                        <div className="overflow-x-auto flex-1">
+                        <div className="overflow-x-auto bg-black/5 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5">
                             <table className="w-full text-left text-sm whitespace-nowrap">
-                                <thead className="text-muted-foreground border-b border-border">
-                                <tr>
-                                    <th className="pb-4 font-semibold">Mã đơn</th>
-                                    <th className="pb-4 font-semibold">Khách</th>
-                                    <th className="pb-4 font-semibold">Số tiền</th>
-                                    <th className="pb-4 font-semibold">Ngày</th>
-                                    <th className="pb-4 font-semibold">Trạng thái</th>
-                                    <th className="pb-4 font-semibold text-right">Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border">
+                                <thead>
+                                    <tr className="text-[11px] font-black uppercase tracking-widest text-emerald-700/70 dark:text-emerald-100/40 border-b border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5">
+                                        <th className="px-4 py-4 rounded-tl-2xl">Mã đơn</th>
+                                        <th className="px-4 py-4">Khách</th>
+                                        <th className="px-4 py-4">Số tiền</th>
+                                        <th className="px-4 py-4">Ngày</th>
+                                        <th className="px-4 py-4">Trạng thái</th>
+                                        <th className="px-4 py-4 text-right rounded-tr-2xl">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-black/5 dark:divide-white/5">
                                 {recentBookings?.map((booking: any) => (
                                     <TableRow 
                                         key={booking._id}
@@ -347,8 +372,8 @@ export default function AdminDashboard() {
                                         amount={`${booking.finalAmount?.toLocaleString()}đ`}
                                         type={booking.userId?.displayName || 'Khách vãng lai'}
                                         date={dayjs(booking.date).format('DD/MM')}
-                                        status={booking.status === 'confirmed' ? 'Đã xác nhận' : booking.status === 'cancelled' ? 'Đã hủy' : 'Chờ xử lý'}
-                                        color={booking.status === 'confirmed' ? 'emerald' : booking.status === 'cancelled' ? 'red' : 'orange'}
+                                        status={getBookingStatusConfig(booking.status).label}
+                                        colorConfig={getBookingStatusConfig(booking.status)}
                                         onView={() => handleViewOrder(booking)}
                                     />
                                 ))}
@@ -359,6 +384,29 @@ export default function AdminDashboard() {
                                 )}
                             </tbody>
                         </table>
+                        {totalRecentPages > 1 && (
+                            <div className="flex items-center justify-between p-4 border-t border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5 rounded-b-2xl">
+                                <span className="text-xs text-muted-foreground font-medium">
+                                    Hiển thị {(recentPage - 1) * RECENT_PAGE_SIZE + 1} - {Math.min(recentPage * RECENT_PAGE_SIZE, rawRecentBookings?.length || 0)} trong {rawRecentBookings?.length} đơn
+                                </span>
+                                <div className="flex gap-2">
+                                    <button 
+                                        onClick={() => setRecentPage(p => Math.max(1, p - 1))}
+                                        disabled={recentPage === 1}
+                                        className="p-1.5 rounded-lg bg-white/5 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-emerald-500 hover:text-black transition-colors"
+                                    >
+                                        <ChevronLeft className="w-4 h-4" />
+                                    </button>
+                                    <button 
+                                        onClick={() => setRecentPage(p => Math.min(totalRecentPages, p + 1))}
+                                        disabled={recentPage === totalRecentPages}
+                                        className="p-1.5 rounded-lg bg-white/5 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-emerald-500 hover:text-black transition-colors"
+                                    >
+                                        <ChevronRight className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                         </div>
                     </div>
 
@@ -423,25 +471,28 @@ function StatCard({ title, value, trend, isPositive, icon, iconBg }: any) {
     )
 }
 
-function TableRow({ id, amount, type, date, status, color, onView }: any) {
-    const bgMap: any = {
-        blue: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
-        orange: 'bg-orange-500/10 text-orange-400 border border-orange-500/20',
-        red: 'bg-red-500/10 text-red-400 border border-red-500/20',
-        emerald: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
-    };
+function TableRow({ id, amount, type, date, status, colorConfig, onView }: any) {
     return (
-        <tr className="hover:bg-emerald-500/5 transition-colors">
-            <td className="py-4 text-muted-foreground font-medium">{id}</td>
-            <td className="py-4 text-muted-foreground">{type}</td>
-            <td className="py-4 text-emerald-400 font-bold">{amount}</td>
-            <td className="py-4 text-muted-foreground">{date}</td>
-            <td className="py-4">
-                <span className={`px-2.5 py-1 rounded text-[10px] font-bold tracking-wide uppercase ${bgMap[color]}`}>{status}</span>
+        <tr className="hover:bg-emerald-500/10 transition-colors group">
+            <td className="px-4 py-4 text-muted-foreground font-medium group-hover:text-emerald-700 dark:group-hover:text-emerald-50 transition-colors">{id}</td>
+            <td className="px-4 py-4 text-muted-foreground group-hover:text-emerald-700 dark:group-hover:text-emerald-50 transition-colors">
+                <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-emerald-500 dark:text-emerald-400 group-hover:bg-emerald-500/20 transition-colors shrink-0">
+                        <UserIcon className="w-3 h-3" />
+                    </div>
+                    {type}
+                </div>
             </td>
-            <td className="py-4 text-right">
-                <button onClick={onView} className="px-3.5 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-100/70 text-xs font-bold hover:bg-emerald-500/20 hover:text-emerald-400 transition-colors active:scale-95">
-                    Xem
+            <td className="px-4 py-4 text-emerald-600 dark:text-emerald-400 font-bold">{amount}</td>
+            <td className="px-4 py-4 text-muted-foreground group-hover:text-emerald-700/70 dark:group-hover:text-emerald-50/70 transition-colors">{date}</td>
+            <td className="px-4 py-4">
+                <span className={`px-2.5 py-1 rounded text-[10px] font-bold tracking-wide uppercase ${colorConfig?.bg} ${colorConfig?.color}`}>
+                    {status}
+                </span>
+            </td>
+            <td className="px-4 py-4 text-right">
+                <button onClick={onView} className="px-4 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 text-muted-foreground dark:text-gray-300 text-xs font-bold hover:bg-emerald-500 hover:text-white dark:hover:text-black hover:shadow-[0_0_20px_-5px_rgba(16,185,129,0.5)] transition-all active:scale-95">
+                    Xem chi tiết
                 </button>
             </td>
         </tr>
@@ -466,13 +517,14 @@ function TopCourt({ name, bookings, revenue, status, statusColor, onClick }: any
     )
 }
 function ModalWrapper({ title, onClose, children, maxWidth = "max-w-2xl" }: { title: string, onClose: () => void, children: React.ReactNode, maxWidth?: string }) {
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300">
-            <div className={`w-full ${maxWidth} bg-white/90 dark:bg-black/80 backdrop-blur-3xl border border-black/5 dark:border-white/10 rounded-3xl shadow-[0_0_60px_-15px_rgba(16,185,129,0.3)] overflow-hidden flex flex-col max-h-[90vh]`}>
-                <div className="flex items-center justify-between p-6 border-b border-black/5 dark:border-white/5 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-[#0a0f16]/80 backdrop-blur-md animate-in fade-in duration-300">
+            <div className={`w-full ${maxWidth} bg-white/95 dark:bg-[#0a0f16]/95 backdrop-blur-3xl border border-black/5 dark:border-emerald-500/20 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col max-h-[90vh]`}>
+                <div className="flex items-center justify-between p-6 border-b border-black/5 dark:border-emerald-500/10 relative overflow-hidden">
+                    <div className="absolute top-[-50%] right-[-10%] w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none"></div>
+                    <div className="absolute bottom-[-50%] left-[-10%] w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none"></div>
                     <h2 className="text-xl font-black text-foreground relative z-10">{title}</h2>
-                    <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full bg-surface border border-black/5 dark:border-white/5 text-muted-foreground hover:text-foreground dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors relative z-10 shadow-inner">
+                    <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full bg-surface border border-black/5 dark:border-white/5 text-muted-foreground hover:text-foreground dark:hover:text-white hover:bg-black/5 dark:hover:bg-emerald-500/20 transition-colors relative z-10 shadow-inner">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
@@ -480,7 +532,8 @@ function ModalWrapper({ title, onClose, children, maxWidth = "max-w-2xl" }: { ti
                     {children}
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
 
@@ -610,27 +663,34 @@ function AllBookingsModal({ onClose }: { onClose: () => void }) {
             {loading ? (
                 <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 text-emerald-500 animate-spin" /></div>
             ) : (
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto bg-black/5 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5">
                     <table className="w-full text-left text-sm whitespace-nowrap">
-                        <thead className="text-muted-foreground border-b border-border">
-                            <tr>
-                                <th className="pb-4 font-semibold">Mã đơn</th>
-                                <th className="pb-4 font-semibold">Khách</th>
-                                <th className="pb-4 font-semibold">Số tiền</th>
-                                <th className="pb-4 font-semibold">Ngày đặt</th>
-                                <th className="pb-4 font-semibold">Trạng thái</th>
+                        <thead>
+                            <tr className="text-[11px] font-black uppercase tracking-widest text-emerald-700/70 dark:text-emerald-100/40 border-b border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5">
+                                <th className="px-4 py-4 rounded-tl-2xl">Mã đơn</th>
+                                <th className="px-4 py-4">Khách</th>
+                                <th className="px-4 py-4">Số tiền</th>
+                                <th className="px-4 py-4">Ngày đặt</th>
+                                <th className="px-4 py-4 rounded-tr-2xl">Trạng thái</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-border">
+                        <tbody className="divide-y divide-black/5 dark:divide-white/5">
                             {bookings.map((booking: any) => (
-                                <tr key={booking._id} className="hover:bg-emerald-500/5 transition-colors">
-                                    <td className="py-4 text-muted-foreground font-medium">#{booking.bookingCode}</td>
-                                    <td className="py-4 text-muted-foreground">{booking.userId?.displayName || 'N/A'}</td>
-                                    <td className="py-4 text-emerald-400 font-bold">{booking.finalAmount?.toLocaleString()}đ</td>
-                                    <td className="py-4 text-muted-foreground">{dayjs(booking.date).format('DD/MM/YYYY')}</td>
-                                    <td className="py-4">
-                                        <span className={`px-2.5 py-1 rounded text-[10px] font-bold tracking-wide uppercase ${booking.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : booking.status === 'cancelled' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-orange-500/10 text-orange-400 border border-orange-500/20'}`}>
-                                            {booking.status}
+                                <tr key={booking._id} className="hover:bg-emerald-500/10 transition-colors group">
+                                    <td className="px-4 py-4 text-muted-foreground font-medium group-hover:text-emerald-700 dark:group-hover:text-emerald-50 transition-colors">#{booking.bookingCode}</td>
+                                    <td className="px-4 py-4 text-muted-foreground group-hover:text-emerald-700 dark:group-hover:text-emerald-50 transition-colors">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-6 h-6 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-emerald-500 dark:text-emerald-400 group-hover:bg-emerald-500/20 transition-colors shrink-0">
+                                                <UserIcon className="w-3 h-3" />
+                                            </div>
+                                            {booking.userId?.displayName || 'N/A'}
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-4 text-emerald-600 dark:text-emerald-400 font-bold">{booking.finalAmount?.toLocaleString()}đ</td>
+                                    <td className="px-4 py-4 text-muted-foreground group-hover:text-emerald-700/70 dark:group-hover:text-emerald-50/70 transition-colors">{dayjs(booking.date).format('DD/MM/YYYY')}</td>
+                                    <td className="px-4 py-4">
+                                        <span className={`px-2.5 py-1 rounded text-[10px] font-bold tracking-wide uppercase ${getBookingStatusConfig(booking.status).bg} ${getBookingStatusConfig(booking.status).color}`}>
+                                            {getBookingStatusConfig(booking.status).label}
                                         </span>
                                     </td>
                                 </tr>
@@ -689,29 +749,36 @@ function ChartDetailModal({ data, onClose }: { data: any, onClose: () => void })
                     {loading ? (
                         <div className="flex justify-center py-6"><Loader2 className="w-8 h-8 text-emerald-500 animate-spin" /></div>
                     ) : (
-                        <div className="overflow-x-auto rounded-xl border border-border bg-background/50">
+                        <div className="overflow-x-auto bg-black/5 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5">
                             <table className="w-full text-left text-sm whitespace-nowrap">
-                                <thead className="text-muted-foreground border-b border-border bg-muted/50">
-                                    <tr>
-                                        <th className="p-4 font-semibold">Mã đơn</th>
-                                        <th className="p-4 font-semibold">Khách</th>
-                                        <th className="p-4 font-semibold">Sân</th>
-                                        <th className="p-4 font-semibold">Thời gian</th>
-                                        <th className="p-4 font-semibold">Số tiền</th>
-                                        <th className="p-4 font-semibold">Trạng thái</th>
+                                <thead>
+                                    <tr className="text-[11px] font-black uppercase tracking-widest text-emerald-700/70 dark:text-emerald-100/40 border-b border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5">
+                                        <th className="px-4 py-4 rounded-tl-2xl">Mã đơn</th>
+                                        <th className="px-4 py-4">Khách</th>
+                                        <th className="px-4 py-4">Sân</th>
+                                        <th className="px-4 py-4">Thời gian</th>
+                                        <th className="px-4 py-4">Số tiền</th>
+                                        <th className="px-4 py-4 rounded-tr-2xl">Trạng thái</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-border">
+                                <tbody className="divide-y divide-black/5 dark:divide-white/5">
                                     {bookings.map((booking: any) => (
-                                        <tr key={booking._id} className="hover:bg-emerald-500/5 transition-colors">
-                                            <td className="p-4 text-muted-foreground font-medium">#{booking.bookingCode}</td>
-                                            <td className="p-4 text-foreground font-semibold">{booking.userId?.displayName || 'N/A'}</td>
-                                            <td className="p-4 text-muted-foreground">{booking.courtId?.name || 'N/A'}</td>
-                                            <td className="p-4 text-muted-foreground">{booking.startTime} - {booking.endTime}</td>
-                                            <td className="p-4 text-emerald-400 font-bold">{booking.finalAmount?.toLocaleString()}đ</td>
-                                            <td className="p-4">
-                                                <span className={`px-2.5 py-1 rounded text-[10px] font-bold tracking-wide uppercase ${booking.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : booking.status === 'cancelled' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-orange-500/10 text-orange-400 border border-orange-500/20'}`}>
-                                                    {booking.status}
+                                        <tr key={booking._id} className="hover:bg-emerald-500/10 transition-colors group">
+                                            <td className="px-4 py-4 text-muted-foreground font-medium group-hover:text-emerald-700 dark:group-hover:text-emerald-50 transition-colors">#{booking.bookingCode}</td>
+                                            <td className="px-4 py-4 text-muted-foreground group-hover:text-emerald-700 dark:group-hover:text-emerald-50 transition-colors">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-6 h-6 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-emerald-500 dark:text-emerald-400 group-hover:bg-emerald-500/20 transition-colors shrink-0">
+                                                        <UserIcon className="w-3 h-3" />
+                                                    </div>
+                                                    {booking.userId?.displayName || 'N/A'}
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-4 text-muted-foreground group-hover:text-emerald-700 dark:group-hover:text-emerald-50 transition-colors">{booking.courtId?.name || 'N/A'}</td>
+                                            <td className="px-4 py-4 text-muted-foreground group-hover:text-emerald-700/70 dark:group-hover:text-emerald-50/70 transition-colors">{booking.startTime} - {booking.endTime}</td>
+                                            <td className="px-4 py-4 text-emerald-600 dark:text-emerald-400 font-bold">{booking.finalAmount?.toLocaleString()}đ</td>
+                                            <td className="px-4 py-4">
+                                                <span className={`px-2.5 py-1 rounded text-[10px] font-bold tracking-wide uppercase ${getBookingStatusConfig(booking.status).bg} ${getBookingStatusConfig(booking.status).color}`}>
+                                                    {getBookingStatusConfig(booking.status).label}
                                                 </span>
                                             </td>
                                         </tr>
