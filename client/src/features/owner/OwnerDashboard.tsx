@@ -8,7 +8,7 @@ export const OwnerDashboard = () => {
     const [stats, setStats] = useState<OwnerStats | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedDay, setSelectedDay] = useState<any>(null);
-    const [daySchedule, setDaySchedule] = useState<{bookings: any[], isLoading: boolean} | null>(null);
+    const [daySchedule, setDaySchedule] = useState<{ bookings: any[], isLoading: boolean } | null>(null);
 
     useEffect(() => {
         ownerApi.getStats()
@@ -46,9 +46,9 @@ export const OwnerDashboard = () => {
             <div className={`p-4 rounded-xl ${color}`}>
                 <Icon className="w-6 h-6 text-white" />
             </div>
-            <div>
-                <p className="text-gray-400 text-sm font-medium">{title}</p>
-                <h3 className="text-2xl font-bold text-white">{value}</h3>
+            <div className="flex-1 min-w-0">
+                <p className="text-gray-400 text-sm font-medium truncate">{title}</p>
+                <h3 className="text-xl xl:text-2xl font-bold text-white truncate" title={String(value)}>{value}</h3>
             </div>
         </div>
     );
@@ -61,6 +61,13 @@ export const OwnerDashboard = () => {
         } catch {
             return dateStr;
         }
+    };
+
+    const formatCompactCurrency = (value: number) => {
+        return new Intl.NumberFormat('en-US', {
+            notation: "compact",
+            maximumFractionDigits: 1
+        }).format(value).replace('K', 'k') + 'đ';
     };
 
     const CustomTooltip = ({ active, payload, label }: any) => {
@@ -99,26 +106,26 @@ export const OwnerDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard 
-                    title="Tổng Doanh Thu" 
-                    value={`${stats.totalRevenue.toLocaleString()}đ`}
+                <StatCard
+                    title="Tổng Doanh Thu"
+                    value={formatCompactCurrency(stats.totalRevenue)}
                     icon={DollarSign}
                     color="bg-emerald-500/20 text-emerald-500"
                 />
-                <StatCard 
-                    title="Lượt Đặt Sân" 
+                <StatCard
+                    title="Lượt Đặt Sân"
                     value={stats.totalBookings}
                     icon={CalendarCheck}
                     color="bg-emerald-500/20 text-emerald-500"
                 />
-                <StatCard 
-                    title="Tổng Số Sân" 
+                <StatCard
+                    title="Tổng Số Sân"
                     value={stats.totalCourts}
                     icon={Building2}
                     color="bg-emerald-500/20 text-emerald-500"
                 />
-                <StatCard 
-                    title="Khách Hàng (Tạm tính)" 
+                <StatCard
+                    title="Khách Hàng (Tạm tính)"
                     value={stats.recentBookings.length}
                     icon={Users}
                     color="bg-teal-500/20 text-teal-500"
@@ -129,10 +136,10 @@ export const OwnerDashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-2xl p-6 transition-all hover:border-emerald-500/20">
                     <h3 className="text-xl font-bold text-white mb-6">Xu Hướng Doanh Thu (30 Ngày)</h3>
-                    <div className="h-80 w-full">
+                    <div className="h-80 w-full min-w-0">
                         {stats.venueSports && stats.venueSports.length > 1 ? (
                             <ResponsiveContainer width="100%" height="100%">
-                                <LineChart 
+                                <LineChart
                                     data={stats.bookingTrendBySport}
                                     onClick={(e: any) => {
                                         if (!e) return;
@@ -158,7 +165,7 @@ export const OwnerDashboard = () => {
                                     <XAxis dataKey="date" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} tickFormatter={formatShortDate} />
                                     <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value / 1000}k`} />
                                     <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#374151', strokeWidth: 1, strokeDasharray: '4 4' }} />
-                                    <Legend wrapperStyle={{ paddingTop: '20px' }}/>
+                                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
                                     {stats.venueSports.includes('PICKLEBALL') && <Line type="monotone" dataKey="PICKLEBALL" name="Pickleball" stroke="#10b981" strokeWidth={3} dot={false} activeDot={{ r: 6, stroke: '#10b981', strokeWidth: 2, fill: '#1f2937' }} />}
                                     {stats.venueSports.includes('BADMINTON') && <Line type="monotone" dataKey="BADMINTON" name="Cầu Lông" stroke="#f59e0b" strokeWidth={3} dot={false} activeDot={{ r: 6, stroke: '#f59e0b', strokeWidth: 2, fill: '#1f2937' }} />}
                                     {stats.venueSports.includes('TENNIS') && <Line type="monotone" dataKey="TENNIS" name="Tennis" stroke="#3b82f6" strokeWidth={3} dot={false} activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2, fill: '#1f2937' }} />}
@@ -166,7 +173,7 @@ export const OwnerDashboard = () => {
                             </ResponsiveContainer>
                         ) : (
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart 
+                                <AreaChart
                                     data={stats.bookingTrend}
                                     onClick={(e: any) => {
                                         if (!e) return;
@@ -189,8 +196,8 @@ export const OwnerDashboard = () => {
                                 >
                                     <defs>
                                         <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
@@ -206,10 +213,10 @@ export const OwnerDashboard = () => {
 
                 <div className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-2xl p-6 transition-all hover:border-emerald-500/20">
                     <h3 className="text-xl font-bold text-white mb-6">Tình Trạng Lịch Đặt</h3>
-                    <div className="h-80 w-full">
+                    <div className="h-80 w-full min-w-0">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={stats.bookingsByStatus} layout="vertical" margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#374151" horizontal={true} vertical={false}/>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#374151" horizontal={true} vertical={false} />
                                 <XAxis type="number" stroke="#9ca3af" fontSize={12} />
                                 <YAxis dataKey="name" type="category" stroke="#9ca3af" fontSize={12} tickFormatter={(val) => {
                                     const v = String(val).toLowerCase();
@@ -218,10 +225,10 @@ export const OwnerDashboard = () => {
                                     if (v === 'cancelled') return 'Đã hủy';
                                     if (v === 'completed') return 'Hoàn tất';
                                     return val;
-                                }}/>
-                                <Tooltip 
+                                }} />
+                                <Tooltip
                                     contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px', color: '#fff' }}
-                                    cursor={{fill: '#374151', opacity: 0.4}}
+                                    cursor={{ fill: '#374151', opacity: 0.4 }}
                                     formatter={(value: number) => [value, 'Số lượng']}
                                 />
                                 <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={30}>
@@ -250,28 +257,28 @@ export const OwnerDashboard = () => {
                     {stats.recentBookings.map((booking: any) => {
                         const statusKey = String(booking.status).toLowerCase();
                         return (
-                        <div key={booking._id} className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-emerald-500/30 hover:bg-white/10 transition-colors shadow-inner">
-                            <img src={booking.userId?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=user"} className="w-12 h-12 rounded-full border border-white/10 shadow-sm" alt="avatar" />
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-bold text-white truncate">{booking.userId?.displayName || 'Khách Vãng Lai'}</p>
-                                <p className="text-xs text-gray-400 mt-0.5 truncate">{booking.subCourtId?.name || 'Sân VIP'} • {new Date(booking.date).toLocaleDateString('vi-VN')} {booking.startTime}</p>
+                            <div key={booking._id} className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-emerald-500/30 hover:bg-white/10 transition-colors shadow-inner">
+                                <img src={booking.userId?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=user"} className="w-12 h-12 rounded-full border border-white/10 shadow-sm" alt="avatar" />
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-bold text-white truncate">{booking.userId?.displayName || 'Khách Vãng Lai'}</p>
+                                    <p className="text-xs text-gray-400 mt-0.5 truncate">{booking.subCourtId?.name || 'Sân VIP'} • {new Date(booking.date).toLocaleDateString('vi-VN')} {booking.startTime}</p>
+                                </div>
+                                <div className="text-right whitespace-nowrap">
+                                    <p className={`text-sm font-bold ${statusKey === 'pending_payment' ? 'text-yellow-500' : statusKey === 'cancelled' ? 'text-red-400 line-through opacity-70' : 'text-emerald-400'}`}>{booking.finalAmount.toLocaleString()}đ</p>
+                                    <span className={`inline-block px-2 py-0.5 mt-1 rounded-full text-[10px] font-medium border uppercase ${statusKey === 'confirmed'
+                                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                                            : statusKey === 'completed'
+                                                ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                                : statusKey === 'cancelled'
+                                                    ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                                                    : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                                        }`}>
+                                        {statusKey === 'confirmed' ? 'Đã chốt' : statusKey === 'completed' ? 'Hoàn thành' : statusKey === 'cancelled' ? 'Đã hủy' : statusKey === 'pending_payment' ? 'Chờ thanh toán' : booking.status}
+                                    </span>
+                                </div>
                             </div>
-                            <div className="text-right whitespace-nowrap">
-                                <p className={`text-sm font-bold ${statusKey === 'pending_payment' ? 'text-yellow-500' : statusKey === 'cancelled' ? 'text-red-400 line-through opacity-70' : 'text-emerald-400'}`}>{booking.finalAmount.toLocaleString()}đ</p>
-                                <span className={`inline-block px-2 py-0.5 mt-1 rounded-full text-[10px] font-medium border uppercase ${
-                                    statusKey === 'confirmed'
-                                        ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                                        : statusKey === 'completed'
-                                            ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                                        : statusKey === 'cancelled'
-                                            ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                                            : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
-                                }`}>
-                                    {statusKey === 'confirmed' ? 'Đã chốt' : statusKey === 'completed' ? 'Hoàn thành' : statusKey === 'cancelled' ? 'Đã hủy' : statusKey === 'pending_payment' ? 'Chờ thanh toán' : booking.status}
-                                </span>
-                            </div>
-                        </div>
-                    )})}
+                        )
+                    })}
                     {stats.recentBookings.length === 0 && (
                         <div className="col-span-full py-8 text-center text-gray-400">
                             Chưa có đơn đặt nào.
@@ -283,20 +290,20 @@ export const OwnerDashboard = () => {
             {/* Modal for Chart Details */}
             {selectedDay && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md" onClick={() => setSelectedDay(null)}>
-                    <div 
+                    <div
                         className="bg-[#0a0f16]/90 backdrop-blur-3xl rounded-3xl border border-white/10 w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-[0_10px_50px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in-95 duration-200"
                         onClick={e => e.stopPropagation()}
                     >
                         <div className="p-5 border-b border-white/5 flex justify-between items-center bg-white/5 shrink-0">
                             <h2 className="text-xl font-bold text-white">Báo cáo chi tiết ngày {new Date(selectedDay.date).toLocaleDateString('vi-VN')}</h2>
-                            <button 
+                            <button
                                 onClick={() => setSelectedDay(null)}
                                 className="p-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/10 rounded-lg transition-colors shadow-sm"
                             >
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-                        
+
                         <div className="flex flex-col md:flex-row flex-1 min-h-0 overflow-hidden">
                             {/* Left column: Stats */}
                             <div className="w-full md:w-1/3 p-5 border-b md:border-b-0 md:border-r border-white/5 bg-transparent overflow-y-auto custom-scrollbar space-y-6">
@@ -330,7 +337,7 @@ export const OwnerDashboard = () => {
                                                     {Math.round(daySchedule.bookings.reduce((sum: number, b: any) => sum + (b.finalAmount || 0), 0) / daySchedule.bookings.length).toLocaleString()}đ
                                                 </p>
                                             </div>
-                                            
+
                                             {(() => {
                                                 const hourCounts: Record<string, number> = {};
                                                 daySchedule.bookings.forEach((b: any) => {
@@ -342,7 +349,7 @@ export const OwnerDashboard = () => {
                                                     <div className="p-4 rounded-xl bg-white/5 border border-white/10 shadow-inner">
                                                         <p className="text-xs text-gray-400 mb-1">Giờ cao điểm</p>
                                                         <p className="text-lg font-bold text-orange-400">
-                                                            {peakHour}:00 - {parseInt(peakHour)+1}:00
+                                                            {peakHour}:00 - {parseInt(peakHour) + 1}:00
                                                         </p>
                                                         <p className="text-xs text-gray-500 mt-1">{hourCounts[peakHour]} lượt đặt</p>
                                                     </div>
@@ -358,7 +365,7 @@ export const OwnerDashboard = () => {
                                 <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 flex items-center justify-between">
                                     <span>Danh sách Đơn Đặt ({daySchedule?.bookings.length || 0})</span>
                                 </h3>
-                                
+
                                 {daySchedule?.isLoading ? (
                                     <div className="flex justify-center items-center h-40">
                                         <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
@@ -373,38 +380,38 @@ export const OwnerDashboard = () => {
                                         {daySchedule?.bookings.map((booking: any) => {
                                             const statusKey = String(booking.status).toLowerCase();
                                             return (
-                                            <div key={booking._id} className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-emerald-500/30 hover:bg-white/10 transition-colors shadow-inner group">
-                                                <div className="flex flex-col items-center justify-center w-16 h-16 rounded-xl bg-black/40 border border-white/10 shrink-0 shadow-inner">
-                                                    <span className="text-sm font-black text-emerald-400">{booking.startTime}</span>
-                                                    <span className="text-[10px] text-gray-500 font-medium">{booking.endTime}</span>
+                                                <div key={booking._id} className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-emerald-500/30 hover:bg-white/10 transition-colors shadow-inner group">
+                                                    <div className="flex flex-col items-center justify-center w-16 h-16 rounded-xl bg-black/40 border border-white/10 shrink-0 shadow-inner">
+                                                        <span className="text-sm font-black text-emerald-400">{booking.startTime}</span>
+                                                        <span className="text-[10px] text-gray-500 font-medium">{booking.endTime}</span>
+                                                    </div>
+
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-base font-bold text-white truncate flex items-center gap-2">
+                                                            {booking.userId?.displayName || 'Khách Vãng Lai'}
+                                                        </p>
+                                                        <p className="text-sm text-gray-400 mt-1 truncate flex items-center gap-2">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                                            {booking.subCourtId?.name || 'Sân VIP'}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="text-right shrink-0">
+                                                        <p className={`text-base font-bold ${statusKey === 'pending_payment' ? 'text-yellow-500' : statusKey === 'cancelled' ? 'text-red-400 line-through opacity-70' : 'text-emerald-400'}`}>{booking.finalAmount.toLocaleString()}đ</p>
+                                                        <span className={`inline-block px-2.5 py-1 mt-1.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${statusKey === 'confirmed'
+                                                                ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                                                                : statusKey === 'completed'
+                                                                    ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                                                    : statusKey === 'cancelled'
+                                                                        ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                                                                        : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                                                            }`}>
+                                                            {statusKey === 'confirmed' ? 'Đã chốt' : statusKey === 'completed' ? 'Hoàn thành' : statusKey === 'cancelled' ? 'Đã hủy' : statusKey === 'pending_payment' ? 'Chờ thanh toán' : booking.status}
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                                
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-base font-bold text-white truncate flex items-center gap-2">
-                                                        {booking.userId?.displayName || 'Khách Vãng Lai'}
-                                                    </p>
-                                                    <p className="text-sm text-gray-400 mt-1 truncate flex items-center gap-2">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> 
-                                                        {booking.subCourtId?.name || 'Sân VIP'}
-                                                    </p>
-                                                </div>
-                                                
-                                                <div className="text-right shrink-0">
-                                                    <p className={`text-base font-bold ${statusKey === 'pending_payment' ? 'text-yellow-500' : statusKey === 'cancelled' ? 'text-red-400 line-through opacity-70' : 'text-emerald-400'}`}>{booking.finalAmount.toLocaleString()}đ</p>
-                                                    <span className={`inline-block px-2.5 py-1 mt-1.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${
-                                                        statusKey === 'confirmed'
-                                                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                                                            : statusKey === 'completed'
-                                                                ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                                                            : statusKey === 'cancelled'
-                                                                ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                                                                : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
-                                                    }`}>
-                                                        {statusKey === 'confirmed' ? 'Đã chốt' : statusKey === 'completed' ? 'Hoàn thành' : statusKey === 'cancelled' ? 'Đã hủy' : statusKey === 'pending_payment' ? 'Chờ thanh toán' : booking.status}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        )})}
+                                            )
+                                        })}
                                     </div>
                                 )}
                             </div>
