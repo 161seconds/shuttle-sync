@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { ownerApi, type OwnerStats } from '../../services/ownerApi';
 import { Building2, DollarSign, Users, CalendarCheck, Loader2, X } from 'lucide-react';
 import { AreaChart, Area, LineChart, Line, BarChart, Bar, Cell, Legend, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { PageTransition } from '../../components/ui/PageTransition';
+import { ScrollReveal } from '../../components/ui/ScrollReveal';
 
 export const OwnerDashboard = () => {
     const [stats, setStats] = useState<OwnerStats | null>(null);
@@ -97,15 +99,15 @@ export const OwnerDashboard = () => {
     };
 
     return (
-        <div className="p-8 space-y-8">
-            <div className="flex justify-between items-center">
+        <PageTransition className="p-8 space-y-8">
+            <ScrollReveal className="flex justify-between items-center">
                 <div>
                     <h1 className="text-3xl font-bold text-white">Dashboard Của Bạn</h1>
                     <p className="text-gray-400 mt-1">Cơ sở: <span className="text-emerald-400 font-medium">{stats.venueName}</span></p>
                 </div>
-            </div>
+            </ScrollReveal>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <ScrollReveal className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard
                     title="Tổng Doanh Thu"
                     value={formatCompactCurrency(stats.totalRevenue)}
@@ -130,11 +132,11 @@ export const OwnerDashboard = () => {
                     icon={Users}
                     color="bg-teal-500/20 text-teal-500"
                 />
-            </div>
+            </ScrollReveal>
 
             {/* Chart Area */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-2xl p-6 transition-all hover:border-emerald-500/20">
+                <ScrollReveal className="lg:col-span-2 bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-2xl p-6 transition-all hover:border-emerald-500/20">
                     <h3 className="text-xl font-bold text-white mb-6">Xu Hướng Doanh Thu (30 Ngày)</h3>
                     <div className="h-80 w-full min-w-0">
                         {stats.venueSports && stats.venueSports.length > 1 ? (
@@ -209,9 +211,9 @@ export const OwnerDashboard = () => {
                             </ResponsiveContainer>
                         )}
                     </div>
-                </div>
+                </ScrollReveal>
 
-                <div className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-2xl p-6 transition-all hover:border-emerald-500/20">
+                <ScrollReveal delay={0.1} className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-2xl p-6 transition-all hover:border-emerald-500/20">
                     <h3 className="text-xl font-bold text-white mb-6">Tình Trạng Lịch Đặt</h3>
                     <div className="h-80 w-full min-w-0">
                         <ResponsiveContainer width="100%" height="100%">
@@ -247,11 +249,11 @@ export const OwnerDashboard = () => {
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
-                </div>
+                </ScrollReveal>
             </div>
 
             {/* Recent Bookings */}
-            <div className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-2xl p-6 transition-all hover:border-emerald-500/20">
+            <ScrollReveal className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-2xl p-6 transition-all hover:border-emerald-500/20">
                 <h3 className="text-xl font-bold text-white mb-6">Đơn Đặt Mới Nhất</h3>
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                     {stats.recentBookings.map((booking: any) => {
@@ -285,7 +287,7 @@ export const OwnerDashboard = () => {
                         </div>
                     )}
                 </div>
-            </div>
+            </ScrollReveal>
 
             {/* Modal for Chart Details */}
             {selectedDay && createPortal(
@@ -420,6 +422,6 @@ export const OwnerDashboard = () => {
                 </div>,
                 document.body
             )}
-        </div>
+        </PageTransition>
     );
 };
