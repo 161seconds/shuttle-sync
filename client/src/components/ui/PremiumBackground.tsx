@@ -9,11 +9,11 @@ export default function PremiumBackground() {
             <div className="absolute top-[20%] left-[40%] w-[600px] h-[600px] rounded-full bg-teal-400/10 blur-[120px] animate-[float_15s_ease-in-out_infinite]" />
 
             {/* Giant Subtle Background Icons */}
-            <div className="absolute top-[-15%] -left-[20%] opacity-[0.04] dark:opacity-[0.02] animate-[spin_120s_linear_infinite] pointer-events-none">
-                <EmojiIcon name="badminton" className="w-[800px] h-[800px] grayscale" />
+            <div className="absolute top-[-5%] -left-[10%] opacity-[0.03] dark:opacity-[0.015] animate-[spin_120s_linear_infinite] pointer-events-none">
+                <EmojiIcon name="badminton" className="w-[500px] h-[500px] grayscale" />
             </div>
-            <div className="absolute -bottom-[25%] -right-[20%] opacity-[0.04] dark:opacity-[0.02] animate-[spin_90s_linear_infinite_reverse] pointer-events-none">
-                <EmojiIcon name="pickleball" className="w-[600px] h-[600px] grayscale" />
+            <div className="absolute -bottom-[10%] -right-[10%] opacity-[0.03] dark:opacity-[0.015] animate-[spin_90s_linear_infinite_reverse] pointer-events-none">
+                <EmojiIcon name="pickleball" className="w-[400px] h-[400px] grayscale" />
             </div>
         </div>
     );

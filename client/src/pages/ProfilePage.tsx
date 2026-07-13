@@ -3,7 +3,6 @@ import {
     Edit, History, Award, Users, Bell, Settings,
     LogOut, ChevronRight, Check, UserCircle, LogIn
 } from 'lucide-react';
-import { theme as t } from '../utils/theme';
 import { useAppStore } from '../store';
 import { authApi } from '../api/auth.api';
 import { socketService } from '../utils/socket';
@@ -87,12 +86,12 @@ export default function ProfilePage() {
     const MENU: { icon: React.ReactNode; label: string; badge: number | null; action: SubPage }[] = [
         { icon: <Edit className="w-4 h-4" />, label: 'Chỉnh sửa hồ sơ', badge: null, action: 'edit' },
         ...(user.role !== 'admin' ? [
-            { icon: <History className="w-4 h-4" />, label: 'Lịch sử đặt sân', badge: user.stats?.totalBookings || null, action: 'history' },
-            { icon: <Award className="w-4 h-4" />, label: 'Giải đấu của tôi', badge: null, action: 'tournaments' },
-            { icon: <Users className="w-4 h-4" />, label: 'Quản lý nhóm chơi', badge: (user.stats?.totalGroupsCreated || 0) + (user.stats?.totalGroupsJoined || 0) || null, action: 'groups' },
+            { icon: <History className="w-4 h-4" />, label: 'Lịch sử đặt sân', badge: user.stats?.totalBookings || null, action: 'history' as SubPage },
+            { icon: <Award className="w-4 h-4" />, label: 'Giải đấu của tôi', badge: null, action: 'tournaments' as SubPage },
+            { icon: <Users className="w-4 h-4" />, label: 'Quản lý nhóm chơi', badge: (user.stats?.totalGroupsCreated || 0) + (user.stats?.totalGroupsJoined || 0) || null, action: 'groups' as SubPage },
         ] : []),
-        { icon: <Bell className="w-4 h-4" />, label: 'Thông báo', badge: null, action: 'notifications' },
-        { icon: <Settings className="w-4 h-4" />, label: 'Cài đặt', badge: null, action: 'settings' },
+        { icon: <Bell className="w-4 h-4" />, label: 'Thông báo', badge: null, action: 'notifications' as SubPage },
+        { icon: <Settings className="w-4 h-4" />, label: 'Cài đặt', badge: null, action: 'settings' as SubPage },
     ];
 
     return (
