@@ -3,6 +3,7 @@ import { ownerApi } from '../../services/ownerApi';
 import { Loader2, Calendar, User, Phone, Clock, CheckCircle, XCircle } from 'lucide-react';
 import dayjs from 'dayjs';
 import { getBookingStatusConfig } from '../../utils/bookingStatus';
+import { PageTransition } from '../../components/ui/PageTransition';
 
 export const OwnerBookings = () => {
     const [bookings, setBookings] = useState<any[]>([]);
@@ -39,7 +40,7 @@ export const OwnerBookings = () => {
     }
 
     return (
-        <div className="p-8">
+        <PageTransition className="p-8 space-y-6">
             <h1 className="text-3xl font-bold text-white mb-2">Lịch Đặt Sân</h1>
             <p className="text-gray-400 mb-8">Quản lý và xem lịch sử đặt sân của khách hàng.</p>
 
@@ -169,6 +170,6 @@ export const OwnerBookings = () => {
                     </div>
                 )}
             </div>
-        </div>
+        </PageTransition>
     );
 };
