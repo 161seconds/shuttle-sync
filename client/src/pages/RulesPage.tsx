@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertTriangle, CheckCircle2, Info, Swords, ShieldBan, Zap, Target, HelpCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Info, Swords, ShieldBan, Zap, Target } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EmojiIcon } from '../components/EmojiIcon';
 
