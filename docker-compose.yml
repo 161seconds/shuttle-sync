@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: shuttlesync_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+
+  server:
+    build:
+      context: .
+      dockerfile: server.Dockerfile
+    container_name: shuttlesync_server
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongodb:27017/badminton_db
+      - JWT_SECRET=shuttlesync_secret_key_production
+      # Cấu hình API key cho AI Coach (cần truyền vào khi chạy ở máy chủ thật)
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
+  client:
+    build:
+      context: .
+      dockerfile: client.Dockerfile
+      args:
+        # Đường dẫn tới API Server (khi chạy local bằng docker-compose, dùng http://localhost:5000)
+        - VITE_API_URL=http://localhost:5000
+    container_name: shuttlesync_client
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:

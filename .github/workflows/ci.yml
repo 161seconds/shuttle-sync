@@ -1,0 +1,79 @@
+name: ShuttleSync CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: '**/package-lock.json'
+
+    # Install dependencies for shared, server, and client
+    - name: Install dependencies (Server)
+      run: |
+        cd server
+        npm ci
+
+    - name: Install dependencies (Client)
+      run: |
+        cd client
+        npm ci
+
+    # Build steps
+    - name: Build Server
+      run: |
+        cd server
+        npm run build
+
+    - name: Build Client
+      run: |
+        cd client
+        npm run build
+      env:
+        VITE_API_URL: "http://localhost:5000"
+
+    # Optional: Run Lint and Test (Uncomment if tests are fully configured)
+    # - name: Run Linter (Server)
+    #   run: |
+    #     cd server
+    #     npm run lint
+    
+    # - name: Run Tests (Server)
+    #   run: |
+    #     cd server
+    #     npm run test
+
+    # - name: Run Tests (Client)
+    #   run: |
+    #     cd client
+    #     npm run test
+
+  # Build Docker images to ensure Dockerfiles are valid
+  docker-check:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build Server Docker Image
+      run: docker build -t shuttlesync/server -f server.Dockerfile .
+      
+    - name: Build Client Docker Image
+      run: docker build -t shuttlesync/client -f client.Dockerfile --build-arg VITE_API_URL=http://localhost:5000 .
