@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Check, Clock, Copy, ChevronLeft, AlertCircle, QrCode, ShieldCheck, Loader2 } from 'lucide-react';
+import { Check, Clock, Copy, ChevronLeft, AlertCircle, ShieldCheck, Loader2 } from 'lucide-react';
 import { theme as DS } from '../utils/theme';
 import { motion } from 'framer-motion';
 import { useAlertStore } from '../stores/useAlertStore';
-//import { bookingApi } from '../api/booking.api'; 
+import axiosClient from '../api/axiosClient';
 
 interface Props {
     bookingCode: string;
@@ -20,35 +20,49 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
     const [countdown, setCountdown] = useState(15 * 60);
     const [copied, setCopied] = useState(false);
 
+    // Cấu hình ngân hàng SePay (có thể đưa vào .env)
+    const BANK_ID = import.meta.env.VITE_SEPAY_BANK_ID || 'MBBank';
+    const BANK_ACC = import.meta.env.VITE_SEPAY_BANK_ACC || '0123456789';
+    const transferSyntax = `SHUTTLE ${bookingCode}`;
+    const qrUrl = `https://qr.sepay.vn/img?acc=${BANK_ACC}&bank=${BANK_ID}&amount=${amount}&des=${transferSyntax}`;
+
+    // Đếm ngược thời gian
     useEffect(() => {
-        if (status !== 'pending') return;
+        if (status !== 'pending' && status !== 'confirming') return;
         const iv = setInterval(() => {
             setCountdown(p => { if (p <= 0) { setStatus('expired'); return 0; } return p - 1; });
         }, 1000);
         return () => clearInterval(iv);
     }, [status]);
 
+    // Polling API liên tục để kiểm tra trạng thái thanh toán từ SePay Webhook
+    useEffect(() => {
+        if (status !== 'pending' && status !== 'confirming') return;
+
+        const checkStatus = async () => {
+            try {
+                const res = await axiosClient.get(`/payment/status/${bookingCode}`);
+                if (res.data?.data?.status === 'confirmed' || res.data?.data?.status === 'completed') {
+                    setStatus('success');
+                    setTimeout(onComplete, 2000); // Tự động chuyển trang sau 2s
+                }
+            } catch (err) {
+                console.error("Lỗi khi kiểm tra trạng thái thanh toán:", err);
+            }
+        };
+
+        const pollInterval = setInterval(checkStatus, 3000); // 3 giây check 1 lần
+        return () => clearInterval(pollInterval);
+    }, [bookingCode, status, onComplete]);
+
     const mm = Math.floor(countdown / 60);
     const ss = countdown % 60;
 
-    const confirm = async () => {
-        setStatus('confirming');
-        try {
-            //await bookingApi.confirmPayment(bookingCode);
-            await new Promise(r => setTimeout(r, 2000));
-            setStatus('success');
-            setTimeout(onComplete, 2000);
-        } catch (err) {
-            console.error(err);
-            useAlertStore.getState().showAlert("Lỗi xác nhận thanh toán!", 'Thông báo', 'error');
-            setStatus('pending');
-        }
-    };
-
-    const copy = () => {
-        navigator.clipboard.writeText(bookingCode);
+    const copy = (text: string) => {
+        navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+        useAlertStore.getState().showAlert("Đã sao chép nội dung!", 'Thành công', 'success');
     };
 
     if (status === 'success') {
@@ -96,25 +110,16 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
                         <ChevronLeft className="w-5 h-5" />
                     </button>
                     <div className="w-full text-center">
-                        <h2 className={`text-lg font-black ${DS.text.primary} tracking-wide`}>Thanh toán</h2>
-                        <p className={`text-[11px] font-medium ${DS.text.muted} mt-1 uppercase tracking-widest`}>Quét mã QR để hoàn tất</p>
+                        <h2 className={`text-lg font-black ${DS.text.primary} tracking-wide`}>Thanh toán VietQR</h2>
+                        <p className={`text-[11px] font-medium ${DS.text.muted} mt-1 uppercase tracking-widest`}>Quét mã bằng ứng dụng ngân hàng</p>
                     </div>
                 </div>
 
-                <div className="relative w-56 h-56 mx-auto mb-8">
+                {/* QR Code Container */}
+                <div className="relative w-64 h-64 mx-auto mb-6">
                     <div className="absolute inset-0 bg-emerald-500/20 blur-3xl rounded-full" />
-                    <div className="relative w-full h-full bg-white p-3.5 rounded-3xl shadow-2xl flex items-center justify-center">
-                        <div className="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-emerald-500 rounded-tl-[20px]" />
-                        <div className="absolute -top-1 -right-1 w-8 h-8 border-t-4 border-r-4 border-emerald-500 rounded-tr-[20px]" />
-                        <div className="absolute -bottom-1 -left-1 w-8 h-8 border-b-4 border-l-4 border-emerald-500 rounded-bl-[20px]" />
-                        <div className="absolute -bottom-1 -right-1 w-8 h-8 border-b-4 border-r-4 border-emerald-500 rounded-br-[20px]" />
-
-                        <div className="w-full h-full border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center bg-gray-50/50">
-                            <QrCode className="w-14 h-14 text-muted-foreground mb-2" strokeWidth={1.5} />
-                            <p className="text-muted-foreground text-[10px] font-mono font-bold text-center uppercase tracking-widest leading-relaxed">
-                                Mã QR Demo<br />MoMo / VNPay
-                            </p>
-                        </div>
+                    <div className="relative w-full h-full bg-white p-2 rounded-3xl shadow-2xl flex flex-col items-center justify-center">
+                        <img src={qrUrl} alt="VietQR" className="w-full h-full object-contain rounded-2xl" />
                     </div>
                 </div>
 
@@ -130,34 +135,21 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
                 <div className="bg-card/80 backdrop-blur-xl rounded-2xl p-5 mb-6 border border-border shadow-xl relative overflow-hidden">
                     <ShieldCheck className="absolute -right-4 -bottom-4 w-24 h-24 text-foreground/2 -rotate-12 pointer-events-none" />
                     <div className="space-y-3.5 relative z-10">
-                        <DetailRow label="Mã đơn" value={bookingCode} copyable onCopy={copy} copied={copied} />
                         <DetailRow label="Sân" value={courtName} />
                         <DetailRow label="Ngày" value={date} />
-                        <DetailRow label="Giờ" value={slots.join(', ')} accent />
-                        <div className="w-full h-px border-t border-dashed border-border my-4" />
-                        <div className="flex justify-between items-end">
-                            <span className={`text-xs font-semibold ${DS.text.muted} uppercase tracking-wider`}>Tổng thanh toán</span>
-                            <span className="text-2xl font-black text-emerald-400">{amount.toLocaleString()}<span className="text-sm font-bold text-emerald-400/60 ml-0.5">đ</span></span>
-                        </div>
+                        <DetailRow label="Giờ" value={slots.join(', ')} />
+                        <div className="w-full h-px border-t border-dashed border-border my-2" />
+                        <DetailRow label="Ngân hàng" value={BANK_ID} />
+                        <DetailRow label="Số tài khoản" value={BANK_ACC} copyable onCopy={() => copy(BANK_ACC)} copied={copied} />
+                        <DetailRow label="Số tiền" value={`${amount.toLocaleString()}đ`} copyable onCopy={() => copy(amount.toString())} copied={copied} accent />
+                        <DetailRow label="Nội dung CK" value={transferSyntax} copyable onCopy={() => copy(transferSyntax)} copied={copied} />
                     </div>
                 </div>
-
-                <button onClick={confirm} disabled={status === 'confirming'}
-                    className="w-full py-4 rounded-2xl bg-linear-to-r from-emerald-500 to-emerald-400 text-black font-black text-[15px] flex items-center justify-center gap-2 shadow-glow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-60 disabled:hover:scale-100 disabled:cursor-not-allowed relative overflow-hidden group">
-                    {status === 'confirming' ? (
-                        <><Loader2 className="w-5 h-5 animate-spin" /> Đang kiểm tra...</>
-                    ) : (
-                        <>
-                            <Check className="w-5 h-5 transition-transform group-hover:scale-110" /> Tôi đã thanh toán
-                            <div className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/30 to-transparent group-hover:animate-[shimmer_1.5s_infinite]" />
-                        </>
-                    )}
-                </button>
-
-                <div className="mt-5 text-center flex items-center justify-center gap-1.5 opacity-60">
-                    <ShieldCheck className="w-3.5 h-3.5 text-muted-foreground" />
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Giao dịch được mã hóa an toàn</span>
+                
+                <div className="text-center text-sm text-emerald-400/80 animate-pulse font-medium">
+                    Đang đợi hệ thống ghi nhận thanh toán...
                 </div>
+
             </motion.div>
         </Wrapper>
     );
@@ -167,7 +159,7 @@ function DetailRow({ label, value, accent, copyable, onCopy, copied }: { label: 
     return (
         <div className="flex justify-between items-center text-[13px]">
             <span className={DS.text.muted}>{label}</span>
-            <span className={`font-semibold flex items-center gap-2 ${accent ? 'text-emerald-400' : 'text-foreground'}`}>
+            <span className={`font-semibold flex items-center gap-2 ${accent ? 'text-emerald-400 text-base font-bold' : 'text-foreground'}`}>
                 {value}
                 {copyable && (
                     <button onClick={onCopy} className="w-6 h-6 rounded-md bg-card hover:bg-muted flex items-center justify-center transition-colors">

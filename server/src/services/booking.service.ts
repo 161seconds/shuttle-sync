@@ -122,14 +122,8 @@ class BookingService {
         const createdBookings = await Booking.insertMany(bookingsToInsert);
         const paymentCode = groupId || createdBookings[0].bookingCode;
 
-        setTimeout(async () => {
-            try {
-                await this.confirmPayment(paymentCode, userId);
-                logger.info(`[Auto-Confirm] Đã tự động xác nhận thanh toán đơn ${paymentCode} sau 5 giây`);
-            } catch (error) {
-                logger.error(`[Auto-Confirm] Lỗi khi xác nhận đơn ${paymentCode}:`, error);
-            }
-        }, 5000);
+        // Removed auto-confirm for real payment gateway integration
+
 
         return {
             bookingCode: paymentCode,
