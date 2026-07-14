@@ -40,6 +40,7 @@ router.use('/owner', ownerRoutes);
 router.use('/tournaments', require('./tournament.routes').default);
 router.use('/chat', require('./chat.routes').default);
 router.use('/friends', require('./friendship.routes').default);
+router.use('/payment', require('./payment.routes').default);
 router.post('/ask-coach', aiCoachController.askCoach);
 
 export default router;
