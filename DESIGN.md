@@ -21,6 +21,8 @@
 
 ## Components & Layout
 - **Glassmorphism Done Right**: Use `backdrop-blur-xl` with highly transparent, tinted backgrounds (`bg-card` or `bg-white/5` in dark mode) and extremely subtle borders (`border-white/10`).
+- **Custom Native Inputs**: Avoid ugly default HTML `<select>` elements. Use custom animated dropdown components (`CustomSelect`) with `framer-motion` for smooth list rendering and custom scrollbars.
+- **Global Scaling**: The application utilizes a global 80% scale (`html { font-size: 12.8px }`) to transform Tailwind `rem` classes into a highly spacious, enterprise-grade viewport.
 - **Touch Targets**: Minimum `44px` for all interactive elements (buttons, inputs) to ensure mobile accessibility.
 - **Interactive States**: Every interactive element needs a defined:
   - **Hover**: Subtle scale up (`scale-105`), glow, or background shift.

@@ -3,10 +3,10 @@
 This document provides context, rules, and architectural guidelines for AI agents working on the **ShuttleSync** project. Always refer to this document to understand the codebase structure and development conventions.
 
 ## 1. Project Overview
-**ShuttleSync** is a platform for booking and managing badminton (and potentially other sports like pickleball) courts. It features user facing apps for booking, AI coaching, and social engagement, as well as an admin dashboard for court owners to manage revenues and operations.
+**ShuttleSync** is a platform for booking and managing badminton (and potentially other sports like pickleball) courts. It features user facing apps for booking, AI coaching, Group Play (Matchmaking), and social engagement, as well as an admin dashboard for court owners to manage revenues, expenses, and operations.
 
 ## 2. Tech Stack
-- **Frontend**: React (Vite), TypeScript, Tailwind CSS v4, Framer Motion (Animations), Recharts (Charts), Lucide React (Icons), Zustand (State Management).
+- **Frontend**: React (Vite), TypeScript, Tailwind CSS v4, Framer Motion (Animations), Recharts (Charts), Lucide React (Icons), Zustand (State Management). Global 80% scale applied via HTML font-size for an enterprise viewport.
 - **Backend**: Node.js, Express, TypeScript, MongoDB (Mongoose), JWT Authentication.
 - **Monorepo Structure**:
   - `/client`: Frontend codebase.

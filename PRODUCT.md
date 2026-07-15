@@ -4,7 +4,7 @@
 ShuttleSync is a premium sport booking platform (specializing in badminton, pickleball, etc.). It provides a comprehensive ecosystem for users to search for courts, book time slots, find group play partners, use AI coaching features, and stay updated with live sports news.
 
 ## Target Audience
-Athletes, casual sports players, and court owners who demand a seamless, highly functional, yet visually stunning booking experience. 
+Athletes, casual sports players, and court owners who demand a seamless, highly functional, yet visually stunning booking experience. For owners, the system provides advanced dashboard analytics, real-time schedule conflict prevention, and comprehensive expense and profit tracking.
 
 ## Surface Type
 **Product (App UI / Dashboard / Tool)**
