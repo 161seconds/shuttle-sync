@@ -252,7 +252,7 @@ function Shell() {
           <ScrollEndEffect />
 
           <AnimatePresence>
-            {['/', '/map', '/search', '/profile', '/admin'].includes(location.pathname) && !isSideBarOpen && (
+            {['/', '/map', '/search', '/profile', '/admin', '/groupplay'].includes(location.pathname) && !isSideBarOpen && (
               <BottomNav key="bottom-nav" />
             )}
           </AnimatePresence>

@@ -21,6 +21,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @layer base {
+  html {
+    font-size: 12.8px;
+  }
   .dark {
     --color-background: #060809;
     --color-foreground: #eaeaea;

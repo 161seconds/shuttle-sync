@@ -37,14 +37,6 @@ export const OwnerLayout = () => {
             });
     }, [user, navigate, location.pathname]);
 
-    useEffect(() => {
-        // Apply 75% scale (12px = 16px * 0.75) to give the spacious feeling requested by user
-        document.documentElement.style.fontSize = '12px';
-        return () => {
-            document.documentElement.style.fontSize = '';
-        };
-    }, []);
-
     const handleLogout = async () => {
         setUser(null);
         navigate('/');
