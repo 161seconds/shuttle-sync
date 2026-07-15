@@ -37,8 +37,13 @@ export default function Header() {
         checkUnread();
 
         const onRead = () => setHasUnread(false);
+        const onRefresh = () => setHasUnread(true);
         window.addEventListener('notificationsRead', onRead);
-        return () => window.removeEventListener('notificationsRead', onRead);
+        window.addEventListener('refresh_notifications', onRefresh);
+        return () => {
+            window.removeEventListener('notificationsRead', onRead);
+            window.removeEventListener('refresh_notifications', onRefresh);
+        };
     }, [user]);
 
     return (

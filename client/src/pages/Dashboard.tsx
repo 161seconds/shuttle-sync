@@ -136,13 +136,7 @@ export default function Dashboard() {
     };
 
     const getGreeting = () => {
-        const hour = new Date().getHours();
-        if (hour < 5) return 'Ngủ muộn hay dậy sớm thế';
-        if (hour < 11) return 'Khởi động ngày mới rực rỡ nào';
-        if (hour < 14) return 'Nghỉ trưa nhớ chốt kèo chiều nhé';
-        if (hour < 18) return 'Chiều năng động, xách vợt ra sân thôi';
-        if (hour < 22) return 'Tối mát mẻ, làm vài ván giao lưu không';
-        return 'Khuya rồi, nghỉ ngơi dưỡng sức mai chiến';
+        return 'Chào ngày mới';
     };
 
     return (

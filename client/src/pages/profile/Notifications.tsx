@@ -13,6 +13,7 @@ import type { ChatUser } from '../chat/mockData';
 import { friendApi } from '../../api/friend.api';
 import { AnimatePresence } from 'framer-motion';
 import ProfileHeader from '../../components/layout/ProfileHeader';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
     onBack: () => void;
@@ -36,6 +37,7 @@ const timeAgo = (dateString: string) => {
 
 export default function Notifications({ onBack }: Props) {
     const { setPage } = useAppStore();
+    const navigate = useNavigate();
     const { pendingRequests, fetchPendingRequests, fetchFriends, fetchConversations } = useSocialStore();
     const [notifications, setNotifications] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -221,7 +223,9 @@ export default function Notifications({ onBack }: Props) {
                                     <div
                                         key={noti._id}
                                         onClick={() => {
-                                            if (noti.type === 'GROUP' || noti.type === 'group_play') {
+                                            if (noti.data?.link) {
+                                                navigate(noti.data.link);
+                                            } else if (noti.type === 'GROUP' || noti.type === 'group_play') {
                                                 setPage('chat');
                                             }
                                         }}

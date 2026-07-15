@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { Booking } from '../models/Booking';
+import { Court } from '../models/Court';
 import { notificationService } from './other.service';
 import { logger } from '../utils/logger';
 import {
@@ -29,8 +30,20 @@ class BookingService {
             throw new Error('Giờ kết thúc phải lớn hơn giờ bắt đầu');
         }
 
-        const durationHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-        const sessionAmount = durationHours * 150000;
+        const timeToMins = (t: string) => {
+            const [h, m] = t.split(':').map(Number);
+            return h * 60 + m;
+        };
+        const requestedStartMins = timeToMins(startTime);
+        const requestedEndMins = timeToMins(endTime);
+
+        const subCourt = await Court.findById(data.subCourtId);
+        if (!subCourt) {
+            throw new Error('Sân không tồn tại');
+        }
+
+        const basePrice = subCourt.pricePerHour || 100000;
+        const configs = subCourt.pricingConfigs || [];
 
         let generatedDates: Date[] = [];
         let totalSessions = 1;
@@ -58,13 +71,6 @@ class BookingService {
             generatedDates = [new Date(data.date)];
         }
 
-        const timeToMins = (t: string) => {
-            const [h, m] = t.split(':').map(Number);
-            return h * 60 + m;
-        };
-        const requestedStartMins = timeToMins(startTime);
-        const requestedEndMins = timeToMins(endTime);
-
         const dateQueries = generatedDates.map(d => {
             const s = new Date(d);
             s.setHours(0,0,0,0);
@@ -80,12 +86,50 @@ class BookingService {
             status: { $ne: BookingStatus.CANCELLED }
         });
 
+        const myPendingBookings = [];
         for (const b of conflictingBookings) {
             const bStartMins = timeToMins(b.startTime);
             const bEndMins = timeToMins(b.endTime);
             if (requestedStartMins < bEndMins && requestedEndMins > bStartMins) {
-                throw new Error(`Ngày ${b.date.toLocaleDateString('vi-VN')} đã bị đặt từ ${b.startTime} đến ${b.endTime}. Không thể đặt lịch cố định!`);
+                if (b.userId?.toString() === userId.toString() && b.status === BookingStatus.PENDING_PAYMENT) {
+                    myPendingBookings.push(b);
+                } else {
+                    throw new Error(`Sân đã có người đặt hoặc đang chờ thanh toán từ ${b.startTime} đến ${b.endTime}. Vui lòng chọn khung giờ khác!`);
+                }
             }
+        }
+
+        let exactMatchCount = 0;
+        for (const b of myPendingBookings) {
+            const bStartMins = timeToMins(b.startTime);
+            const bEndMins = timeToMins(b.endTime);
+            if (bStartMins === requestedStartMins && bEndMins === requestedEndMins) {
+                const matchDate = generatedDates.find(d => 
+                    d.getDate() === b.date.getDate() && 
+                    d.getMonth() === b.date.getMonth() && 
+                    d.getFullYear() === b.date.getFullYear()
+                );
+                if (matchDate) exactMatchCount++;
+            }
+        }
+
+        if (myPendingBookings.length > 0 && exactMatchCount === totalSessions && exactMatchCount === myPendingBookings.length) {
+            // Đây là trường hợp người dùng bấm quay lại và bấm tiếp tục với thông tin y hệt
+            // Trả về booking cũ để không làm reset đồng hồ đếm ngược
+            const finalAmount = myPendingBookings.reduce((sum, b) => sum + b.finalAmount, 0);
+            return {
+                bookingCode: myPendingBookings[0].groupId || myPendingBookings[0].bookingCode,
+                finalAmount: finalAmount,
+                bookings: myPendingBookings,
+                expiresAt: myPendingBookings[0].payment.expiresAt
+            };
+        }
+
+        // Tự động huỷ các đơn đang chờ thanh toán của chính user này để giải phóng sân
+        for (const b of myPendingBookings) {
+            b.status = BookingStatus.CANCELLED;
+            b.cancelReason = 'Người dùng tạo phiên đặt sân mới đè lên phiên cũ';
+            await b.save();
         }
 
         const expiresAt = new Date();
@@ -96,6 +140,21 @@ class BookingService {
 
         for (let i = 0; i < totalSessions; i++) {
             const bookingCode = 'BK' + Math.floor(1000000 + Math.random() * 9000000);
+            const bDate = generatedDates[i];
+            const day = bDate.getDay();
+
+            let sessionAmount = 0;
+            for (let m = requestedStartMins; m < requestedEndMins; m += 30) {
+                const match = configs.find((cfg: any) => {
+                    if (!cfg.daysOfWeek.includes(day)) return false;
+                    const cfgStartMins = timeToMins(cfg.startTime);
+                    const cfgEndMins = timeToMins(cfg.endTime);
+                    return m >= cfgStartMins && m < cfgEndMins;
+                });
+                const chunkPrice = match ? match.pricePerHour : basePrice;
+                sessionAmount += chunkPrice * 0.5;
+            }
+
             bookingsToInsert.push({
                 bookingCode,
                 groupId,
@@ -103,7 +162,7 @@ class BookingService {
                 courtId: data.courtId,
                 subCourtId: data.subCourtId,
                 slotIds: data.slotIds?.length ? data.slotIds.map((id: string) => new mongoose.Types.ObjectId(id)) : [],
-                date: generatedDates[i],
+                date: bDate,
                 startTime,
                 endTime,
                 type: data.type || BookingType.CASUAL,
@@ -122,13 +181,31 @@ class BookingService {
         const createdBookings = await Booking.insertMany(bookingsToInsert);
         const paymentCode = groupId || createdBookings[0].bookingCode;
 
+        // Tạo thông báo
+        let newNoti = null;
+        try {
+            newNoti = await notificationService.createNotification({
+                userId: userId,
+                title: 'Chờ thanh toán',
+                message: `Đơn đặt sân ${paymentCode} đang chờ thanh toán. Vui lòng thanh toán để hoàn tất đặt sân.`,
+                type: 'booking',
+                data: { link: `/payment/${paymentCode}` }
+            });
+        } catch (err) {
+            logger.error('Failed to create notification', err);
+        }
+
         // Removed auto-confirm for real payment gateway integration
 
 
+        const finalAmount = createdBookings.reduce((sum, b) => sum + b.finalAmount, 0);
+
         return {
             bookingCode: paymentCode,
-            finalAmount: sessionAmount * totalSessions,
-            bookings: createdBookings
+            finalAmount: finalAmount,
+            bookings: createdBookings,
+            expiresAt: expiresAt,
+            notification: newNoti
         };
     }
 
