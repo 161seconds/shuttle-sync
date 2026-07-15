@@ -180,7 +180,7 @@ export default function AdminDashboard() {
                         <div className="absolute -right-10 -top-20 w-80 h-80 bg-emerald-500/20 dark:bg-emerald-500/15 rounded-full blur-[100px] pointer-events-none"></div>
                         <div className="absolute left-[-10%] -bottom-20 w-80 h-80 bg-indigo-500/20 dark:bg-indigo-500/15 rounded-full blur-[100px] pointer-events-none"></div>
 
-                        <h2 className="text-4xl lg:text-5xl font-black text-foreground mb-4 tracking-tight relative z-10 leading-tight">Xin chào {user?.displayName || 'Admin'},</h2>
+                        <h2 className="text-4xl lg:text-5xl font-black text-foreground mb-4 tracking-tight relative z-10 leading-tight">Chào ngày mới, {user?.displayName || 'Admin'}!</h2>
                         <p className="text-muted-foreground max-w-xl text-[15px] font-medium leading-relaxed mb-10 relative z-10">
                             Chào mừng đến với Bảng điều khiển ShuttleSync! Theo dõi doanh thu, quản lý sân và nắm bắt mọi thông tin chi tiết về hệ thống một cách trực quan.
                         </p>

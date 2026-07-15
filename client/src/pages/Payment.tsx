@@ -15,16 +15,23 @@ interface Props {
     onBack: () => void;
 }
 
-export default function Payment({ bookingCode, amount, courtName, date, slots, onComplete, onBack }: Props) {
+export default function Payment({ bookingCode, amount, courtName, date, slots, onComplete, onBack, expiresAt }: Props & { expiresAt?: string }) {
     const [status, setStatus] = useState<'pending' | 'confirming' | 'success' | 'expired'>('pending');
-    const [countdown, setCountdown] = useState(15 * 60);
+    const [countdown, setCountdown] = useState(() => {
+        if (expiresAt) {
+            const left = Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000);
+            return Math.max(0, left);
+        }
+        return 15 * 60;
+    });
     const [copied, setCopied] = useState(false);
 
     // Cấu hình ngân hàng SePay (có thể đưa vào .env)
-    const BANK_ID = import.meta.env.VITE_SEPAY_BANK_ID || 'MBBank';
-    const BANK_ACC = import.meta.env.VITE_SEPAY_BANK_ACC || '0123456789';
+    const BANK_ID = import.meta.env.VITE_SEPAY_BANK_ID;
+    const BANK_ACC = import.meta.env.VITE_SEPAY_BANK_ACC;
+    const BANK_HOLDER = import.meta.env.VITE_SEPAY_BANK_HOLDER;
     const transferSyntax = `SHUTTLE ${bookingCode}`;
-    const qrUrl = `https://qr.sepay.vn/img?acc=${BANK_ACC}&bank=${BANK_ID}&amount=${amount}&des=${transferSyntax}`;
+    const qrUrl = `https://vietqr.app/img?bank=${BANK_ID}&acc=${BANK_ACC}&amount=${amount}&des=${transferSyntax}&template=qronly&showinfo=true&fullacc=true&holder=${encodeURIComponent(BANK_HOLDER)}`;
 
     // Đếm ngược thời gian
     useEffect(() => {
@@ -51,9 +58,9 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
             }
         };
 
-        const pollInterval = setInterval(checkStatus, 3000); // 3 giây check 1 lần
+        const pollInterval = setInterval(checkStatus, 10000); // 10 giây check 1 lần để tránh bị quá tải (rate limit 429)
         return () => clearInterval(pollInterval);
-    }, [bookingCode, status, onComplete]);
+    }, [bookingCode, status]);
 
     const mm = Math.floor(countdown / 60);
     const ss = countdown % 60;
@@ -145,7 +152,14 @@ export default function Payment({ bookingCode, amount, courtName, date, slots, o
                         <DetailRow label="Nội dung CK" value={transferSyntax} copyable onCopy={() => copy(transferSyntax)} copied={copied} />
                     </div>
                 </div>
-                
+
+                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6 flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                    <p className="text-sm text-red-500/90 leading-relaxed font-medium">
+                        <span className="font-bold">Lưu ý:</span> Vui lòng không thay đổi số tiền và nội dung chuyển khoản.
+                    </p>
+                </div>
+
                 <div className="text-center text-sm text-emerald-400/80 animate-pulse font-medium">
                     Đang đợi hệ thống ghi nhận thanh toán...
                 </div>

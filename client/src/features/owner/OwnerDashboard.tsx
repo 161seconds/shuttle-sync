@@ -5,8 +5,10 @@ import { Building2, DollarSign, Users, CalendarCheck, Loader2, X } from 'lucide-
 import { AreaChart, Area, LineChart, Line, BarChart, Bar, Cell, Legend, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { PageTransition } from '../../components/ui/PageTransition';
 import { ScrollReveal } from '../../components/ui/ScrollReveal';
+import { useAppStore } from '../../store';
 
 export const OwnerDashboard = () => {
+    const { user } = useAppStore();
     const [stats, setStats] = useState<OwnerStats | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedDay, setSelectedDay] = useState<any>(null);
@@ -102,7 +104,7 @@ export const OwnerDashboard = () => {
         <PageTransition className="p-8 space-y-8">
             <ScrollReveal className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">Dashboard Của Bạn</h1>
+                    <h1 className="text-3xl font-bold text-white">Chào ngày mới, {user?.displayName || 'Chủ sân'}!</h1>
                     <p className="text-gray-400 mt-1">Cơ sở: <span className="text-emerald-400 font-medium">{stats.venueName}</span></p>
                 </div>
             </ScrollReveal>

@@ -8,6 +8,13 @@ class BookingController {
         try {
             const userId = req.userId!;
             const booking = await bookingService.createBooking(userId, req.body);
+            
+            const io = req.app.get('io');
+            if (io && booking.notification) {
+                const { emitNotification } = require('../socket');
+                emitNotification(io, userId, booking.notification);
+            }
+
             res.status(201).json({
                 success: true,
                 data: booking,

@@ -234,6 +234,7 @@ class NotificationService {
         title: string;
         message: string;
         type: string;
+        link?: string;
         data?: Record<string, unknown>;
     }) {
         return Notification.create(data);

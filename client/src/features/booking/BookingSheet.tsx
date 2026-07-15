@@ -87,8 +87,8 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
     });
 
     useEffect(() => {
-        const fetchBookedSlots = async () => {
-            setIsLoadingSlots(true);
+        const fetchBookedSlots = async (isPolling = false) => {
+            if (!isPolling) setIsLoadingSlots(true);
             try {
                 const dateStr = dates[selectedDate].fullDate;
                 const res = await axiosClient.get(`/bookings/court/${court._id}?date=${dateStr}`);
@@ -108,15 +108,19 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                 setBookedRanges(ranges);
             } catch (err) {
                 console.error('Lỗi tải danh sách giờ đã đặt:', err);
-                setBookedRanges([]);
+                if (!isPolling) setBookedRanges([]);
             } finally {
-                setIsLoadingSlots(false);
+                if (!isPolling) setIsLoadingSlots(false);
             }
-            setRangeStart(null);
-            setRangeEnd(null);
+            if (!isPolling) {
+                setRangeStart(null);
+                setRangeEnd(null);
+            }
         };
 
         fetchBookedSlots();
+        const iv = setInterval(() => fetchBookedSlots(true), 3000);
+        return () => clearInterval(iv);
     }, [selectedDate, court._id, selectedSubCourt]);
 
     const isSlotBooked = (slot: string) => {
@@ -125,8 +129,8 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
             const currentMins = new Date().getHours() * 60 + new Date().getMinutes();
             if (pointMins <= currentMins) return true;
         }
-        // Disable time points strictly inside booked ranges
-        return bookedRanges.some(r => pointMins > r.start && pointMins < r.end);
+        // Disable time points strictly inside booked ranges (including the start time, excluding the end time so others can start there)
+        return bookedRanges.some(r => pointMins >= r.start && pointMins < r.end);
     };
 
     const hasBookedSlotsBetween = (startSlot: string, endSlot: string) => {
@@ -185,8 +189,15 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
         if (error === '') {
             const dateStr = dates[selectedDate].fullDate;
             const dateObj = new Date(dateStr);
-            const basePrice = typeof court.pricePerHour === 'number' ? court.pricePerHour : 100000;
-            const configs = court.pricingConfigs || [];
+            const activeSubCourt = selectedSubCourt 
+                ? court.courts?.find((c: any) => c._id === selectedSubCourt) 
+                : court.courts?.[0];
+            
+            const basePrice = typeof activeSubCourt?.pricePerHour === 'number' 
+                ? activeSubCourt.pricePerHour 
+                : (typeof court.pricePerHour === 'number' ? court.pricePerHour : 100000);
+            
+            const configs = activeSubCourt?.pricingConfigs || court.pricingConfigs || [];
 
             if (bookingType === 'fixed') {
                 let totalAllSessions = 0;
@@ -277,6 +288,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                         setProfileSubPage('history');
                     }}
                     onBack={() => changeStep(2)}
+                    expiresAt={bookingData.expiresAt || bookingData.bookings?.[0]?.payment?.expiresAt}
                 />
             </div>
         );

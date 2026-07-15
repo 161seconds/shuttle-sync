@@ -22,6 +22,7 @@ export const pageImports = {
   RulesPage: () => import('./pages/RulesPage'),
   SupplementaryPage: () => import('./pages/SupplementaryPage'),
   ChatPage: () => import('./pages/chat/ChatPage'),
+  PaymentPage: () => import('./pages/PaymentPage'),
   OwnerCourts: () => import('./features/owner/OwnerCourts').then(m => ({ default: m.OwnerCourts })),
   OwnerSchedule: () => import('./features/owner/OwnerSchedule').then(m => ({ default: m.OwnerSchedule })),
   OwnerBookings: () => import('./features/owner/OwnerBookings').then(m => ({ default: m.OwnerBookings })),
@@ -48,6 +49,7 @@ const AdminDashboard = lazy(pageImports.AdminDashboard);
 const MatchLeaderboard = lazy(pageImports.MatchLeaderboard);
 const RulesPage = lazy(pageImports.RulesPage);
 const SupplementaryPage = lazy(pageImports.SupplementaryPage);
+const PaymentPage = lazy(pageImports.PaymentPage);
 const ChatPage = lazy(pageImports.ChatPage);
 const OwnerCourts = lazy(pageImports.OwnerCourts);
 const OwnerSchedule = lazy(pageImports.OwnerSchedule);
@@ -66,9 +68,9 @@ import type { Court } from './types';
 import { authApi } from './api/auth.api';
 import SplashScreen from './components/SplashScreen';
 
-import ScrollEndEffect from './components/ScrollEndEffect';
 import AppSidebar from './components/layout/Sidebar';
 import GlobalAlert from './components/GlobalAlert';
+import { WelcomeToast } from './components/layout/WelcomeToast';
 import { useAlertStore } from './stores/useAlertStore';
 import { socketService } from './utils/socket';
 import { ThemeProvider } from './components/theme-provider';
@@ -145,16 +147,19 @@ function Shell() {
     const onJoinAcc = () => handleNoti('Đã được duyệt!', 'Chủ sân đã đồng ý cho bạn vào nhóm. Vào chat ngay!');
     const onJoinRej = () => handleNoti('Bị từ chối', 'Rất tiếc, chủ sân đã từ chối yêu cầu của bạn.');
     const onFriendReq = (data: any) => handleNoti('Lời mời kết bạn', `${data?.requesterName || 'Ai đó'} đã gửi cho bạn lời mời kết bạn.`);
+    const onNotification = (data: any) => handleNoti(data?.title || 'Thông báo mới', data?.message || 'Bạn có một thông báo mới.');
     
     socket.on('join_request_received', onJoinReq);
     socket.on('join_request_accepted', onJoinAcc);
     socket.on('join_request_rejected', onJoinRej);
     socket.on('friend:request', onFriendReq);
+    socket.on('notification', onNotification);
     return () => {
         socket.off('join_request_received', onJoinReq);
         socket.off('join_request_accepted', onJoinAcc);
         socket.off('join_request_rejected', onJoinRej);
         socket.off('friend:request', onFriendReq);
+        socket.off('notification', onNotification);
     };
   }, [user, showAlert]);
 
@@ -227,6 +232,7 @@ function Shell() {
             <Route path="onboarding" element={<OwnerOnboarding />} />
           </Route>
                   <Route path="/notifications" element={<Notifications onBack={() => window.history.back()} />} />
+                  <Route path="/payment/:bookingCode" element={<PaymentPage />} />
                   <Route path="/match-leaderboard" element={<MatchLeaderboard onBack={() => window.history.back()} />} />
                   <Route path="/rules" element={<RulesPage />} />
                   <Route path="/supplementary" element={<SupplementaryPage />} />
@@ -266,8 +272,11 @@ export default function App() {
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <BrowserRouter>
           <AppProvider>
-            <Shell />
+            {/* Global Components */}
             <GlobalAlert />
+            <WelcomeToast />
+            <SplashScreen />
+            <Shell />
           </AppProvider>
         </BrowserRouter>
       </ThemeProvider>

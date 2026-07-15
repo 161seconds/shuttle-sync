@@ -19,7 +19,8 @@ export const OwnerWelcomeFlow = () => {
             return;
         }
 
-        setStep('greeting');
+        // Wait for global WelcomeToast to finish before showing events
+        setStep('waiting' as any);
         
         // Fetch today's schedule
         const today = dayjs().format('YYYY-MM-DD');
@@ -51,28 +52,7 @@ export const OwnerWelcomeFlow = () => {
 
     const content = (
         <AnimatePresence mode="wait">
-            {step === 'greeting' && (
-                <motion.div
-                    key="greeting"
-                    initial={{ opacity: 0, y: -50 }}
-                    animate={{ opacity: 1, y: 20 }}
-                    exit={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                    className="fixed top-4 left-0 right-0 z-[9999] flex justify-center pointer-events-none px-4"
-                >
-                    <div className="bg-[#0a0f16]/90 backdrop-blur-xl border border-emerald-500/30 shadow-[0_0_40px_rgba(16,185,129,0.2)] px-4 sm:px-6 py-3 sm:py-4 rounded-full flex items-center gap-3 max-w-full">
-                        <img 
-                            src={user?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=owner"} 
-                            alt="Avatar" 
-                            className="w-8 h-8 rounded-full border border-emerald-500/50"
-                        />
-                        <div>
-                            <p className="text-white font-medium">Chào mừng trở lại, {user?.displayName}!</p>
-                            <p className="text-emerald-400 text-xs font-medium">Đang tổng hợp sự kiện hôm nay...</p>
-                        </div>
-                    </div>
-                </motion.div>
-            )}
+
 
             {step === 'events' && (
                 <motion.div

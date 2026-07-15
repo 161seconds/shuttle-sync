@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Rocket, Trophy, CalendarClock, Users, CreditCard, ShieldAlert, Info, Loader2, CheckCheck } from 'lucide-react';
 import axiosClient from '../../api/axiosClient';
 import { useAppStore } from '../../store';
+import { useNavigate } from 'react-router-dom';
 
 interface NotificationDropdownProps {
     isOpen: boolean;
@@ -52,6 +53,7 @@ const getIconBackground = (type: string) => {
 
 export default function NotificationDropdown({ isOpen, onClose }: NotificationDropdownProps) {
     const { setPage } = useAppStore();
+    const navigate = useNavigate();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [notifications, setNotifications] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -104,6 +106,10 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
         };
 
         fetchNotifications();
+
+        const onRefresh = () => fetchNotifications();
+        window.addEventListener('refresh_notifications', onRefresh);
+        return () => window.removeEventListener('refresh_notifications', onRefresh);
     }, [isOpen]);
 
     const handleMarkAllRead = async () => {
@@ -165,7 +171,10 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
                                     <div
                                         key={noti._id}
                                         onClick={() => {
-                                            if (noti.type === 'GROUP' || noti.type === 'group_play') {
+                                            if (noti.data?.link) {
+                                                onClose();
+                                                navigate(noti.data.link);
+                                            } else if (noti.type === 'GROUP' || noti.type === 'group_play') {
                                                 onClose();
                                                 setPage('chat');
                                             }

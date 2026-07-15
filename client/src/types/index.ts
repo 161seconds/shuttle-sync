@@ -32,6 +32,8 @@ export interface SubCourt {
     isIndoor: boolean;
     surface?: string;
     isActive: boolean;
+    pricePerHour?: number;
+    pricingConfigs?: IPricingConfig[];
 }
 
 export interface CourtPhoto {
