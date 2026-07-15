@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ownerApi, type OwnerStats } from '../../services/ownerApi';
-import { Building2, DollarSign, Users, CalendarCheck, Loader2, X } from 'lucide-react';
+import { Building2, DollarSign, Users, CalendarCheck, Loader2, X, TrendingUp, TrendingDown, PieChart as PieChartIcon } from 'lucide-react';
 import { AreaChart, Area, LineChart, Line, BarChart, Bar, Cell, Legend, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { PageTransition } from '../../components/ui/PageTransition';
 import { ScrollReveal } from '../../components/ui/ScrollReveal';
@@ -49,12 +49,12 @@ export const OwnerDashboard = () => {
 
     const StatCard = ({ title, value, icon: Icon, color }: any) => (
         <div className="bg-[#0a0f16]/60 backdrop-blur-3xl border border-white/5 rounded-2xl p-6 flex items-center gap-4 shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_40px_rgba(16,185,129,0.15)] hover:border-emerald-500/30 group">
-            <div className={`p-4 rounded-xl ${color}`}>
+            <div className={`p-4 rounded-xl ${color} shrink-0`}>
                 <Icon className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-                <p className="text-gray-400 text-sm font-medium truncate">{title}</p>
-                <h3 className="text-xl xl:text-2xl font-bold text-white truncate" title={String(value)}>{value}</h3>
+                <p className="text-gray-400 text-sm font-medium">{title}</p>
+                <h3 className="text-2xl font-bold text-white truncate" title={String(value)}>{value}</h3>
             </div>
         </div>
     );
@@ -111,12 +111,24 @@ export const OwnerDashboard = () => {
                 </div>
             </ScrollReveal>
 
-            <ScrollReveal className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <ScrollReveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <StatCard
                     title="Tổng Doanh Thu"
                     value={formatCompactCurrency(stats.totalRevenue)}
                     icon={DollarSign}
                     color="bg-emerald-500/20 text-emerald-500"
+                />
+                <StatCard
+                    title="Tổng Chi Phí"
+                    value={formatCompactCurrency(stats.totalExpenses || 0)}
+                    icon={TrendingDown}
+                    color="bg-rose-500/20 text-rose-500"
+                />
+                <StatCard
+                    title="Lợi Nhuận Ròng"
+                    value={formatCompactCurrency(stats.netProfit || 0)}
+                    icon={TrendingUp}
+                    color="bg-cyan-500/20 text-cyan-500"
                 />
                 <StatCard
                     title="Lượt Đặt Sân"
@@ -131,7 +143,7 @@ export const OwnerDashboard = () => {
                     color="bg-emerald-500/20 text-emerald-500"
                 />
                 <StatCard
-                    title="Khách Hàng (Tạm tính)"
+                    title="Khách Hàng Mới"
                     value={stats.recentBookings.length}
                     icon={Users}
                     color="bg-teal-500/20 text-teal-500"
