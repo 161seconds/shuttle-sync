@@ -68,6 +68,7 @@ import type { Court } from './types';
 import { authApi } from './api/auth.api';
 import SplashScreen from './components/SplashScreen';
 
+import ScrollEndEffect from './components/ScrollEndEffect';
 import AppSidebar from './components/layout/Sidebar';
 import GlobalAlert from './components/GlobalAlert';
 import { WelcomeToast } from './components/layout/WelcomeToast';
@@ -275,7 +276,6 @@ export default function App() {
             {/* Global Components */}
             <GlobalAlert />
             <WelcomeToast />
-            <SplashScreen />
             <Shell />
           </AppProvider>
         </BrowserRouter>

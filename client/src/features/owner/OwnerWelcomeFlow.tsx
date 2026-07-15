@@ -7,7 +7,7 @@ import { X, Calendar, Clock, DollarSign, Activity } from 'lucide-react';
 import dayjs from 'dayjs';
 
 export const OwnerWelcomeFlow = () => {
-    const { user } = useAppStore();
+    const {} = useAppStore();
     const [step, setStep] = useState<'idle' | 'greeting' | 'events' | 'done'>('idle');
     const [todayBookings, setTodayBookings] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
