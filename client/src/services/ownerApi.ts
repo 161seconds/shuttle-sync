@@ -65,4 +65,10 @@ export const ownerApi = {
     }) => api.post('/owner/schedule/block', data).then(res => res.data.data),
 
     getBookings: () => api.get('/owner/bookings').then(res => res.data.data),
+
+    updateBooking: (id: string, data: Partial<{ status: string; notes: string; date: string; startTime: string; endTime: string; subCourtId: string }>) => 
+        api.put(`/owner/bookings/${id}`, data).then(res => res.data.data),
+
+    sendBookingNotification: (id: string, message: string) => 
+        api.post(`/owner/bookings/${id}/notify`, { message }).then(res => res.data.data),
 };

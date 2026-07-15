@@ -1,7 +1,9 @@
 import { Types } from 'mongoose';
+import { BookingStatus, PaymentStatus } from '@shuttle-sync/shared';
 import { Venue } from '../models/Venue.model';
 import { Court } from '../models/Court';
 import { Booking } from '../models/Booking';
+import { Notification, NotificationType } from '../models/Notification';
 import { ApiError } from '../utils/ApiError';
 
 class OwnerService {
@@ -102,13 +104,13 @@ class OwnerService {
             {
                 $match: {
                     courtId: venue._id,
-                    createdAt: { $gte: thirtyDaysAgo },
+                    date: { $gte: thirtyDaysAgo },
                     status: 'confirmed'
                 }
             },
             {
                 $group: {
-                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
                     revenue: { $sum: "$finalAmount" },
                     count: { $sum: 1 }
                 }
@@ -127,7 +129,7 @@ class OwnerService {
             {
                 $match: {
                     courtId: venue._id,
-                    createdAt: { $gte: thirtyDaysAgo },
+                    date: { $gte: thirtyDaysAgo },
                     status: 'confirmed'
                 }
             },
@@ -143,7 +145,7 @@ class OwnerService {
             {
                 $group: {
                     _id: {
-                        date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                        date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
                         sportType: "$courtInfo.sportType"
                     },
                     revenue: { $sum: "$finalAmount" }
@@ -268,14 +270,111 @@ class OwnerService {
             finalAmount: 0,
             notes: notes || 'Lịch Offline / Bảo trì',
             payment: {
-                method: 'cash',
-                status: 'paid',
+                method: 'cash' as any,
+                status: PaymentStatus.PAID,
                 expiresAt: new Date(Date.now() + 86400000)
             }
         });
 
         await newBooking.save();
         return newBooking;
+    }
+
+    async updateBooking(ownerId: string, bookingId: string, data: any) {
+        const venue = await this.getVenueByOwnerId(ownerId);
+        if (!venue) throw new ApiError(400, 'Cần tạo cơ sở trước khi thao tác');
+
+        const booking = await Booking.findOne({ _id: bookingId, courtId: venue._id });
+        if (!booking) throw new ApiError(404, 'Không tìm thấy đơn đặt sân');
+
+        const oldStatus = booking.status;
+        if (data.status) {
+            booking.status = data.status;
+            
+            // If the owner marks it as confirmed manually
+            if (data.status === 'confirmed' && oldStatus !== 'confirmed') {
+                booking.payment.status = PaymentStatus.PAID;
+                booking.payment.paidAt = new Date();
+                
+                if (booking.userId) {
+                    await Notification.create({
+                        userId: booking.userId,
+                        title: 'Đơn đặt sân đã được xác nhận',
+                        message: 'Thanh toán thành công và đơn đặt sân đã được duyệt.',
+                        type: NotificationType.BOOKING
+                    });
+                }
+            }
+        }
+
+        if (data.notes !== undefined) {
+            booking.notes = data.notes;
+        }
+
+        const timeToMins = (t: string) => {
+            const [h, m] = t.split(':').map(Number);
+            return h * 60 + m;
+        };
+
+        // Rescheduling logic
+        if (data.date || data.startTime || data.endTime || data.subCourtId) {
+            const newDate = data.date ? new Date(data.date) : booking.date;
+            const newStartTime = data.startTime || booking.startTime;
+            const newEndTime = data.endTime || booking.endTime;
+            const newSubCourtId = data.subCourtId || booking.subCourtId;
+
+            // Normalize newDate to ignore time part
+            const s = new Date(newDate);
+            s.setHours(0,0,0,0);
+            const e = new Date(newDate);
+            e.setHours(23,59,59,999);
+
+            const requestedStartMins = timeToMins(newStartTime);
+            const requestedEndMins = timeToMins(newEndTime);
+
+            // Fetch conflicting bookings for this court and date
+            const conflictingBookings = await Booking.find({
+                _id: { $ne: booking._id }, // Ignore current booking
+                courtId: venue._id,
+                subCourtId: newSubCourtId,
+                date: { $gte: s, $lte: e },
+                status: { $ne: 'cancelled' }
+            });
+
+            for (const b of conflictingBookings) {
+                const bStartMins = timeToMins(b.startTime);
+                const bEndMins = timeToMins(b.endTime);
+                if (requestedStartMins < bEndMins && requestedEndMins > bStartMins) {
+                    throw new ApiError(400, `Sân đã có người đặt từ ${b.startTime} đến ${b.endTime}. Vui lòng chọn giờ/sân khác!`);
+                }
+            }
+
+            booking.date = s; // Save normalized date
+            booking.startTime = newStartTime;
+            booking.endTime = newEndTime;
+            booking.subCourtId = newSubCourtId;
+        }
+
+        await booking.save();
+        return booking;
+    }
+
+    async sendBookingNotification(ownerId: string, bookingId: string, message: string) {
+        const venue = await this.getVenueByOwnerId(ownerId);
+        if (!venue) throw new ApiError(400, 'Cần tạo cơ sở trước khi thao tác');
+
+        const booking = await Booking.findOne({ _id: bookingId, courtId: venue._id });
+        if (!booking) throw new ApiError(404, 'Không tìm thấy đơn đặt sân');
+        if (!booking.userId) throw new ApiError(400, 'Không thể gửi thông báo cho khách vãng lai');
+
+        await Notification.create({
+            userId: booking.userId,
+            title: 'Thông báo từ chủ sân',
+            message: message,
+            type: NotificationType.BOOKING
+        });
+
+        return { success: true };
     }
 }
 

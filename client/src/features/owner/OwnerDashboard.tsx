@@ -6,6 +6,7 @@ import { AreaChart, Area, LineChart, Line, BarChart, Bar, Cell, Legend, XAxis, Y
 import { PageTransition } from '../../components/ui/PageTransition';
 import { ScrollReveal } from '../../components/ui/ScrollReveal';
 import { useAppStore } from '../../store';
+import { BookingActionModal } from './BookingActionModal';
 
 export const OwnerDashboard = () => {
     const { user } = useAppStore();
@@ -13,6 +14,7 @@ export const OwnerDashboard = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedDay, setSelectedDay] = useState<any>(null);
     const [daySchedule, setDaySchedule] = useState<{ bookings: any[], isLoading: boolean } | null>(null);
+    const [actionBooking, setActionBooking] = useState<any>(null);
 
     useEffect(() => {
         ownerApi.getStats()
@@ -261,7 +263,7 @@ export const OwnerDashboard = () => {
                     {stats.recentBookings.map((booking: any) => {
                         const statusKey = String(booking.status).toLowerCase();
                         return (
-                            <div key={booking._id} className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-emerald-500/30 hover:bg-white/10 transition-colors shadow-inner">
+                            <div key={booking._id} onClick={() => setActionBooking(booking)} className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-emerald-500/30 hover:bg-white/10 transition-colors shadow-inner cursor-pointer">
                                 <img src={booking.userId?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=user"} className="w-12 h-12 rounded-full border border-white/10 shadow-sm" alt="avatar" />
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-bold text-white truncate">{booking.userId?.displayName || 'Khách Vãng Lai'}</p>
@@ -384,7 +386,7 @@ export const OwnerDashboard = () => {
                                         {daySchedule?.bookings.map((booking: any) => {
                                             const statusKey = String(booking.status).toLowerCase();
                                             return (
-                                                <div key={booking._id} className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-emerald-500/30 hover:bg-white/10 transition-colors shadow-inner group">
+                                                <div key={booking._id} onClick={() => setActionBooking(booking)} className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:border-emerald-500/30 hover:bg-white/10 transition-colors shadow-inner group cursor-pointer">
                                                     <div className="flex flex-col items-center justify-center w-16 h-16 rounded-xl bg-black/40 border border-white/10 shrink-0 shadow-inner">
                                                         <span className="text-sm font-black text-emerald-400">{booking.startTime}</span>
                                                         <span className="text-[10px] text-gray-500 font-medium">{booking.endTime}</span>
@@ -423,6 +425,20 @@ export const OwnerDashboard = () => {
                     </div>
                 </div>,
                 document.body
+            )}
+            
+            {actionBooking && (
+                <BookingActionModal
+                    booking={actionBooking}
+                    onClose={() => setActionBooking(null)}
+                    onUpdated={() => {
+                        ownerApi.getStats().then(setStats);
+                        if (selectedDay) {
+                            ownerApi.getSchedule(selectedDay.date)
+                                .then(data => setDaySchedule({ bookings: data.bookings || [], isLoading: false }));
+                        }
+                    }}
+                />
             )}
         </PageTransition>
     );
