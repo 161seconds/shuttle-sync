@@ -5,7 +5,6 @@ import { useAppStore } from '../store';
 import { authApi } from '../api/auth.api';
 import { EmojiIcon } from '../components/EmojiIcon';
 import { motion } from 'framer-motion';
-import { useAlertStore } from '../stores/useAlertStore';
 
 function FloatingCards() {
     return (
@@ -168,7 +167,6 @@ function FloatingCards() {
 
 export default function Login() {
     const { setPage, setUser } = useAppStore();
-    const { showAlert } = useAlertStore();
     const [mode, setMode] = useState<'login' | 'register'>('login');
     const [showPw, setShowPw] = useState(false);
     const [loading, setLoading] = useState(false);
