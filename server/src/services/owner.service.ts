@@ -4,6 +4,7 @@ import { Venue } from '../models/Venue.model';
 import { Court } from '../models/Court';
 import { Booking } from '../models/Booking';
 import { Notification, NotificationType } from '../models/Notification';
+import { Expense } from '../models/Expense';
 import { ApiError } from '../utils/ApiError';
 
 class OwnerService {
@@ -193,6 +194,20 @@ class OwnerService {
             value: t.count
         }));
 
+        const expenses = await Expense.find({
+            venueId: venue._id,
+            date: { $gte: thirtyDaysAgo }
+        }).lean();
+
+        const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+
+        const expensesByCategory = Object.entries(
+            expenses.reduce((acc: any, e) => {
+                acc[e.category] = (acc[e.category] || 0) + e.amount;
+                return acc;
+            }, {})
+        ).map(([name, value]) => ({ name, value }));
+
         return {
             hasVenue: true,
             venueId: venue._id,
@@ -201,9 +216,12 @@ class OwnerService {
             totalCourts,
             totalBookings,
             totalRevenue,
+            totalExpenses,
+            netProfit: totalRevenue - totalExpenses,
             bookingTrend,
             bookingTrendBySport,
             bookingsByStatus,
+            expensesByCategory,
             recentBookings
         };
     }
@@ -374,6 +392,60 @@ class OwnerService {
             type: NotificationType.BOOKING
         });
 
+        return { success: true };
+    }
+
+    // EXPENSE MANAGEMENT
+    async getExpenses(ownerId: string, query: any) {
+        const venue = await this.getVenueByOwnerId(ownerId);
+        if (!venue) throw new ApiError(400, 'Cần tạo cơ sở trước khi thao tác');
+
+        const filter: any = { venueId: venue._id };
+        
+        if (query.month && query.year) {
+            const startDate = new Date(parseInt(query.year), parseInt(query.month) - 1, 1);
+            const endDate = new Date(parseInt(query.year), parseInt(query.month), 0, 23, 59, 59, 999);
+            filter.date = { $gte: startDate, $lte: endDate };
+        }
+
+        const expenses = await Expense.find(filter).sort({ date: -1 });
+        return expenses;
+    }
+
+    async createExpense(ownerId: string, data: any) {
+        const venue = await this.getVenueByOwnerId(ownerId);
+        if (!venue) throw new ApiError(400, 'Cần tạo cơ sở trước khi thao tác');
+
+        const expense = new Expense({
+            ...data,
+            venueId: venue._id
+        });
+
+        await expense.save();
+        return expense;
+    }
+
+    async updateExpense(ownerId: string, expenseId: string, data: any) {
+        const venue = await this.getVenueByOwnerId(ownerId);
+        if (!venue) throw new ApiError(400, 'Cần tạo cơ sở trước khi thao tác');
+
+        const expense = await Expense.findOneAndUpdate(
+            { _id: expenseId, venueId: venue._id },
+            { $set: data },
+            { new: true }
+        );
+
+        if (!expense) throw new ApiError(404, 'Không tìm thấy chi phí');
+        return expense;
+    }
+
+    async deleteExpense(ownerId: string, expenseId: string) {
+        const venue = await this.getVenueByOwnerId(ownerId);
+        if (!venue) throw new ApiError(400, 'Cần tạo cơ sở trước khi thao tác');
+
+        const result = await Expense.findOneAndDelete({ _id: expenseId, venueId: venue._id });
+        if (!result) throw new ApiError(404, 'Không tìm thấy chi phí');
+        
         return { success: true };
     }
 }

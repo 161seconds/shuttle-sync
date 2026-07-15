@@ -4,6 +4,7 @@ import { useAlertStore } from '../../stores/useAlertStore';
 import { ChevronLeft, ChevronRight, Loader2, Lock, User, X, Clock, Info, Repeat } from 'lucide-react';
 import dayjs from 'dayjs';
 import { DatePicker } from '../../components/ui/DatePicker';
+import { CustomSelect } from '../../components/ui/CustomSelect';
 
 interface CourtData {
     _id: string;
@@ -331,17 +332,14 @@ export const OwnerSchedule = () => {
                         <form onSubmit={handleBlockSlot} className="p-6 space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-400 mb-1.5">Sân <span className="text-red-500">*</span></label>
-                                <select
-                                    required
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none shadow-inner transition-all hover:border-white/20"
+                                <CustomSelect
                                     value={blockData.subCourtId}
-                                    onChange={e => setBlockData({ ...blockData, subCourtId: e.target.value })}
-                                >
-                                    <option value="" disabled>-- Chọn sân --</option>
-                                    {courts.map(c => (
-                                        <option key={c._id} value={c._id}>{c.name}</option>
-                                    ))}
-                                </select>
+                                    onChange={val => setBlockData({ ...blockData, subCourtId: val })}
+                                    options={[
+                                        { value: '', label: '-- Chọn sân --' },
+                                        ...courts.map(c => ({ value: c._id, label: c.name }))
+                                    ]}
+                                />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">

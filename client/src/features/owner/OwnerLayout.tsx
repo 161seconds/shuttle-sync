@@ -2,7 +2,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useAppStore } from '../../store';
 import { ownerApi } from '../../services/ownerApi';
-import { LayoutDashboard, LogOut, Settings, CalendarDays, Loader2, Dumbbell, Clock, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, LogOut, Settings, CalendarDays, Loader2, Dumbbell, Clock, HelpCircle, TrendingDown } from 'lucide-react';
 import PremiumBackground from '../../components/ui/PremiumBackground';
 import { OwnerWelcomeFlow } from './OwnerWelcomeFlow';
 
@@ -37,6 +37,14 @@ export const OwnerLayout = () => {
             });
     }, [user, navigate, location.pathname]);
 
+    useEffect(() => {
+        // Apply 75% scale (12px = 16px * 0.75) to give the spacious feeling requested by user
+        document.documentElement.style.fontSize = '12px';
+        return () => {
+            document.documentElement.style.fontSize = '';
+        };
+    }, []);
+
     const handleLogout = async () => {
         setUser(null);
         navigate('/');
@@ -55,6 +63,7 @@ export const OwnerLayout = () => {
         { name: 'Cấu hình giá sân', href: '/owner/courts', icon: Dumbbell },
         { name: 'Lịch Đặt', href: '/owner/bookings', icon: CalendarDays },
         { name: 'Lịch hoạt động', href: '/owner/schedule', icon: Clock },
+        { name: 'Chi phí', href: '/owner/expenses', icon: TrendingDown },
         { name: 'Cài đặt', href: '/owner/settings', icon: Settings },
     ];
 

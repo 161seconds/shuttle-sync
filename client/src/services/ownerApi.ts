@@ -8,9 +8,12 @@ export interface OwnerStats {
     totalCourts: number;
     totalBookings: number;
     totalRevenue: number;
+    totalExpenses: number;
+    netProfit: number;
     bookingTrend: { date: string; revenue: number; count: number }[];
     bookingTrendBySport: any[];
     bookingsByStatus: { name: string; value: number }[];
+    expensesByCategory: { name: string; value: number }[];
     recentBookings: any[];
     venueSports: string[];
 }
@@ -66,9 +69,23 @@ export const ownerApi = {
 
     getBookings: () => api.get('/owner/bookings').then(res => res.data.data),
 
-    updateBooking: (id: string, data: Partial<{ status: string; notes: string; date: string; startTime: string; endTime: string; subCourtId: string }>) => 
-        api.put(`/owner/bookings/${id}`, data).then(res => res.data.data),
+    updateBooking: (id: string, data: any) => api.put(`/owner/bookings/${id}`, data).then(res => res.data.data),
 
-    sendBookingNotification: (id: string, message: string) => 
-        api.post(`/owner/bookings/${id}/notify`, { message }).then(res => res.data.data),
+    sendBookingNotification: (id: string, message: string) => api.post(`/owner/bookings/${id}/notify`, { message }).then(res => res.data.data),
+
+    // Expenses
+    getExpenses: (month?: number, year?: number) => {
+        let url = '/owner/expenses';
+        if (month && year) url += `?month=${month}&year=${year}`;
+        return api.get(url).then(res => res.data.data);
+    },
+    
+    createExpense: (data: { amount: number; category: string; date: string; description: string; }) => 
+        api.post('/owner/expenses', data).then(res => res.data.data),
+        
+    updateExpense: (id: string, data: any) => 
+        api.put(`/owner/expenses/${id}`, data).then(res => res.data.data),
+        
+    deleteExpense: (id: string) => 
+        api.delete(`/owner/expenses/${id}`).then(res => res.data.data),
 };

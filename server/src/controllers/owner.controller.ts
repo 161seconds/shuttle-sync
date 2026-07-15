@@ -114,6 +114,45 @@ class OwnerController {
             next(error);
         }
     }
+
+    // EXPENSES
+    async getExpenses(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const expenses = await ownerService.getExpenses(req.userId!, req.query);
+            sendSuccess(res, expenses);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async createExpense(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const expense = await ownerService.createExpense(req.userId!, req.body);
+            sendCreated(res, expense, 'Thêm chi phí thành công');
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async updateExpense(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params;
+            const expense = await ownerService.updateExpense(req.userId!, id, req.body);
+            sendSuccess(res, expense, 'Cập nhật chi phí thành công');
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deleteExpense(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params;
+            await ownerService.deleteExpense(req.userId!, id);
+            sendSuccess(res, null, 'Xóa chi phí thành công');
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export const ownerController = new OwnerController();

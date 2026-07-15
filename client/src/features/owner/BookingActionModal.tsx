@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Send, Save, Loader2, AlertTriangle } from 'lucide-react';
 import { ownerApi } from '../../services/ownerApi';
+import { CustomSelect } from '../../components/ui/CustomSelect';
 
 interface BookingActionModalProps {
     booking: any;
@@ -89,16 +90,16 @@ export const BookingActionModal: React.FC<BookingActionModalProps> = ({ booking,
                         
                         <div>
                             <label className="block text-sm text-gray-400 mb-1.5">Trạng thái đơn</label>
-                            <select
+                            <CustomSelect
                                 value={status}
-                                onChange={(e) => setStatus(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all"
-                            >
-                                <option value="pending_payment" className="bg-gray-900">Chờ thanh toán</option>
-                                <option value="confirmed" className="bg-gray-900">Đã xác nhận</option>
-                                <option value="completed" className="bg-gray-900">Đã hoàn thành</option>
-                                <option value="cancelled" className="bg-gray-900">Đã hủy</option>
-                            </select>
+                                onChange={(val) => setStatus(val)}
+                                options={[
+                                    { value: 'pending_payment', label: 'Chờ thanh toán' },
+                                    { value: 'confirmed', label: 'Đã xác nhận' },
+                                    { value: 'completed', label: 'Đã hoàn thành' },
+                                    { value: 'cancelled', label: 'Đã hủy' }
+                                ]}
+                            />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -113,15 +114,11 @@ export const BookingActionModal: React.FC<BookingActionModalProps> = ({ booking,
                             </div>
                             <div>
                                 <label className="block text-sm text-gray-400 mb-1.5">Sân</label>
-                                <select
+                                <CustomSelect
                                     value={subCourtId}
-                                    onChange={(e) => setSubCourtId(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all"
-                                >
-                                    {courts.map(c => (
-                                        <option key={c._id} value={c._id} className="bg-gray-900">{c.name} ({c.sportType})</option>
-                                    ))}
-                                </select>
+                                    onChange={(val) => setSubCourtId(val)}
+                                    options={courts.map(c => ({ value: c._id, label: `${c.name} (${c.sportType})` }))}
+                                />
                             </div>
                         </div>
 

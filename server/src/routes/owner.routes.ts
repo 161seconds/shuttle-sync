@@ -31,4 +31,10 @@ router.get('/bookings', ownerController.getBookings);
 router.put('/bookings/:id', ownerController.updateBooking);
 router.post('/bookings/:id/notify', ownerController.sendBookingNotification);
 
+// Quản lý Chi phí (Expenses)
+router.get('/expenses', ownerController.getExpenses);
+router.post('/expenses', ownerController.createExpense);
+router.put('/expenses/:id', ownerController.updateExpense);
+router.delete('/expenses/:id', ownerController.deleteExpense);
+
 export default router;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ownerApi } from '../../services/ownerApi';
 import { useAlertStore } from '../../stores/useAlertStore';
+import { CustomSelect } from '../../components/ui/CustomSelect';
 import { Plus, Edit2, ShieldAlert, CheckCircle2, Dumbbell, Wallet, Loader2, X } from 'lucide-react';
 import type { SportType, IPricingConfig } from '../../types';
 
@@ -246,27 +247,27 @@ export const OwnerCourts = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Môn thể thao</label>
-                                    <select 
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none shadow-inner transition-all hover:border-white/20"
+                                    <CustomSelect
                                         value={formData.sportType}
-                                        onChange={e => setFormData({...formData, sportType: e.target.value})}
-                                    >
-                                        <option value="BADMINTON">Cầu lông</option>
-                                        <option value="PICKLEBALL">Pickleball</option>
-                                        <option value="TENNIS">Tennis</option>
-                                    </select>
+                                        onChange={val => setFormData({...formData, sportType: val})}
+                                        options={[
+                                            { value: 'BADMINTON', label: 'Cầu lông' },
+                                            { value: 'PICKLEBALL', label: 'Pickleball' },
+                                            { value: 'TENNIS', label: 'Tennis' }
+                                        ]}
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Mặt sân</label>
-                                    <select 
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none shadow-inner transition-all hover:border-white/20"
+                                    <CustomSelect
                                         value={formData.surfaceType}
-                                        onChange={e => setFormData({...formData, surfaceType: e.target.value})}
-                                    >
-                                        <option value="SYNTHETIC">Thảm (Synthetic)</option>
-                                        <option value="WOOD">Gỗ (Wood)</option>
-                                        <option value="CONCRETE">Xi măng (Concrete)</option>
-                                    </select>
+                                        onChange={val => setFormData({...formData, surfaceType: val})}
+                                        options={[
+                                            { value: 'SYNTHETIC', label: 'Thảm (Synthetic)' },
+                                            { value: 'WOOD', label: 'Gỗ (Wood)' },
+                                            { value: 'CONCRETE', label: 'Xi măng (Concrete)' }
+                                        ]}
+                                    />
                                 </div>
                             </div>
 

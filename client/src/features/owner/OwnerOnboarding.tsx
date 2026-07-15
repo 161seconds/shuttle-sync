@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ownerApi } from '../../services/ownerApi';
+import { CustomSelect } from '../../components/ui/CustomSelect';
 import { Loader2, ArrowRight, Building2, MapPin, Phone } from 'lucide-react';
 import { useAlertStore } from '../../stores/useAlertStore';
 
@@ -141,33 +142,29 @@ export const OwnerOnboarding = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-300 mb-1">Quận/Huyện <span className="text-red-500">*</span></label>
-                                <select 
+                                <CustomSelect 
                                     value={formData.state}
-                                    onChange={e => setFormData({...formData, state: e.target.value})}
-                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                                    required
-                                >
-                                    <option value="" disabled>-- Chọn Quận/Huyện --</option>
-                                    {[
-                                        'Quận 1', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7', 'Quận 8', 'Quận 10', 'Quận 11', 'Quận 12',
-                                        'Bình Tân', 'Bình Thạnh', 'Gò Vấp', 'Phú Nhuận', 'Tân Bình', 'Tân Phú', 'Thành phố Thủ Đức',
-                                        'Huyện Bình Chánh', 'Huyện Cần Giờ', 'Huyện Củ Chi', 'Huyện Hóc Môn', 'Huyện Nhà Bè'
-                                    ].map(d => (
-                                        <option key={d} value={d}>{d}</option>
-                                    ))}
-                                </select>
+                                    onChange={val => setFormData({...formData, state: val})}
+                                    options={[
+                                        { value: '', label: '-- Chọn Quận/Huyện --' },
+                                        ...[
+                                            'Quận 1', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7', 'Quận 8', 'Quận 10', 'Quận 11', 'Quận 12',
+                                            'Bình Tân', 'Bình Thạnh', 'Gò Vấp', 'Phú Nhuận', 'Tân Bình', 'Tân Phú', 'Thành phố Thủ Đức',
+                                            'Huyện Bình Chánh', 'Huyện Cần Giờ', 'Huyện Củ Chi', 'Huyện Hóc Môn', 'Huyện Nhà Bè'
+                                        ].map(d => ({ value: d, label: d }))
+                                    ]}
+                                />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-300 mb-1">Tỉnh/Thành phố <span className="text-red-500">*</span></label>
-                                <select 
+                                <CustomSelect 
                                     value={formData.city}
-                                    onChange={e => setFormData({...formData, city: e.target.value})}
-                                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                                    required
+                                    onChange={val => setFormData({...formData, city: val})}
+                                    options={[
+                                        { value: 'Hồ Chí Minh', label: 'Hồ Chí Minh' }
+                                    ]}
                                     disabled
-                                >
-                                    <option value="Hồ Chí Minh">Hồ Chí Minh</option>
-                                </select>
+                                />
                             </div>
                         </div>
                     </div>
@@ -175,15 +172,11 @@ export const OwnerOnboarding = () => {
                     {/* Image */}
                     <div className="space-y-4 pt-4 border-t border-gray-700/50">
                         <h2 className="text-lg font-medium text-emerald-400">Hình ảnh đại diện (Main Avatar)</h2>
-                        <select 
+                        <CustomSelect 
                             value={formData.imageUrl}
-                            onChange={e => setFormData({...formData, imageUrl: e.target.value})}
-                            className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                        >
-                            {PRESET_IMAGES.map(img => (
-                                <option key={`main-${img.label}`} value={img.value}>{img.label}</option>
-                            ))}
-                        </select>
+                            onChange={val => setFormData({...formData, imageUrl: val})}
+                            options={PRESET_IMAGES.map(img => ({ value: img.value, label: img.label }))}
+                        />
                         {formData.imageUrl && (
                             <div className="mt-2 w-full h-40 rounded-lg overflow-hidden border border-gray-700">
                                 <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.src = 'https://placehold.co/600x400/1f2937/a855f7?text=L%E1%BB%97i+T%E1%BA%A3i+%E1%BA%A2nh')} />
@@ -197,19 +190,18 @@ export const OwnerOnboarding = () => {
                         <div className="grid grid-cols-2 gap-4">
                             {[0, 1, 2, 3].map(index => (
                                 <div key={index}>
-                                    <select 
+                                    <CustomSelect 
                                         value={formData.subImages[index]}
-                                        onChange={e => {
+                                        onChange={val => {
                                             const newSubImages = [...formData.subImages];
-                                            newSubImages[index] = e.target.value;
+                                            newSubImages[index] = val;
                                             setFormData({...formData, subImages: newSubImages});
                                         }}
-                                        className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-sm"
-                                    >
-                                        {PRESET_IMAGES.map(img => (
-                                            <option key={`sub-${index}-${img.label}`} value={img.value}>{img.label === 'Không chọn' ? `-- Ảnh phụ ${index + 1} --` : img.label}</option>
-                                        ))}
-                                    </select>
+                                        options={PRESET_IMAGES.map(img => ({ 
+                                            value: img.value, 
+                                            label: img.label === 'Không chọn' ? `-- Ảnh phụ ${index + 1} --` : img.label 
+                                        }))}
+                                    />
                                     {formData.subImages[index] && (
                                         <div className="mt-2 w-full h-24 rounded-lg overflow-hidden border border-gray-700">
                                             <img src={formData.subImages[index]} alt={`Preview ${index}`} className="w-full h-full object-cover" onError={(e) => (e.currentTarget.src = 'https://placehold.co/600x400/1f2937/a855f7?text=L%E1%BB%97i')} />
