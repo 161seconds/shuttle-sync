@@ -93,6 +93,27 @@ class OwnerController {
             next(error);
         }
     }
+
+    async updateBooking(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params;
+            const updated = await ownerService.updateBooking(req.userId!, id, req.body);
+            sendSuccess(res, updated, 'Cập nhật đơn đặt sân thành công');
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async sendBookingNotification(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params;
+            const { message } = req.body;
+            await ownerService.sendBookingNotification(req.userId!, id, message);
+            sendSuccess(res, null, 'Gửi thông báo thành công');
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export const ownerController = new OwnerController();

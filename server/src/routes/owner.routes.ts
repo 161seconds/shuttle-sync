@@ -28,5 +28,7 @@ router.post('/schedule/block', ownerController.blockSlot);
 
 // Quản lý Đặt Sân (Bookings)
 router.get('/bookings', ownerController.getBookings);
+router.put('/bookings/:id', ownerController.updateBooking);
+router.post('/bookings/:id/notify', ownerController.sendBookingNotification);
 
 export default router;

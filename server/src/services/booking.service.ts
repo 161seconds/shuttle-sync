@@ -254,7 +254,7 @@ class BookingService {
 
     async confirmPayment(bookingCode: string, userId: string) {
         if (bookingCode.startsWith('GRP')) {
-            const bookings = await Booking.find({ groupId: bookingCode, userId }).populate({ path: 'courtId', model: 'Venue', select: 'name' });
+            const bookings = await Booking.find({ groupId: bookingCode, userId }).populate({ path: 'courtId', model: 'Venue', select: 'name ownerId' });
             if (!bookings.length) throw new Error('Không tìm thấy nhóm đơn đặt sân');
 
             await Booking.updateMany(
@@ -270,6 +270,8 @@ class BookingService {
             );
 
             const courtName = (bookings[0].courtId as any)?.name || 'Sân cầu lông';
+            const ownerId = (bookings[0].courtId as any)?.ownerId;
+
             await notificationService.createNotification({
                 userId,
                 title: '🎉 Thanh toán gói cố định thành công!',
@@ -277,9 +279,18 @@ class BookingService {
                 type: 'booking'
             }).catch(err => logger.error("Lỗi tạo thông báo:", err));
 
+            if (ownerId) {
+                await notificationService.createNotification({
+                    userId: ownerId,
+                    title: '🔔 Có đơn đặt sân cố định mới!',
+                    message: `Khách hàng vừa thanh toán thành công ${bookings.length} buổi tại ${courtName}. Mã đơn: ${bookingCode}`,
+                    type: 'booking'
+                }).catch(err => logger.error("Lỗi tạo thông báo owner:", err));
+            }
+
             return bookings[0];
         } else {
-            const booking = await Booking.findOne({ bookingCode, userId }).populate({ path: 'courtId', model: 'Venue', select: 'name' });
+            const booking = await Booking.findOne({ bookingCode, userId }).populate({ path: 'courtId', model: 'Venue', select: 'name ownerId' });
             if (!booking) throw new Error('Không tìm thấy đơn đặt sân');
 
             booking.status = BookingStatus.CONFIRMED;
@@ -290,12 +301,23 @@ class BookingService {
             await booking.save();
 
             const courtName = (booking.courtId as any)?.name || 'Sân cầu lông';
+            const ownerId = (booking.courtId as any)?.ownerId;
+
             await notificationService.createNotification({
                 userId,
                 title: '🎉 Thanh toán thành công!',
                 message: `Bạn đã thanh toán thành công đơn đặt ${courtName} lúc ${booking.startTime} ngày ${booking.date.toLocaleDateString('vi-VN')}.`,
                 type: 'booking'
             }).catch(err => logger.error("Lỗi tạo thông báo:", err));
+
+            if (ownerId) {
+                await notificationService.createNotification({
+                    userId: ownerId,
+                    title: '🔔 Có đơn đặt sân mới!',
+                    message: `Khách hàng vừa thanh toán đơn đặt ${courtName} lúc ${booking.startTime} ngày ${booking.date.toLocaleDateString('vi-VN')}. Mã đơn: ${bookingCode}`,
+                    type: 'booking'
+                }).catch(err => logger.error("Lỗi tạo thông báo owner:", err));
+            }
 
             return booking;
         }
