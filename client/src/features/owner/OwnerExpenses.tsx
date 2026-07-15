@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { ownerApi } from '../../services/ownerApi';
 import { PageTransition } from '../../components/ui/PageTransition';
 import { ScrollReveal } from '../../components/ui/ScrollReveal';
-import { Loader2, Plus, Edit2, Trash2, Calendar, TrendingDown } from 'lucide-react';
+import { Loader2, Plus, Edit2, Trash2, TrendingDown } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import { CustomSelect } from '../../components/ui/CustomSelect';
 
 const formatCurrency = (amount: number) => {
@@ -189,7 +189,7 @@ export const OwnerExpenses = () => {
                                         expenses.map((expense) => (
                                             <tr key={expense._id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                                                 <td className="p-4 whitespace-nowrap text-gray-300">
-                                                    {format(new Date(expense.date), 'dd/MM/yyyy')}
+                                                    {dayjs(expense.date).format('DD/MM/YYYY')}
                                                 </td>
                                                 <td className="p-4 text-gray-300">
                                                     <span className="bg-white/10 px-3 py-1 rounded-full text-sm">
@@ -239,7 +239,7 @@ export const OwnerExpenses = () => {
                                             paddingAngle={5}
                                             dataKey="value"
                                         >
-                                            {expensesByCategory.map((entry, index) => (
+                                            {expensesByCategory.map((_, index) => (
                                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                             ))}
                                         </Pie>
