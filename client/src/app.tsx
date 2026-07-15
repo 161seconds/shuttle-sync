@@ -32,6 +32,7 @@ export const pageImports = {
   OwnerLayout: () => import('./features/owner/OwnerLayout').then(m => ({ default: m.OwnerLayout })),
   OwnerOnboarding: () => import('./features/owner/OwnerOnboarding').then(m => ({ default: m.OwnerOnboarding })),
   OwnerDashboard: () => import('./features/owner/OwnerDashboard').then(m => ({ default: m.OwnerDashboard })),
+  OwnerExpenses: () => import('./features/owner/OwnerExpenses').then(m => ({ default: m.OwnerExpenses })),
 };
 
 const Dashboard = lazy(pageImports.Dashboard);
@@ -60,6 +61,7 @@ const SupportPage = lazy(pageImports.SupportPage);
 const OwnerLayout = lazy(pageImports.OwnerLayout);
 const OwnerOnboarding = lazy(pageImports.OwnerOnboarding);
 const OwnerDashboard = lazy(pageImports.OwnerDashboard);
+const OwnerExpenses = lazy(pageImports.OwnerExpenses);
 
 import { useOnboarding, OnboardingModal, GuidedTourOverlay } from './features/onboarding';
 import PremiumBackground from './components/ui/PremiumBackground';
@@ -228,6 +230,7 @@ function Shell() {
               <Route path="courts" element={<OwnerCourts />} />
               <Route path="schedule" element={<OwnerSchedule />} />
               <Route path="bookings" element={<OwnerBookings />} />
+              <Route path="expenses" element={<OwnerExpenses />} />
               <Route path="settings" element={<OwnerSettings />} />
             </Route>
             <Route path="onboarding" element={<OwnerOnboarding />} />
