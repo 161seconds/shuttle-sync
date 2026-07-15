@@ -12,10 +12,12 @@ ShuttleSync is a next-generation online court booking and club management platfo
 
 - **Flexible Time Picker:** Allows athletes to intuitively drag, expand, or adjust custom reservation durations with 30-minute step granularities rather than getting cornered into static, pre-configured timeslots.
 - **Real-time Conflict-Free Engine:** An advanced concurrency filtering engine implemented on both client and server layers using an interval intersection mathematical model ($Start_{1} < End_{2} \land End_{1} > Start_{2}$) to eliminate race conditions.
+- **Owner Expense Tracking (New):** Comprehensive financial tracking for court owners to record utility, maintenance, and salary expenses, paired with real-time Net Profit analytics and Pie Chart categorizations.
+- **Premium Glassmorphism UI (New):** Features a meticulously crafted dark theme interface using Framer Motion, backdrop blur, custom animated dropdowns, and an optimized 80% scale enterprise viewport.
+- **Matchmaking Hub & Dynamic Brackets:** Empowered users to spawn custom open matchmaking matches (Group Play) that dynamically hide or archive when reaching past schedule intervals. Includes fully automated, esports-ready knockout tournament bracket trees.
 - **AI Coach Chatbot Integration:** Seamlessly embedded Gemini Flash Latest through an auto-recovery retry mechanism that intercepts transient 503 errors, acting as an elite tactician for BWF rulesets and training advice.
 - **Secure Cookie Auth & Persistent Sessions:** Migrated standard volatile storage architectures completely over to HttpOnly cookies, combined with a smooth background re-authentication mechanism that securely rehydrates active user state upon page refreshes without any UI flickers.
-- **Matchmaking Hub & Dynamic Brackets:** Empowered users to spawn custom open matchmaking matches that dynamically hide or archive when reaching past schedule intervals. Includes fully automated, esports-ready knockout tournament bracket trees.
-- **Admin Insights Dashboard & Analytics:** Interactive visualizations integrated via Recharts, mapping out localized metrics including granular financial streams and comprehensive sport-type volumetric split analysis (Badminton vs. Pickleball distribution ratios).
+- **Owner & Admin Insights Dashboard:** Interactive visualizations integrated via Recharts, mapping out localized metrics including granular financial streams and comprehensive sport-type volumetric split analysis.
 
 ---
 
@@ -23,10 +25,11 @@ ShuttleSync is a next-generation online court booking and club management platfo
 
 **Frontend (Client):**
 - React.js + Vite (Fully typed with TypeScript for complete structural safety)
-- Tailwind CSS (Configured with deep immersive dark-mode sub-themes)
+- Tailwind CSS (Configured with deep immersive dark-mode sub-themes and global scaling)
 - Zustand (Ultralightweight, predictable centralized state store)
 - Framer Motion (Fluid, hardware-accelerated motion choreography and esports transitions)
-- Lucide React (Consistent, clean vector iconography system replacing generic emojis)
+- Lucide React (Consistent, clean vector iconography system)
+- Recharts (Rich and interactive data visualization)
 
 **Backend (Server)**
 - Node.js + Express (Strict Object-Oriented TypeScript structure relying on Clean Architecture layers)
@@ -41,7 +44,7 @@ ShuttleSync is a next-generation online court booking and club management platfo
 The repository leverages an end-to-end type-safe Monorepo layout, isolating presentation structures and orchestration nodes while sharing foundational interfaces:
 
 ```text
-badminton-management/
+shuttle-sync/
 ├── client/          # Vite + React Frontend Application (UI Layer)
 ├── server/          # Node.js + Express RESTful & WebSocket Backend (Clean Architecture)
 └── shared/          # Centralized Shared Repository hosting data types, validation schemas & enums
@@ -49,12 +52,11 @@ badminton-management/
 
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
 ### 1. Prerequisites
-Node.js (Runtime environment version v18.0.0 or higher required)
-
-MongoDB Compass (Local instances or accessible cloud cluster endpoint strings)
+- Node.js (Runtime environment version v18.0.0 or higher required)
+- MongoDB Compass (Local instances or accessible cloud cluster endpoint strings)
 
 ### 2. Installation
 
