@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Star, Flame, ChevronRight, ChevronLeft, Search, Users, Zap, Clock, Activity, Gift, Heart, Crown } from 'lucide-react';
-import { theme as t, formatPrice } from '../utils/theme';
+import { theme as t, formatPrice, getGreetingByTime } from '../utils/theme';
 import { useAppStore } from '../store';
 import { courtApi } from '../api/court.api';
 import type { Court } from '../types';
@@ -135,9 +135,6 @@ export default function Dashboard() {
         setPage('search'); // Chuyển sang trang tìm kiếm
     };
 
-    const getGreeting = () => {
-        return 'Chào ngày mới';
-    };
 
     return (
         <PullToRefresh onRefresh={fetchDashboardData}>
@@ -153,7 +150,7 @@ export default function Dashboard() {
                             initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}
                             className={`text-sm font-medium ${t.text.muted} mb-1`}
                         >
-                            {getGreeting()},
+                            {getGreetingByTime()},
                         </motion.p>
                         <motion.h1
                             initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}

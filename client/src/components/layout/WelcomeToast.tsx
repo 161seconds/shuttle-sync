@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../store';
+import { getGreetingByTime } from '../../utils/theme';
 
 const MOCK_MESSAGES = [
     "Chúc bạn một ngày mới tràn đầy năng lượng! ⚡️",
@@ -15,26 +16,22 @@ const MOCK_MESSAGES = [
 ];
 
 export const WelcomeToast = () => {
-    const { user } = useAppStore();
+    const { user, justLoggedIn, setJustLoggedIn } = useAppStore();
     const [show, setShow] = useState(false);
     const [messageIndex, setMessageIndex] = useState(0);
 
     useEffect(() => {
-        // Only show if user is logged in and we haven't shown it in this session
-        if (!user) return;
-        
-        const hasSeen = sessionStorage.getItem('global_welcome_shown');
-        if (!hasSeen) {
+        if (justLoggedIn) {
             setShow(true);
-            sessionStorage.setItem('global_welcome_shown', 'true');
+            setJustLoggedIn(false);
         }
-    }, [user]);
+    }, [justLoggedIn, setJustLoggedIn]);
 
     useEffect(() => {
         if (show) {
             const timer = setTimeout(() => {
                 setShow(false);
-            }, 4000);
+            }, 5000);
             
             const messageTimer = setInterval(() => {
                 setMessageIndex(prev => (prev + 1) % MOCK_MESSAGES.length);
@@ -64,8 +61,8 @@ export const WelcomeToast = () => {
                             alt="Avatar" 
                             className="w-8 h-8 rounded-full border border-emerald-500/50"
                         />
-                        <div className="flex flex-col min-w-[220px]">
-                            <p className="text-white font-medium">Chào ngày mới, {user?.displayName || 'bạn'}!</p>
+                        <div className="flex flex-col min-w-[280px] sm:min-w-[320px]">
+                            <p className="text-white font-medium">{getGreetingByTime()}, {user?.displayName || 'bạn'}!</p>
                             <div className="relative h-4 overflow-hidden mt-0.5">
                                 <AnimatePresence mode="popLayout">
                                     <motion.p
