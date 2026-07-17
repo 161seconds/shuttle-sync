@@ -68,3 +68,11 @@ export const formatPrice = (n: number) => {
     if (n >= 1000) return `${Math.round(n / 1000)}K`;
     return n.toString();
 };
+
+export const getGreetingByTime = () => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return 'Chào buổi sáng';
+    if (hour >= 12 && hour < 18) return 'Chào buổi chiều';
+    if (hour >= 18 && hour < 22) return 'Chào buổi tối';
+    return 'Cú đêm chăm chỉ';
+};

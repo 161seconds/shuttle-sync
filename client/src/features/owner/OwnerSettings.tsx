@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { ownerApi } from '../../services/ownerApi';
-import { PageTransition } from '../../components/ui/PageTransition';
-import { ScrollReveal } from '../../components/ui/ScrollReveal';
 import { CustomSelect } from '../../components/ui/CustomSelect';
 import { Loader2, Save, Building2, MapPin, Phone, User, ImageIcon } from 'lucide-react';
 import { useAlertStore } from '../../stores/useAlertStore';
