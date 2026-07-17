@@ -2,9 +2,22 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../store';
 
+const MOCK_MESSAGES = [
+    "Chúc bạn một ngày mới tràn đầy năng lượng! ⚡️",
+    "Rất vui được gặp lại bạn ngày hôm nay! 🥰",
+    "Hãy cùng tạo nên một ngày tuyệt vời nhé! 🌟",
+    "Cảm ơn bạn đã luôn đồng hành cùng ShuttleSync! 💚",
+    "Mỗi ngày là một cơ hội mới để vươn xa hơn! 🚀",
+    "Đừng quên dành chút thời gian thư giãn nhé! ☕",
+    "Niềm vui luôn bắt đầu từ những điều nhỏ nhất! ✨",
+    "Chúc bạn vạn sự hanh thông, mọi việc thuận lợi! 🍀",
+    "Khởi động ngày mới với nụ cười thật tươi nào! 😊"
+];
+
 export const WelcomeToast = () => {
     const { user } = useAppStore();
     const [show, setShow] = useState(false);
+    const [messageIndex, setMessageIndex] = useState(0);
 
     useEffect(() => {
         // Only show if user is logged in and we haven't shown it in this session
@@ -14,13 +27,25 @@ export const WelcomeToast = () => {
         if (!hasSeen) {
             setShow(true);
             sessionStorage.setItem('global_welcome_shown', 'true');
-            
-            const timer = setTimeout(() => {
-                setShow(false);
-            }, 3000);
-            return () => clearTimeout(timer);
         }
     }, [user]);
+
+    useEffect(() => {
+        if (show) {
+            const timer = setTimeout(() => {
+                setShow(false);
+            }, 4000);
+            
+            const messageTimer = setInterval(() => {
+                setMessageIndex(prev => (prev + 1) % MOCK_MESSAGES.length);
+            }, 1200);
+
+            return () => {
+                clearTimeout(timer);
+                clearInterval(messageTimer);
+            };
+        }
+    }, [show]);
 
     return (
         <AnimatePresence>
@@ -29,7 +54,7 @@ export const WelcomeToast = () => {
                     key="global-welcome"
                     initial={{ opacity: 0, y: -50 }}
                     animate={{ opacity: 1, y: 20 }}
-                    exit={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
+                    exit={{ opacity: 0, y: -50 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                     className="fixed top-4 left-0 right-0 z-[9999] flex justify-center pointer-events-none px-4"
                 >
@@ -39,9 +64,22 @@ export const WelcomeToast = () => {
                             alt="Avatar" 
                             className="w-8 h-8 rounded-full border border-emerald-500/50"
                         />
-                        <div>
+                        <div className="flex flex-col min-w-[220px]">
                             <p className="text-white font-medium">Chào ngày mới, {user?.displayName || 'bạn'}!</p>
-                            <p className="text-emerald-400 text-xs font-medium">Đang tổng hợp sự kiện hôm nay...</p>
+                            <div className="relative h-4 overflow-hidden mt-0.5">
+                                <AnimatePresence mode="popLayout">
+                                    <motion.p
+                                        key={messageIndex}
+                                        initial={{ opacity: 0, y: 15 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -15 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="text-emerald-400 text-xs font-medium absolute inset-0 truncate pr-2"
+                                    >
+                                        {MOCK_MESSAGES[messageIndex]}
+                                    </motion.p>
+                                </AnimatePresence>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
