@@ -66,6 +66,10 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
 
     const [isBooking, setIsBooking] = useState(false);
     const [bookingData, setBookingData] = useState<any>(null);
+    const [voucherCode, setVoucherCode] = useState('');
+    const [discountAmount, setDiscountAmount] = useState(0);
+    const [voucherStatus, setVoucherStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [voucherMessage, setVoucherMessage] = useState('');
 
     const [bookedRanges, setBookedRanges] = useState<{ start: number; end: number }[]>([]);
     const [isLoadingSlots, setIsLoadingSlots] = useState(false);
@@ -237,6 +241,30 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
         return { error, durationHours, total, totalSessions };
     }, [finalStartTime, finalEndTime, court, bookingType, fixedMonths, selectedDaysOfWeek, selectedDate, dates]);
 
+    const finalTotal = Math.max(0, validation.total - discountAmount);
+
+    const handleApplyVoucher = () => {
+        if (!voucherCode) return;
+        setVoucherStatus('loading');
+        setTimeout(() => {
+            if (voucherCode === 'VANG20') {
+                const discount = validation.total * 0.2;
+                setDiscountAmount(discount);
+                setVoucherStatus('success');
+                setVoucherMessage('Giảm 20% khung giờ vàng!');
+            } else if (voucherCode === 'NEWUSER') {
+                const discount = Math.min(validation.total * 0.5, 50000);
+                setDiscountAmount(discount);
+                setVoucherStatus('success');
+                setVoucherMessage('Giảm 50% (tối đa 50K) cho bạn mới!');
+            } else {
+                setDiscountAmount(0);
+                setVoucherStatus('error');
+                setVoucherMessage('Mã không hợp lệ hoặc đã hết hạn.');
+            }
+        }, 800);
+    };
+
     const handleConfirm = async () => {
         if (!user) {
             useAlertStore.getState().showAlert('Bạn cần đăng nhập để có thể đặt sân nhé!', 'Thông báo', 'info');
@@ -255,7 +283,8 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                 endTime: finalEndTime!,
                 type: bookingType,
                 months: bookingType === 'fixed' ? fixedMonths : undefined,
-                daysOfWeek: bookingType === 'fixed' ? selectedDaysOfWeek : undefined
+                daysOfWeek: bookingType === 'fixed' ? selectedDaysOfWeek : undefined,
+                voucherCode: voucherStatus === 'success' ? voucherCode : undefined
             });
             setBookingData(res.data.data || res.data);
             changeStep(3);
@@ -278,7 +307,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
             <div className="fixed inset-0 z-[9999] bg-background overflow-y-auto">
                 <Payment
                     bookingCode={bookingData.bookingCode}
-                    amount={bookingData.finalAmount || validation.total}
+                    amount={bookingData.finalAmount || finalTotal}
                     courtName={court.name}
                     date={`${dates[selectedDate].date}/${dates[selectedDate].month}`}
                     slots={[`${finalStartTime} - ${finalEndTime}`]}
@@ -589,11 +618,55 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                                         <SummaryRow label="Phương thức" value="Thanh toán VNPay" />
                                     </div>
 
-                                    <div className="mt-8 pt-6 border-t border-white/5 relative z-10">
-                                        <div className="flex justify-between items-end">
-                                            <span className="text-[13px] font-semibold text-muted-foreground">Tổng thanh toán</span>
+                                    <div className="mt-6 p-4 rounded-2xl bg-white/5 border border-white/5 relative z-10">
+                                        <label className="text-[13px] font-semibold text-muted-foreground block mb-2">Mã Khuyến Mãi</label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={voucherCode}
+                                                onChange={(e) => {
+                                                    setVoucherCode(e.target.value.toUpperCase());
+                                                    setVoucherStatus('idle');
+                                                    setDiscountAmount(0);
+                                                }}
+                                                placeholder="Ví dụ: VANG20, NEWUSER"
+                                                className="flex-1 bg-background border border-border rounded-xl px-4 text-sm font-medium focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-muted-foreground/50"
+                                            />
+                                            <button
+                                                onClick={handleApplyVoucher}
+                                                disabled={!voucherCode || voucherStatus === 'loading' || voucherStatus === 'success'}
+                                                className="px-4 bg-emerald-500 text-emerald-950 font-bold text-sm rounded-xl hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                            >
+                                                {voucherStatus === 'loading' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Áp dụng'}
+                                            </button>
+                                        </div>
+                                        {voucherStatus === 'success' && (
+                                            <p className="text-xs text-emerald-400 font-medium mt-2 flex items-center gap-1">
+                                                <Check className="w-3.5 h-3.5" /> {voucherMessage}
+                                            </p>
+                                        )}
+                                        {voucherStatus === 'error' && (
+                                            <p className="text-xs text-red-400 font-medium mt-2 flex items-center gap-1">
+                                                <AlertTriangle className="w-3.5 h-3.5" /> {voucherMessage}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="mt-6 pt-6 border-t border-white/5 relative z-10 space-y-2">
+                                        <div className="flex justify-between items-center text-sm text-muted-foreground">
+                                            <span>Tạm tính</span>
+                                            <span>{formatPrice(validation.total)}</span>
+                                        </div>
+                                        {discountAmount > 0 && (
+                                            <div className="flex justify-between items-center text-sm text-emerald-400 font-medium">
+                                                <span>Giảm giá voucher</span>
+                                                <span>-{formatPrice(discountAmount)}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between items-end pt-2">
+                                            <span className="text-[13px] font-semibold text-foreground">Tổng thanh toán</span>
                                             <span className="text-3xl font-black bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent drop-shadow-sm">
-                                                {formatPrice(validation.total)}
+                                                {formatPrice(finalTotal)}
                                             </span>
                                         </div>
                                     </div>
