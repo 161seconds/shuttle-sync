@@ -307,8 +307,8 @@ export default function Login() {
                 <div className="w-full max-w-[420px] relative z-10 p-8 sm:p-10 rounded-[2.5rem] bg-card/40 border border-border backdrop-blur-2xl shadow-card hover:border-border transition-colors">
                     <div className="mb-8">
                         <h1 className="text-2xl font-black text-foreground tracking-tight">
-                            {otpSent ? 'Xác thực Gmail' : mode === 'login' ? 'Welcome back!' : 'Create new account'}
-                            <span className="inline-block animate-[wave_1.8s_ease-in-out_infinite]"><EmojiIcon name="badminton" /></span>
+                            {otpSent ? 'Xác thực Gmail' : mode === 'login' ? 'Chào mừng trở lại!' : 'Tạo tài khoản mới'}
+                            <span className="inline-block animate-[wave_1.8s_ease-in-out_infinite] ml-2 align-bottom"><EmojiIcon name="badminton" className="w-7 h-7 drop-shadow-sm" /></span>
                         </h1>
                         <p className={`text-sm ${DS.text.muted} mt-2 leading-relaxed`}>
                             {otpSent ? `Nhập mã đã gửi tới ${form.email}` : 'Đăng nhập để tiếp tục đặt sân và tìm bạn chơi'}
