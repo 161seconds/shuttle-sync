@@ -24,6 +24,9 @@ interface AppState {
     //sidebar
     isSideBarOpen: boolean;
     toggleSidebar: () => void;
+
+    justLoggedIn: boolean;
+    setJustLoggedIn: (v: boolean) => void;
 }
 
 const defaultFilters: CourtFilters = {
@@ -47,6 +50,7 @@ export function AppProvider({ children }: AppProviderProps) {
     const [profileSubPage, setProfileSubPage] = useState<string | null>(null);
 
     const [isSideBarOpen, setIsSideBarOpen] = useState(false);
+    const [justLoggedIn, setJustLoggedIn] = useState(false);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -124,6 +128,8 @@ export function AppProvider({ children }: AppProviderProps) {
                 setProfileSubPage,
                 isSideBarOpen,
                 toggleSidebar,
+                justLoggedIn,
+                setJustLoggedIn,
             }}
         >
             {children}

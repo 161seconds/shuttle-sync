@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Eye, Mail, Lock, ChevronRight, User, TrendingUp, Users, Calendar, Star, Zap, ArrowLeft, Phone } from 'lucide-react';
-import { theme as DS } from '../utils/theme';
+import { Eye, Mail, Lock, ChevronRight, User, TrendingUp, Users, Calendar, Star, Zap, ArrowLeft, Phone, X } from 'lucide-react';
+import { theme as DS, getGreetingByTime } from '../utils/theme';
 import { useAppStore } from '../store';
 import { authApi } from '../api/auth.api';
 import { EmojiIcon } from '../components/EmojiIcon';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function FloatingCards() {
     return (
@@ -166,13 +166,17 @@ function FloatingCards() {
 }
 
 export default function Login() {
-    const { setPage, setUser } = useAppStore();
+    const { setPage, setUser, setJustLoggedIn } = useAppStore();
     const [mode, setMode] = useState<'login' | 'register'>('login');
     const [showPw, setShowPw] = useState(false);
     const [loading, setLoading] = useState(false);
     const [rememberMe, setRememberMe] = useState(true);
     const [otpSent, setOtpSent] = useState(false);
     const [otpCode, setOtpCode] = useState('');
+
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
+    const [forgotEmail, setForgotEmail] = useState('');
+    const [forgotStatus, setForgotStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
     const [formMouseX, setFormMouseX] = useState(0);
     const [formMouseY, setFormMouseY] = useState(0);
@@ -244,6 +248,7 @@ export default function Login() {
 
             const userData = response.data.data.user || response.data.data;
             setUser(userData);
+            setJustLoggedIn(true);
 
             if (userData.role === 'OWNER' || userData.role === 'MANAGER') {
                 setPage('owner-dashboard');
@@ -307,7 +312,7 @@ export default function Login() {
                 <div className="w-full max-w-[420px] relative z-10 p-8 sm:p-10 rounded-[2.5rem] bg-card/40 border border-border backdrop-blur-2xl shadow-card hover:border-border transition-colors">
                     <div className="mb-8">
                         <h1 className="text-2xl font-black text-foreground tracking-tight">
-                            {otpSent ? 'Xác thực Gmail' : mode === 'login' ? 'Chào mừng trở lại!' : 'Tạo tài khoản mới'}
+                            {otpSent ? 'Xác thực Gmail' : mode === 'login' ? getGreetingByTime() + '!' : 'Tạo tài khoản mới'}
                             <span className="inline-block animate-[wave_1.8s_ease-in-out_infinite] ml-2 align-bottom"><EmojiIcon name="badminton" className="w-7 h-7 drop-shadow-sm" /></span>
                         </h1>
                         <p className={`text-sm ${DS.text.muted} mt-2 leading-relaxed`}>
@@ -357,7 +362,7 @@ export default function Login() {
                                             </button>
                                             <span className={`text-sm ${DS.text.secondary}`}>Ghi nhớ</span>
                                         </label>
-                                        <button type="button" className="text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors">
+                                        <button type="button" onClick={() => setShowForgotPassword(true)} className="text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors">
                                             Quên mật khẩu?
                                         </button>
                                     </div>
@@ -391,6 +396,63 @@ export default function Login() {
                     </button>
                 </div>
             </div>
+
+            {/* Modal Quên Mật Khẩu */}
+            <AnimatePresence>
+                {showForgotPassword && (
+                    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/50 backdrop-blur-sm">
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="relative w-full max-w-sm rounded-3xl bg-[#0a0f16]/90 backdrop-blur-xl border border-emerald-500/30 p-6 sm:p-8 shadow-glow-md flex flex-col mx-auto"
+                        >
+                            <button onClick={() => { setShowForgotPassword(false); setForgotStatus('idle'); }} className="absolute top-4 right-4 p-1.5 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors">
+                                <X className="w-5 h-5" />
+                            </button>
+                            
+                            <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 mb-5">
+                                <Lock className="w-7 h-7 text-emerald-400" />
+                            </div>
+                            
+                            <h2 className="text-xl font-black text-white mb-2">Khôi phục mật khẩu</h2>
+                            <p className="text-white/60 text-sm mb-6">Nhập email của bạn, chúng tôi sẽ gửi mã OTP để thiết lập lại mật khẩu.</p>
+                            
+                            <div className="space-y-4">
+                                <FormField 
+                                    icon={<Mail className="w-4 h-4" />} 
+                                    label="Email" 
+                                    placeholder="you@example.com" 
+                                    type="email" 
+                                    value={forgotEmail} 
+                                    onChange={(v: string) => setForgotEmail(v)} 
+                                />
+                                
+                                {forgotStatus === 'error' && (
+                                    <p className="text-red-400 text-xs text-center font-medium">Không tìm thấy tài khoản với email này.</p>
+                                )}
+                                {forgotStatus === 'success' && (
+                                    <p className="text-emerald-400 text-xs text-center font-medium">Đã gửi mã khôi phục đến email của bạn!</p>
+                                )}
+                                
+                                <button 
+                                    onClick={() => {
+                                        if (!forgotEmail) return;
+                                        setForgotStatus('loading');
+                                        setTimeout(() => {
+                                            setForgotStatus('success');
+                                        }, 1500);
+                                    }}
+                                    disabled={forgotStatus === 'loading' || forgotStatus === 'success'}
+                                    className="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold shadow-glow transition-all disabled:opacity-50 disabled:cursor-not-allowed flex justify-center"
+                                >
+                                    {forgotStatus === 'loading' ? <span className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : 'Gửi mã khôi phục'}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
 
             <style>{`
                 @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-12px); } }
