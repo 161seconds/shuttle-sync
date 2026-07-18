@@ -184,12 +184,20 @@ export default function AdminDashboard() {
                         <p className="text-muted-foreground max-w-xl text-[15px] font-medium leading-relaxed mb-10 relative z-10">
                             Chào mừng đến với Bảng điều khiển ShuttleSync! Theo dõi doanh thu, quản lý sân và nắm bắt mọi thông tin chi tiết về hệ thống một cách trực quan.
                         </p>
-                        <button
-                            onClick={handleScrollToStats}
-                            className="bg-emerald-500 text-black font-black uppercase tracking-widest text-[14px] px-8 py-4 rounded-xl w-max hover:bg-emerald-400 transition-all shadow-[0_0_30px_-5px_rgba(16,185,129,0.5)] hover:shadow-[0_0_40px_0px_rgba(16,185,129,0.6)] relative z-10 active:scale-95 flex items-center gap-2"
-                        >
-                            Khám phá ngay <ArrowDownRight className="w-5 h-5" />
-                        </button>
+                        <div className="flex gap-3 relative z-10">
+                            <button
+                                onClick={handleScrollToStats}
+                                className="bg-emerald-500 text-black font-black uppercase tracking-widest text-[14px] px-8 py-4 rounded-xl hover:bg-emerald-400 transition-all shadow-[0_0_30px_-5px_rgba(16,185,129,0.5)] hover:shadow-[0_0_40px_0px_rgba(16,185,129,0.6)] active:scale-95 flex items-center gap-2"
+                            >
+                                Khám phá ngay <ArrowDownRight className="w-5 h-5" />
+                            </button>
+                            <button
+                                onClick={() => navigate('/admin/vouchers')}
+                                className="bg-white/10 text-white font-black uppercase tracking-widest text-[14px] px-8 py-4 rounded-xl hover:bg-white/20 transition-all border border-white/10 active:scale-95 flex items-center gap-2"
+                            >
+                                Quản lý Voucher
+                            </button>
+                        </div>
                     </div>
 
                     {/* Thẻ Ideas for You */}

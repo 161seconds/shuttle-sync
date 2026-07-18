@@ -170,11 +170,74 @@ class BookingService {
                 totalAmount: sessionAmount,
                 discount: 0,
                 finalAmount: sessionAmount,
+                voucherCode: undefined as string | undefined,
                 payment: {
                     method: PaymentMethod.QR_CODE,
                     status: PaymentStatus.PENDING,
                     expiresAt
                 }
+            });
+        }
+
+        // Tính toán voucher
+        let totalAmountAll = bookingsToInsert.reduce((sum, b) => sum + b.totalAmount, 0);
+        let discountAmount = 0;
+        let appliedVoucher: any = null;
+
+        if (data.voucherCode) {
+            const { Voucher, VoucherStatus, DiscountType } = require('../models/Voucher');
+            appliedVoucher = await Voucher.findOne({
+                code: data.voucherCode.toUpperCase(),
+                isActive: true,
+                status: VoucherStatus.APPROVED
+            });
+
+            if (!appliedVoucher) {
+                throw new Error('Mã giảm giá không tồn tại hoặc chưa được duyệt');
+            }
+
+            const now = new Date();
+            if (now < appliedVoucher.startDate || now > appliedVoucher.endDate) {
+                throw new Error('Mã giảm giá đã hết hạn hoặc chưa tới thời gian áp dụng');
+            }
+
+            if (appliedVoucher.usedCount >= appliedVoucher.usageLimit) {
+                throw new Error('Mã giảm giá đã hết lượt sử dụng');
+            }
+
+            if (appliedVoucher.venueId && appliedVoucher.venueId.toString() !== data.courtId) {
+                throw new Error('Mã giảm giá không áp dụng cho cơ sở này');
+            }
+
+            if (appliedVoucher.minOrderValue && totalAmountAll < appliedVoucher.minOrderValue) {
+                throw new Error(`Đơn hàng tối thiểu ${appliedVoucher.minOrderValue.toLocaleString()}đ để áp dụng mã`);
+            }
+
+            if (appliedVoucher.discountType === DiscountType.PERCENTAGE) {
+                discountAmount = (totalAmountAll * appliedVoucher.discountValue) / 100;
+                if (appliedVoucher.maxDiscount && discountAmount > appliedVoucher.maxDiscount) {
+                    discountAmount = appliedVoucher.maxDiscount;
+                }
+            } else {
+                discountAmount = appliedVoucher.discountValue;
+            }
+
+            if (discountAmount > totalAmountAll) discountAmount = totalAmountAll;
+
+            appliedVoucher.usedCount += 1;
+            await appliedVoucher.save();
+        }
+
+        if (discountAmount > 0) {
+            const discountPerBooking = Math.floor(discountAmount / bookingsToInsert.length);
+            let remainingDiscount = discountAmount - (discountPerBooking * bookingsToInsert.length);
+
+            bookingsToInsert.forEach((b, index) => {
+                let currentDiscount = discountPerBooking;
+                if (index === 0) currentDiscount += remainingDiscount; // Cộng dồn phần dư vào đơn đầu tiên
+                b.discount = currentDiscount;
+                b.finalAmount = b.totalAmount - currentDiscount;
+                if (appliedVoucher) b.voucherCode = appliedVoucher.code;
             });
         }
 

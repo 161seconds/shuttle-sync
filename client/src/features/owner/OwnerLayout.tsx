@@ -2,7 +2,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useAppStore } from '../../store';
 import { ownerApi } from '../../services/ownerApi';
-import { LayoutDashboard, LogOut, Settings, CalendarDays, Loader2, Dumbbell, Clock, HelpCircle, TrendingDown } from 'lucide-react';
+import { LayoutDashboard, LogOut, Settings, CalendarDays, Loader2, Dumbbell, Clock, HelpCircle, TrendingDown, Tag } from 'lucide-react';
 import PremiumBackground from '../../components/ui/PremiumBackground';
 import { OwnerWelcomeFlow } from './OwnerWelcomeFlow';
 
@@ -56,6 +56,7 @@ export const OwnerLayout = () => {
         { name: 'Lịch Đặt', href: '/owner/bookings', icon: CalendarDays },
         { name: 'Lịch hoạt động', href: '/owner/schedule', icon: Clock },
         { name: 'Chi phí', href: '/owner/expenses', icon: TrendingDown },
+        { name: 'Khuyến mãi', href: '/owner/vouchers', icon: Tag },
         { name: 'Cài đặt', href: '/owner/settings', icon: Settings },
     ];
 
