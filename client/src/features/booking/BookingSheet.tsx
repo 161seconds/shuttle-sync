@@ -8,6 +8,7 @@ import axiosClient from '../../api/axiosClient';
 import { useAppStore } from '../../store';
 import Payment from '../../pages/Payment';
 import { useAlertStore } from '../../stores/useAlertStore';
+import { voucherApi } from '../../api/voucher.api';
 
 interface BookingSheetProps {
     court: Court;
@@ -243,26 +244,23 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
 
     const finalTotal = Math.max(0, validation.total - discountAmount);
 
-    const handleApplyVoucher = () => {
+    const handleApplyVoucher = async () => {
         if (!voucherCode) return;
         setVoucherStatus('loading');
-        setTimeout(() => {
-            if (voucherCode === 'VANG20') {
-                const discount = validation.total * 0.2;
-                setDiscountAmount(discount);
-                setVoucherStatus('success');
-                setVoucherMessage('Giảm 20% khung giờ vàng!');
-            } else if (voucherCode === 'NEWUSER') {
-                const discount = Math.min(validation.total * 0.5, 50000);
-                setDiscountAmount(discount);
-                setVoucherStatus('success');
-                setVoucherMessage('Giảm 50% (tối đa 50K) cho bạn mới!');
-            } else {
-                setDiscountAmount(0);
-                setVoucherStatus('error');
-                setVoucherMessage('Mã không hợp lệ hoặc đã hết hạn.');
-            }
-        }, 800);
+        try {
+            const res = await voucherApi.validateVoucher({
+                code: voucherCode,
+                venueId: court._id,
+                totalAmount: validation.total
+            });
+            setDiscountAmount(res.data.data.discountAmount);
+            setVoucherStatus('success');
+            setVoucherMessage(`Áp dụng mã thành công!`);
+        } catch (err: any) {
+            setDiscountAmount(0);
+            setVoucherStatus('error');
+            setVoucherMessage(err.response?.data?.message || 'Mã không hợp lệ hoặc đã hết hạn.');
+        }
     };
 
     const handleConfirm = async () => {

@@ -33,6 +33,8 @@ export const pageImports = {
   OwnerOnboarding: () => import('./features/owner/OwnerOnboarding').then(m => ({ default: m.OwnerOnboarding })),
   OwnerDashboard: () => import('./features/owner/OwnerDashboard').then(m => ({ default: m.OwnerDashboard })),
   OwnerExpenses: () => import('./features/owner/OwnerExpenses').then(m => ({ default: m.OwnerExpenses })),
+  OwnerVouchers: () => import('./features/owner/OwnerVouchers').then(m => ({ default: m.OwnerVouchers })),
+  AdminVouchers: () => import('./features/admin/AdminVouchers').then(m => ({ default: m.AdminVouchers })),
 };
 
 const Dashboard = lazy(pageImports.Dashboard);
@@ -62,6 +64,8 @@ const OwnerLayout = lazy(pageImports.OwnerLayout);
 const OwnerOnboarding = lazy(pageImports.OwnerOnboarding);
 const OwnerDashboard = lazy(pageImports.OwnerDashboard);
 const OwnerExpenses = lazy(pageImports.OwnerExpenses);
+const OwnerVouchers = lazy(pageImports.OwnerVouchers);
+const AdminVouchers = lazy(pageImports.AdminVouchers);
 
 import { useOnboarding, OnboardingModal, GuidedTourOverlay } from './features/onboarding';
 import PremiumBackground from './components/ui/PremiumBackground';
@@ -223,6 +227,15 @@ function Shell() {
                       <AdminDashboard />
                     </Suspense>
                   } />
+                  <Route path="/admin/vouchers" element={
+                    <Suspense fallback={
+                      <div className="min-h-screen w-full bg-white dark:bg-[#0a0f16] flex items-center justify-center">
+                        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                      </div>
+                    }>
+                      <AdminVouchers />
+                    </Suspense>
+                  } />
                   <Route path="owner">
             <Route element={<OwnerLayout />}>
               <Route index element={<Navigate to="dashboard" replace />} />
@@ -231,6 +244,7 @@ function Shell() {
               <Route path="schedule" element={<OwnerSchedule />} />
               <Route path="bookings" element={<OwnerBookings />} />
               <Route path="expenses" element={<OwnerExpenses />} />
+              <Route path="vouchers" element={<OwnerVouchers />} />
               <Route path="settings" element={<OwnerSettings />} />
             </Route>
             <Route path="onboarding" element={<OwnerOnboarding />} />
