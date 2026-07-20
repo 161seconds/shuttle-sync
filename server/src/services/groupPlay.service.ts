@@ -279,9 +279,36 @@ class GroupPlayService {
         }
 
         groupPlay.status = GroupPlayStatus.CANCELLED;
+        // Tự động hủy các yêu cầu tham gia pending khi nhóm bị hủy
+        groupPlay.joinRequests = groupPlay.joinRequests.filter(r => r.status !== 'pending');
         await groupPlay.save();
 
         logger.info(`GroupPlay cancelled: ${groupPlay.title}`);
+        return groupPlay;
+    }
+
+    /**
+     * Hủy yêu cầu tham gia nhóm chơi
+     */
+    async cancelJoinRequest(
+        groupPlayId: string,
+        userId: string
+    ): Promise<IGroupPlayDocument> {
+        const groupPlay = await GroupPlay.findById(groupPlayId);
+        if (!groupPlay) throw ApiError.notFound('Không tìm thấy nhóm chơi');
+
+        const requestIndex = groupPlay.joinRequests.findIndex(
+            r => r.userId.toString() === userId && r.status === 'pending'
+        );
+
+        if (requestIndex === -1) {
+            throw ApiError.badRequest('Bạn chưa gửi yêu cầu hoặc yêu cầu đã được xử lý');
+        }
+
+        groupPlay.joinRequests.splice(requestIndex, 1);
+        await groupPlay.save();
+        
+        logger.info(`User ${userId} cancelled join request to group play: ${groupPlay.title}`);
         return groupPlay;
     }
 
@@ -346,6 +373,22 @@ class GroupPlayService {
         page?: number;
         limit?: number;
     }) {
+        // Tự động xóa các yêu cầu pending nếu nhóm đã bị xóa (hủy) hoặc hết hạn (ngày trong quá khứ)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        await GroupPlay.updateMany(
+            {
+                $or: [
+                    { status: GroupPlayStatus.CANCELLED },
+                    { date: { $lt: today } }
+                ],
+                'joinRequests.status': 'pending'
+            },
+            {
+                $pull: { joinRequests: { status: 'pending' } }
+            }
+        ).catch(err => logger.error('Lỗi khi cleanup yêu cầu tham gia:', err));
+
         const filter = {
             $or: [
                 { 'participants.userId': userId },

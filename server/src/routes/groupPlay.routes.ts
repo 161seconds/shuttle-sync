@@ -13,6 +13,7 @@ router.get('/:id', groupPlayController.getGroupPlayById);
 router.post('/', authenticate, validate(createGroupPlaySchema), groupPlayController.createGroupPlay);
 router.get('/user/my', authenticate, groupPlayController.getMyGroupPlays);
 router.post('/:groupPlayId/join', authenticate, groupPlayController.joinGroupPlay);
+router.post('/:groupPlayId/join/cancel', authenticate, groupPlayController.cancelJoinRequest);
 router.post('/:groupPlayId/leave', authenticate, groupPlayController.leaveGroupPlay);
 router.post('/:groupPlayId/cancel', authenticate, groupPlayController.cancelGroupPlay);
 

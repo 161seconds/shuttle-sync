@@ -139,6 +139,21 @@ export default function GroupPlayPage() {
         }
     };
 
+    const handleCancelRequest = async (groupId: string) => {
+        useAlertStore.getState().showConfirm('Bạn có chắc chắn muốn hủy yêu cầu tham gia nhóm này không?', async () => {
+            setJoining(groupId); // Dùng chung state joining cho loader
+            try {
+                await groupPlayApi.cancelJoinRequest(groupId);
+                useAlertStore.getState().showAlert('Đã hủy yêu cầu tham gia!', 'Thông báo', 'success');
+                await fetchGroups();
+            } catch (err: any) {
+                useAlertStore.getState().showAlert(err.response?.data?.message || 'Lỗi hủy yêu cầu', 'Thông báo', 'error');
+            } finally {
+                setJoining(null);
+            }
+        });
+    };
+
     const handleLeave = (groupId: string) => {
         useAlertStore.getState().showConfirm('Bạn có chắc chắn muốn rời nhóm này không?', async () => {
             setLeaving(groupId);
@@ -413,8 +428,17 @@ export default function GroupPlayPage() {
                                                     </button>
                                                 )}
                                                 {isPending && !joined && !isOrg && (
-                                                    <div className="w-full py-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 font-black text-sm flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
-                                                        <Clock className="w-5 h-5" /> ĐANG CHỜ DUYỆT
+                                                    <div className="flex gap-3">
+                                                        <div className="flex-[2] py-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 font-black text-sm flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
+                                                            <Clock className="w-5 h-5" /> ĐANG CHỜ DUYỆT
+                                                        </div>
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); handleCancelRequest(g._id); }}
+                                                            disabled={joining === g._id}
+                                                            className="flex-1 py-3.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 font-black text-sm flex items-center justify-center gap-2 hover:bg-red-500/20 transition-all shadow-[0_0_15px_rgba(239,68,68,0.1)]">
+                                                            {joining === g._id ? <Loader2 className="w-5 h-5 animate-spin" /> : <XCircle className="w-5 h-5" />}
+                                                            HỦY YÊU CẦU
+                                                        </button>
                                                     </div>
                                                 )}
                                                 {isRejected && !joined && !isOrg && (
