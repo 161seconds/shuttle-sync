@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ownerApi, type OwnerStats } from '../../services/ownerApi';
-import { Building2, DollarSign, Users, CalendarCheck, Loader2, X, TrendingUp, TrendingDown, PieChart as PieChartIcon } from 'lucide-react';
+import { Building2, DollarSign, Users, CalendarCheck, Loader2, X, TrendingUp, TrendingDown } from 'lucide-react';
 import { AreaChart, Area, LineChart, Line, BarChart, Bar, Cell, Legend, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { PageTransition } from '../../components/ui/PageTransition';
 import { ScrollReveal } from '../../components/ui/ScrollReveal';
@@ -284,12 +284,12 @@ export const OwnerDashboard = () => {
                                 <div className="text-right whitespace-nowrap">
                                     <p className={`text-sm font-bold ${statusKey === 'pending_payment' ? 'text-yellow-500' : statusKey === 'cancelled' ? 'text-red-400 line-through opacity-70' : 'text-emerald-400'}`}>{booking.finalAmount.toLocaleString()}đ</p>
                                     <span className={`inline-block px-2 py-0.5 mt-1 rounded-full text-[10px] font-medium border uppercase ${statusKey === 'confirmed'
-                                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                                            : statusKey === 'completed'
-                                                ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                                                : statusKey === 'cancelled'
-                                                    ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                                                    : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                                        ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                                        : statusKey === 'completed'
+                                            ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                            : statusKey === 'cancelled'
+                                                ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                                                : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
                                         }`}>
                                         {statusKey === 'confirmed' ? 'Đã chốt' : statusKey === 'completed' ? 'Hoàn thành' : statusKey === 'cancelled' ? 'Đã hủy' : statusKey === 'pending_payment' ? 'Chờ thanh toán' : booking.status}
                                     </span>
@@ -417,12 +417,12 @@ export const OwnerDashboard = () => {
                                                     <div className="text-right shrink-0">
                                                         <p className={`text-base font-bold ${statusKey === 'pending_payment' ? 'text-yellow-500' : statusKey === 'cancelled' ? 'text-red-400 line-through opacity-70' : 'text-emerald-400'}`}>{booking.finalAmount.toLocaleString()}đ</p>
                                                         <span className={`inline-block px-2.5 py-1 mt-1.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${statusKey === 'confirmed'
-                                                                ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                                                                : statusKey === 'completed'
-                                                                    ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                                                                    : statusKey === 'cancelled'
-                                                                        ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                                                                        : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                                                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                                                            : statusKey === 'completed'
+                                                                ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                                                : statusKey === 'cancelled'
+                                                                    ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                                                                    : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
                                                             }`}>
                                                             {statusKey === 'confirmed' ? 'Đã chốt' : statusKey === 'completed' ? 'Hoàn thành' : statusKey === 'cancelled' ? 'Đã hủy' : statusKey === 'pending_payment' ? 'Chờ thanh toán' : booking.status}
                                                         </span>
@@ -438,7 +438,7 @@ export const OwnerDashboard = () => {
                 </div>,
                 document.body
             )}
-            
+
             {actionBooking && (
                 <BookingActionModal
                     booking={actionBooking}

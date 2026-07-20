@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { voucherApi } from '../../api/voucher.api';
 import { Plus, Tag, Trash2, Edit, CheckCircle, XCircle, Clock, Loader2, Search, Building2, Globe, Ticket, Calendar, Users, DollarSign, Percent, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAlertStore } from '../../stores/useAlertStore';
@@ -36,7 +37,7 @@ const CustomDatePicker = ({ value, onChange, minDate, align = 'left' }: { value:
 
     return (
         <div 
-            className="relative w-full" 
+            className={`relative w-full ${isOpen ? 'z-50' : 'z-10'}`} 
             tabIndex={0}
             onBlur={(e) => {
                 if (!e.currentTarget.contains(e.relatedTarget as Node)) {
@@ -418,7 +419,7 @@ export const AdminVouchers = () => {
             </div>
 
             {/* Enhanced Modal */}
-            {showModal && (
+            {showModal && typeof document !== 'undefined' && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
                     <div 
                         className="bg-[#0f1520] border border-white/10 w-full max-w-3xl rounded-3xl p-6 md:p-8 shadow-[0_0_50px_rgba(0,0,0,0.5)] max-h-[90vh] overflow-y-auto custom-scrollbar"
@@ -456,7 +457,7 @@ export const AdminVouchers = () => {
                                 <div className="bg-white/5 p-4 rounded-2xl border border-white/5 focus-within:border-emerald-500/50 transition-colors">
                                     <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Loại giảm giá</label>
                                     <div 
-                                        className="relative" 
+                                        className={`relative ${isDropdownOpen ? 'z-50' : 'z-10'}`} 
                                         tabIndex={0} 
                                         onBlur={(e) => {
                                             if (!e.currentTarget.contains(e.relatedTarget as Node)) {
@@ -582,7 +583,8 @@ export const AdminVouchers = () => {
                             </div>
                         </form>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </PageTransition>
     );

@@ -60,6 +60,18 @@ class GroupPlayController {
         }
     }
 
+    async cancelJoinRequest(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const groupPlay = await groupPlayService.cancelJoinRequest(
+                req.params.groupPlayId as string,
+                req.userId!
+            );
+            sendSuccess(res, groupPlay, 'Hủy yêu cầu tham gia thành công');
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async searchGroupPlays(req: Request, res: Response, next: NextFunction) {
         try {
             const { groupPlays, pagination } = await groupPlayService.searchGroupPlays({

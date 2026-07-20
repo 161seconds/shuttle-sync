@@ -26,6 +26,11 @@ export const groupPlayApi = {
         return axiosClient.post(`/group-plays/${groupPlayId}/join`);
     },
 
+    // Hủy yêu cầu tham gia
+    cancelJoinRequest(groupPlayId: string) {
+        return axiosClient.post(`/group-plays/${groupPlayId}/join/cancel`);
+    },
+
     // Rời khỏi nhóm
     leaveGroupPlay(groupPlayId: string) {
         return axiosClient.post(`/group-plays/${groupPlayId}/leave`);

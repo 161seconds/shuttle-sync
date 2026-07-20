@@ -1,10 +1,115 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { voucherApi } from '../../api/voucher.api';
 import axiosClient from '../../api/axiosClient';
-import { Plus, Tag, Trash2, Edit, CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
+import { Plus, Tag, Trash2, Edit, CheckCircle, XCircle, Clock, Loader2, Calendar, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAlertStore } from '../../stores/useAlertStore';
 import { PageTransition } from '../../components/ui/PageTransition';
 import { ScrollReveal } from '../../components/ui/ScrollReveal';
+import dayjs from 'dayjs';
+
+const CustomDatePicker = ({ value, onChange, minDate, align = 'left' }: { value: string, onChange: (date: string) => void, minDate?: string, align?: 'left' | 'right' }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [viewDate, setViewDate] = useState(dayjs(value || undefined));
+    
+    useEffect(() => {
+        if (value && !isOpen) setViewDate(dayjs(value));
+    }, [value, isOpen]);
+    
+    const daysInMonth = viewDate.daysInMonth();
+    const firstDayOfMonth = viewDate.startOf('month').day();
+    
+    const handlePrevMonth = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setViewDate(viewDate.subtract(1, 'month'));
+    };
+    
+    const handleNextMonth = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setViewDate(viewDate.add(1, 'month'));
+    };
+
+    const handleSelectDate = (day: number) => {
+        const newDate = viewDate.date(day).format('YYYY-MM-DD');
+        if (minDate && dayjs(newDate).isBefore(dayjs(minDate), 'day')) return;
+        onChange(newDate);
+        setIsOpen(false);
+    };
+
+    return (
+        <div 
+            className={`relative w-full ${isOpen ? 'z-50' : 'z-10'}`} 
+            tabIndex={0}
+            onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                    setIsOpen(false);
+                }
+            }}
+        >
+            <div 
+                className={`w-full bg-black/20 border ${isOpen ? 'border-emerald-500/50 ring-1 ring-emerald-500/50' : 'border-white/10'} rounded-xl pl-12 pr-4 py-3 text-white outline-none cursor-pointer transition-all flex items-center justify-between`}
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500/70 pointer-events-none" />
+                <span>{value ? dayjs(value).format('DD/MM/YYYY') : 'Chọn ngày'}</span>
+                <ChevronDown className={`w-5 h-5 text-gray-400 pointer-events-none transition-transform duration-300 ${isOpen ? 'rotate-180 text-emerald-500' : ''}`} />
+            </div>
+            
+            {isOpen && (
+                <div className={`absolute bottom-[calc(100%+8px)] ${align === 'right' ? 'right-0' : 'left-0'} w-[300px] sm:w-[320px] bg-[#0f1520] border border-white/10 rounded-2xl p-4 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] origin-bottom animate-in fade-in slide-in-from-bottom-2 duration-200`}>
+                    <div className="flex justify-between items-center mb-4">
+                        <button type="button" onClick={handlePrevMonth} className="p-2 hover:bg-white/10 rounded-xl transition-colors text-gray-400 hover:text-white">
+                            <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        <div className="font-bold text-white tracking-wider">
+                            {viewDate.format('MM/YYYY')}
+                        </div>
+                        <button type="button" onClick={handleNextMonth} className="p-2 hover:bg-white/10 rounded-xl transition-colors text-gray-400 hover:text-white">
+                            <ChevronRight className="w-5 h-5" />
+                        </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-7 gap-1 mb-2">
+                        {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map(day => (
+                            <div key={day} className="text-center text-xs font-bold text-gray-500 py-1">{day}</div>
+                        ))}
+                    </div>
+                    
+                    <div className="grid grid-cols-7 gap-1">
+                        {Array.from({ length: firstDayOfMonth }).map((_, i) => (
+                            <div key={`empty-${i}`} />
+                        ))}
+                        {Array.from({ length: daysInMonth }).map((_, i) => {
+                            const day = i + 1;
+                            const dateStr = viewDate.date(day).format('YYYY-MM-DD');
+                            const isSelected = dateStr === value;
+                            const isToday = dateStr === dayjs().format('YYYY-MM-DD');
+                            const isDisabled = minDate ? dayjs(dateStr).isBefore(dayjs(minDate), 'day') : false;
+                            
+                            return (
+                                <button
+                                    key={day}
+                                    type="button"
+                                    onClick={() => handleSelectDate(day)}
+                                    disabled={isDisabled}
+                                    className={`
+                                        w-8 h-8 sm:w-9 sm:h-9 mx-auto rounded-full flex items-center justify-center text-sm font-medium transition-all
+                                        ${isDisabled ? 'text-gray-700 cursor-not-allowed' :
+                                          isSelected ? 'bg-emerald-500 text-black font-bold shadow-[0_0_10px_rgba(16,185,129,0.5)] scale-110' : 
+                                          isToday ? 'bg-white/5 text-emerald-400 border border-emerald-500/30 hover:bg-white/10' : 
+                                          'text-gray-300 hover:bg-white/10 hover:text-white'}
+                                    `}
+                                >
+                                    {day}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
 
 export const OwnerVouchers = () => {
     const { showAlert } = useAlertStore();
@@ -12,6 +117,7 @@ export const OwnerVouchers = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editingVoucher, setEditingVoucher] = useState<any>(null);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     const [formData, setFormData] = useState({
         code: '',
@@ -188,97 +294,172 @@ export const OwnerVouchers = () => {
                 </ScrollReveal>
             )}
 
-            {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                    <div className="bg-[#0a0f16] border border-white/10 w-full max-w-lg rounded-2xl p-6 shadow-2xl">
-                        <h2 className="text-2xl font-bold text-white mb-6">
-                            {editingVoucher ? 'Sửa yêu cầu Voucher' : 'Xin cấp Voucher mới'}
-                        </h2>
-                        
-                        <form onSubmit={handleSubmit} className="space-y-4">
+            {showModal && typeof document !== 'undefined' && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+                    <div 
+                        className="bg-[#0f1520] border border-white/10 w-full max-w-3xl rounded-3xl p-6 md:p-8 shadow-[0_0_50px_rgba(0,0,0,0.5)] max-h-[90vh] overflow-y-auto custom-scrollbar"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/5">
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-1">Mã Voucher (Code)</label>
-                                <input 
-                                    type="text" required
-                                    value={formData.code} onChange={e => setFormData({...formData, code: e.target.value.toUpperCase()})}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 outline-none"
-                                    placeholder="VD: KHUYENMAI20"
-                                />
+                                <h2 className="text-2xl md:text-3xl font-bold text-white">
+                                    {editingVoucher ? 'Sửa Yêu Cầu Voucher' : 'Xin Cấp Voucher Mới'}
+                                </h2>
+                                <p className="text-gray-400 text-sm mt-1">Lưu ý: Yêu cầu sẽ được gửi tới Admin duyệt trước khi sử dụng</p>
+                            </div>
+                            <button onClick={() => setShowModal(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400">
+                                <XCircle className="w-6 h-6" />
+                            </button>
+                        </div>
+                        
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Code Input */}
+                            <div className="bg-white/5 p-5 rounded-2xl border border-white/5">
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Mã Code</label>
+                                <div className="relative">
+                                    <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    <input 
+                                        type="text" required
+                                        value={formData.code} onChange={e => setFormData({...formData, code: e.target.value.toUpperCase().replace(/\s/g, '')})}
+                                        className="w-full bg-black/20 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white font-bold tracking-widest focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none transition-all uppercase"
+                                        placeholder="VD: KHUYENMAI20"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">Loại giảm giá</label>
-                                    <select 
-                                        value={formData.discountType} onChange={e => setFormData({...formData, discountType: e.target.value})}
-                                        className="w-full bg-[#111827] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 outline-none"
+                            {/* Discount Details */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 focus-within:border-emerald-500/50 transition-colors">
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Loại giảm giá</label>
+                                    <div 
+                                        className={`relative ${isDropdownOpen ? 'z-50' : 'z-10'}`} 
+                                        tabIndex={0} 
+                                        onBlur={(e) => {
+                                            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                                                setIsDropdownOpen(false);
+                                            }
+                                        }}
                                     >
-                                        <option value="percentage">Theo % (Phần trăm)</option>
-                                        <option value="fixed">Giảm trực tiếp (VND)</option>
-                                    </select>
+                                        <div 
+                                            className={`w-full bg-black/20 border ${isDropdownOpen ? 'border-emerald-500/50 ring-1 ring-emerald-500/50' : 'border-white/10'} rounded-xl px-4 py-3 text-white outline-none cursor-pointer transition-all flex justify-between items-center`}
+                                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                        >
+                                            <span>{formData.discountType === 'percentage' ? 'Theo % (Phần trăm)' : 'Giảm trực tiếp (VND)'}</span>
+                                            <ChevronDown className={`w-5 h-5 text-gray-400 pointer-events-none transition-transform duration-300 ${isDropdownOpen ? 'rotate-180 text-emerald-500' : ''}`} />
+                                        </div>
+                                        {isDropdownOpen && (
+                                            <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-[#111827] border border-white/10 rounded-xl overflow-hidden z-50 shadow-2xl origin-top animate-in fade-in slide-in-from-top-2 duration-200">
+                                                <div 
+                                                    className={`px-4 py-3.5 cursor-pointer hover:bg-white/5 transition-colors border-b border-white/5 flex items-center gap-2 ${formData.discountType === 'percentage' ? 'text-emerald-400 font-bold bg-emerald-500/5' : 'text-gray-300 font-medium'}`}
+                                                    onClick={() => { setFormData({...formData, discountType: 'percentage'}); setIsDropdownOpen(false); }}
+                                                >
+                                                    {formData.discountType === 'percentage' && <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+                                                    Theo % (Phần trăm)
+                                                </div>
+                                                <div 
+                                                    className={`px-4 py-3.5 cursor-pointer hover:bg-white/5 transition-colors flex items-center gap-2 ${formData.discountType === 'fixed' ? 'text-emerald-400 font-bold bg-emerald-500/5' : 'text-gray-300 font-medium'}`}
+                                                    onClick={() => { setFormData({...formData, discountType: 'fixed'}); setIsDropdownOpen(false); }}
+                                                >
+                                                    {formData.discountType === 'fixed' && <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+                                                    Giảm trực tiếp (VND)
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">Mức giảm</label>
+                                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 focus-within:border-emerald-500/50 transition-colors">
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Mức giảm</label>
+                                    <div className="relative">
+                                        <input 
+                                            type="number" required min="1"
+                                            value={formData.discountValue || ''} onChange={e => setFormData({...formData, discountValue: Number(e.target.value)})}
+                                            className="w-full bg-black/20 border border-white/10 rounded-xl pl-4 pr-12 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none font-medium transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        />
+                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 px-2 py-1 bg-white/10 rounded-md text-emerald-400 font-bold text-sm pointer-events-none">
+                                            {formData.discountType === 'percentage' ? '%' : '₫'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Conditions */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 focus-within:border-emerald-500/50 transition-colors">
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Số lượng tối đa</label>
                                     <input 
                                         type="number" required min="1"
-                                        value={formData.discountValue} onChange={e => setFormData({...formData, discountValue: Number(e.target.value)})}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 outline-none"
-                                        placeholder="VD: 20"
+                                        value={formData.usageLimit || ''} onChange={e => setFormData({...formData, usageLimit: Number(e.target.value)})}
+                                        className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        placeholder="100"
                                     />
+                                </div>
+                                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 focus-within:border-emerald-500/50 transition-colors">
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Đơn tối thiểu (VND)</label>
+                                    <div className="relative">
+                                        <input 
+                                            type="number" required min="0"
+                                            value={formData.minOrderValue || ''} onChange={e => setFormData({...formData, minOrderValue: Number(e.target.value)})}
+                                            className="w-full bg-black/20 border border-white/10 rounded-xl pl-4 pr-12 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            placeholder="0"
+                                        />
+                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold pointer-events-none">₫</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Max Discount for Percentage */}
+                            {formData.discountType === 'percentage' && (
+                                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 focus-within:border-emerald-500/50 transition-colors">
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Giảm tối đa (VND) - Bắt buộc cho loại %</label>
+                                    <div className="relative">
+                                        <input 
+                                            type="number" required min="0"
+                                            value={formData.maxDiscount || ''} onChange={e => setFormData({...formData, maxDiscount: Number(e.target.value)})}
+                                            className="w-full bg-black/20 border border-white/10 rounded-xl pl-4 pr-12 py-3 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            placeholder="50000"
+                                        />
+                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold pointer-events-none">₫</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Dates */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 focus-within:border-emerald-500/50 transition-colors">
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Từ ngày</label>
+                                    <CustomDatePicker 
+                                        value={formData.startDate} 
+                                        onChange={(date) => setFormData({...formData, startDate: date})} 
+                                    />
+                                    {/* Hidden input to satisfy form required validation */}
+                                    <input type="date" required className="hidden" value={formData.startDate} onChange={() => {}} />
+                                </div>
+                                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 focus-within:border-emerald-500/50 transition-colors">
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Đến ngày</label>
+                                    <CustomDatePicker 
+                                        value={formData.endDate} 
+                                        minDate={formData.startDate}
+                                        onChange={(date) => setFormData({...formData, endDate: date})} 
+                                        align="right"
+                                    />
+                                    {/* Hidden input to satisfy form required validation */}
+                                    <input type="date" required className="hidden" value={formData.endDate} onChange={() => {}} />
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">Số lượng giới hạn</label>
-                                    <input 
-                                        type="number" required min="1"
-                                        value={formData.usageLimit} onChange={e => setFormData({...formData, usageLimit: Number(e.target.value)})}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">Đơn tối thiểu (VND)</label>
-                                    <input 
-                                        type="number" required min="0"
-                                        value={formData.minOrderValue} onChange={e => setFormData({...formData, minOrderValue: Number(e.target.value)})}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 outline-none"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">Từ ngày</label>
-                                    <input 
-                                        type="date" required
-                                        value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">Đến ngày</label>
-                                    <input 
-                                        type="date" required
-                                        value={formData.endDate} onChange={e => setFormData({...formData, endDate: e.target.value})}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 outline-none"
-                                    />
-                                </div>
-                            </div>
-
-                            <p className="text-xs text-emerald-400 mt-2 italic">Lưu ý: Sau khi lưu, yêu cầu sẽ được gửi tới Admin để xét duyệt trước khi khách hàng có thể sử dụng.</p>
-
-                            <div className="flex justify-end gap-3 pt-4 border-t border-white/5 mt-6">
-                                <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2.5 bg-white/5 text-gray-300 rounded-xl hover:bg-white/10 transition-colors">
-                                    Hủy
+                            {/* Actions */}
+                            <div className="flex justify-end gap-3 pt-6 mt-6">
+                                <button type="button" onClick={() => setShowModal(false)} className="px-6 py-3 bg-white/5 text-gray-300 rounded-xl font-bold hover:bg-white/10 transition-colors">
+                                    Hủy bỏ
                                 </button>
-                                <button type="submit" className="px-5 py-2.5 bg-emerald-500 text-emerald-950 font-bold rounded-xl hover:bg-emerald-400 transition-colors">
-                                    Lưu Yêu Cầu
+                                <button type="submit" className="px-8 py-3 bg-gradient-to-r from-emerald-500 to-emerald-400 text-emerald-950 font-black rounded-xl hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all hover:-translate-y-0.5">
+                                    {editingVoucher ? 'Cập nhật' : 'Gửi yêu cầu'}
                                 </button>
                             </div>
                         </form>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </PageTransition>
     );
