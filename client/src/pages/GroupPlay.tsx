@@ -533,23 +533,19 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
                 const res = await bookingApi.getMyBookings({ status: 'confirmed' });
                 const allBookings = res.data?.data || [];
 
-                // LỌC BỎ SÂN TRONG QUÁ KHỨ VÀ SÂN ĐÃ TẠO KÈO
                 const now = new Date();
                 const futureBookings = allBookings.filter((b: any) => {
                     if (!b.date || !b.startTime) return false;
                     if (b.hasGroupPlay) return false; // Không hiển thị sân đã tạo kèo
 
-                    // Tách giờ phút từ chuỗi startTime (vd: "14:30")
                     const [hours, minutes] = b.startTime.split(':').map(Number);
                     const bookingDate = new Date(b.date);
                     bookingDate.setHours(hours, minutes, 0, 0);
 
-                    // Lưu timestamp để sort tiện hơn
                     b._timestamp = bookingDate.getTime();
                     return bookingDate > now;
                 });
 
-                // Sắp xếp ngày gần nhất -> xa nhất
                 futureBookings.sort((a: any, b: any) => a._timestamp - b._timestamp);
 
                 setMyBookings(futureBookings);
