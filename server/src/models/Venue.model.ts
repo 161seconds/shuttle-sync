@@ -57,5 +57,7 @@ const VenueSchema = new Schema<IVenueDocument>({
 });
 
 VenueSchema.index({ location: '2dsphere' });
+VenueSchema.index({ isActive: 1, sports: 1, 'address.city': 1 });
+VenueSchema.index({ name: 'text' });
 
 export const Venue = mongoose.models.Venue || mongoose.model<IVenueDocument>('Venue', VenueSchema);

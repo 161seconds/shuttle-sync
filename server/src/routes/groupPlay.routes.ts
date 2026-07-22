@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { groupPlayController } from '../controllers';
-import { authenticate, validate } from '../middlewares';
+import { authenticate, validate, cacheMiddleware } from '../middlewares';
 import { createGroupPlaySchema, searchGroupPlaySchema } from '../validators';
 
 const router = Router();
 
 // Public routes
-router.get('/search', validate(searchGroupPlaySchema), groupPlayController.searchGroupPlays);
+router.get('/search', validate(searchGroupPlaySchema), cacheMiddleware(15), groupPlayController.searchGroupPlays);
 router.get('/:id', groupPlayController.getGroupPlayById);
 
 // Protected routes
