@@ -4,7 +4,7 @@ import {
 } from '@shuttle-sync/shared';
 import {
     User, IUserDocument, Court, Review, Report,
-    Notification, OwnerApplication, Booking, IReviewDocument,
+    Notification, OwnerApplication, Booking, IReviewDocument, Venue
 } from '../models';
 import { ApiError } from '../utils/ApiError';
 import { calculatePagination } from '../utils/helpers';
@@ -124,9 +124,9 @@ class ReviewService {
         ]);
 
         if (stats.length > 0) {
-            await Court.findByIdAndUpdate(data.courtId, {
-                averageRating: Math.round(stats[0].avgRating * 10) / 10,
-                reviewCount: stats[0].count,
+            await Venue.findByIdAndUpdate(data.courtId, {
+                'rating.totalScore': stats[0].avgRating * stats[0].count,
+                'rating.reviewsCount': stats[0].count,
             });
         }
 
@@ -158,8 +158,8 @@ class ReviewService {
         const review = await Review.findById(reviewId).populate('courtId', 'ownerId');
         if (!review) throw ApiError.notFound('Không tìm thấy đánh giá');
 
-        const court = await Court.findById(review.courtId);
-        if (!court || court.ownerId.toString() !== ownerId) {
+        const venue = await Venue.findById(review.courtId);
+        if (!venue || venue.ownerId?.toString() !== ownerId) {
             throw ApiError.forbidden('Bạn không phải chủ sân này');
         }
 
