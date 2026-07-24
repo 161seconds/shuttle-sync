@@ -7,6 +7,7 @@ import { theme as DS, formatPrice } from '../utils/theme';
 import { useAppStore } from '../store';
 import type { Court } from '../types';
 import axiosClient from '../api/axiosClient';
+import CourtReviews from '../components/courts/CourtReviews';
 //import { EmojiIcon } from '../components/EmojiIcon';
 
 const AMENITY_LABELS: Record<string, string> = {
@@ -178,6 +179,9 @@ export default function CourtDetail({ court, onBack }: Props) {
                         <span className="tracking-wide">{court.contact?.phone || 'Chưa cập nhật'}</span>
                     </div>
                 </div>
+
+                {/* Reviews Section */}
+                <CourtReviews venueId={court._id} />
             </div>
 
             {/* Fixed bottom CTA */}

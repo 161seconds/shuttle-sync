@@ -7,6 +7,7 @@ import axiosClient from '../../api/axiosClient';
 import type { Booking } from '../../types';
 import { useAlertStore } from '../../stores/useAlertStore';
 import { getBookingStatusConfig } from '../../utils/bookingStatus';
+import ReviewModal from '../../components/courts/ReviewModal';
 
 interface Props {
     onBack: () => void;
@@ -20,6 +21,7 @@ export default function BookingHistory({ onBack }: Props) {
     const [endDate, setEndDate] = useState('');
     const [cancelling, setCancelling] = useState<string | null>(null);
     const [expanded, setExpanded] = useState<string | null>(null);
+    const [reviewBooking, setReviewBooking] = useState<{ id: string, courtId: string } | null>(null);
     const [pageIndex, setPageIndex] = useState(1);
     const ITEMS_PER_PAGE = 8; // Reduce to 8 for better grid fit
 
@@ -334,11 +336,38 @@ export default function BookingHistory({ onBack }: Props) {
                                             Hủy đặt sân
                                         </button>
                                     )}
+
+                                    {statusKey === 'completed' && (
+                                        <button
+                                            onClick={() => {
+                                                const cId = typeof courtObj === 'object' ? courtObj?._id : courtObj;
+                                                setReviewBooking({ id: b._id, courtId: cId });
+                                            }}
+                                            className="w-full py-4 rounded-2xl bg-amber-500/10 text-amber-400 text-[15px] font-black flex items-center justify-center gap-2.5 hover:bg-amber-500/20 border border-amber-500/30 transition-all active:scale-[0.98]"
+                                        >
+                                            <span className="text-xl -mt-1">⭐</span> Đánh giá sân
+                                        </button>
+                                    )}
                                 </div>
                             </motion.div>
                         </motion.div>
                     );
                 })()}
+            </AnimatePresence>
+
+            {/* Review Modal */}
+            <AnimatePresence>
+                {reviewBooking && (
+                    <ReviewModal
+                        bookingId={reviewBooking.id}
+                        courtId={reviewBooking.courtId}
+                        onClose={() => setReviewBooking(null)}
+                        onSuccess={() => {
+                            setReviewBooking(null);
+                            setExpanded(null);
+                        }}
+                    />
+                )}
             </AnimatePresence>
         </div>
     );

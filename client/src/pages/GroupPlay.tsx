@@ -12,7 +12,7 @@ import { useAlertStore } from '../stores/useAlertStore';
 import { groupPlayApi } from '../api/groupPlay.api';
 import { bookingApi } from '../api/booking.api';
 import PriceConfigModal from '../components/groups/PriceConfigModal';
-//import GroupChat from '../components/groups/GroupChat';
+import { QRCodePayment } from '../components/ui/QRCodePayment';
 import { EmojiIcon } from '../components/EmojiIcon';
 import PullToRefresh from '../components/ui/PullToRefresh';
 import { ListCardSkeleton } from '../components/ui/Skeleton';
@@ -84,6 +84,7 @@ export default function GroupPlayPage() {
     //const [showFilters, setShowFilters] = useState(false);
     const [showCreate, setShowCreate] = useState(false);
     const [expandedId, setExpandedId] = useState<string | null>(null);
+    const [payGroup, setPayGroup] = useState<GroupPlay | null>(null);
 
     // STATE CHO MODAL CẤU HÌNH GIÁ
     const [showPriceModal, setShowPriceModal] = useState(false);
@@ -449,13 +450,19 @@ export default function GroupPlayPage() {
                                                 {joined && (
                                                     <div className="flex gap-3">
                                                         {!isOrg && (
-                                                            <button 
-                                                                onClick={(e) => { e.stopPropagation(); handleLeave(g._id); }}
-                                                                disabled={leaving === g._id}
-                                                                className="flex-1 py-3.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 font-black text-sm flex items-center justify-center gap-2 hover:bg-red-500/20 transition-all shadow-[0_0_15px_rgba(239,68,68,0.1)]">
-                                                                {leaving === g._id ? <Loader2 className="w-5 h-5 animate-spin" /> : <XCircle className="w-5 h-5" />}
-                                                                RỜI NHÓM
-                                                            </button>
+                                                            <>
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); setPayGroup(g); }}
+                                                                    className="flex-1 py-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400 font-black text-sm flex items-center justify-center gap-2 hover:bg-purple-500/20 transition-all shadow-sm">
+                                                                    THANH TOÁN (QR)
+                                                                </button>
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); handleLeave(g._id); }}
+                                                                    disabled={leaving === g._id}
+                                                                    className="w-14 shrink-0 py-3.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 font-black text-sm flex items-center justify-center gap-2 hover:bg-red-500/20 transition-all shadow-[0_0_15px_rgba(239,68,68,0.1)]">
+                                                                    {leaving === g._id ? <Loader2 className="w-5 h-5 animate-spin" /> : <XCircle className="w-5 h-5" />}
+                                                                </button>
+                                                            </>
                                                         )}
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); setPage('chat'); }}
@@ -478,6 +485,33 @@ export default function GroupPlayPage() {
             {/* Create Modal */}
             <AnimatePresence>
                 {showCreate && <CreateGroupModal onClose={() => setShowCreate(false)} onCreated={() => { setShowCreate(false); fetchGroups(); }} />}
+            </AnimatePresence>
+
+            {/* Pay Modal */}
+            <AnimatePresence>
+                {payGroup && (
+                    <motion.div className="fixed inset-0 z-[100] flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setPayGroup(null)} />
+                        <motion.div className="relative w-full max-w-sm bg-card rounded-[32px] border border-border shadow-2xl p-6" initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }}>
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-bold text-foreground">Thanh toán cho Trưởng nhóm</h3>
+                                <button onClick={() => setPayGroup(null)} className="p-2 bg-muted rounded-full hover:bg-white/10 transition-colors">
+                                    <X className="w-5 h-5 text-muted-foreground" />
+                                </button>
+                            </div>
+                            <QRCodePayment 
+                                // Nếu có bankInfo thực thì lấy, không thì dùng placeholder
+                                bankId={(payGroup as any).priceConfig?.bankInfo?.bankName || "MB"}
+                                accountNo={(payGroup as any).priceConfig?.bankInfo?.accountNumber || "0123456789"}
+                                accountName={(payGroup as any).priceConfig?.bankInfo?.accountName || "CHU NHOM"}
+                                amount={payGroup.pricePerPlayer}
+                                addInfo={`Thanh toan tien san ${payGroup.title}`}
+                                className="w-full bg-white/5 border-white/10"
+                            />
+                            <p className="text-xs text-muted-foreground text-center mt-4">Hãy quét mã để thanh toán tiền sân/nước cho trưởng nhóm nhé!</p>
+                        </motion.div>
+                    </motion.div>
+                )}
             </AnimatePresence>
 
             {/* Price Config Modal */}
