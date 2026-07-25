@@ -114,8 +114,6 @@ class BookingService {
         }
 
         if (myPendingBookings.length > 0 && exactMatchCount === totalSessions && exactMatchCount === myPendingBookings.length) {
-            // Đây là trường hợp người dùng bấm quay lại và bấm tiếp tục với thông tin y hệt
-            // Trả về booking cũ để không làm reset đồng hồ đếm ngược
             const finalAmount = myPendingBookings.reduce((sum, b) => sum + b.finalAmount, 0);
             return {
                 bookingCode: myPendingBookings[0].groupId || myPendingBookings[0].bookingCode,
@@ -125,7 +123,6 @@ class BookingService {
             };
         }
 
-        // Tự động huỷ các đơn đang chờ thanh toán của chính user này để giải phóng sân
         for (const b of myPendingBookings) {
             b.status = BookingStatus.CANCELLED;
             b.cancelReason = 'Người dùng tạo phiên đặt sân mới đè lên phiên cũ';
