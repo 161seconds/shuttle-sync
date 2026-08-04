@@ -2,6 +2,15 @@ import { motion } from 'framer-motion';
 import { useEffect, useState, useRef } from 'react';
 import { Zap } from 'lucide-react';
 
+const QUOTES = [
+  "Nơi đam mê bùng cháy trên từng đường cầu.",
+  "Kết nối cộng đồng yêu cầu lông.",
+  "Trải nghiệm đặt sân mượt mà, nhanh chóng.",
+  "Không ngừng nâng cao kỹ năng của bạn.",
+  "Sức khỏe, niềm vui và những cú smash uy lực.",
+  "Tìm kiếm, đặt lịch và tận hưởng trận đấu.",
+];
+
 interface SplashScreenProps {
   onComplete: () => void;
   isLoading?: boolean;
@@ -13,6 +22,21 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
   const [rawMouse, setRawMouse] = useState({ x: 0, y: 0 });
   const startTime = useRef(Date.now());
   const onCompleteRef = useRef(onComplete);
+
+  const [quote] = useState(() => QUOTES[Math.floor(Math.random() * QUOTES.length)]);
+  const [particles, setParticles] = useState<{id: number, x: number, y: number, size: number, duration: number, delay: number}[]>([]);
+
+  useEffect(() => {
+    const newParticles = Array.from({ length: 60 }).map((_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 4 + 1,
+      duration: Math.random() * 15 + 15,
+      delay: Math.random() * 5,
+    }));
+    setParticles(newParticles);
+  }, []);
 
   // Giữ reference mới nhất của onComplete
   useEffect(() => {
@@ -80,6 +104,95 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
         transition={{ duration: 2.5, ease: "easeOut", delay: 0.2 }}
         className="absolute w-[400px] h-[400px] bg-cyan-500/10 blur-[80px] rounded-full"
       />
+
+      {/* Particles */}
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute bg-emerald-500/30 rounded-full"
+          style={{
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: p.size,
+            height: p.size,
+          }}
+          animate={{
+            y: ["0%", "-50%", "0%"],
+            x: ["0%", "20%", "0%"],
+            opacity: [0.1, 0.6, 0.1],
+          }}
+          transition={{
+            duration: p.duration,
+            repeat: Infinity,
+            delay: p.delay,
+            ease: "linear"
+          }}
+        />
+      ))}
+
+      {/* Decorative Frame */}
+      <div className="absolute top-8 left-8 w-16 h-16 border-l border-t border-emerald-500/20 rounded-tl-2xl hidden md:block" />
+      <div className="absolute top-8 right-8 w-16 h-16 border-r border-t border-emerald-500/20 rounded-tr-2xl hidden md:block" />
+      <div className="absolute bottom-8 left-8 w-16 h-16 border-l border-b border-emerald-500/20 rounded-bl-2xl hidden md:block" />
+      <div className="absolute bottom-8 right-8 w-16 h-16 border-r border-b border-emerald-500/20 rounded-br-2xl hidden md:block" />
+
+
+      {/* Tech Circles / Radar */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-emerald-500/5 rounded-full flex items-center justify-center pointer-events-none">
+        <motion.div 
+          animate={{ rotate: 360 }}
+          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+          className="w-[600px] h-[600px] border border-dashed border-cyan-500/10 rounded-full"
+        />
+        <motion.div 
+          animate={{ rotate: -360 }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          className="absolute w-[400px] h-[400px] border border-emerald-500/10 rounded-full border-t-emerald-500/30 border-b-emerald-500/30"
+        />
+        <motion.div 
+          animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.3, 0.1] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute w-[300px] h-[300px] bg-emerald-500/5 rounded-full blur-2xl"
+        />
+      </div>
+
+      {/* Fake Data Logs */}
+      <div className="absolute top-32 left-12 hidden lg:flex flex-col gap-2 text-[10px] font-mono text-emerald-500/40 pointer-events-none tracking-widest">
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>&gt; INITIALIZE_CORE_MODULES</motion.div>
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>&gt; LOAD_USER_SESSION [OK]</motion.div>
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.8 }}>&gt; CONNECT_BOOKING_ENGINE...</motion.div>
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.2 }}>&gt; FETCH_LATEST_COURTS_DATA</motion.div>
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.5 }}>&gt; SYNC_REALTIME_STATE [OK]</motion.div>
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.8 }}>&gt; SYSTEM_READY.</motion.div>
+      </div>
+
+      <div className="absolute bottom-40 right-12 hidden lg:flex flex-col items-end gap-2 text-[10px] font-mono text-cyan-500/40 pointer-events-none text-right tracking-widest">
+        <div>SYS_MEM_ALLOC: 2048MB</div>
+        <div>NET_LATENCY: 12ms</div>
+        <div>SEC_PROTO: TLS_1.3</div>
+        <motion.div animate={{ opacity: [0.3, 0.9, 0.3] }} transition={{ duration: 2, repeat: Infinity }}>STATUS: OPTIMAL</motion.div>
+      </div>
+
+      {/* Floating Status Tags */}
+      <motion.div 
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0, y: [0, -10, 0] }}
+        transition={{ opacity: { duration: 1 }, x: { duration: 1 }, y: { duration: 4, repeat: Infinity, ease: "easeInOut" } }}
+        className="absolute top-1/4 left-[10%] hidden lg:flex items-center gap-3 px-4 py-2 bg-emerald-950/20 border border-emerald-500/20 rounded-full backdrop-blur-md"
+      >
+        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+        <span className="text-xs font-mono text-emerald-400/80 uppercase tracking-wider">System Online</span>
+      </motion.div>
+      
+      <motion.div 
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0, y: [0, 10, 0] }}
+        transition={{ opacity: { duration: 1, delay: 0.5 }, x: { duration: 1, delay: 0.5 }, y: { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 } }}
+        className="absolute bottom-1/3 right-[10%] hidden lg:flex items-center gap-3 px-4 py-2 bg-cyan-950/20 border border-cyan-500/20 rounded-full backdrop-blur-md"
+      >
+        <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+        <span className="text-xs font-mono text-cyan-400/80 uppercase tracking-wider">Secure Sync</span>
+      </motion.div>
 
       {/* Interactive Mouse Glow */}
       <motion.div
@@ -193,6 +306,18 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
           </div>
         </motion.div>
       </div>
+
+      {/* Random Quote */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.8 }}
+        className="absolute bottom-12 left-0 right-0 flex justify-center px-6 pointer-events-none z-10"
+      >
+        <p className="text-sm md:text-base text-foreground/50 italic font-medium text-center max-w-md">
+          "{quote}"
+        </p>
+      </motion.div>
 
       {/* Grid Floor */}
       <motion.div
