@@ -42,23 +42,37 @@ export default function OnboardingModal({ onComplete, onSkip }: Props) {
             className="fixed inset-0 z-1000 flex items-center justify-center p-4 sm:p-0"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         >
-            {/* Dark glass backdrop */}
-            <div className="absolute inset-0 bg-card backdrop-blur-sm" />
+            {/* Vibrant ambient backdrop instead of pure black */}
+            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" />
             
             {/* Aurora Background Glows */}
-            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-emerald-500/20 blur-[120px] rounded-full pointer-events-none" />
-            <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none" />
+            <motion.div 
+                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+                transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -top-20 -left-20 w-[600px] h-[600px] bg-emerald-600/20 blur-[120px] rounded-full pointer-events-none" 
+            />
+            <motion.div 
+                animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
+                transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                className="absolute -bottom-20 -right-20 w-[600px] h-[600px] bg-cyan-600/20 blur-[150px] rounded-full pointer-events-none" 
+            />
+            <motion.div 
+                animate={{ y: [0, -50, 0], opacity: [0.1, 0.3, 0.1] }}
+                transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 4 }}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-violet-600/15 blur-[120px] rounded-full pointer-events-none" 
+            />
 
-            <div className="absolute inset-0 opacity-[0.05] pointer-events-none"
+            {/* Noise Texture */}
+            <div className="absolute inset-0 opacity-[0.08] pointer-events-none mix-blend-overlay"
                 style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")" }}
             />
 
             <motion.div
-                className="relative w-full h-[85vh] max-h-[700px] sm:max-w-md sm:h-[650px] bg-background/80 backdrop-blur-2xl rounded-3xl sm:rounded-[2rem] border border-border shadow-glow overflow-hidden flex flex-col"
+                className="relative w-full h-[85vh] max-h-[700px] sm:max-w-md sm:h-[650px] bg-slate-900/40 backdrop-blur-3xl rounded-3xl sm:rounded-[2rem] border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col"
                 layout
             >
                 {/* Inner glass shine */}
-                <div className="absolute inset-0 rounded-3xl sm:rounded-[2rem] border-t border-border pointer-events-none" />
+                <div className="absolute inset-0 rounded-3xl sm:rounded-[2rem] border-t border-white/10 pointer-events-none" />
 
                 <div className="flex items-center justify-between relative z-20 shrink-0 p-6 pb-2">
                     <ProgressBar current={step} total={totalSteps} />
