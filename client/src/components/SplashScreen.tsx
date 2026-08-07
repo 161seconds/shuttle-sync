@@ -136,6 +136,28 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
       <div className="absolute bottom-8 left-8 w-16 h-16 border-l border-b border-emerald-500/20 rounded-bl-2xl hidden md:block" />
       <div className="absolute bottom-8 right-8 w-16 h-16 border-r border-b border-emerald-500/20 rounded-br-2xl hidden md:block" />
 
+      {/* Target Crosshairs */}
+      <div className="absolute top-1/4 left-1/4 w-8 h-8 border-l border-t border-emerald-500/20 opacity-50 pointer-events-none hidden md:block" />
+      <div className="absolute top-1/4 right-1/4 w-8 h-8 border-r border-t border-emerald-500/20 opacity-50 pointer-events-none hidden md:block" />
+      <div className="absolute bottom-1/4 left-1/4 w-8 h-8 border-l border-b border-emerald-500/20 opacity-50 pointer-events-none hidden md:block" />
+      <div className="absolute bottom-1/4 right-1/4 w-8 h-8 border-r border-b border-emerald-500/20 opacity-50 pointer-events-none hidden md:block" />
+
+      {/* Global Scanner Line */}
+      <motion.div
+        animate={{ top: ["-10%", "110%"] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+        className="absolute left-0 right-0 h-[1px] bg-emerald-500/30 pointer-events-none z-0 hidden md:block"
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-400/5 to-transparent h-[150px] -top-[75px]" />
+      </motion.div>
+
+      {/* Random Hex Block */}
+      <div className="absolute top-12 right-12 hidden lg:flex flex-col items-end gap-1 text-[10px] font-mono text-emerald-500/40 pointer-events-none text-right tracking-widest">
+        <motion.div animate={{ opacity: [0.2, 0.8, 0.2] }} transition={{ duration: 2, repeat: Infinity }}>MEM_ADDR: 0x00F8A1B</motion.div>
+        <motion.div animate={{ opacity: [0.5, 0.2, 0.5] }} transition={{ duration: 3, repeat: Infinity }}>CPU_REG: 0x1A2B3C4</motion.div>
+        <motion.div animate={{ opacity: [0.3, 0.9, 0.3] }} transition={{ duration: 2.5, repeat: Infinity }}>SYS_CLK: 0x99FF22A</motion.div>
+      </div>
+
 
       {/* Tech Circles / Radar */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-emerald-500/5 rounded-full flex items-center justify-center pointer-events-none">
@@ -178,7 +200,7 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0, y: [0, -10, 0] }}
         transition={{ opacity: { duration: 1 }, x: { duration: 1 }, y: { duration: 4, repeat: Infinity, ease: "easeInOut" } }}
-        className="absolute top-1/4 left-[10%] hidden lg:flex items-center gap-3 px-4 py-2 bg-emerald-950/20 border border-emerald-500/20 rounded-full backdrop-blur-md"
+        className="absolute top-[45%] left-[8%] hidden lg:flex items-center gap-3 px-4 py-2 bg-emerald-950/20 border border-emerald-500/20 rounded-full backdrop-blur-md"
       >
         <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
         <span className="text-xs font-mono text-emerald-400/80 uppercase tracking-wider">System Online</span>
