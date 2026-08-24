@@ -3,14 +3,37 @@ import { bookingService } from '../services/booking.service';
 import { logger } from '../utils/logger';
 import { Booking } from '../models/Booking';
 
+import crypto from 'crypto';
+
 class PaymentController {
     async handleSePayWebhook(req: Request, res: Response) {
         try {
-            // Kiểm tra Authorization header (Tuỳ chọn cấu hình API Key trong SePay)
-            // const expectedToken = process.env.SEPAY_API_TOKEN;
-            // if (expectedToken && req.headers.authorization !== `Bearer ${expectedToken}`) {
-            //     return res.status(401).json({ success: false, message: 'Unauthorized' });
-            // }
+            // 1. Xác thực HMAC-SHA256 (nếu có cấu hình SEPAY_WEBHOOK_SECRET và có header signature)
+            const webhookSecret = process.env.SEPAY_WEBHOOK_SECRET;
+            const sepaySignature = req.headers['x-sepay-signature'] as string;
+
+            if (webhookSecret && sepaySignature) {
+                const calculatedSignature = crypto
+                    .createHmac('sha256', webhookSecret)
+                    .update(JSON.stringify(req.body))
+                    .digest('hex');
+
+                if (calculatedSignature !== sepaySignature) {
+                    logger.warn(`[SePay Webhook] Chữ ký không hợp lệ. Nhận: ${sepaySignature}, Tính toán: ${calculatedSignature}`);
+                    return res.status(401).json({ success: false, message: 'Invalid signature' });
+                }
+            }
+
+            // 2. Xác thực API Token (nếu có cấu hình SEPAY_API_TOKEN và có header Authorization)
+            const expectedToken = process.env.SEPAY_API_TOKEN;
+            const authHeader = req.headers.authorization;
+            if (expectedToken && authHeader) {
+                const token = authHeader.replace(/^(Bearer|Apikey)\s+/i, '').trim();
+                if (token !== expectedToken) {
+                    logger.warn(`[SePay Webhook] API Token không hợp lệ: ${token}`);
+                    return res.status(401).json({ success: false, message: 'Unauthorized' });
+                }
+            }
 
             const { gateway, transactionDate, accountNumber, content, transferType, transferAmount, referenceCode } = req.body;
 
