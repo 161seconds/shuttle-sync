@@ -1,9 +1,44 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { HelpCircle, Mail, MessageCircle, Phone, ArrowLeft, ArrowRight } from 'lucide-react';
+import { HelpCircle, Mail, MessageCircle, Phone, ArrowLeft, ArrowRight, Loader2, Check } from 'lucide-react';
 import { useAppStore } from '../store';
+import { useAlertStore } from '../stores/useAlertStore';
+import axiosClient from '../api/axiosClient';
 
 export default function SupportPage() {
-    const { setPage } = useAppStore();
+    const { setPage, user } = useAppStore();
+    const { showAlert } = useAlertStore();
+
+    const [description, setDescription] = useState('');
+    const [email, setEmail] = useState(user?.email || '');
+    const [submitting, setSubmitting] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+
+    const handleSubmitReport = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!description.trim() || description.trim().length < 5) {
+            showAlert('Vui lòng nhập mô tả vấn đề tối thiểu 5 ký tự', 'Thông báo', 'warning');
+            return;
+        }
+
+        try {
+            setSubmitting(true);
+            await axiosClient.post('/reports', {
+                description: description.trim() + (email ? ` (Email liên hệ: ${email.trim()})` : ''),
+                reason: 'other'
+            });
+
+            setSubmitted(true);
+            setDescription('');
+            showAlert('Cảm ơn bạn! Phản hồi đã được gửi đến ban quản trị.', 'Thành công', 'success');
+            setTimeout(() => setSubmitted(false), 3000);
+        } catch (error: any) {
+            console.error('Lỗi gửi báo cáo:', error);
+            showAlert(error.response?.data?.message || 'Có lỗi xảy ra khi gửi phản hồi', 'Lỗi', 'error');
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-transparent pt-20 px-4 pb-24 text-foreground relative overflow-hidden font-sans">
@@ -14,7 +49,7 @@ export default function SupportPage() {
             <div className="max-w-4xl mx-auto relative z-10">
                 <button
                     onClick={() => setPage('home')}
-                    className="group mb-12 flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors"
+                    className="group mb-12 flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 >
                     <div className="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center group-hover:bg-muted transition-colors">
                         <ArrowLeft className="w-4 h-4" />
@@ -55,9 +90,12 @@ export default function SupportPage() {
                                 <MessageCircle className="w-7 h-7 text-blue-400" />
                             </div>
                             <h3 className="text-2xl font-bold mb-3 text-foreground/90 group-hover:text-foreground transition-colors">Trò chuyện trực tiếp</h3>
-                            <p className="text-muted-foreground text-sm mb-8 leading-relaxed flex-1">Kết nối ngay lập tức với nhân viên hỗ trợ qua hệ thống chat trực tuyến của chúng tôi.</p>
-                            <button className="flex items-center gap-2 text-blue-400 font-semibold text-sm group/btn hover:text-blue-300 transition-colors w-fit">
-                                Bắt đầu ngay
+                            <p className="text-muted-foreground text-sm mb-8 leading-relaxed flex-1">Kết nối ngay lập tức với các thành viên và nhóm giao lưu qua hệ thống chat trực tuyến của chúng tôi.</p>
+                            <button 
+                                onClick={() => setPage('chat')}
+                                className="flex items-center gap-2 text-blue-400 font-semibold text-sm group/btn hover:text-blue-300 transition-colors w-fit cursor-pointer"
+                            >
+                                Mở tin nhắn ngay
                                 <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                             </button>
                         </div>
@@ -77,10 +115,13 @@ export default function SupportPage() {
                                 <Phone className="w-7 h-7 text-emerald-400" />
                             </div>
                             <h3 className="text-2xl font-bold mb-3 text-foreground/90 group-hover:text-foreground transition-colors">Đường dây nóng</h3>
-                            <p className="text-muted-foreground text-sm mb-6 leading-relaxed flex-1">Gọi trực tiếp cho tổng đài nếu bạn gặp sự cố khẩn cấp về sân bãi hoặc thanh toán.</p>
-                            <div className="inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 w-fit">
-                                <span className="text-2xl font-black text-emerald-400 tracking-wider">0000 0000</span>
-                            </div>
+                            <p className="text-muted-foreground text-sm mb-6 leading-relaxed flex-1">Gọi trực tiếp cho tổng đài hỗ trợ nếu bạn gặp sự cố khẩn cấp về sân bãi hoặc thanh toán.</p>
+                            <a 
+                                href="tel:19006868"
+                                className="inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 w-fit hover:bg-emerald-500/20 transition-colors"
+                            >
+                                <span className="text-2xl font-black text-emerald-400 tracking-wider">1900 6868</span>
+                            </a>
                         </div>
                     </motion.div>
 
@@ -100,26 +141,41 @@ export default function SupportPage() {
                                 <p className="text-muted-foreground text-sm leading-relaxed max-w-sm">Mọi góp ý của bạn đều là viên gạch quý giá giúp ShuttleSync ngày một hoàn thiện hơn.</p>
                             </div>
                             
-                            <div className="flex-1 w-full space-y-4">
+                            <form onSubmit={handleSubmitReport} className="flex-1 w-full space-y-4">
                                 <div className="relative">
                                     <textarea 
                                         rows={3}
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
                                         placeholder="Mô tả chi tiết vấn đề bạn đang gặp phải..." 
-                                        className="w-full bg-background border border-border rounded-[20px] px-6 py-5 text-sm outline-none focus:border-purple-500/50 focus:bg-card transition-all resize-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] placeholder:text-muted-foreground" 
+                                        className="w-full bg-background border border-border rounded-[20px] px-6 py-5 text-sm outline-none focus:border-purple-500/50 focus:bg-card transition-all resize-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] placeholder:text-muted-foreground text-foreground" 
                                     />
                                 </div>
                                 <div className="flex flex-col sm:flex-row gap-4">
                                     <input 
                                         type="email" 
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
                                         placeholder="Địa chỉ Email" 
-                                        className="flex-1 bg-background border border-border rounded-2xl px-6 py-4 text-sm outline-none focus:border-purple-500/50 focus:bg-card transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] placeholder:text-muted-foreground" 
+                                        className="flex-1 bg-background border border-border rounded-2xl px-6 py-4 text-sm outline-none focus:border-purple-500/50 focus:bg-card transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] placeholder:text-muted-foreground text-foreground" 
                                     />
-                                    <button className="px-8 py-4 rounded-2xl bg-foreground text-background hover:opacity-90 font-bold text-sm transition-all shadow-glow-md flex items-center justify-center gap-2 group/btn">
-                                        Gửi ngay
-                                        <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                                    <button 
+                                        type="submit"
+                                        disabled={submitting}
+                                        className="px-8 py-4 rounded-2xl bg-foreground text-background hover:opacity-90 font-bold text-sm transition-all shadow-glow-md flex items-center justify-center gap-2 group/btn cursor-pointer disabled:opacity-50"
+                                    >
+                                        {submitting ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : submitted ? (
+                                            <Check className="w-4 h-4 text-emerald-500" />
+                                        ) : null}
+                                        {submitted ? 'Đã gửi' : submitting ? 'Đang gửi...' : 'Gửi ngay'}
+                                        {!submitting && !submitted && (
+                                            <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                                        )}
                                     </button>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </motion.div>
                 </div>

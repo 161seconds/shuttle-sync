@@ -1,8 +1,9 @@
-import { useState, type ReactNode } from 'react';
-import { Check, Loader2 } from 'lucide-react';
+import { useState, useRef, type ReactNode } from 'react';
+import { Check, Loader2, Camera } from 'lucide-react';
 import ProfileHeader from '../../components/layout/ProfileHeader';
 import { theme as t } from '../../utils/theme';
 import { useAppStore } from '../../store';
+import { useAlertStore } from '../../stores/useAlertStore';
 import axiosClient from '../../api/axiosClient';
 import type { SportType } from '../../types';
 import { SKILLS } from '../../features/onboarding/data';
@@ -37,13 +38,16 @@ interface Props {
 
 export default function EditProfile({ onBack }: Props) {
     const { user, setUser } = useAppStore();
+    const { showAlert } = useAlertStore();
 
     const [saving, setSaving] = useState(false);
     const [success, setSuccess] = useState(false);
+    const avatarInputRef = useRef<HTMLInputElement>(null);
 
     const [form, setForm] = useState({
         displayName: user?.displayName || '',
         phone: user?.phone || '',
+        avatar: user?.avatar || '',
         skillLevel: user?.skillLevel || '',
         sportPreferences: (user?.sportPreferences || []) as SportType[],
     });
@@ -53,6 +57,24 @@ export default function EditProfile({ onBack }: Props) {
             ...prev,
             [key]: value,
         }));
+    };
+
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 3 * 1024 * 1024) {
+            showAlert('Vui lòng chọn ảnh dung lượng dưới 3MB', 'Lỗi', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64String = reader.result as string;
+            set('avatar', base64String);
+            showAlert('Đã chọn ảnh mới. Hãy nhấn Lưu lại!', 'Thành công', 'success');
+        };
+        reader.readAsDataURL(file);
     };
 
     const toggleSport = (sport: SportType) => {
@@ -70,6 +92,7 @@ export default function EditProfile({ onBack }: Props) {
             const res = await axiosClient.put('/users/profile', {
                 displayName: form.displayName.trim(),
                 phone: form.phone.trim() || undefined,
+                avatar: form.avatar || undefined,
                 skillLevel: form.skillLevel || undefined,
                 sportPreferences: form.sportPreferences,
             });
@@ -84,12 +107,14 @@ export default function EditProfile({ onBack }: Props) {
             }
 
             setSuccess(true);
+            showAlert('Cập nhật hồ sơ thành công!', 'Thành công', 'success');
 
             setTimeout(() => {
                 setSuccess(false);
             }, 2000);
-        } catch (err) {
+        } catch (err: any) {
             console.error('Lỗi cập nhật:', err);
+            showAlert(err.response?.data?.message || 'Có lỗi xảy ra khi lưu', 'Lỗi', 'error');
         } finally {
             setSaving(false);
         }
@@ -97,6 +122,15 @@ export default function EditProfile({ onBack }: Props) {
 
     return (
         <div className={`min-h-screen w-full${t.bg.base} pb-24`}>
+            {/* Hidden avatar file input */}
+            <input
+                type="file"
+                ref={avatarInputRef}
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="hidden"
+            />
+
             {/* Header */}
             <ProfileHeader 
                 title="Hồ sơ của bạn" 
@@ -122,15 +156,21 @@ export default function EditProfile({ onBack }: Props) {
                 {/* Header row: Avatar + Quick Info */}
                 <div className="flex items-center gap-5">
                     {/* Avatar */}
-                    <div className="relative group cursor-pointer shrink-0">
+                    <div 
+                        onClick={() => avatarInputRef.current?.click()}
+                        className="relative group cursor-pointer shrink-0"
+                    >
                         <div className="absolute inset-0 bg-emerald-500/30 rounded-2xl blur-xl opacity-50 group-hover:opacity-100 transition-opacity" />
                         <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-4xl font-black text-black shadow-xl overflow-hidden border-2 border-white/10 group-hover:scale-105 transition-transform">
-                            {user?.avatar ? (
+                            {form.avatar ? (
+                                <img src={form.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                            ) : user?.avatar ? (
                                 <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
                             ) : (
                                 user?.displayName?.charAt(0).toUpperCase() || 'U'
                             )}
-                            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-1">
+                                <Camera className="w-5 h-5 text-white" />
                                 <span className="text-white text-[10px] font-bold tracking-widest uppercase">Đổi ảnh</span>
                             </div>
                         </div>

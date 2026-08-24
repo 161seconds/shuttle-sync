@@ -24,7 +24,7 @@ export class TournamentService {
     }
 
     // 2. TẠO NHANH GIẢI ĐẤU (QUICK CREATE) MẪU ĐỂ TEST
-    async createQuickTournament(title: string) {
+    async createQuickTournament(title: string, organizerId?: string) {
         // Tự động tạo 5 đội bóng
         const mockTeams = [
             { _id: new Types.ObjectId(), name: 'Nhóm Q.Bảo', members: [], hasPaid: true },
@@ -38,7 +38,7 @@ export class TournamentService {
         const tour = await Tournament.create({
             title: title || 'Giải Cầu Lông Mở Rộng 2026',
             description: 'Giải đấu test hệ thống tự động chia nhánh.',
-            organizerId: new Types.ObjectId(),
+            organizerId: organizerId ? new Types.ObjectId(organizerId) : new Types.ObjectId(),
             courtId: new Types.ObjectId(),
 
             sportType: SportType.BADMINTON,
