@@ -39,7 +39,7 @@ export const updateProfileSchema = z.object({
     body: z.object({
         displayName: z.string().min(2).max(50).trim().optional(),
         phone: z.string().regex(/^(0|\+84)\d{9}$/, 'Số điện thoại không hợp lệ').optional(),
-        avatar: z.string().url().optional(),
+        avatar: z.string().optional(),
         skillLevel: z.nativeEnum(SkillLevel).optional(),
         sportPreferences: z.array(z.nativeEnum(SportType)).optional(),
         settings: z.object({
@@ -255,10 +255,8 @@ export const createReportSchema = z.object({
     body: z.object({
         targetUserId: z.string().optional(),
         targetCourtId: z.string().optional(),
-        reason: z.nativeEnum(ReportReason),
-        description: z.string().min(10).max(1000),
-    }).refine(data => data.targetUserId || data.targetCourtId, {
-        message: 'Cần chỉ định đối tượng báo cáo',
+        reason: z.nativeEnum(ReportReason).optional().default(ReportReason.OTHER),
+        description: z.string().min(5, 'Nội dung báo cáo tối thiểu 5 ký tự').max(1000),
     }),
 });
 

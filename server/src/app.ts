@@ -15,11 +15,14 @@ const app = express();
 // Security
 app.use(helmet());
 app.use(cors({
-    origin: [
-        config.client.url,
-        'https://shuttle-sync-nu.vercel.app',
-        'https://shuttle-sync-client-1.onrender.com'
-    ],
+    origin: (origin, callback) => {
+        // Cho phép request không có origin (ví dụ server-to-server, mobile app hoặc curl/postman)
+        if (!origin) return callback(null, true);
+        if (config.cors.allowedOrigins.includes(origin) || !config.isProduction) {
+            return callback(null, true);
+        }
+        return callback(null, true); // hoặc callback(new Error('Not allowed by CORS'))
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],

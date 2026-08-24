@@ -68,15 +68,25 @@ export default function MessageInput({ onSend, disabled, replyingTo, onCancelRep
 
         if ((text.trim() || selectedFile) && !disabled) {
             if (selectedFile) {
-                // Mock behavior: show alert for now since we don't have real upload API
-                useAlertStore.getState().showAlert('Đã đính kèm file (Tính năng upload thật đang phát triển)', 'Thành công', 'success');
-            }
-
-            if (text.trim()) {
+                if (selectedFile.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const imgDataUrl = reader.result as string;
+                        onSend(imgDataUrl);
+                        if (text.trim()) {
+                            onSend(text.trim());
+                        }
+                    };
+                    reader.readAsDataURL(selectedFile);
+                } else {
+                    // Document or other file
+                    onSend(`📎 ${selectedFile.name} (${(selectedFile.size / 1024 / 1024).toFixed(1)}MB)`);
+                    if (text.trim()) {
+                        onSend(text.trim());
+                    }
+                }
+            } else if (text.trim()) {
                 onSend(text.trim());
-            } else if (selectedFile) {
-                // If only file is sent, send a mock message text indicating a file
-                onSend(`[Đã gửi 1 file: ${selectedFile.name}]`);
             }
 
             setText('');

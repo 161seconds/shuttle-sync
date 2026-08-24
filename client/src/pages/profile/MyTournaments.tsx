@@ -109,6 +109,7 @@ const TeamRow = ({ matchId, slot, teamId, teamName, score, isWinner, isTBD, onDr
 
 export default function MyTournaments({ onBack }: Props) {
     const [loading, setLoading] = useState(false);
+    const [creating, setCreating] = useState(false);
     const [tournament, setTournament] = useState<Tournament | null>(null);
     const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
 
@@ -119,12 +120,30 @@ export default function MyTournaments({ onBack }: Props) {
             const list: Tournament[] = res.data.data;
             if (list && list.length > 0) {
                 setTournament(list[0]);
+            } else {
+                setTournament(null);
             }
         } catch (error) {
             console.error("Lỗi lấy giải đấu:", error);
             useAlertStore.getState().showAlert("Có lỗi xảy ra khi tải giải đấu!", 'Thông báo', 'error');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleCreateQuickTournament = async () => {
+        try {
+            setCreating(true);
+            await axiosClient.post('/tournaments/quick', {
+                title: 'Giải Cầu Lông Mở Rộng 2026'
+            });
+            useAlertStore.getState().showAlert('Khởi tạo giải đấu và chia nhánh thành công!', 'Thành công', 'success');
+            await fetchTournaments();
+        } catch (error: any) {
+            console.error('Lỗi tạo giải đấu:', error);
+            useAlertStore.getState().showAlert(error.response?.data?.message || 'Có lỗi xảy ra khi tạo giải', 'Lỗi', 'error');
+        } finally {
+            setCreating(false);
         }
     };
 
@@ -193,7 +212,7 @@ export default function MyTournaments({ onBack }: Props) {
                 {/* Header */}
                 <ProfileHeader title="Quản lý Giải đấu" onBack={onBack} />
 
-                <div className="max-w-lg mx-auto px-5 py-32 flex flex-col items-center justify-center relative">
+                <div className="max-w-lg mx-auto px-5 py-24 flex flex-col items-center justify-center relative">
                     {/* Background glow for empty state */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30rem] h-[30rem] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none" />
                     
@@ -208,12 +227,21 @@ export default function MyTournaments({ onBack }: Props) {
                         </div>
                     </motion.div>
                     
-                    <motion.h2 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-4xl font-black text-foreground mb-5 text-center tracking-tight">
+                    <motion.h2 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-3xl md:text-4xl font-black text-foreground mb-4 text-center tracking-tight">
                         Chưa tham gia giải đấu
                     </motion.h2>
-                    <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-muted-foreground text-center text-lg max-w-sm leading-relaxed font-medium">
-                        Bạn chưa tham gia hoặc tổ chức giải đấu nào. Hãy đăng ký một giải đấu để bắt đầu hành trình vô địch của bạn.
+                    <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-muted-foreground text-center text-sm md:text-base max-w-sm leading-relaxed font-medium">
+                        Bạn chưa tham gia hoặc tổ chức giải đấu nào. Nhấn nút bên dưới để tạo nhanh giải đấu mẫu và thử nghiệm chia nhánh!
                     </motion.p>
+
+                    <button
+                        onClick={handleCreateQuickTournament}
+                        disabled={creating}
+                        className="mt-8 px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-black font-black text-sm flex items-center gap-2 hover:shadow-glow-lg active:scale-95 transition-all shadow-xl disabled:opacity-50 cursor-pointer"
+                    >
+                        <Sparkles className="w-5 h-5" />
+                        {creating ? 'ĐANG TẠO GIẢI ĐẤU...' : 'TẠO GIẢI ĐẤU THỬ NGHIỆM'}
+                    </button>
                 </div>
             </motion.div>
         );
@@ -233,26 +261,37 @@ export default function MyTournaments({ onBack }: Props) {
 
             {/* Header */}
             <div className="sticky top-0 z-40 bg-background/70 backdrop-blur-3xl border-b border-border shadow-card">
-                <div className="flex items-center gap-5 px-6 h-[88px] w-full">
-                    <button onClick={onBack} className="group w-12 h-12 rounded-2xl bg-card hover:bg-muted flex items-center justify-center transition-all border border-border hover:border-border hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-                        <ChevronLeft className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-colors group-hover:-translate-x-0.5" />
-                    </button>
-                    <div>
-                        <h1 className="font-black text-2xl text-foreground tracking-wide flex items-center gap-3">
-                            {tournament.title}
-                            <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-lg text-[10px] uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-                                <Sparkles className="w-3 h-3" />
-                                Premium
-                            </span>
-                        </h1>
-                        <div className="flex items-center gap-2 mt-1.5">
-                            <span className="relative flex h-2.5 w-2.5">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,1)]"></span>
-                            </span>
-                            <p className="text-[11px] text-emerald-400 uppercase tracking-[0.25em] font-black drop-shadow-glow-lg">Live Event</p>
+                <div className="flex items-center justify-between px-6 h-[88px] w-full">
+                    <div className="flex items-center gap-5">
+                        <button onClick={onBack} className="group w-12 h-12 rounded-2xl bg-card hover:bg-muted flex items-center justify-center transition-all border border-border hover:border-border hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                            <ChevronLeft className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-colors group-hover:-translate-x-0.5" />
+                        </button>
+                        <div>
+                            <h1 className="font-black text-2xl text-foreground tracking-wide flex items-center gap-3">
+                                {tournament.title}
+                                <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-lg text-[10px] uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+                                    <Sparkles className="w-3 h-3" />
+                                    Premium
+                                </span>
+                            </h1>
+                            <div className="flex items-center gap-2 mt-1.5">
+                                <span className="relative flex h-2.5 w-2.5">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,1)]"></span>
+                                </span>
+                                <p className="text-[11px] text-emerald-400 uppercase tracking-[0.25em] font-black drop-shadow-glow-lg">Live Event</p>
+                            </div>
                         </div>
                     </div>
+
+                    <button
+                        onClick={handleCreateQuickTournament}
+                        disabled={creating}
+                        className="px-4 py-2.5 rounded-xl bg-card hover:bg-muted border border-border text-foreground font-bold text-xs flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
+                    >
+                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                        {creating ? 'Đang tạo...' : 'Tạo giải mới'}
+                    </button>
                 </div>
             </div>
 

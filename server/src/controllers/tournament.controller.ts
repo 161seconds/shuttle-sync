@@ -26,7 +26,7 @@ class TournamentController {
     async createQuickTournament(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             const { title } = req.body;
-            const newTour = await tournamentService.createQuickTournament(title);
+            const newTour = await tournamentService.createQuickTournament(title, req.userId);
             res.status(201).json({ success: true, message: 'Tạo và chia nhánh thành công!', data: newTour });
         } catch (error) {
             next(error);

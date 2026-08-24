@@ -139,16 +139,27 @@ export default function MessageBubble({ message, isMine, showAvatar, onAvatarCli
                                 <div className="truncate max-w-[200px] sm:max-w-[300px] opacity-75">{message.replyTo.content}</div>
                             </div>
                         )}
-                        <div
-                            className={`px-4 py-2.5 rounded-2xl text-[15px] leading-relaxed shadow-sm ${
-                                isMine
-                                    ? 'bg-emerald-500 text-black rounded-tr-sm'
-                                    : 'bg-surface text-foreground rounded-tl-sm border border-border'
-                            }`}
-                            style={{ wordBreak: 'break-word' }}
-                        >
-                            {message.content}
-                        </div>
+                        {message.content.startsWith('data:image/') || /^https?:\/\/.*\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(message.content) ? (
+                            <div className="overflow-hidden rounded-2xl border border-border shadow-md">
+                                <img 
+                                    src={message.content} 
+                                    alt="Đính kèm" 
+                                    className="max-w-[240px] sm:max-w-[320px] max-h-[300px] object-cover cursor-pointer hover:scale-[1.02] transition-transform" 
+                                    onClick={() => window.open(message.content, '_blank')}
+                                />
+                            </div>
+                        ) : (
+                            <div
+                                className={`px-4 py-2.5 rounded-2xl text-[15px] leading-relaxed shadow-sm ${
+                                    isMine
+                                        ? 'bg-emerald-500 text-black rounded-tr-sm'
+                                        : 'bg-surface text-foreground rounded-tl-sm border border-border'
+                                }`}
+                                style={{ wordBreak: 'break-word' }}
+                            >
+                                {message.content}
+                            </div>
+                        )}
                     </div>
 
                     {!isMine && (
