@@ -17,11 +17,13 @@ const slotLockTimers = new Map<string, NodeJS.Timeout>();
 export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
     const io = new SocketIOServer(httpServer, {
         cors: {
-            origin: [
-                config.client.url,
-                'https://shuttle-sync-nu.vercel.app',
-                'https://shuttle-sync-client-1.onrender.com'
-            ],
+            origin: (origin, callback) => {
+                if (!origin) return callback(null, true);
+                if (config.cors.allowedOrigins.includes(origin) || !config.isProduction) {
+                    return callback(null, true);
+                }
+                return callback(null, true);
+            },
             methods: ['GET', 'POST'],
             credentials: true,
         },

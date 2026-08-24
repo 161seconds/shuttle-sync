@@ -13,7 +13,7 @@ export const config = {
     },
 
     jwt: {
-        accessSecret: process.env.JWT_ACCESS_SECRET || 'dev_access_secret',
+        accessSecret: process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || 'dev_access_secret',
         refreshSecret: process.env.JWT_REFRESH_SECRET || 'dev_refresh_secret',
         accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
         refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
@@ -26,6 +26,16 @@ export const config = {
 
     client: {
         url: process.env.CLIENT_URL || 'http://localhost:5173',
+    },
+
+    cors: {
+        allowedOrigins: process.env.ALLOWED_ORIGINS
+            ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
+            : [
+                process.env.CLIENT_URL || 'http://localhost:5173',
+                'https://shuttle-sync-nu.vercel.app',
+                'https://shuttle-sync-client-1.onrender.com'
+            ],
     },
 
     upload: {

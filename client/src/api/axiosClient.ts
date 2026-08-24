@@ -60,9 +60,13 @@ axiosClient.interceptors.response.use(
                 processQueue(err);
                 // Lỗi khi refresh token -> Đăng xuất người dùng hoặc tải lại trang để chuyển về trang login
                 localStorage.removeItem('user');
+                window.dispatchEvent(new CustomEvent('auth:unauthorized'));
                 
-                // Tránh lặp vô hạn và không redirect khách truy cập (guest) khi check auth
-                if (!original.url?.includes('/auth/profile') && window.location.pathname !== '/login') {
+                // Chỉ chuyển hướng nếu đang ở route bắt buộc đăng nhập
+                const protectedRoutes = ['/profile', '/admin', '/owner', '/payment', '/chat'];
+                const isProtectedRoute = protectedRoutes.some(route => window.location.pathname.startsWith(route));
+                
+                if (isProtectedRoute && window.location.pathname !== '/login') {
                     window.location.href = '/login'; 
                 }
                 return Promise.reject(err);
