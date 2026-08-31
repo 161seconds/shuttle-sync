@@ -287,7 +287,15 @@ export default function AdminDashboard() {
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#262f3d" vertical={false} />
                                     <XAxis dataKey="name" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                                    <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `${val / 1000}K`} />
+                                    <YAxis
+                                        stroke="#6b7280"
+                                        fontSize={12}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        domain={[0, (dataMax: number) => (dataMax > 0 ? Math.ceil(dataMax * 1.15) : 100000)]}
+                                        allowDataOverflow={false}
+                                        tickFormatter={(val) => `${Math.round(val / 1000)}K`}
+                                    />
                                     <RechartsTooltip
                                         contentStyle={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)', borderRadius: '8px', color: 'var(--color-foreground)' }}
                                         itemStyle={{ color: 'var(--color-foreground)' }}

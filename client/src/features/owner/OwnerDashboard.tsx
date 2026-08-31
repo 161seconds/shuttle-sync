@@ -60,12 +60,17 @@ export const OwnerDashboard = () => {
     );
 
     const formatShortDate = (dateStr: string) => {
+        if (!dateStr) return '';
+        const parts = String(dateStr).split('-');
+        if (parts.length === 3) {
+            return `${parts[2]}/${parts[1]}`;
+        }
         try {
             const d = new Date(dateStr);
-            if (isNaN(d.getTime())) return dateStr;
+            if (isNaN(d.getTime())) return String(dateStr);
             return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
         } catch {
-            return dateStr;
+            return String(dateStr);
         }
     };
 
@@ -75,6 +80,25 @@ export const OwnerDashboard = () => {
             maximumFractionDigits: 1
         }).format(value).replace('K', 'k') + 'đ';
     };
+
+    const bookingTrendData = stats.bookingTrend && stats.bookingTrend.length > 0
+        ? stats.bookingTrend
+        : Array.from({ length: 30 }, (_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - (29 - i));
+            return { date: d.toISOString().slice(0, 10), revenue: 0, count: 0 };
+        });
+
+    const bookingTrendBySportData = stats.bookingTrendBySport && stats.bookingTrendBySport.length > 0
+        ? stats.bookingTrendBySport
+        : Array.from({ length: 30 }, (_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - (29 - i));
+            const date = d.toISOString().slice(0, 10);
+            const res: any = { date };
+            (stats.venueSports || []).forEach(s => { res[s] = 0; });
+            return res;
+        });
 
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
@@ -90,7 +114,7 @@ export const OwnerDashboard = () => {
                                         {name}
                                     </span>
                                     <span className="text-white font-bold text-sm">
-                                        {entry.name === 'count' ? entry.value : `${entry.value.toLocaleString()}đ`}
+                                        {entry.name === 'count' ? entry.value : `${(entry.value || 0).toLocaleString()}đ`}
                                     </span>
                                 </div>
                             );
@@ -158,7 +182,7 @@ export const OwnerDashboard = () => {
                         {stats.venueSports && stats.venueSports.length > 1 ? (
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart
-                                    data={stats.bookingTrendBySport}
+                                    data={bookingTrendBySportData}
                                     onClick={(e: any) => {
                                         if (!e) return;
                                         if (e.activePayload && e.activePayload.length > 0) {
@@ -167,7 +191,7 @@ export const OwnerDashboard = () => {
                                                 payload: e.activePayload
                                             });
                                         } else if (e.activeLabel) {
-                                            const item = stats.bookingTrendBySport.find(d => d.date === e.activeLabel);
+                                            const item = bookingTrendBySportData.find(d => d.date === e.activeLabel);
                                             if (item) {
                                                 const payload = [];
                                                 if (item.PICKLEBALL !== undefined) payload.push({ name: 'PICKLEBALL', value: item.PICKLEBALL, color: '#10b981' });
@@ -181,7 +205,15 @@ export const OwnerDashboard = () => {
                                 >
                                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
                                     <XAxis dataKey="date" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} tickFormatter={formatShortDate} />
-                                    <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value / 1000}k`} />
+                                    <YAxis
+                                        stroke="#9ca3af"
+                                        fontSize={12}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        domain={[0, (dataMax: number) => (dataMax > 0 ? Math.ceil(dataMax * 1.15) : 100000)]}
+                                        allowDataOverflow={false}
+                                        tickFormatter={(value) => `${Math.round(value / 1000)}k`}
+                                    />
                                     <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#374151', strokeWidth: 1, strokeDasharray: '4 4' }} />
                                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
                                     {stats.venueSports.includes('PICKLEBALL') && <Line type="monotone" dataKey="PICKLEBALL" name="Pickleball" stroke="#10b981" strokeWidth={3} dot={false} activeDot={{ r: 6, stroke: '#10b981', strokeWidth: 2, fill: '#1f2937' }} />}
@@ -192,7 +224,7 @@ export const OwnerDashboard = () => {
                         ) : (
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart
-                                    data={stats.bookingTrend}
+                                    data={bookingTrendData}
                                     onClick={(e: any) => {
                                         if (!e) return;
                                         if (e.activePayload && e.activePayload.length > 0) {
@@ -201,7 +233,7 @@ export const OwnerDashboard = () => {
                                                 payload: e.activePayload
                                             });
                                         } else if (e.activeLabel) {
-                                            const item = stats.bookingTrend.find(d => d.date === e.activeLabel);
+                                            const item = bookingTrendData.find(d => d.date === e.activeLabel);
                                             if (item) {
                                                 setSelectedDay({
                                                     date: item.date,
@@ -220,7 +252,15 @@ export const OwnerDashboard = () => {
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
                                     <XAxis dataKey="date" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} tickFormatter={formatShortDate} />
-                                    <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value / 1000}k`} />
+                                    <YAxis
+                                        stroke="#9ca3af"
+                                        fontSize={12}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        domain={[0, (dataMax: number) => (dataMax > 0 ? Math.ceil(dataMax * 1.15) : 100000)]}
+                                        allowDataOverflow={false}
+                                        tickFormatter={(value) => `${Math.round(value / 1000)}k`}
+                                    />
                                     <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#374151', strokeWidth: 1, strokeDasharray: '4 4' }} />
                                     <Area type="monotone" dataKey="revenue" name="revenue" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" dot={false} activeDot={{ r: 6, stroke: '#10b981', strokeWidth: 2, fill: '#1f2937' }} />
                                 </AreaChart>
