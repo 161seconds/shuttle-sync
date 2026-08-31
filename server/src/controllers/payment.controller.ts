@@ -8,24 +8,44 @@ import crypto from 'crypto';
 class PaymentController {
     async handleSePayWebhook(req: Request, res: Response) {
         try {
-            // 1. Xác thực HMAC-SHA256 (nếu có cấu hình SEPAY_WEBHOOK_SECRET và có header signature)
-            const webhookSecret = process.env.SEPAY_WEBHOOK_SECRET;
-            const sepaySignature = req.headers['x-sepay-signature'] as string;
+            // 1. Xác thực HMAC-SHA256 (nếu có cấu hình SEPAY_WEBHOOK_SECRET và SePay gửi header X-SePay-Signature)
+            const webhookSecret = process.env.SEPAY_WEBHOOK_SECRET?.trim();
+            const sepaySignatureHeader = (req.headers['x-sepay-signature'] || req.headers['X-SePay-Signature']) as string;
+            const sepayTimestamp = (req.headers['x-sepay-timestamp'] || req.headers['X-SePay-Timestamp']) as string;
 
-            if (webhookSecret && sepaySignature) {
-                const calculatedSignature = crypto
+            if (webhookSecret && sepaySignatureHeader) {
+                // SePay gửi signature dạng sha256=<hex_hash>, ta bỏ tiền tố sha256= nếu có
+                const receivedSignature = sepaySignatureHeader.replace(/^sha256=/i, '').trim();
+                const rawPayload = (req as any).rawBody || JSON.stringify(req.body);
+
+                // Chuỗi ký chuẩn của SePay: {timestamp}.{raw_body}
+                const payloadWithTimestamp = sepayTimestamp ? `${sepayTimestamp}.${rawPayload}` : rawPayload;
+
+                const calculatedSigWithTs = crypto
                     .createHmac('sha256', webhookSecret)
-                    .update(JSON.stringify(req.body))
+                    .update(payloadWithTimestamp)
                     .digest('hex');
 
-                if (calculatedSignature !== sepaySignature) {
-                    logger.warn(`[SePay Webhook] Chữ ký không hợp lệ. Nhận: ${sepaySignature}, Tính toán: ${calculatedSignature}`);
+                const calculatedSigWithoutTs = crypto
+                    .createHmac('sha256', webhookSecret)
+                    .update(rawPayload)
+                    .digest('hex');
+
+                const safeCompare = (a: string, b: string) => {
+                    if (!a || !b || a.length !== b.length) return false;
+                    return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+                };
+
+                const isValid = safeCompare(calculatedSigWithTs, receivedSignature) || safeCompare(calculatedSigWithoutTs, receivedSignature);
+
+                if (!isValid) {
+                    logger.warn(`[SePay Webhook] Chữ ký không hợp lệ. Nhận: ${receivedSignature}, Tính toán: ${calculatedSigWithTs}`);
                     return res.status(401).json({ success: false, message: 'Invalid signature' });
                 }
             }
 
             // 2. Xác thực API Token (nếu có cấu hình SEPAY_API_TOKEN và có header Authorization)
-            const expectedToken = process.env.SEPAY_API_TOKEN;
+            const expectedToken = process.env.SEPAY_API_TOKEN?.trim();
             const authHeader = req.headers.authorization;
             if (expectedToken && authHeader) {
                 const token = authHeader.replace(/^(Bearer|Apikey)\s+/i, '').trim();
