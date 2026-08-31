@@ -12,7 +12,13 @@ export const aiCoachController = {
             const { message } = req.body;
             if (!message) return res.status(400).json({ error: 'Bạn chưa nhập câu hỏi!' });
 
-            const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+            const model = genAI.getGenerativeModel({ 
+                model: "gemini-flash-latest",
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    temperature: 0.7,
+                }
+            });
 
             const prompt = `
                 Bạn là một Huấn luyện viên Cầu lông chuyên nghiệp mang tên "ShuttleSync Coach".
@@ -22,7 +28,7 @@ export const aiCoachController = {
                 2. Trả lời ngắn gọn, súc tích, có ngắt dòng, dùng emoji thể thao cho thân thiện.
                 3. NẾU NGƯỜI DÙNG HỎI NGOÀI PHẠM VI CẦU LÔNG, hãy từ chối khéo léo và lái câu chuyện về cầu lông.
                 
-                QUAN TRỌNG: Bạn BẮT BUỘC phải trả về kết quả dưới định dạng chuỗi JSON hợp lệ với cấu trúc chính xác như sau (không kèm markdown):
+                QUAN TRỌNG: Bạn BẮT BUỘC phải trả về kết quả dưới định dạng JSON với cấu trúc chính xác:
                 {
                   "reply": "Câu trả lời của bạn ở đây",
                   "suggestions": ["Gợi ý câu hỏi 1", "Gợi ý câu hỏi 2", "Gợi ý câu hỏi 3"]
@@ -32,20 +38,22 @@ export const aiCoachController = {
             `;
 
             let result;
-            let retries = 3; 
+            let maxRetries = 4;
+            let attempt = 0;
 
-            while (retries > 0) {
+            while (attempt < maxRetries) {
+                attempt++;
                 try {
                     result = await model.generateContent(prompt);
                     break;
                 } catch (apiError: any) {
-                    if (apiError.status === 503 || apiError.status === 429) {
-                        console.log(`Google API đang bận (Mã ${apiError.status}), thử lại lần ${4 - retries}...`);
-                        retries--;
-                        if (retries === 0) {
-                            throw new Error('Google API quá tải 3 lần liên tiếp.');
+                    const status = apiError.status || apiError.statusCode;
+                    if (status === 503 || status === 429 || status === 500) {
+                        console.log(`Google API đang bận (Mã ${status}), thử lại lần ${attempt}/${maxRetries}...`);
+                        if (attempt >= maxRetries) {
+                            throw new Error('Google API quá tải sau nhiều lần thử lại.');
                         }
-                        await delay(1500);
+                        await delay(1000 * attempt); // Backoff: 1s, 2s, 3s...
                     } else {
                         throw apiError;
                     }
