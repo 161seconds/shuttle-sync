@@ -69,12 +69,19 @@ class OwnerService {
     async getDashboardStats(ownerId: string) {
         const venue = await this.getVenueByOwnerId(ownerId);
         if (!venue) {
+            const emptyTrend = Array.from({ length: 30 }, (_, i) => {
+                const d = new Date();
+                d.setDate(d.getDate() - (29 - i));
+                return { date: d.toISOString().slice(0, 10), revenue: 0, count: 0 };
+            });
             return {
                 totalCourts: 0,
                 totalBookings: 0,
                 totalRevenue: 0,
-                bookingTrend: [],
-                bookingTrendBySport: [],
+                totalExpenses: 0,
+                netProfit: 0,
+                bookingTrend: emptyTrend,
+                bookingTrendBySport: emptyTrend.map(t => ({ date: t.date })),
                 bookingsByStatus: [],
                 recentBookings: [],
                 hasVenue: false,
@@ -119,10 +126,28 @@ class OwnerService {
             { $sort: { _id: 1 } }
         ]);
 
-        const bookingTrend = recentBookingsTrend.map(t => ({
-            date: t._id,
-            revenue: t.revenue,
-            count: t.count
+        // Chuẩn bị danh sách 30 ngày gần nhất (từ 29 ngày trước đến hôm nay)
+        const dateMap = new Map<string, { revenue: number; count: number }>();
+        const sportMap = new Map<string, Record<string, number>>();
+
+        for (let i = 29; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dateStr = d.toISOString().slice(0, 10);
+            dateMap.set(dateStr, { revenue: 0, count: 0 });
+            sportMap.set(dateStr, {});
+        }
+
+        recentBookingsTrend.forEach(t => {
+            if (dateMap.has(t._id)) {
+                dateMap.set(t._id, { revenue: t.revenue, count: t.count });
+            }
+        });
+
+        const bookingTrend = Array.from(dateMap.entries()).map(([date, val]) => ({
+            date,
+            revenue: val.revenue,
+            count: val.count
         }));
 
         // Doanh thu 30 ngày qua theo môn thể thao
@@ -166,10 +191,21 @@ class OwnerService {
             { $sort: { _id: 1 } }
         ]);
 
-        const bookingTrendBySport = bookingTrendBySportAgg.map(t => {
-            const res: any = { date: t._id };
-            t.revenues.forEach((r: any) => {
-                res[r.sport] = r.amount;
+        const sports = (venue.sports && venue.sports.length > 0) ? venue.sports : ['BADMINTON', 'PICKLEBALL'];
+        bookingTrendBySportAgg.forEach(t => {
+            if (sportMap.has(t._id)) {
+                const sportObj: Record<string, number> = {};
+                t.revenues.forEach((r: any) => {
+                    sportObj[r.sport] = r.amount;
+                });
+                sportMap.set(t._id, sportObj);
+            }
+        });
+
+        const bookingTrendBySport = Array.from(sportMap.entries()).map(([date, sportValues]) => {
+            const res: any = { date };
+            sports.forEach((s: any) => {
+                res[s] = sportValues[s] || 0;
             });
             return res;
         });

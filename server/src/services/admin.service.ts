@@ -39,7 +39,7 @@ class AdminService {
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-        const userGrowth = await User.aggregate([
+        const rawUserGrowth = await User.aggregate([
             { $match: { createdAt: { $gte: thirtyDaysAgo } } },
             {
                 $group: {
@@ -51,8 +51,21 @@ class AdminService {
             { $project: { date: '$_id', count: 1, _id: 0 } },
         ]);
 
+        const userDateMap = new Map<string, number>();
+        for (let i = 29; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            userDateMap.set(d.toISOString().slice(0, 10), 0);
+        }
+        rawUserGrowth.forEach((u: any) => {
+            if (userDateMap.has(u.date)) {
+                userDateMap.set(u.date, u.count);
+            }
+        });
+        const userGrowth = Array.from(userDateMap.entries()).map(([date, count]) => ({ date, count }));
+
         // Booking trend (last 30 days)
-        const bookingTrend = await Booking.aggregate([
+        const rawBookingTrend = await Booking.aggregate([
             {
                 $match: {
                     createdAt: { $gte: thirtyDaysAgo },
@@ -69,6 +82,23 @@ class AdminService {
             { $sort: { _id: 1 } },
             { $project: { date: '$_id', count: 1, revenue: 1, _id: 0 } },
         ]);
+
+        const bookingDateMap = new Map<string, { count: number; revenue: number }>();
+        for (let i = 29; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            bookingDateMap.set(d.toISOString().slice(0, 10), { count: 0, revenue: 0 });
+        }
+        rawBookingTrend.forEach((b: any) => {
+            if (bookingDateMap.has(b.date)) {
+                bookingDateMap.set(b.date, { count: b.count, revenue: b.revenue });
+            }
+        });
+        const bookingTrend = Array.from(bookingDateMap.entries()).map(([date, val]) => ({
+            date,
+            count: val.count,
+            revenue: val.revenue
+        }));
 
         // Top courts (Venues)
         const topCourts = await Booking.aggregate([

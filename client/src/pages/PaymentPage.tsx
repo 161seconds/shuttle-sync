@@ -67,24 +67,22 @@ export default function PaymentPage() {
     const slots = bookingGroup.map(b => `${b.startTime}-${b.endTime}`);
 
     return (
-        <div className="min-h-screen bg-[#0a0f16] flex items-center justify-center p-4">
-            <div className="w-full max-w-[400px]">
-                <Payment
-                    bookingCode={bookingCode!}
-                    amount={totalAmount}
-                    courtName={courtName}
-                    date={dateStr}
-                    slots={slots}
-                    expiresAt={firstBooking.payment?.expiresAt}
-                    onComplete={() => {
-                        showAlert('Thanh toán thành công!', 'Chúc mừng', 'success');
-                        navigate('/profile/history');
-                    }}
-                    onBack={() => {
-                        navigate('/profile/history');
-                    }}
-                />
-            </div>
+        <div className="min-h-screen bg-[#0a0f16] w-full">
+            <Payment
+                bookingCode={bookingCode!}
+                amount={totalAmount}
+                courtName={courtName}
+                date={dateStr}
+                slots={slots}
+                expiresAt={firstBooking.payment?.expiresAt}
+                onComplete={() => {
+                    showAlert('Thanh toán thành công!', 'Chúc mừng', 'success');
+                    navigate('/profile/history');
+                }}
+                onBack={() => {
+                    navigate('/profile/history');
+                }}
+            />
         </div>
     );
 }
