@@ -1,82 +1,57 @@
-name: ShuttleSync CI/CD
+name: ShuttleSync CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [22.x]
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+      - name: Build .NET solution
+        run: dotnet build ShuttleSync.sln --configuration Release
+      - name: Install frontend dependencies
+        working-directory: client
+        run: npm ci
+      - name: Build frontend
+        working-directory: client
+        run: npm run build
+        env:
+          VITE_API_URL: http://localhost:5000
+      - name: Start test MongoDB replica set
+        run: |
+          docker run -d --name shuttle-test-mongo -p 127.0.0.1:27018:27017 mongo:8 --replSet rs0 --bind_ip_all
+          for attempt in {1..30}; do
+            docker exec shuttle-test-mongo mongosh --quiet --eval 'try { rs.status(); } catch (e) { rs.initiate({_id:"rs0",members:[{_id:0,host:"localhost:27017"}]}); } if (!db.hello().isWritablePrimary) quit(1);' && break
+            sleep 2
+          done
+          docker exec shuttle-test-mongo mongosh --quiet --eval 'if (!db.hello().isWritablePrimary) quit(1);'
+      - name: Run backend integration tests
+        run: dotnet test ShuttleSync.Test --configuration Release --no-build
+        env:
+          MONGO_TEST_URI: mongodb://127.0.0.1:27018/?replicaSet=rs0&directConnection=true
+          ASPNETCORE_ENVIRONMENT: Development
+      - name: Run frontend tests
+        working-directory: client
+        run: npm test
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        cache-dependency-path: '**/package-lock.json'
-
-    # Install dependencies for shared, server, and client
-    - name: Install dependencies (Server)
-      run: |
-        cd server
-        npm ci
-
-    - name: Install dependencies (Client)
-      run: |
-        cd client
-        npm ci
-
-    # Build steps
-    - name: Build Server
-      run: |
-        cd server
-        npm run build
-
-    - name: Build Client
-      run: |
-        cd client
-        npm run build
-      env:
-        VITE_API_URL: "http://localhost:5000"
-
-    - name: Start test MongoDB replica set
-      run: |
-        docker run -d --name shuttle-test-mongo -p 127.0.0.1:27018:27017 mongo:8 --replSet rs0 --bind_ip_all
-        for attempt in {1..30}; do
-          docker exec shuttle-test-mongo mongosh --quiet --eval 'try { rs.status(); } catch (e) { rs.initiate({_id:"rs0",members:[{_id:0,host:"localhost:27017"}]}); } if (!db.hello().isWritablePrimary) quit(1);' && break
-          sleep 2
-        done
-        docker exec shuttle-test-mongo mongosh --quiet --eval 'if (!db.hello().isWritablePrimary) quit(1);'
-
-    - name: Run server tests
-      working-directory: server
-      run: npm test
-      env:
-        MONGO_TEST_URI: mongodb://127.0.0.1:27018/?replicaSet=rs0&directConnection=true
-
-    - name: Run client tests
-      working-directory: client
-      run: npm test
-
-  # Build Docker images to ensure Dockerfiles are valid
   docker-check:
     needs: build-and-test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Build Server Docker Image
-      run: docker build -t shuttlesync/server -f server.Dockerfile .
-      
-    - name: Build Client Docker Image
-      run: docker build -t shuttlesync/client -f client.Dockerfile --build-arg VITE_API_URL=http://localhost:5000 .
+      - uses: actions/checkout@v4
+      - name: Build API image
+        run: docker build -t shuttlesync/server -f server.Dockerfile .
+      - name: Build frontend image
+        run: docker build -t shuttlesync/client -f client.Dockerfile --build-arg VITE_API_URL=http://localhost:5000 .

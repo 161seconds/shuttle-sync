@@ -8,3 +8,7 @@
 **/uploads
 **/*.log
 **/*.tsbuildinfo
+**/bin
+**/obj
+TestResults
+server

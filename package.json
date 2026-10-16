@@ -4,29 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev:server": "cd server && npm run dev",
+    "dev:server": "dotnet watch --project ShuttleSync.API run",
     "dev:client": "cd client && npm run dev",
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\""
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "build:server": "dotnet build ShuttleSync.sln",
+    "test:server": "dotnet test ShuttleSync.Test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/compression": "^1.8.1",
-    "@types/morgan": "^1.9.10",
-    "@types/node-cron": "^3.0.11",
     "concurrently": "^8.2.2"
-  },
-  "dependencies": {
-    "compression": "^1.8.1",
-    "cron": "^4.4.0",
-    "express-rate-limit": "^8.3.2",
-    "helmet": "^8.1.0",
-    "lucide-react": "^1.8.0",
-    "morgan": "^1.10.1",
-    "nanoid": "^5.1.9",
-    "node-cron": "^4.2.1",
-    "slugify": "^1.6.9",
-    "winston": "^3.19.0"
   }
 }

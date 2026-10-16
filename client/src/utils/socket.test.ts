@@ -2,86 +2,76 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { authApi } from '../api/auth.api';
 import { socketService } from './socket';
 
-const { handlers, socket } = vi.hoisted(() => {
+const { handlers, hub } = vi.hoisted(() => {
     const handlers: Record<string, (...args: any[]) => any> = {};
-    return { handlers, socket: {
-        on: vi.fn((event: string, handler: (...args: any[]) => any) => { handlers[event] = handler; }),
-        connect: vi.fn(), disconnect: vi.fn(),
+    return { handlers, hub: {
+        on: vi.fn((name: string, listener: (...args: any[]) => any) => { handlers[name] = listener; }),
+        onclose: vi.fn((listener: (...args: any[]) => any) => { handlers.close = listener; }),
+        onreconnecting: vi.fn((listener: (...args: any[]) => any) => { handlers.reconnecting = listener; }),
+        onreconnected: vi.fn((listener: (...args: any[]) => any) => { handlers.reconnected = listener; }),
+        start: vi.fn().mockResolvedValue(undefined), stop: vi.fn().mockResolvedValue(undefined), invoke: vi.fn().mockResolvedValue(undefined),
     } };
 });
-vi.mock('socket.io-client', () => ({ io: vi.fn(() => socket) }));
+vi.mock('@microsoft/signalr', () => ({ HubConnectionBuilder: class { withUrl() { return this; } withAutomaticReconnect() { return this; } build() { return hub; } } }));
 vi.mock('../api/auth.api', () => ({ authApi: { getMe: vi.fn() } }));
+const flush = () => new Promise(resolve => setTimeout(resolve, 0));
+afterEach(() => { socketService.disconnect(); vi.clearAllMocks(); hub.start.mockResolvedValue(undefined); });
 
-afterEach(() => { socketService.disconnect(); vi.clearAllMocks(); });
-
-describe('socket session recovery', () => {
-    it('refreshes authentication before reconnecting after server disconnect', async () => {
+describe('SignalR socket compatibility', () => {
+    it('preserves named listeners, emission and reconnect joins', async () => {
+        socketService.connect(''); const socket = socketService.getSocket()!;
+        const message = vi.fn(); const joined = vi.fn(); socket.on('chat:message', message).on('connect', joined);
+        await flush(); socket.emit('group_play:join', 'group');
+        expect(hub.invoke).toHaveBeenCalledWith('Invoke', 'group_play:join', 'group');
+        handlers.event('chat:message', { content: 'hello' }); expect(message).toHaveBeenCalledWith({ content: 'hello' });
+        handlers.reconnecting(); expect(socket.connected).toBe(false);
+        handlers.reconnected(); expect(socket.connected).toBe(true); expect(joined).toHaveBeenCalledTimes(2);
+        socket.off('chat:message', message); handlers.event('chat:message', {}); expect(message).toHaveBeenCalledOnce();
+    });
+    it('refreshes cookies after explicit session expiry then reconnects', async () => {
         vi.mocked(authApi.getMe).mockResolvedValue({} as any);
-        socketService.connect('');
-        await handlers.disconnect('io server disconnect');
-        expect(authApi.getMe).toHaveBeenCalledOnce();
-        expect(socket.connect).toHaveBeenCalledOnce();
+        socketService.connect(''); await flush(); handlers.session_expired(); handlers.close(); await flush();
+        expect(authApi.getMe).toHaveBeenCalledOnce(); expect(hub.start).toHaveBeenCalledTimes(2);
     });
-
-    it('leaves ordinary transport reconnects to Socket.IO', async () => {
-        socketService.connect('');
-        await handlers.disconnect('transport close');
-        expect(authApi.getMe).not.toHaveBeenCalled();
-        expect(socket.connect).not.toHaveBeenCalled();
-    });
-
-    it('recovers rejected handshakes once using refreshed cookies', async () => {
+    it('recovers an expired cookie rejected during the initial handshake', async () => {
+        hub.start.mockRejectedValueOnce(new Error('HTTP 401')).mockResolvedValue(undefined);
         vi.mocked(authApi.getMe).mockResolvedValue({} as any);
-        socketService.connect('expired-token');
-        await handlers.connect_error(new Error('Authentication failed'));
+        socketService.connect(''); await flush();
         expect(authApi.getMe).toHaveBeenCalledOnce();
-        expect(socket.connect).toHaveBeenCalledOnce();
-        expect((socket as any).auth).toEqual({});
-        await handlers.connect_error(new Error('Authentication failed'));
-        expect(authApi.getMe).toHaveBeenCalledOnce();
-        expect(socket.connect).toHaveBeenCalledOnce();
-        expect(socketService.getSocket()).toBeNull();
+        expect(hub.start).toHaveBeenCalledTimes(2);
+        expect(socketService.getSocket()?.connected).toBe(true);
     });
-
-    it('does not refresh credentials for transport handshake errors', async () => {
-        socketService.connect('');
-        await handlers.connect_error(new Error('xhr poll error'));
-        expect(authApi.getMe).not.toHaveBeenCalled();
-    });
-
-    it('allows another recovery after a successful connection', async () => {
+    it('stops repeated authentication failures after one refresh', async () => {
+        hub.start.mockRejectedValue(new Error('HTTP 401'));
         vi.mocked(authApi.getMe).mockResolvedValue({} as any);
-        socketService.connect('');
-        await handlers.connect_error(new Error('Authentication failed'));
-        handlers.connect();
-        await handlers.disconnect('io server disconnect');
-        expect(authApi.getMe).toHaveBeenCalledTimes(2);
-        expect(socket.connect).toHaveBeenCalledTimes(2);
+        const unauthorized = vi.fn(); window.addEventListener('auth:unauthorized', unauthorized);
+        try {
+            socketService.connect(''); await flush();
+            expect(authApi.getMe).toHaveBeenCalledOnce();
+            expect(hub.start).toHaveBeenCalledTimes(2);
+            expect(unauthorized).toHaveBeenCalledOnce();
+        } finally { window.removeEventListener('auth:unauthorized', unauthorized); }
     });
-
-    it.each(['disconnect', 'connect_error'])('never reconnects after logout during %s recovery', async (event) => {
+    it('keeps every event consumed by App and ChatPage unchanged', async () => {
+        socketService.connect(''); const socket = socketService.getSocket()!;
+        await flush();
+        for (const name of ['join_request_received', 'join_request_accepted', 'join_request_rejected', 'user_joined', 'friend:request', 'notification', 'chat:message', 'chat:direct_message']) {
+            const listener = vi.fn(); socket.on(name, listener); handlers.event(name, { test: name });
+            expect(listener).toHaveBeenCalledWith({ test: name }); socket.off(name, listener);
+        }
+    });
+    it('does not reconnect after logout during refresh', async () => {
         let finish!: (value: any) => void;
         vi.mocked(authApi.getMe).mockReturnValue(new Promise(resolve => { finish = resolve; }));
-        socketService.connect('');
-        const recovering = handlers[event](event === 'disconnect' ? 'io server disconnect' : new Error('Authentication failed'));
-        socketService.disconnect();
-        finish({});
-        await recovering;
-        expect(socket.connect).not.toHaveBeenCalled();
+        socketService.connect(''); await flush(); handlers.session_expired(); handlers.close();
+        socketService.disconnect(); finish({}); await flush(); expect(hub.start).toHaveBeenCalledOnce();
     });
-
-    it('clears rejected sessions instead of reconnecting', async () => {
+    it('clears invalid sessions without an authentication retry loop', async () => {
         vi.mocked(authApi.getMe).mockRejectedValue(new Error('banned'));
-        const unauthorized = vi.fn();
-        window.addEventListener('auth:unauthorized', unauthorized);
+        const unauthorized = vi.fn(); window.addEventListener('auth:unauthorized', unauthorized);
         try {
-            socketService.connect('');
-            await handlers.disconnect('io server disconnect');
-            expect(socketService.getSocket()).toBeNull();
-            expect(socket.connect).not.toHaveBeenCalled();
-            expect(unauthorized).toHaveBeenCalledOnce();
-        } finally {
-            window.removeEventListener('auth:unauthorized', unauthorized);
-        }
+            socketService.connect(''); await flush(); handlers.session_expired(); handlers.close(); await flush();
+            expect(unauthorized).toHaveBeenCalledOnce(); expect(hub.start).toHaveBeenCalledOnce();
+        } finally { window.removeEventListener('auth:unauthorized', unauthorized); }
     });
 });
