@@ -1,11 +1,13 @@
 import { Request, Response } from 'express';
 import { AuthRequest } from '../middlewares/auth';
 import { ChatMessage } from '../models';
+import { requireGroupChatMember } from '../socket';
 import { logger } from '../utils/logger';
 
-export const getChatHistory = async (req: Request, res: Response): Promise<void> => {
+export const getChatHistory = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const { groupPlayId } = req.params;
+        await requireGroupChatMember(groupPlayId, req.userId);
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 50;
 
@@ -21,6 +23,7 @@ export const getChatHistory = async (req: Request, res: Response): Promise<void>
             data: messages.reverse(),
         });
     } catch (error) {
+        if (error && typeof error === 'object' && 'statusCode' in error) { res.status(Number(error.statusCode)).json({ success: false, message: 'Group chat unavailable' }); return; }
         logger.error('Error fetching chat history:', error);
         res.status(500).json({
             success: false,

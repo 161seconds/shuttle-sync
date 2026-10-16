@@ -19,7 +19,7 @@ export default function PaymentPage() {
                 // Fetch bookings by bookingCode
                 const res = await axiosClient.get(`/bookings/my?status=pending_payment`);
                 const allPending = res.data.data || [];
-                const matchedBookings = allPending.filter((b: any) => b.bookingCode === bookingCode);
+                const matchedBookings = allPending.filter((b: any) => b.groupId === bookingCode || b.bookingCode === bookingCode);
 
                 if (matchedBookings.length === 0) {
                     // It might be confirmed or cancelled already

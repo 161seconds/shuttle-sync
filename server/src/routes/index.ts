@@ -11,6 +11,11 @@ import {
     eventRoutes, ownerApplicationRoutes, reportRoutes,
 } from './other.routes';
 import ownerRoutes from './owner.routes';
+import tournamentRoutes from './tournament.routes';
+import chatRoutes from './chat.routes';
+import friendshipRoutes from './friendship.routes';
+import paymentRoutes from './payment.routes';
+import voucherRoutes from './voucher.routes';
 
 const router = Router();
 
@@ -37,11 +42,11 @@ router.use('/owner-applications', ownerApplicationRoutes);
 router.use('/reports', reportRoutes);
 router.use('/admin', adminRoutes);
 router.use('/owner', ownerRoutes);
-router.use('/tournaments', require('./tournament.routes').default);
-router.use('/chat', require('./chat.routes').default);
-router.use('/friends', require('./friendship.routes').default);
-router.use('/payment', require('./payment.routes').default);
-router.use('/vouchers', require('./voucher.routes').default);
+router.use('/tournaments', tournamentRoutes);
+router.use('/chat', chatRoutes);
+router.use('/friends', friendshipRoutes);
+router.use('/payment', paymentRoutes);
+router.use('/vouchers', voucherRoutes);
 router.post('/ask-coach', aiCoachController.askCoach);
 
 export default router;

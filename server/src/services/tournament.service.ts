@@ -1,3 +1,5 @@
+import { z } from 'zod';
+import { ApiError } from '../utils/ApiError';
 import { Types } from 'mongoose';
 import { Tournament, ITournamentDocument } from '../models/Tournament';
 import { TournamentStatus, SportType, TournamentFormat } from '@shuttle-sync/shared';
@@ -24,7 +26,7 @@ export class TournamentService {
     }
 
     // 2. TẠO NHANH GIẢI ĐẤU (QUICK CREATE) MẪU ĐỂ TEST
-    async createQuickTournament(title: string, organizerId?: string) {
+    async createQuickTournament(title: string, organizerId: string) {
         // Tự động tạo 5 đội bóng
         const mockTeams = [
             { _id: new Types.ObjectId(), name: 'Nhóm Q.Bảo', members: [], hasPaid: true },
@@ -53,7 +55,7 @@ export class TournamentService {
             teams: mockTeams
         });
 
-        return await this.generateBracket(tour._id.toString());
+        return await this.generateBracket(tour._id.toString(), organizerId);
     }
 
     // Hàm hỗ trợ: Tìm lũy thừa của 2 gần nhất (VD: 13 -> 16, 5 -> 8)
@@ -64,10 +66,12 @@ export class TournamentService {
     }
 
     // THUẬT TOÁN CHIA NHÁNH (BRACKET GENERATOR)
-    async generateBracket(tournamentId: string) {
+    async generateBracket(tournamentId: string, userId: string) {
         // 1. Lấy thông tin giải đấu
         const tournament = await Tournament.findById(tournamentId);
         if (!tournament) throw new Error('Không tìm thấy giải đấu');
+        if (tournament.organizerId.toString() !== userId) throw ApiError.forbidden('Only the organizer can start this tournament');
+        if (![TournamentStatus.DRAFT, TournamentStatus.REGISTRATION_OPEN, TournamentStatus.REGISTRATION_CLOSED].includes(tournament.status) || tournament.matches.length) throw ApiError.conflict('Tournament has already started');
         if (tournament.teams.length < 2) throw new Error('Cần ít nhất 2 đội để bắt đầu giải đấu');
 
         // 2. Trộn ngẫu nhiên danh sách các đội (Bốc thăm)
@@ -96,7 +100,7 @@ export class TournamentService {
             }
 
             // Bốc đội 2 (Nếu còn byes thì nhường slot này trống)
-            if (teamIndex < numTeams && (i > byes || i % 2 !== 0)) {
+            if (teamIndex < numTeams && i > byes) {
                 t2Id = shuffledTeams[teamIndex++]._id;
             }
 
@@ -134,51 +138,50 @@ export class TournamentService {
 
         // 5. Cập nhật lại Database
         tournament.matches = matches;
-        tournament.status = TournamentStatus.IN_PROGRESS; // Chuyển trạng thái sang "Đang diễn ra"
+        // Chuyển trạng thái sang "Đang diễn ra"
 
         // Đoạn này nâng cao: Tự động đẩy người "Đặc cách" lên vòng 2 luôn
         this.advanceAutoWinners(tournament);
 
-        await tournament.save();
-        return tournament;
+        const started = await Tournament.findOneAndUpdate({
+            _id: tournament._id, organizerId: userId, status: tournament.status,
+            matches: { $size: 0 },
+        }, { $set: { matches: tournament.matches, status: TournamentStatus.IN_PROGRESS } }, { new: true, runValidators: true });
+        if (!started) throw ApiError.conflict('Tournament has already started');
+        return started;
     }
 
     // Hàm phụ: Lấy những đội Auto Win ở vòng trước đẩy lên vòng sau
     private advanceAutoWinners(tour: ITournamentDocument) {
         const matches = tour.matches;
-        // Quét tất cả các trận
-        matches.forEach(m => {
-            if (m.winnerId) {
-                // Xác định xem người thắng này sẽ chui vào trận nào ở vòng tiếp theo
-                const currentMatchIndexInRound = (m.matchNumber - 1) % (matches.length / Math.pow(2, m.round - 1));
-                const nextMatchOffset = Math.floor(currentMatchIndexInRound / 2);
-
-                // Tìm trận đấu ở vòng tiếp theo
-                const nextRoundMatch = matches.find(nm => nm.round === m.round + 1 && nm.matchNumber === (this.getStartMatchNumber(m.round + 1, matches) + nextMatchOffset));
-
-                if (nextRoundMatch) {
-                    // Nếu là người thắng từ nhánh chẵn thì vô team1, lẻ thì vô team2
-                    if (currentMatchIndexInRound % 2 === 0) {
-                        nextRoundMatch.team1Id = m.winnerId;
-                    } else {
-                        nextRoundMatch.team2Id = m.winnerId;
-                    }
+        const rounds = Math.max(...matches.map(m => m.round));
+        for (let round = 1; round < rounds; round++) {
+            const current = matches.filter(m => m.round === round);
+            const next = matches.filter(m => m.round === round + 1);
+            current.forEach((match, index) => {
+                const target = next[Math.floor(index / 2)];
+                if (!target) return;
+                const slot = index % 2 === 0 ? 'team1Id' : 'team2Id';
+                if (String(target[slot] || '') !== String(match.winnerId || '')) {
+                    target[slot] = match.winnerId;
+                    target.winnerId = undefined;
+                    target.score1 = undefined;
+                    target.score2 = undefined;
                 }
-            }
-        });
-    }
-
-    // Tiện ích lấy ID trận bắt đầu của 1 vòng
-    private getStartMatchNumber(round: number, matches: any[]) {
-        const firstMatchOfRound = matches.find(m => m.round === round);
-        return firstMatchOfRound ? firstMatchOfRound.matchNumber : 1;
+            });
+        }
     }
 
     // 6. CẬP NHẬT TRẬN ĐẤU (NHẬP ĐIỂM, ĐỔI ĐỘI BẰNG KÉO THẢ)
-    async updateMatch(tournamentId: string, matchId: string, updateData: any) {
+    async updateMatch(tournamentId: string, matchId: string, updateData: any, userId: string) {
         const tournament = await Tournament.findById(tournamentId);
         if (!tournament) throw new Error('Không tìm thấy giải đấu');
 
+        if (tournament.organizerId.toString() !== userId) throw ApiError.forbidden('Only the organizer can update matches');
+        if (![TournamentStatus.IN_PROGRESS, TournamentStatus.COMPLETED].includes(tournament.status)) throw ApiError.conflict('Tournament is not in progress');
+        const objectId = z.string().refine(v => Types.ObjectId.isValid(v));
+        updateData = z.object({ slot: z.union([z.literal(1), z.literal(2)]).optional(), teamId: objectId.or(z.literal('')).nullable().optional(), score1: z.number().int().min(0).max(1000).optional(), score2: z.number().int().min(0).max(1000).optional(), winnerId: objectId.or(z.literal('')).nullable().optional() }).strict().parse(updateData);
+        if (updateData.teamId && !tournament.teams.some(t => t._id.toString() === updateData.teamId)) throw ApiError.badRequest('Unknown team');
         const match = tournament.matches.find(m => m._id.toString() === matchId);
         if (!match) throw new Error('Không tìm thấy trận đấu');
 
@@ -192,6 +195,8 @@ export class TournamentService {
         }
 
         // Cập nhật điểm số và người thắng
+        if (updateData.winnerId && ![match.team1Id?.toString(), match.team2Id?.toString()].includes(updateData.winnerId)) throw ApiError.badRequest('Winner must be a team in this match');
+        if (updateData.teamId !== undefined) { match.winnerId = undefined; match.score1 = undefined; match.score2 = undefined; }
         if (updateData.score1 !== undefined) match.score1 = updateData.score1;
         if (updateData.score2 !== undefined) match.score2 = updateData.score2;
         if (updateData.winnerId !== undefined) {
@@ -203,6 +208,8 @@ export class TournamentService {
             }
         }
 
+        this.advanceAutoWinners(tournament);
+        tournament.status = tournament.matches[tournament.matches.length - 1]?.winnerId ? TournamentStatus.COMPLETED : TournamentStatus.IN_PROGRESS;
         await tournament.save();
         return tournament;
     }

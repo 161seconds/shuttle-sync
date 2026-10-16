@@ -1,7 +1,17 @@
 import dotenv from 'dotenv';
 import path from 'path';
+import { randomBytes } from 'crypto';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
+const accessSecret = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET;
+const refreshSecret = process.env.JWT_REFRESH_SECRET;
+if (process.env.NODE_ENV === 'production' && (
+    !accessSecret || accessSecret.length < 32 || !refreshSecret || refreshSecret.length < 32 ||
+    accessSecret === refreshSecret
+)) {
+    throw new Error('Production requires distinct JWT_ACCESS_SECRET and JWT_REFRESH_SECRET of at least 32 characters');
+}
 
 export const config = {
     port: parseInt(process.env.PORT || '5000', 10),
@@ -13,8 +23,8 @@ export const config = {
     },
 
     jwt: {
-        accessSecret: process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || 'dev_access_secret',
-        refreshSecret: process.env.JWT_REFRESH_SECRET || 'dev_refresh_secret',
+        accessSecret: accessSecret || randomBytes(32).toString('hex'),
+        refreshSecret: refreshSecret || randomBytes(32).toString('hex'),
         accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
         refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
     },
@@ -53,3 +63,5 @@ export const config = {
         paymentTimeoutMs: parseInt(process.env.PAYMENT_TIMEOUT_MS || '900000', 10),
     },
 } as const;
+
+export const isAllowedOrigin = (origin?: string): boolean => !origin || config.cors.allowedOrigins.includes(origin);

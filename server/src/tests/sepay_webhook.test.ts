@@ -1,10 +1,11 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import crypto from 'crypto';
 import { paymentController } from '../controllers/payment.controller';
 import { bookingService } from '../services/booking.service';
 import { Booking } from '../models/Booking';
 
 describe('SePay Webhook Verification', () => {
+    afterEach(() => { vi.restoreAllMocks(); vi.unstubAllEnvs(); });
     it('should calculate valid HMAC-SHA256 signature matching SePay specification', () => {
         const secret = 'whsec_g4y6lfBroAv5MdSQbAcljG3T41tDdN6N';
         const timestamp = '1788148721';
@@ -33,7 +34,9 @@ describe('SePay Webhook Verification', () => {
     });
 
     it('should successfully handle valid webhook request', async () => {
-        process.env.SEPAY_WEBHOOK_SECRET = 'whsec_g4y6lfBroAv5MdSQbAcljG3T41tDdN6N';
+        vi.stubEnv('SEPAY_WEBHOOK_SECRET', 'whsec_g4y6lfBroAv5MdSQbAcljG3T41tDdN6N');
+        vi.stubEnv('SEPAY_ACCOUNT_NUMBER', '08222216167810');
+        vi.stubEnv('SEPAY_API_TOKEN', '');
         const timestamp = '1788148721';
         const body = {
             gateway: 'MBBank',
@@ -91,6 +94,6 @@ describe('SePay Webhook Verification', () => {
 
         expect(responseStatus).toBe(200);
         expect(responseJson.success).toBe(true);
-        expect(bookingService.confirmPayment).toHaveBeenCalledWith('BK2648463', 'user123');
+        expect(bookingService.confirmPayment).toHaveBeenCalledWith('BK2648463', 'user123', { id: body.referenceCode, amount: 80000 });
     });
 });

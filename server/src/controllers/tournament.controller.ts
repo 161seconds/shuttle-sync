@@ -26,7 +26,7 @@ class TournamentController {
     async createQuickTournament(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             const { title } = req.body;
-            const newTour = await tournamentService.createQuickTournament(title, req.userId);
+            const newTour = await tournamentService.createQuickTournament(title, req.userId!);
             res.status(201).json({ success: true, message: 'Tạo và chia nhánh thành công!', data: newTour });
         } catch (error) {
             next(error);
@@ -36,7 +36,7 @@ class TournamentController {
     async startTournament(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
-            const updatedTour = await tournamentService.generateBracket(id);
+            const updatedTour = await tournamentService.generateBracket(id, req.userId!);
             res.status(200).json({ success: true, message: 'Bốc thăm chia nhánh thành công!', data: updatedTour });
         } catch (error) {
             next(error);
@@ -46,7 +46,7 @@ class TournamentController {
     async updateMatch(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             const { id, matchId } = req.params;
-            const updatedTour = await tournamentService.updateMatch(id, matchId, req.body);
+            const updatedTour = await tournamentService.updateMatch(id, matchId, req.body, req.userId!);
             res.status(200).json({ success: true, message: 'Cập nhật trận đấu thành công!', data: updatedTour });
         } catch (error) {
             next(error);

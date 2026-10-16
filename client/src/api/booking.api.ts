@@ -19,8 +19,6 @@ export const bookingApi = {
         return axiosClient.post('/bookings', data);
     },
 
-    confirmPayment: (code: string) => axiosClient.post(`/bookings/${code}/confirm-payment`),
-
     cancelBooking(bookingId: string, reason: string) {
         return axiosClient.post(`/bookings/${bookingId}/cancel`, { reason });
     },

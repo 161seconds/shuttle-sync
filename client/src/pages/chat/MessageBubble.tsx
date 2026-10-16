@@ -5,12 +5,14 @@ import { Reply, MoreVertical, Trash2, RotateCcw } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAlertStore } from '../../stores/useAlertStore';
 
+export type DisplayMessage = Omit<ChatMessage, 'groupPlayId'>;
+
 interface MessageBubbleProps {
-    message: ChatMessage;
+    message: DisplayMessage;
     isMine: boolean;
     showAvatar: boolean;
     onAvatarClick?: (userId: string) => void;
-    onReply?: (message: ChatMessage) => void;
+    onReply?: (message: DisplayMessage) => void;
     onDelete?: (type: 'recall' | 'delete') => void;
 }
 

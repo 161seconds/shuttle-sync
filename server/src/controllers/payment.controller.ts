@@ -4,6 +4,7 @@ import { logger } from '../utils/logger';
 import { Booking } from '../models/Booking';
 
 import crypto from 'crypto';
+import { ApiError } from '../utils/ApiError';
 
 class PaymentController {
     async handleSePayWebhook(req: Request, res: Response) {
@@ -12,6 +13,12 @@ class PaymentController {
             const webhookSecret = process.env.SEPAY_WEBHOOK_SECRET?.trim();
             const sepaySignatureHeader = (req.headers['x-sepay-signature'] || req.headers['X-SePay-Signature']) as string;
             const sepayTimestamp = (req.headers['x-sepay-timestamp'] || req.headers['X-SePay-Timestamp']) as string;
+
+            const expectedToken = process.env.SEPAY_API_TOKEN?.trim();
+            const expectedAccount = process.env.SEPAY_ACCOUNT_NUMBER?.trim();
+            if ((!webhookSecret && !expectedToken) || !expectedAccount) return res.status(503).json({ success: false, message: 'Payment webhook not configured' });
+            if (webhookSecret && (typeof sepaySignatureHeader !== 'string' || !sepaySignatureHeader)) return res.status(401).json({ success: false, message: 'Missing signature' });
+            if (expectedToken && !req.headers.authorization) return res.status(401).json({ success: false, message: 'Missing authorization' });
 
             if (webhookSecret && sepaySignatureHeader) {
                 // SePay gửi signature dạng sha256=<hex_hash>, ta bỏ tiền tố sha256= nếu có
@@ -39,23 +46,26 @@ class PaymentController {
                 const isValid = safeCompare(calculatedSigWithTs, receivedSignature) || safeCompare(calculatedSigWithoutTs, receivedSignature);
 
                 if (!isValid) {
-                    logger.warn(`[SePay Webhook] Chữ ký không hợp lệ. Nhận: ${receivedSignature}, Tính toán: ${calculatedSigWithTs}`);
+                    logger.warn('[SePay Webhook] Invalid signature');
                     return res.status(401).json({ success: false, message: 'Invalid signature' });
                 }
             }
 
             // 2. Xác thực API Token (nếu có cấu hình SEPAY_API_TOKEN và có header Authorization)
-            const expectedToken = process.env.SEPAY_API_TOKEN?.trim();
             const authHeader = req.headers.authorization;
             if (expectedToken && authHeader) {
                 const token = authHeader.replace(/^(Bearer|Apikey)\s+/i, '').trim();
                 if (token !== expectedToken) {
-                    logger.warn(`[SePay Webhook] API Token không hợp lệ: ${token}`);
+                    logger.warn('[SePay Webhook] Invalid API token');
                     return res.status(401).json({ success: false, message: 'Unauthorized' });
                 }
             }
 
             const { gateway, transactionDate, accountNumber, content, transferType, transferAmount, referenceCode } = req.body;
+            if (typeof content !== 'string' || typeof accountNumber !== 'string' || typeof transferAmount !== 'number' || !Number.isFinite(transferAmount) || transferAmount <= 0 || typeof referenceCode !== 'string' || !referenceCode.trim() || referenceCode.length > 200) {
+                return res.status(400).json({ success: false, message: 'Invalid transaction' });
+            }
+            if (accountNumber.trim() !== expectedAccount) return res.status(400).json({ success: false, message: 'Unexpected recipient account' });
 
             // Chỉ quan tâm đến tiền vào
             if (transferType !== 'in') {
@@ -101,15 +111,14 @@ class PaymentController {
             // Gọi service xác nhận thanh toán
             // Lưu ý: confirmPayment trong booking.service.ts yêu cầu userId
             const userId = bookings[0].userId?.toString() || '';
-            await bookingService.confirmPayment(bookingCode, userId);
+            await bookingService.confirmPayment(bookingCode, userId, { id: referenceCode.trim(), amount: transferAmount });
 
             logger.info(`[SePay Webhook] Xác nhận thành công đơn ${bookingCode}. Số tiền: ${transferAmount}, Ref: ${referenceCode}`);
             return res.status(200).json({ success: true, message: 'Xác nhận thanh toán thành công' });
 
         } catch (error) {
             logger.error('[SePay Webhook] Lỗi xử lý webhook:', error);
-            // Vẫn trả về 200 để SePay không gọi lại liên tục nếu là lỗi logic của mình
-            return res.status(200).json({ success: false, message: 'Lỗi server' });
+            return res.status(error instanceof ApiError ? error.statusCode : 500).json({ success: false, message: error instanceof ApiError ? error.message : 'Lỗi server' });
         }
     }
 

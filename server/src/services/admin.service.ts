@@ -5,11 +5,12 @@ import {
 } from '@shuttle-sync/shared';
 import {
     User, Court, Booking, GroupPlay, OwnerApplication,
-    Report, Notification, Event,
+    Report, Notification, Event, Venue,
 } from '../models';
 import { ApiError } from '../utils/ApiError';
-import { calculatePagination, createSlug } from '../utils/helpers';
+import { calculatePagination } from '../utils/helpers';
 import { logger } from '../utils/logger';
+import { disconnectUserSockets } from '../socket';
 
 class AdminService {
     /**
@@ -230,7 +231,7 @@ class AdminService {
      * Ban a user
      */
     async banUser(userId: string, adminId: string, reason: string, expiresAt?: string) {
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).select('+tokenVersion');
         if (!user) throw ApiError.notFound('Không tìm thấy người dùng');
 
         if (user.role === UserRole.ADMIN) {
@@ -245,7 +246,9 @@ class AdminService {
             expiresAt: expiresAt ? new Date(expiresAt) : undefined,
         };
         user.refreshTokens = []; // Force logout
+        user.tokenVersion = (user.tokenVersion || 0) + 1;
         await user.save();
+        disconnectUserSockets(userId);
 
         // Create notification
         await Notification.create({
@@ -290,65 +293,58 @@ class AdminService {
         status: 'approved' | 'rejected' | 'requires_more_info',
         reviewNotes?: string
     ) {
-        const application = await OwnerApplication.findById(applicationId);
-        if (!application) throw ApiError.notFound('Không tìm thấy đơn đăng ký');
+        return mongoose.connection.transaction(async session => {
+            const application = await OwnerApplication.findById(applicationId).session(session);
+            if (!application) throw ApiError.notFound('Không tìm thấy đơn đăng ký');
+            if (application.status === OwnerApplicationStatus.APPROVED) {
+                if (status === 'approved') return application;
+                throw ApiError.conflict('Đơn đã được duyệt');
+            }
 
-        application.status = status as OwnerApplicationStatus;
-        application.reviewedBy = new mongoose.Types.ObjectId(adminId);
-        application.reviewNotes = reviewNotes;
-        application.reviewedAt = new Date();
-        await application.save();
+            if (status === 'approved') {
+                const user = await User.findByIdAndUpdate(application.userId, {
+                    role: UserRole.COURT_OWNER,
+                }, { new: true, session });
+                if (!user) throw ApiError.notFound('Không tìm thấy người dùng');
 
-        if (status === 'approved') {
-            // Upgrade user role to court_owner
-            await User.findByIdAndUpdate(application.userId, {
-                role: UserRole.COURT_OWNER,
-            });
+                if (!await Venue.findOne({ ownerId: application.userId }).session(session)) {
+                    await Venue.create([{
+                        name: application.courtName,
+                        ownerId: application.userId,
+                        sports: application.sportTypes.map(sport => sport.toUpperCase()),
+                        address: {
+                            street: application.courtAddress.street,
+                            state: application.courtAddress.ward,
+                            city: application.courtAddress.district,
+                            countryCode: 'VN',
+                        },
+                        location: {
+                            type: 'Point',
+                            coordinates: [application.courtLocation.lng, application.courtLocation.lat],
+                        },
+                        contact: { phone: user.phone || '', website: '' },
+                        images: application.courtPhotos,
+                        googlePlaceId: application.googlePlaceId,
+                        isActive: true,
+                    }], { session });
+                }
+            }
 
-            // Auto-create the court
-            const slug = createSlug(application.courtName) + '-' + Date.now().toString(36);
-            await Court.create({
-                name: application.courtName,
-                slug,
-                ownerId: application.userId,
-                sportTypes: application.sportTypes,
-                status: CourtStatus.ACTIVE,
-                address: application.courtAddress,
-                location: {
-                    type: 'Point',
-                    coordinates: [application.courtLocation.lng, application.courtLocation.lat],
-                },
-                contact: { phone: '' }, // Owner will fill in later
-                operatingHours: [],
-                pricePerHour: [],
-                courts: [],
-                photos: application.courtPhotos.map((url, i) => ({
-                    url,
-                    isMain: i === 0,
-                    source: 'upload' as const,
-                })),
-                googlePlaceId: application.googlePlaceId,
-                isVerified: true,
-            });
+            application.status = status as OwnerApplicationStatus;
+            application.reviewedBy = new mongoose.Types.ObjectId(adminId);
+            application.reviewNotes = reviewNotes;
+            application.reviewedAt = new Date();
+            await application.save({ session });
 
-            await Notification.create({
-                userId: application.userId,
-                title: 'Đơn đăng ký chủ sân đã được duyệt',
-                message: `Chúc mừng! Đơn đăng ký cho "${application.courtName}" đã được duyệt. Bạn giờ là chủ sân và có thể quản lý sân của mình.`,
-                type: 'system',
-            });
-        } else {
-            const statusMsg = status === 'rejected' ? 'bị từ chối' : 'cần bổ sung thông tin';
-            await Notification.create({
+            const statusMsg = status === 'approved' ? 'được duyệt' : status === 'rejected' ? 'bị từ chối' : 'cần bổ sung thông tin';
+            await Notification.create([{
                 userId: application.userId,
                 title: `Đơn đăng ký chủ sân đã ${statusMsg}`,
                 message: `Đơn đăng ký cho "${application.courtName}" đã ${statusMsg}.${reviewNotes ? ` Ghi chú: ${reviewNotes}` : ''}`,
                 type: 'system',
-            });
-        }
-
-        logger.info(`Owner application ${applicationId} ${status} by admin ${adminId}`);
-        return application;
+            }], { session });
+            return application;
+        });
     }
 
     /**

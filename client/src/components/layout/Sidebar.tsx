@@ -8,6 +8,7 @@ import { useAppStore } from '../../store';
 import { theme as t } from '../../utils/theme';
 import { motion, AnimatePresence } from 'framer-motion';
 import { authApi } from '../../api/auth.api';
+import { useAlertStore } from '../../stores/useAlertStore';
 
 export default function AppSidebar() {
     const { setPage, page, user, setUser, isSideBarOpen, toggleSidebar } = useAppStore();
@@ -125,7 +126,10 @@ export default function AppSidebar() {
                                 <div className="w-px h-6 bg-gradient-to-b from-transparent via-foreground/10 to-transparent" />
                                 <button
                                     onClick={async () => {
-                                        try { await authApi.logout(); } catch (e) { console.log(e); }
+                                        try { await authApi.logout(); } catch {
+                                            useAlertStore.getState().showAlert('Không thể đăng xuất. Vui lòng thử lại.', 'Lỗi', 'error');
+                                            return;
+                                        }
                                         setUser(null);
                                         setPage('login');
                                         if (isSideBarOpen) toggleSidebar();

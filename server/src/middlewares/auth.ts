@@ -29,30 +29,19 @@ export const authenticate = async (
         const decoded = jwt.verify(token, config.jwt.accessSecret) as any;
 
         const currentUserId = decoded.id || decoded.userId;
-        let status = decoded.status;
-        let banInfo = decoded.banInfo;
-        let role = decoded.role;
-
-        // Fallback for old tokens or missing data
-        if (!status) {
-            const user = await User.findById(currentUserId).select('status role banInfo').lean();
-            if (!user) {
-                throw ApiError.unauthorized('Tài khoản không tồn tại');
-            }
-            status = user.status;
-            banInfo = user.banInfo;
-            role = user.role;
-        }
+        const user = await User.findById(currentUserId).select('status role banInfo +tokenVersion').lean();
+        if (!user || (decoded.tokenVersion || 0) !== (user.tokenVersion || 0)) throw ApiError.unauthorized('Account does not exist');
+        const { status, banInfo, role } = user;
 
         if (status === UserStatus.BANNED) {
             if (banInfo?.expiresAt && new Date(banInfo.expiresAt) < new Date()) {
                 // Background update to remove ban
-                User.findByIdAndUpdate(currentUserId, {
+                await User.findByIdAndUpdate(currentUserId, {
                     status: UserStatus.ACTIVE,
                     $unset: { banInfo: 1 },
                 }).catch(err => console.error("Lỗi xóa ban tự động", err));
             } else {
-                throw ApiError.forbidden(
+                throw ApiError.unauthorized(
                     `Tài khoản đã bị cấm${banInfo?.reason ? `: ${banInfo.reason}` : ''}`
                 );
             }
@@ -91,8 +80,10 @@ export const optionalAuth = async (
 
         const decoded = jwt.verify(token, config.jwt.accessSecret) as any;
 
+        const user = await User.findById(decoded.id || decoded.userId).select('status role +tokenVersion').lean();
+        if (!user || user.status !== UserStatus.ACTIVE || (decoded.tokenVersion || 0) !== (user.tokenVersion || 0)) return next();
         req.userId = decoded.id || decoded.userId;
-        req.userRole = decoded.role;
+        req.userRole = user.role;
         req.userEmail = decoded.email;
         next();
     } catch {

@@ -1,9 +1,11 @@
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import { Server as HTTPServer } from 'http';
 import jwt from 'jsonwebtoken';
-import { SOCKET_EVENTS, SlotStatus, UserRole } from '@shuttle-sync/shared';
-import { config } from '../config';
-import { TimeSlot } from '../models';
+import { SOCKET_EVENTS, SlotStatus, UserRole, UserStatus } from '@shuttle-sync/shared';
+import { config, isAllowedOrigin } from '../config';
+import { Types } from 'mongoose';
+import { ApiError } from '../utils/ApiError';
+import { TimeSlot, User, GroupPlay } from '../models';
 import { logger } from '../utils/logger';
 
 interface AuthSocket extends Socket {
@@ -11,28 +13,33 @@ interface AuthSocket extends Socket {
     userRole?: UserRole;
 }
 
+let activeIO: SocketIOServer | undefined;
+export const disconnectUserSockets = (userId: string) => activeIO?.in(`user:${userId}`).disconnectSockets(true);
+export const requireGroupChatMember = async (groupPlayId: string, userId?: string) => {
+    if (!userId || !Types.ObjectId.isValid(groupPlayId)) throw ApiError.forbidden('Group chat unavailable');
+    const group = await GroupPlay.findOne({ _id: groupPlayId, 'participants.userId': userId, isChatDeleted: { $ne: true } });
+    if (!group) throw ApiError.forbidden('Group chat unavailable');
+    return group;
+};
 const courtViewers = new Map<string, Set<string>>();
 const slotLockTimers = new Map<string, NodeJS.Timeout>();
 
 export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
     const io = new SocketIOServer(httpServer, {
         cors: {
-            origin: (origin, callback) => {
-                if (!origin) return callback(null, true);
-                if (config.cors.allowedOrigins.includes(origin) || !config.isProduction) {
-                    return callback(null, true);
-                }
-                return callback(null, true);
-            },
+            origin: (origin, callback) => callback(isAllowedOrigin(origin) ? null : new Error('Origin not allowed'), isAllowedOrigin(origin)),
             methods: ['GET', 'POST'],
             credentials: true,
         },
+        allowRequest: (req, callback) => callback(null, isAllowedOrigin(req.headers.origin)),
         pingInterval: 25000,
         pingTimeout: 60000,
     });
 
+    activeIO = io;
+
     // Authentication middleware
-    io.use((socket: AuthSocket, next) => {
+    io.use(async (socket: AuthSocket, next) => {
         let token = socket.handshake.auth.token;
 
         // Try to get token from cookies if not in auth
@@ -57,9 +64,24 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
                 id?: string;
                 userId?: string;
                 role: UserRole;
+                tokenVersion?: number;
             };
-            socket.userId = decoded.userId || decoded.id;
-            socket.userRole = decoded.role;
+            const userId = decoded.userId || decoded.id;
+            const user = await User.findById(userId).select('status role +tokenVersion').lean();
+            if (!user || user.status !== UserStatus.ACTIVE || (decoded.tokenVersion || 0) !== (user.tokenVersion || 0)) return next(new Error('Authentication failed'));
+            socket.userId = userId;
+            socket.userRole = user.role;
+            socket.use(async (_packet, packetNext) => {
+                try {
+                    jwt.verify(token, config.jwt.accessSecret);
+                    const current = await User.findById(userId).select('status +tokenVersion').lean();
+                    if (!current || current.status !== UserStatus.ACTIVE || (decoded.tokenVersion || 0) !== (current.tokenVersion || 0)) throw new Error('Authentication failed');
+                    packetNext();
+                } catch {
+                    socket.disconnect(true);
+                    packetNext(new Error('Authentication failed'));
+                }
+            });
             next();
         } catch {
             next(new Error('Authentication failed'));
@@ -218,8 +240,11 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
         // ============================
         // GROUP PLAY ROOM & CHAT
         // ============================
-        socket.on('group_play:join', (groupPlayId: string) => {
-            socket.join(`group_play:${groupPlayId}`);
+        socket.on('group_play:join', async (groupPlayId: string) => {
+            try {
+                await requireGroupChatMember(groupPlayId, socket.userId);
+                socket.join(`group_play:${groupPlayId}`);
+            } catch { socket.emit('error', { message: 'Group chat unavailable' }); }
         });
 
         socket.on('group_play:leave', (groupPlayId: string) => {
@@ -241,13 +266,16 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
 
             try {
                 // We use dynamic import for ChatMessage to avoid circular dependencies if any
+                await requireGroupChatMember(data.groupPlayId, socket.userId);
+                const sender = await User.findById(socket.userId).select('displayName avatar');
+                if (!sender) return;
                 const { ChatMessage } = await import('../models/ChatMessage');
 
                 const newMessage = new ChatMessage({
                     groupPlayId: data.groupPlayId,
                     senderId: socket.userId,
-                    senderName: data.senderName,
-                    senderAvatar: data.senderAvatar,
+                    senderName: sender.displayName,
+                    senderAvatar: sender.avatar,
                     content: data.content,
                     replyTo: data.replyTo,
                 });
@@ -281,30 +309,23 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
                 const { Message } = await import('../models/Message');
                 const { Conversation } = await import('../models/Conversation');
 
-                const newMessage = new Message({
-                    conversationId: data.conversationId,
-                    senderId: socket.userId,
-                    senderName: data.senderName,
-                    senderAvatar: data.senderAvatar,
-                    content: data.content,
-                    replyTo: data.replyTo,
+                if (!Types.ObjectId.isValid(data.conversationId)) return;
+                const conversation = await Conversation.findOne({ _id: data.conversationId, participants: socket.userId });
+                if (!conversation || conversation.participants.length !== 2) return;
+                const recipientStrId = conversation.participants.find(id => id.toString() !== socket.userId)?.toString();
+                if (!recipientStrId) return;
+                const sender = await User.findById(socket.userId).select('displayName avatar');
+                if (!sender) return;
+                const newMessage = await Message.create({
+                    conversationId: conversation._id, senderId: socket.userId,
+                    senderName: sender.displayName, senderAvatar: sender.avatar,
+                    content: data.content, replyTo: data.replyTo,
                 });
-
-                await newMessage.save();
-
-                // Ensure recipientId is a string (handle case where frontend accidentally sent an object)
-                const recipientStrId = typeof data.recipientId === 'object' && data.recipientId !== null
-                    ? ((data.recipientId as any)._id?.toString() || (data.recipientId as any).id?.toString())
-                    : String(data.recipientId);
-
-                // Increment unread count for recipient
-                const conversation = await Conversation.findById(data.conversationId);
-                if (conversation) {
-                    const currentCount = conversation.unreadCount.get(recipientStrId) || 0;
-                    conversation.unreadCount.set(recipientStrId, currentCount + 1);
-                    conversation.lastMessage = newMessage._id;
-                    await conversation.save();
-                }
+                await Conversation.updateOne({ _id: conversation._id }, {
+                    $inc: { [`unreadCount.${recipientStrId}`]: 1 },
+                    $set: { lastMessage: newMessage._id },
+                    $pull: { deletedBy: { $in: conversation.participants } },
+                });
 
                 // Emit to recipient
                 io.to(`user:${recipientStrId}`).emit(SOCKET_EVENTS.DIRECT_MESSAGE, newMessage);

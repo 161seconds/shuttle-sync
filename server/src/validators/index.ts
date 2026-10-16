@@ -9,6 +9,7 @@ import {
 // ========================
 export const registerSchema = z.object({
     body: z.object({
+        role: z.enum(['USER', 'OWNER', 'user', 'court_owner']).optional(),
         email: z.string().email('Email không hợp lệ'),
         password: z.string()
             .min(6, 'Mật khẩu tối thiểu 6 ký tự')
@@ -114,7 +115,7 @@ export const searchCourtSchema = z.object({
         date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
         startTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
         endTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
-        isIndoor: z.coerce.boolean().optional(),
+        isIndoor: z.enum(['true', 'false']).transform(value => value === 'true').optional(),
         lat: z.coerce.number().optional(),
         lng: z.coerce.number().optional(),
         radius: z.coerce.number().min(0.5).max(50).optional(),
@@ -231,6 +232,9 @@ export const createOwnerApplicationSchema = z.object({
             lng: z.number(),
         }),
         sportTypes: z.array(z.nativeEnum(SportType)).min(1),
+        identityDocument: z.string().min(1),
+        businessLicense: z.string().optional(),
+        courtPhotos: z.array(z.string().url()).default([]),
         googlePlaceId: z.string().optional(),
         additionalNotes: z.string().max(1000).optional(),
     }),

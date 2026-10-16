@@ -3,12 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Image as ImageIcon, Smile, Paperclip, X } from 'lucide-react';
 import { useAlertStore } from '../../stores/useAlertStore';
 
-import { type ChatMessage } from '../../api/chat.api';
+import { type DisplayMessage } from './MessageBubble';
 
 interface MessageInputProps {
     onSend: (text: string) => void;
     disabled?: boolean;
-    replyingTo?: ChatMessage | null;
+    replyingTo?: DisplayMessage | null;
     onCancelReply?: () => void;
 }
 

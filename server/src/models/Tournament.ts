@@ -94,7 +94,7 @@ const tournamentSchema = new Schema<ITournamentDocument>(
             completedAt: Date,
         }],
     },
-    { timestamps: true }
+    { timestamps: true, optimisticConcurrency: true }
 );
 
 tournamentSchema.index({ startDate: 1, status: 1, sportType: 1 });

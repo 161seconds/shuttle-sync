@@ -287,7 +287,7 @@ export const OwnerDashboard = () => {
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px', color: '#fff' }}
                                     cursor={{ fill: '#374151', opacity: 0.4 }}
-                                    formatter={(value: number) => [value, 'Số lượng']}
+                                    formatter={(value) => [value ?? 0, 'Số lượng']}
                                 />
                                 <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={30}>
                                     {

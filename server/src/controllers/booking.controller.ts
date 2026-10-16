@@ -66,15 +66,15 @@ class BookingController {
     }
 
     async getBookingByCode(req: AuthRequest, res: Response, next: NextFunction) {
-        res.status(200).json({ success: true, message: 'Chưa có logic' });
+        try { res.json({ success: true, data: await bookingService.getBookingByCode(req.params.code, req.userId!) }); } catch (error) { next(error); }
     }
 
     async getBookingById(req: AuthRequest, res: Response, next: NextFunction) {
-        res.status(200).json({ success: true, message: 'Chưa có logic' });
+        try { res.json({ success: true, data: await bookingService.getBookingById(req.params.bookingId, req.userId!) }); } catch (error) { next(error); }
     }
 
     async cancelBooking(req: AuthRequest, res: Response, next: NextFunction) {
-        res.status(200).json({ success: true, message: 'Chưa có logic' });
+        try { res.json({ success: true, data: await bookingService.cancelBooking(req.params.bookingId, req.userId!, req.body.reason) }); } catch (error) { next(error); }
     }
 }
 

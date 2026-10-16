@@ -87,6 +87,7 @@ const bookingSchema = new Schema<IBookingDocument>(
 );
 
 bookingSchema.index({ userId: 1, date: -1 });
+bookingSchema.index({ 'payment.transactionId': 1 }, { unique: true, partialFilterExpression: { 'payment.transactionId': { $type: 'string' } } });
 bookingSchema.index({ courtId: 1, date: 1, status: 1 });
 bookingSchema.index({ 'payment.expiresAt': 1 }, {
     partialFilterExpression: { status: BookingStatus.PENDING_PAYMENT },

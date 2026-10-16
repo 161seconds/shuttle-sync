@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { config } from './index';
 import { logger } from '../utils/logger';
+import { Booking } from '../models/Booking';
 
 export const connectDB = async (): Promise<void> => {
     try {
@@ -9,6 +10,7 @@ export const connectDB = async (): Promise<void> => {
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
         });
+        await Booking.init();
 
         logger.info(`MongoDB connected: ${conn.connection.host}/${conn.connection.name}`);
 

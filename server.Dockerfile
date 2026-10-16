@@ -13,8 +13,10 @@ COPY server ./server
 
 # Install dependencies and build
 WORKDIR /app/server
-RUN npm install
+RUN npm ci
 RUN npm run build
+
+ENV NODE_ENV=production
 
 # Expose port
 EXPOSE 5000

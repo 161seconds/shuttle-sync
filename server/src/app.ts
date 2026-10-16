@@ -4,7 +4,8 @@ import compression from 'compression';
 import morgan from 'morgan';
 import path from 'path';
 import helmet from 'helmet';
-import { config } from './config';
+import { config, isAllowedOrigin } from './config';
+import { ApiError } from './utils/ApiError';
 import routes from './routes';
 import { errorHandler, notFoundHandler, apiLimiter, searchCourtLimiter } from './middlewares';
 import cookieParser from 'cookie-parser';
@@ -16,12 +17,8 @@ const app = express();
 app.use(helmet());
 app.use(cors({
     origin: (origin, callback) => {
-        // Cho phép request không có origin (ví dụ server-to-server, mobile app hoặc curl/postman)
-        if (!origin) return callback(null, true);
-        if (config.cors.allowedOrigins.includes(origin) || !config.isProduction) {
-            return callback(null, true);
-        }
-        return callback(null, true); // hoặc callback(new Error('Not allowed by CORS'))
+        if (isAllowedOrigin(origin)) return callback(null, true);
+        return callback(ApiError.forbidden('Origin không được phép'));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],

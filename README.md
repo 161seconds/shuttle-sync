@@ -59,8 +59,8 @@ shuttle-sync/
 ## 🚀 Getting Started
 
 ### 1. Prerequisites
-- **Node.js**: v18.0.0 or higher
-- **MongoDB**: Local instance (MongoDB Compass) or accessible cloud cluster endpoint
+- **Node.js**: v22.13.0 or higher
+- **MongoDB**: Replica set (including a single-node replica set) or MongoDB Atlas. Standalone MongoDB cannot run booking transactions.
 
 ### 2. Installation
 
@@ -81,8 +81,11 @@ npm install
 **Create a `.env` file in the `server/` directory:**
 ```env
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/badminton_db
-JWT_SECRET=shuttlesync_secret_key_2026
+MONGO_URI=mongodb://localhost:27017/badminton_db?replicaSet=rs0
+JWT_ACCESS_SECRET=replace_with_a_random_secret_at_least_32_characters
+JWT_REFRESH_SECRET=replace_with_a_different_random_secret_at_least_32_characters
+CLIENT_URL=http://localhost:5173
+ALLOWED_ORIGINS=http://localhost:5173
 GEMINI_API_KEY=your_secured_gemini_api_key_here
 ```
 
@@ -106,3 +109,15 @@ npm run dev
 cd client
 npm run dev
 ```
+
+### Deployment and payment configuration
+
+Copy the root `.env.example` to `.env` for Docker Compose, or `server/.env.example` to `server/.env` for a local API. Generate each JWT secret separately with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
+
+`docker compose up --build` starts a single-node MongoDB replica set, waits for its primary, then starts the API. Production requires distinct JWT secrets of at least 32 characters, HTTPS, and exact frontend origins in `ALLOWED_ORIGINS`. Set `VITE_API_URL` to the API URL reachable by the browser. The database has no published port.
+
+Automatic payments require `SEPAY_ACCOUNT_NUMBER` and at least one of `SEPAY_WEBHOOK_SECRET` or `SEPAY_API_TOKEN`. Every configured credential is required on each webhook. Match `VITE_SEPAY_BANK_ACC` to that account for local frontend builds; Compose derives it from `SEPAY_ACCOUNT_NUMBER`. Configure `VITE_SEPAY_BANK_ID` and `VITE_SEPAY_BANK_HOLDER` in the frontend environment. Missing webhook configuration disables automatic confirmation. Expired, cancelled, or underpaid orders require reconciliation; paid orders cannot be cancelled without refund handling.
+
+OTP email requires `EMAIL_USER` and `EMAIL_PASS`. No email or payment provider credentials are bundled.
+
+Run `npm test` separately in `server/` and `client/`. Server integration tests run when `MONGO_TEST_URI` points to a test replica set; they create and remove a separate `shuttle_test_*` database. CI runs these tests automatically.

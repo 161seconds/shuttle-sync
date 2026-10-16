@@ -26,11 +26,8 @@ ENV VITE_SEPAY_BANK_HOLDER=$VITE_SEPAY_BANK_HOLDER
 ARG VITE_VIETMAP_KEY
 ENV VITE_VIETMAP_KEY=$VITE_VIETMAP_KEY
 
-ARG GEMINI_API_KEY
-ENV GEMINI_API_KEY=$GEMINI_API_KEY
-
 # Install dependencies and build
-RUN npm install
+RUN npm ci
 RUN npm run build
 
 # Stage 2: Serve with Nginx

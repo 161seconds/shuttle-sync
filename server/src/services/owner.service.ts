@@ -6,6 +6,8 @@ import { Booking } from '../models/Booking';
 import { Notification, NotificationType } from '../models/Notification';
 import { Expense } from '../models/Expense';
 import { ApiError } from '../utils/ApiError';
+import { withCourtTransaction, assertCourtAvailable } from './booking.service';
+import { bookingDate, validateBookingId, validateBookingRange } from './booking.validation';
 
 class OwnerService {
     async getVenueByOwnerId(ownerId: string) {
@@ -96,7 +98,7 @@ class OwnerService {
         const totalCourts = await Court.countDocuments({ venueId: venue._id });
 
         // Tổng doanh thu và lượt đặt
-        const bookings = await Booking.find({ courtId: venue._id, status: 'confirmed' });
+        const bookings = await Booking.find({ courtId: venue._id, status: { $in: ['confirmed', 'completed'] }, 'payment.status': PaymentStatus.PAID, date: { $gte: thirtyDaysAgo, $lte: new Date() } });
         const totalBookings = bookings.length;
         const totalRevenue = bookings.reduce((sum, b) => sum + (b.finalAmount || 0), 0);
 
@@ -112,8 +114,8 @@ class OwnerService {
             {
                 $match: {
                     courtId: venue._id,
-                    date: { $gte: thirtyDaysAgo },
-                    status: 'confirmed'
+                    date: { $gte: thirtyDaysAgo, $lte: new Date() },
+                    status: { $in: ['confirmed', 'completed'] }, 'payment.status': PaymentStatus.PAID
                 }
             },
             {
@@ -155,8 +157,8 @@ class OwnerService {
             {
                 $match: {
                     courtId: venue._id,
-                    date: { $gte: thirtyDaysAgo },
-                    status: 'confirmed'
+                    date: { $gte: thirtyDaysAgo, $lte: new Date() },
+                    status: { $in: ['confirmed', 'completed'] }, 'payment.status': PaymentStatus.PAID
                 }
             },
             {
@@ -232,7 +234,7 @@ class OwnerService {
 
         const expenses = await Expense.find({
             venueId: venue._id,
-            date: { $gte: thirtyDaysAgo }
+            date: { $gte: thirtyDaysAgo, $lte: new Date() }
         }).lean();
 
         const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
@@ -281,10 +283,10 @@ class OwnerService {
         const courts = await Court.find({ venueId: venue._id }).select('name sportType surfaceType status');
         
         // Parse ngày
-        const targetDate = new Date(dateStr);
-        targetDate.setHours(0, 0, 0, 0);
+        const targetDate = bookingDate(dateStr);
+        targetDate.setUTCHours(0, 0, 0, 0);
         const endOfDay = new Date(targetDate);
-        endOfDay.setHours(23, 59, 59, 999);
+        endOfDay.setUTCHours(23, 59, 59, 999);
 
         // Tìm các booking trong ngày
         const bookings = await Booking.find({
@@ -304,9 +306,13 @@ class OwnerService {
         if (!venue) throw new ApiError(400, 'Cần tạo cơ sở trước khi thao tác');
 
         const { subCourtId, startTime, endTime, date, notes } = data;
+        validateBookingId(subCourtId);
+        validateBookingRange(startTime, endTime);
+        const targetDate = bookingDate(date);
+        return withCourtTransaction([subCourtId], async session => {
+        if (!await Court.exists({ _id: subCourtId, venueId: venue._id }).session(session)) throw ApiError.badRequest('Sân không thuộc cơ sở');
+        await assertCourtAvailable(venue._id.toString(), subCourtId, targetDate, startTime, endTime, session);
         
-        const targetDate = new Date(date);
-        targetDate.setHours(12, 0, 0, 0);
 
         // Tạo một booking offline
         const bookingCode = 'OFFLINE_' + Math.floor(100000 + Math.random() * 900000);
@@ -330,16 +336,38 @@ class OwnerService {
             }
         });
 
-        await newBooking.save();
+        await newBooking.save({ session });
         return newBooking;
+        });
     }
 
     async updateBooking(ownerId: string, bookingId: string, data: any) {
         const venue = await this.getVenueByOwnerId(ownerId);
         if (!venue) throw new ApiError(400, 'Cần tạo cơ sở trước khi thao tác');
 
-        const booking = await Booking.findOne({ _id: bookingId, courtId: venue._id });
+        validateBookingId(bookingId);
+        const initial = await Booking.findOne({ _id: bookingId, courtId: venue._id });
+        if (!initial) throw new ApiError(404, 'Không tìm thấy đơn đặt sân');
+        if (data.subCourtId !== undefined) validateBookingId(data.subCourtId);
+        return withCourtTransaction([initial.subCourtId.toString(), data.subCourtId || initial.subCourtId.toString()], async session => {
+        const booking = await Booking.findOne({ _id: bookingId, courtId: venue._id }).session(session);
         if (!booking) throw new ApiError(404, 'Không tìm thấy đơn đặt sân');
+
+        const allowedStatuses = ['pending_payment', 'confirmed', 'completed', 'cancelled'];
+        if (data.status && !allowedStatuses.includes(data.status)) throw ApiError.badRequest('Trạng thái không hợp lệ');
+        if (booking.status === BookingStatus.CANCELLED && data.status && data.status !== BookingStatus.CANCELLED) throw ApiError.conflict('Không thể khôi phục đơn đã hủy');
+        if (booking.status === BookingStatus.COMPLETED && data.status && data.status !== BookingStatus.COMPLETED) throw ApiError.conflict('Không thể thay đổi đơn đã hoàn tất');
+        if (booking.payment.status === PaymentStatus.PAID && data.status === BookingStatus.CANCELLED) throw ApiError.conflict('Đơn đã thanh toán cần đối soát hoàn tiền trước khi hủy');
+        if (data.status === BookingStatus.PENDING_PAYMENT && booking.payment.status === PaymentStatus.PAID) throw ApiError.conflict('Không thể chuyển đơn đã trả tiền sang chờ thanh toán');
+        if (data.status === BookingStatus.COMPLETED && booking.payment.status !== PaymentStatus.PAID) throw ApiError.conflict('Đơn chưa thanh toán');
+        if (data.status === BookingStatus.CONFIRMED && booking.payment.status !== PaymentStatus.PAID && booking.payment.expiresAt <= new Date()) throw ApiError.conflict('Đơn đã hết hạn');
+        const checkedDate = data.date ? bookingDate(data.date) : booking.date;
+        const checkedStart = data.startTime ?? booking.startTime;
+        const checkedEnd = data.endTime ?? booking.endTime;
+        const checkedCourt = data.subCourtId || booking.subCourtId.toString();
+        validateBookingRange(checkedStart, checkedEnd);
+        if (!await Court.exists({ _id: checkedCourt, venueId: venue._id }).session(session)) throw ApiError.badRequest('Sân không thuộc cơ sở');
+        if ((data.status || booking.status) !== BookingStatus.CANCELLED) await assertCourtAvailable(venue._id.toString(), checkedCourt, checkedDate, checkedStart, checkedEnd, session, [booking._id]);
 
         const oldStatus = booking.status;
         if (data.status) {
@@ -351,12 +379,12 @@ class OwnerService {
                 booking.payment.paidAt = new Date();
                 
                 if (booking.userId) {
-                    await Notification.create({
+                    await Notification.create([{
                         userId: booking.userId,
                         title: 'Đơn đặt sân đã được xác nhận',
                         message: 'Thanh toán thành công và đơn đặt sân đã được duyệt.',
                         type: NotificationType.BOOKING
-                    });
+                    }], { session });
                 }
             }
         }
@@ -365,52 +393,23 @@ class OwnerService {
             booking.notes = data.notes;
         }
 
-        const timeToMins = (t: string) => {
-            const [h, m] = t.split(':').map(Number);
-            return h * 60 + m;
-        };
-
         // Rescheduling logic
         if (data.date || data.startTime || data.endTime || data.subCourtId) {
-            const newDate = data.date ? new Date(data.date) : booking.date;
+            const newDate = checkedDate;
             const newStartTime = data.startTime || booking.startTime;
             const newEndTime = data.endTime || booking.endTime;
             const newSubCourtId = data.subCourtId || booking.subCourtId;
 
             // Normalize newDate to ignore time part
-            const s = new Date(newDate);
-            s.setHours(0,0,0,0);
-            const e = new Date(newDate);
-            e.setHours(23,59,59,999);
-
-            const requestedStartMins = timeToMins(newStartTime);
-            const requestedEndMins = timeToMins(newEndTime);
-
-            // Fetch conflicting bookings for this court and date
-            const conflictingBookings = await Booking.find({
-                _id: { $ne: booking._id }, // Ignore current booking
-                courtId: venue._id,
-                subCourtId: newSubCourtId,
-                date: { $gte: s, $lte: e },
-                status: { $ne: 'cancelled' }
-            });
-
-            for (const b of conflictingBookings) {
-                const bStartMins = timeToMins(b.startTime);
-                const bEndMins = timeToMins(b.endTime);
-                if (requestedStartMins < bEndMins && requestedEndMins > bStartMins) {
-                    throw new ApiError(400, `Sân đã có người đặt từ ${b.startTime} đến ${b.endTime}. Vui lòng chọn giờ/sân khác!`);
-                }
-            }
-
-            booking.date = s; // Save normalized date
+            booking.date = newDate;
             booking.startTime = newStartTime;
             booking.endTime = newEndTime;
             booking.subCourtId = newSubCourtId;
         }
 
-        await booking.save();
+        await booking.save({ session });
         return booking;
+        });
     }
 
     async sendBookingNotification(ownerId: string, bookingId: string, message: string) {

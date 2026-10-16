@@ -63,7 +63,7 @@ export interface Court {
     contact: { phone: string; email?: string; website?: string; facebook?: string; zalo?: string };
     amenities: string[];
     operatingHours: { dayOfWeek: number; open: string; close: string; isOpen: boolean }[];
-    pricePerHour: number;
+    pricePerHour: { sportType: SportType; timeSlots: IPricingConfig[] }[];
     pricingConfigs?: IPricingConfig[];
     courts: SubCourt[];
     photos: CourtPhoto[];

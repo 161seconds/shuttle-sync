@@ -41,6 +41,10 @@ export interface IUserDocument extends Document {
         expiresAt?: Date;
     };
     refreshTokens: string[];
+    tokenVersion: number;
+    otpCode?: string;
+    otpExpires?: Date;
+    otpAttempts?: number;
     lastLoginAt?: Date;
     lastActiveDate?: Date;
     comparePassword(candidatePassword: string): Promise<boolean>;
@@ -115,7 +119,11 @@ const userSchema = new Schema<IUserDocument>(
             bannedBy: { type: Schema.Types.ObjectId, ref: 'User' },
             expiresAt: Date,
         },
+        tokenVersion: { type: Number, default: 0, select: false },
         refreshTokens: { type: [String], select: false, default: [] },
+        otpCode: { type: String, select: false },
+        otpExpires: { type: Date, select: false },
+        otpAttempts: { type: Number, select: false, default: 0 },
         lastLoginAt: { type: Date },
         lastActiveDate: { type: Date },
     },
@@ -125,6 +133,10 @@ const userSchema = new Schema<IUserDocument>(
             transform(_, ret: Record<string, any>) {
                 delete ret.password;
                 delete ret.refreshTokens;
+                delete ret.tokenVersion;
+                delete ret.otpCode;
+                delete ret.otpExpires;
+                delete ret.otpAttempts;
                 delete ret.__v;
                 return ret;
             },

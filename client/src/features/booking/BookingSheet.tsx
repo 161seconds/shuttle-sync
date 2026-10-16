@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { X, ChevronLeft, Check, Loader2, MapPin, AlertTriangle, ChevronRight, Zap, Repeat } from 'lucide-react';
 import { formatPrice } from '../../utils/theme';
@@ -44,7 +45,8 @@ const stepVariants: Variants = {
 };
 
 export default function BookingSheet({ court, onClose }: BookingSheetProps) {
-    const { user, setPage, setProfileSubPage } = useAppStore();
+    const { user, setPage } = useAppStore();
+    const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [direction, setDirection] = useState(1);
     const [selectedDate, setSelectedDate] = useState(0);
@@ -311,8 +313,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                     slots={[`${finalStartTime} - ${finalEndTime}`]}
                     onComplete={() => {
                         onClose();
-                        setPage('profile');
-                        setProfileSubPage('history');
+                        navigate('/profile/history');
                     }}
                     onBack={() => changeStep(2)}
                     expiresAt={bookingData.expiresAt || bookingData.bookings?.[0]?.payment?.expiresAt}

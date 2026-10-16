@@ -104,15 +104,6 @@ export const useSocialStore = create<SocialState>((set) => ({
     archiveConversation: async (conversationId, isArchived) => {
         try {
             await chatApi.archiveConversation(conversationId, isArchived);
-            set((state) => ({
-                conversations: state.conversations.map(c => {
-                    if (c._id === conversationId) {
-                        const archivedBy = new Set(c.archivedBy || []);
-                        // Placeholder for optimistic UI update (we need userId but we'll fetch again)
-                    }
-                    return c;
-                })
-            }));
             // Refresh to get accurate data
             await useSocialStore.getState().fetchConversations();
         } catch (error) {

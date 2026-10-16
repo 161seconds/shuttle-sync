@@ -1,4 +1,6 @@
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import { disconnectUserSockets } from '../socket';
 import { UserRole, UserStatus, AuthProvider } from '@shuttle-sync/shared';
 import { User, IUserDocument } from '../models';
 import { config } from '../config';
@@ -49,7 +51,7 @@ class AuthService {
      * Login with email and password
      */
     async login(email: string, password: string): Promise<{ user: IUserDocument; tokens: TokenPair }> {
-        const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+        const user = await User.findOne({ email: email.toLowerCase() }).select('+password +tokenVersion');
         if (!user || !user.password) {
             throw ApiError.unauthorized('Email hoặc mật khẩu không đúng');
         }
@@ -84,6 +86,7 @@ class AuthService {
      * Create session for a user (used by OTP login or SSO)
      */
     async createSession(user: IUserDocument): Promise<TokenPair> {
+        if (user.status !== UserStatus.ACTIVE) throw ApiError.unauthorized('Account is not active');
         const tokens = this.generateTokens(user);
         await this.saveRefreshToken(user._id.toString(), tokens.refreshToken);
         user.lastLoginAt = new Date();
@@ -100,12 +103,15 @@ class AuthService {
                 userId: string;
                 role: UserRole;
                 email: string;
+                tokenVersion?: number;
             };
 
-            const user = await User.findById(decoded.userId).select('+refreshTokens');
-            if (!user) {
+            const user = await User.findById(decoded.userId).select('+refreshTokens +tokenVersion');
+            if (!user || (decoded.tokenVersion || 0) !== (user.tokenVersion || 0)) {
                 throw ApiError.unauthorized('Tài khoản không tồn tại');
             }
+
+            if (user.status !== UserStatus.ACTIVE) throw ApiError.unauthorized('Account is not active');
 
             // Check if refresh token exists (rotation check)
             if (!user.refreshTokens?.includes(refreshToken)) {
@@ -156,7 +162,7 @@ class AuthService {
      * Change password
      */
     async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
-        const user = await User.findById(userId).select('+password');
+        const user = await User.findById(userId).select('+password +tokenVersion');
         if (!user || !user.password) {
             throw ApiError.notFound('Tài khoản không tồn tại');
         }
@@ -167,15 +173,19 @@ class AuthService {
         }
 
         user.password = newPassword;
+        user.tokenVersion = (user.tokenVersion || 0) + 1;
         user.refreshTokens = []; // Invalidate all sessions
         await user.save();
+        disconnectUserSockets(userId);
     }
 
     // ---- Private helpers ----
 
     private generateTokens(user: IUserDocument): TokenPair {
         const payload = {
+            jti: crypto.randomUUID(),
             userId: user._id.toString(),
+            tokenVersion: user.tokenVersion || 0,
             role: user.role,
             email: user.email,
             status: user.status,

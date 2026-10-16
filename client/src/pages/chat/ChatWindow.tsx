@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { ChevronLeft, Info, MoreVertical, Trash2, Clock, XCircle, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import MessageBubble from './MessageBubble';
+import MessageBubble, { type DisplayMessage } from './MessageBubble';
 import MessageInput from './MessageInput';
 import GroupInfoModal from './GroupInfoModal';
 import JoinRequestsModal from './JoinRequestsModal';
@@ -14,7 +14,7 @@ import { playNotificationSound } from '../../utils/audio';
 
 interface ChatWindowProps {
     room: ChatRoom;
-    messages: ChatMessage[];
+    messages: DisplayMessage[];
     currentUser: ChatUser;
     onBack: () => void;
     onSendMessage: (text: string, replyTo?: ChatMessage['replyTo']) => void;
@@ -37,7 +37,7 @@ export default function ChatWindow({
 }: ChatWindowProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
+    const [replyingTo, setReplyingTo] = useState<DisplayMessage | null>(null);
     const [showMenu, setShowMenu] = useState(false);
     const [showInfo, setShowInfo] = useState(false);
     const [showDeleteAlert, setShowDeleteAlert] = useState(false);

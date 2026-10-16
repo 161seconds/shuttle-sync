@@ -6,6 +6,7 @@ import { User } from '../models'; // Sửa lại đường dẫn model cho chu�
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
+import { z } from 'zod';
 import { config } from '../config';
 
 // ═══ HÀM TIỆN ÍCH CẤP COOKIE TỰ ĐỘNG NHẬN DIỆN MÔI TRƯỜNG ═══
@@ -88,13 +89,13 @@ class AuthController {
     // ═══ YÊU CẦU GỬI OTP ═══
     async requestOtp(req: Request, res: Response, next: NextFunction) {
         try {
-            const { email } = req.body;
+            const email = z.string().email().max(254).parse(req.body.email).toLowerCase().trim();
             if (!email) {
                 res.status(400).json({ success: false, message: 'Vui lòng nhập email' });
                 return;
             }
 
-            const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+            const otpCode = crypto.randomInt(100000, 1000000).toString();
             const otpExpires = new Date(Date.now() + 5 * 60 * 1000);
 
             let user = await User.findOne({ email });
@@ -103,11 +104,11 @@ class AuthController {
                     email,
                     displayName: email.split('@')[0],
                     password: crypto.randomBytes(16).toString('hex'),
-                    role: 'USER',
+                    role: 'user',
                 });
             }
 
-            await User.findByIdAndUpdate(user._id, { otpCode, otpExpires });
+            await User.findByIdAndUpdate(user._id, { otpCode: crypto.createHash('sha256').update(otpCode).digest('hex'), otpExpires, otpAttempts: 0 });
 
             await transporter.sendMail({
                 from: '"ShuttleSync System" <no-reply@shuttlesync.com>',
@@ -133,29 +134,21 @@ class AuthController {
     // ═══ XÁC NHẬN OTP ĐỂ ĐĂNG NHẬP ═══
     async verifyOtpLogin(req: Request, res: Response, next: NextFunction) {
         try {
-            const { email, otp } = req.body;
-            if (!email || !otp) {
-                res.status(400).json({ success: false, message: 'Thiếu email hoặc mã OTP' });
+            const { email, otp } = z.object({
+                email: z.string().email().max(254).transform(v => v.toLowerCase().trim()),
+                otp: z.string().regex(/^\d{6}$/),
+            }).parse(req.body);
+            const digest = crypto.createHash('sha256').update(otp).digest('hex');
+            const userAny = await User.findOneAndUpdate({
+                email, otpCode: digest, otpExpires: { $gt: new Date() },
+                otpAttempts: { $lt: 5 }, status: 'active',
+            }, { $unset: { otpCode: 1, otpExpires: 1 }, $set: { otpAttempts: 0 } }, { new: true }).select('+tokenVersion');
+            if (!userAny) {
+                await User.updateOne({ email, otpCode: { $exists: true }, otpAttempts: { $lt: 5 } }, { $inc: { otpAttempts: 1 } });
+                res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
                 return;
             }
-
-            const user = await User.findOne({ email });
-            if (!user) {
-                res.status(404).json({ success: false, message: 'Tài khoản không tồn tại' });
-                return;
-            }
-
-            const userAny = user as any;
-            if (userAny.otpCode !== otp) {
-                res.status(400).json({ success: false, message: 'Mã OTP không chính xác' });
-                return;
-            }
-            if (userAny.otpExpires < new Date()) {
-                res.status(400).json({ success: false, message: 'Mã OTP đã hết hạn' });
-                return;
-            }
-
-            await User.findByIdAndUpdate(user._id, { $unset: { otpCode: 1, otpExpires: 1 } });
+            const user = userAny;
 
             const tokens = await authService.createSession(userAny);
 

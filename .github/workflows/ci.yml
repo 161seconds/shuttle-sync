@@ -49,21 +49,24 @@ jobs:
       env:
         VITE_API_URL: "http://localhost:5000"
 
-    # Optional: Run Lint and Test (Uncomment if tests are fully configured)
-    # - name: Run Linter (Server)
-    #   run: |
-    #     cd server
-    #     npm run lint
-    
-    # - name: Run Tests (Server)
-    #   run: |
-    #     cd server
-    #     npm run test
+    - name: Start test MongoDB replica set
+      run: |
+        docker run -d --name shuttle-test-mongo -p 127.0.0.1:27018:27017 mongo:8 --replSet rs0 --bind_ip_all
+        for attempt in {1..30}; do
+          docker exec shuttle-test-mongo mongosh --quiet --eval 'try { rs.status(); } catch (e) { rs.initiate({_id:"rs0",members:[{_id:0,host:"localhost:27017"}]}); } if (!db.hello().isWritablePrimary) quit(1);' && break
+          sleep 2
+        done
+        docker exec shuttle-test-mongo mongosh --quiet --eval 'if (!db.hello().isWritablePrimary) quit(1);'
 
-    # - name: Run Tests (Client)
-    #   run: |
-    #     cd client
-    #     npm run test
+    - name: Run server tests
+      working-directory: server
+      run: npm test
+      env:
+        MONGO_TEST_URI: mongodb://127.0.0.1:27018/?replicaSet=rs0&directConnection=true
+
+    - name: Run client tests
+      working-directory: client
+      run: npm test
 
   # Build Docker images to ensure Dockerfiles are valid
   docker-check:

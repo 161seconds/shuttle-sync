@@ -80,6 +80,7 @@ import GlobalAlert from './components/GlobalAlert';
 import { WelcomeToast } from './components/layout/WelcomeToast';
 import { useAlertStore } from './stores/useAlertStore';
 import { socketService } from './utils/socket';
+import { useSocialStore } from './stores/useSocialStore';
 import { ThemeProvider } from './components/theme-provider';
 
 
@@ -141,7 +142,21 @@ function Shell() {
   }, [setUser, showSplash]);
 
   useEffect(() => {
-    if (!user) return;
+    const clearSession = () => {
+      setUser(null);
+      setBookingCourt(null);
+      socketService.disconnect();
+    };
+    window.addEventListener('auth:unauthorized', clearSession);
+    return () => window.removeEventListener('auth:unauthorized', clearSession);
+  }, [setUser, setBookingCourt]);
+
+  useEffect(() => {
+    if (!user) {
+      socketService.disconnect();
+      useSocialStore.setState(useSocialStore.getInitialState(), true);
+      return;
+    }
     socketService.connect('');
     const socket = socketService.getSocket();
     if (!socket) return;
@@ -215,6 +230,7 @@ function Shell() {
                   <Route path="/map" element={<MapPage />} />
                   <Route path="/search" element={<SearchPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/profile/history" element={<ProfilePage />} />
                   <Route path="/edit-profile" element={<EditProfile onBack={() => window.history.back()} />} />
                   <Route path="/groupplay" element={<GroupPlayPage />} />
                   <Route path="/aicoach" element={<AiCoach />} />
