@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function ScrollEndEffect({ containerRef }: { containerRef?: React.RefObject<HTMLElement> }) {
+export default function ScrollEndEffect({ containerRef }: { containerRef?: React.RefObject<HTMLElement | null> }) {
     const [isAtBottom, setIsAtBottom] = useState(false);
     const wasAtBottomRef = useRef(false);
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);

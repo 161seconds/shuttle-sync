@@ -2,6 +2,8 @@ import { useState, useEffect, Suspense } from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useAppStore } from '../../store';
 import { ownerApi } from '../../services/ownerApi';
+import { authApi } from '../../api/auth.api';
+import { useAlertStore } from '../../stores/useAlertStore';
 import { LayoutDashboard, LogOut, Settings, CalendarDays, Loader2, Dumbbell, Clock, HelpCircle, TrendingDown, Tag } from 'lucide-react';
 import PremiumBackground from '../../components/ui/PremiumBackground';
 import { OwnerWelcomeFlow } from './OwnerWelcomeFlow';
@@ -17,7 +19,7 @@ export const OwnerLayout = () => {
 
     useEffect(() => {
         if (!user || user.role !== 'court_owner') {
-            navigate('/auth/login', { replace: true });
+            navigate('/login', { replace: true });
             return;
         }
 
@@ -38,8 +40,13 @@ export const OwnerLayout = () => {
     }, [user, navigate, location.pathname]);
 
     const handleLogout = async () => {
-        setUser(null);
-        navigate('/');
+        try {
+            await authApi.logout();
+            setUser(null);
+            navigate('/login');
+        } catch {
+            useAlertStore.getState().showAlert('Không thể đăng xuất. Vui lòng thử lại.', 'Lỗi', 'error');
+        }
     };
 
     if (isLoading) {

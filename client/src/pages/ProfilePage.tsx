@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
     Edit, History, Award, Users, Bell, Settings,
     LogOut, ChevronRight, Check, UserCircle, LogIn
@@ -6,6 +7,7 @@ import {
 import { useAppStore } from '../store';
 import { authApi } from '../api/auth.api';
 import { socketService } from '../utils/socket';
+import { useAlertStore } from '../stores/useAlertStore';
 
 // Sub-pages
 import EditProfile from './profile/EditProfile';
@@ -19,6 +21,8 @@ type SubPage = null | 'edit' | 'favorites' | 'history' | 'tournaments' | 'groups
 
 export default function ProfilePage() {
     const { user, setUser, setPage } = useAppStore();
+    const location = useLocation();
+    const navigate = useNavigate();
     const [subPage, setSubPage] = useState<SubPage>(null);
     const [isSyncing, setIsSyncing] = useState(false);
 
@@ -49,6 +53,8 @@ export default function ProfilePage() {
             await authApi.logout();
         } catch (err) {
             console.log('Logout API Error:', err);
+            useAlertStore.getState().showAlert('Không thể đăng xuất. Vui lòng thử lại.', 'Lỗi', 'error');
+            return;
         }
         socketService.disconnect();
         setUser(null);
@@ -77,7 +83,7 @@ export default function ProfilePage() {
 
     // Sub-page routing
     if (subPage === 'edit') return <EditProfile onBack={() => setSubPage(null)} />;
-    if (subPage === 'history') return <BookingHistory onBack={() => setSubPage(null)} />;
+    if (location.pathname === '/profile/history' || subPage === 'history') return <BookingHistory onBack={() => { setSubPage(null); navigate('/profile'); }} />;
     if (subPage === 'tournaments') return <MyTournaments onBack={() => setSubPage(null)} />;
     if (subPage === 'groups') return <MyGroupPlays onBack={() => setSubPage(null)} />;
     if (subPage === 'notifications') return <Notifications onBack={() => setSubPage(null)} />;

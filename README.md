@@ -1,108 +1,87 @@
-# 🏸 ShuttleSync - Badminton & Pickleball Court Booking System
+# ShuttleSync
 
-![Tech Stack](https://img.shields.io/badge/Stack-MERN_|_TypeScript-blue?style=flat-square)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
-![Status](https://img.shields.io/badge/Status-Done-emerald?style=flat-square)
+ShuttleSync manages court bookings, owner operations, group play, tournaments, chat, reviews, and AI coaching.
 
-ShuttleSync is a next-generation, premium court booking and club management platform tailored for Badminton and Pickleball enthusiasts, as well as court owners. Engineered with Clean Architecture principles and a unified Monorepo structure, ShuttleSync guarantees an elite booking workflow with strict real-time state synchronization, completely eradicating double-booking conflicts.
+## Architecture
 
-Designed with a state-of-the-art glassmorphism aesthetic and purposeful motion, ShuttleSync delivers a "wow" experience without sacrificing usability or performance.
+- `ShuttleSync.API`: .NET 10 controllers, authentication, SignalR, middleware, maintenance workers.
+- `ShuttleSync.Service`: business rules, validation, transactions, integrations.
+- `ShuttleSync.Repository`: MongoDB entities and database context.
+- `ShuttleSync.Test`: xUnit integration tests.
+- `client`: React, TypeScript, Vite, Tailwind CSS.
 
----
+Dependencies follow API > Service > Repository. REST retains `/api/v1`, existing JSON envelopes, ObjectId strings, lowercase statuses, and cookie authentication. Realtime uses SignalR at `/hubs/realtime`.
 
-## ✨ Key Features
+## Local development
 
-### For Athletes & Players
-- **Flexible Time Picker:** Intuitively drag, expand, or adjust custom reservation durations with 30-minute granularities. No more rigid, pre-configured timeslots.
-- **Matchmaking Hub & Dynamic Brackets:** Spawn custom open matchmaking matches (Group Play) that dynamically archive when past schedule. Includes fully automated, esports-ready knockout tournament bracket trees.
-- **AI Coach Chatbot:** Seamlessly embedded Gemini Flash AI acts as an elite tactician for BWF rulesets and training advice. Features auto-recovery retry mechanisms for transient errors.
-- **Premium User Experience:** Meticulously crafted dark theme interface using Framer Motion, backdrop blur, custom animated dropdowns, and an optimized 80% scale enterprise viewport for maximum spaciousness.
+Requirements: .NET 10 SDK, Node.js 22.13+, MongoDB replica set or Atlas. Transactions require a replica set. Existing MongoDB collections and IDs remain intact; no SQL conversion or destructive reseeding is required.
 
-### For Court Owners & Admins
-- **Real-time Conflict-Free Engine:** Advanced concurrency filtering on both client and server layers using an interval intersection mathematical model ($Start_{1} < End_{2} \land End_{1} > Start_{2}$) to eliminate race conditions.
-- **Owner Expense & Profit Tracking:** Comprehensive financial tracking to record utility, maintenance, and salary expenses, paired with real-time Net Profit analytics and categorizations.
-- **Interactive Insights Dashboard:** Rich data visualizations via Recharts, mapping out localized metrics including granular financial streams and comprehensive sport-type volumetric split analysis.
-- **Secure Architecture:** Built on secure HttpOnly cookies with smooth background re-authentication mechanisms to securely rehydrate active user state without UI flickers.
+Copy `.env.example` to `.env` in the repository root. Set `MONGO_URI` to your existing database. Generate two distinct random JWT secrets of at least 32 characters. Existing host environment variables take precedence over `.env`.
 
----
-
-## 💻 Tech Stack
-
-### Frontend (Client)
-- **Framework:** React.js + Vite (Strictly typed with TypeScript)
-- **Styling:** Tailwind CSS (Deep immersive dark-mode, glassmorphism, global scaling)
-- **State Management:** Zustand (Ultralightweight, predictable centralized store)
-- **Animation:** Framer Motion (Fluid, hardware-accelerated motion choreography)
-- **Icons & Charts:** Lucide React, Recharts
-
-### Backend (Server)
-- **Runtime & Framework:** Node.js + Express (Strict Object-Oriented TypeScript, Clean Architecture layers)
-- **Database:** MongoDB + Mongoose (Advanced aggregation, spatial indexing)
-- **Real-time Engine:** Socket.IO (Bidirectional event-driven web-sockets for instant broadcast propagation)
-- **AI Integration:** `@google/generative-ai` (Rigid, declarative system prompting)
-
----
-
-## 📂 Project Structure (Monorepo)
-
-The repository leverages an end-to-end type-safe Monorepo layout, isolating presentation structures and orchestration nodes while sharing foundational interfaces:
-
-```text
-shuttle-sync/
-├── client/          # Vite + React Frontend Application (UI Layer)
-├── server/          # Node.js + Express RESTful & WebSocket Backend (Clean Architecture)
-└── shared/          # Centralized Shared Repository hosting data types, validation schemas & enums
-```
-
----
-
-## 🚀 Getting Started
-
-### 1. Prerequisites
-- **Node.js**: v18.0.0 or higher
-- **MongoDB**: Local instance (MongoDB Compass) or accessible cloud cluster endpoint
-
-### 2. Installation
-
-Clone the repository and install dependencies for both server and client:
+Run the API from the repository root:
 
 ```bash
-# Install Server dependencies
-cd server
-npm install
-
-# Install Client dependencies
-cd ../client
-npm install
+dotnet run --project ShuttleSync.API
 ```
 
-### 3. Environment Variables
+API: `http://localhost:5000/api/v1`. Development Swagger: `http://localhost:5000/swagger`.
 
-**Create a `.env` file in the `server/` directory:**
-```env
-PORT=5000
-MONGO_URI=mongodb://localhost:27017/badminton_db
-JWT_SECRET=shuttlesync_secret_key_2026
-GEMINI_API_KEY=your_secured_gemini_api_key_here
-```
+Run the frontend separately:
 
-**Create a `.env` file in the `client/` directory:**
-```env
-VITE_API_URL=http://localhost:5000
-```
-
-### 4. Running the Application
-
-You will need to run the client and server concurrently in two separate terminal instances.
-
-**Terminal 1 (Backend):**
-```bash
-cd server
-npm run dev
-```
-
-**Terminal 2 (Frontend):**
 ```bash
 cd client
+npm ci
 npm run dev
 ```
+
+Frontend: `http://localhost:5173`. Set `VITE_API_URL=http://localhost:5000` in `client/.env` when overriding the default. Frontend build values are public; keep provider secrets on the server.
+
+## Configuration
+
+| Variable | Purpose |
+| --- | --- |
+| `MONGO_URI` | Existing MongoDB database; include `replicaSet=rs0` locally. |
+| `PORT` | API port; default `5000`. |
+| `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` | Distinct signing secrets, each at least 32 characters. |
+| `CLIENT_URL`, `ALLOWED_ORIGINS` | Exact frontend origins; comma separated. |
+| `TRUSTED_PROXIES` | Optional comma separated proxy IPs for forwarded client IP and HTTPS headers. Loopback is trusted by default. |
+| `EMAIL_USER`, `EMAIL_PASS` | Gmail SMTP credentials for OTP. |
+| `GEMINI_API_KEY` | Server-side AI Coach access. |
+| `SEPAY_ACCOUNT_NUMBER` | Receiving account for payment matching. |
+| `SEPAY_WEBHOOK_SECRET`, `SEPAY_API_TOKEN` | Webhook authentication; every configured credential must match. |
+
+Use `ASPNETCORE_ENVIRONMENT=Development` locally. Production requires HTTPS, secure cookies, explicit frontend origins, and valid JWT secrets. Missing provider configuration disables the corresponding integration.
+
+Frontend QR settings: `VITE_SEPAY_BANK_ID`, `VITE_SEPAY_BANK_ACC`, `VITE_SEPAY_BANK_HOLDER`. Compose derives the account number from `SEPAY_ACCOUNT_NUMBER`. Expired, cancelled, or underpaid transfers require reconciliation; paid bookings need explicit refund handling.
+
+## Verification
+
+```bash
+dotnet build ShuttleSync.sln
+cd client
+npm run build
+npm test
+```
+
+Backend tests require `MONGO_TEST_URI` pointing to a disposable replica set. They create and remove their own `shuttle_csharp_test_*` database. Never use production infrastructure.
+
+PowerShell, from the repository root:
+
+```powershell
+$env:MONGO_TEST_URI='mongodb://127.0.0.1:27018/?replicaSet=rs0&directConnection=true'
+dotnet test ShuttleSync.Test
+```
+
+CI builds both applications, starts a test replica set, runs backend and frontend tests, then builds Docker images.
+
+## Docker
+
+Configure root `.env`, then run:
+
+```bash
+docker compose up --build
+```
+
+Compose starts a single-node replica set, waits for its primary, then starts the .NET API and frontend. Database files persist in `mongodb_data`; MongoDB has no published port. Compose uses `badminton_db`; standalone development defaults to `shuttle_sync`. Set `MONGO_URI` explicitly when connecting to existing data. Back up data before deployment.
+
+Default frontend: `http://localhost`. API: `http://localhost:5000`. Configure `VITE_API_URL` to the API address reachable by the browser; set `ALLOWED_ORIGINS` to the deployed frontend origins. Rebuild the frontend image after changing build variables.

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Eye, Mail, Lock, ChevronRight, User, TrendingUp, Users, Calendar, Star, Zap, ArrowLeft, Phone, X } from 'lucide-react';
 import { theme as DS, getGreetingByTime } from '../utils/theme';
 import { useAppStore } from '../store';
@@ -166,6 +167,7 @@ function FloatingCards() {
 }
 
 export default function Login() {
+    const navigate = useNavigate();
     const { setPage, setUser, setJustLoggedIn } = useAppStore();
     const [mode, setMode] = useState<'login' | 'register'>('login');
     const [showPw, setShowPw] = useState(false);
@@ -250,8 +252,8 @@ export default function Login() {
             setUser(userData);
             setJustLoggedIn(true);
 
-            if (userData.role === 'OWNER' || userData.role === 'MANAGER') {
-                setPage('owner-dashboard');
+            if (userData.role === 'court_owner' || userData.role === 'OWNER' || userData.role === 'MANAGER') {
+                navigate('/owner/dashboard');
             } else {
                 setPage('home');
             }

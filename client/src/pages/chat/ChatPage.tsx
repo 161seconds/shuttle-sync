@@ -168,7 +168,9 @@ export default function ChatPage() {
 
         if (socket) {
             if (activeTab === 'group') {
-                socket.emit('group_play:join', activeRoomId);
+                const joinRoom = () => socket.emit('group_play:join', activeRoomId);
+                socket.on('connect', joinRoom);
+                if (socket.connected) joinRoom();
 
                 socket.on('chat:message', (message: ChatMessage) => {
                     if (message.groupPlayId === activeRoomId) {
@@ -192,18 +194,17 @@ export default function ChatPage() {
                         }));
                     }
                 });
+                return () => {
+                    socket.off('connect', joinRoom);
+                    socket.emit('group_play:leave', activeRoomId);
+                    socket.off('chat:message');
+                };
             } else {
                 // P2P Chat socket listeners are global, but we can ensure active Room marks as read
                 // The actual `chat:receive_message` listener should probably be set globally or here
             }
         }
 
-        return () => {
-            if (socket && activeTab === 'group') {
-                socket.emit('group_play:leave', activeRoomId);
-                socket.off('chat:message');
-            }
-        };
     }, [activeRoomId, activeTab]);
 
     // Global P2P listener
@@ -302,7 +303,7 @@ export default function ChatPage() {
                 const mappedUser: ChatUser = {
                     id: publicUser._id,
                     name: publicUser.displayName,
-                    avatar: publicUser.avatar || undefined,
+                    avatar: publicUser.avatar || '',
                     skillLevel: publicUser.skillLevel || 'Chưa cập nhật',
                     status: publicUser.status === 'banned' ? 'banned' : 'active',
                     matchesPlayed: (publicUser.stats?.totalGroupsJoined || 0) + (publicUser.stats?.totalGroupsCreated || 0),
@@ -331,7 +332,7 @@ export default function ChatPage() {
     const chatCurrentUser: ChatUser = user ? {
         id: user._id || (user as any).id || '',
         name: user.displayName || user.name || 'Bạn',
-        avatar: user.avatar || undefined,
+        avatar: user.avatar || '',
         skillLevel: '',
         status: 'active',
         matchesPlayed: 0,
@@ -381,7 +382,7 @@ export default function ChatPage() {
                     {activeRoom ? (
                         <ChatWindow
                             room={activeRoom}
-                            messages={activeTab === 'group' ? messages : ((friendMessagesMap[activeRoomId] as any[] || []).map(msg => ({
+                            messages={activeTab === 'group' ? messages : ((friendMessagesMap[activeRoom.id] || []).map(msg => ({
                                 ...msg,
                                 senderName: msg.senderName || (String(msg.senderId) === String(user?._id) ? user?.displayName : (activeRoom as any).otherParticipant?.displayName || 'Bạn bè'),
                                 senderAvatar: msg.senderAvatar || (String(msg.senderId) === String(user?._id) ? user?.avatar : (activeRoom as any).otherParticipant?.avatar)

@@ -11,3 +11,7 @@ coverage/
 
 # AI Agent Configs
 .gemini/
+**/bin/
+**/obj/
+.vs/
+TestResults/

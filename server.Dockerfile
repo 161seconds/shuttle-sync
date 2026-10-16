@@ -1,23 +1,20 @@
-FROM node:22-alpine
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY Directory.Build.props ./
+COPY ShuttleSync.Repository/ShuttleSync.Repository.csproj ShuttleSync.Repository/
+COPY ShuttleSync.Service/ShuttleSync.Service.csproj ShuttleSync.Service/
+COPY ShuttleSync.API/ShuttleSync.API.csproj ShuttleSync.API/
+RUN dotnet restore ShuttleSync.API/ShuttleSync.API.csproj
+COPY ShuttleSync.Repository/ ShuttleSync.Repository/
+COPY ShuttleSync.Service/ ShuttleSync.Service/
+COPY ShuttleSync.API/ ShuttleSync.API/
+RUN dotnet publish ShuttleSync.API/ShuttleSync.API.csproj -c Release -o /app --no-restore
 
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
-
-# Copy root package.json if it exists (for workspace compatibility)
-COPY package.json package-lock.json* ./
-
-# Copy shared folder which is required by server
-COPY shared ./shared
-
-# Copy server folder
-COPY server ./server
-
-# Install dependencies and build
-WORKDIR /app/server
-RUN npm install
-RUN npm run build
-
-# Expose port
+COPY --from=build /app ./
+ENV ASPNETCORE_URLS=http://+:5000
+ENV ASPNETCORE_ENVIRONMENT=Production
 EXPOSE 5000
-
-# Start server
-CMD ["npm", "start"]
+USER $APP_UID
+ENTRYPOINT ["dotnet", "ShuttleSync.API.dll"]

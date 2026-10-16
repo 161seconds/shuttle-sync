@@ -244,7 +244,7 @@ export const OwnerExpenses = () => {
                                             ))}
                                         </Pie>
                                         <Tooltip 
-                                            formatter={(value: number) => formatCurrency(value)}
+                                            formatter={(value) => typeof value === 'number' ? formatCurrency(value) : String(value ?? '')}
                                             contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }}
                                             itemStyle={{ color: '#fff' }}
                                         />

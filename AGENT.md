@@ -7,10 +7,11 @@ This document provides context, rules, and architectural guidelines for AI agent
 
 ## 2. Tech Stack
 - **Frontend**: React (Vite), TypeScript, Tailwind CSS v4, Framer Motion (Animations), Recharts (Charts), Lucide React (Icons), Zustand (State Management). Global 80% scale applied via HTML font-size for an enterprise viewport.
-- **Backend**: Node.js, Express, TypeScript, MongoDB (Mongoose), JWT Authentication.
+- **Backend**: .NET 10, ASP.NET Core, MongoDB.Driver, JWT cookies, SignalR.
 - **Monorepo Structure**:
   - `/client`: Frontend codebase.
-  - `/server`: Backend API codebase.
+  - `/ShuttleSync.API`, `/ShuttleSync.Service`, `/ShuttleSync.Repository`: Active C# backend.
+  - `/ShuttleSync.Test`: xUnit backend integration tests.
 
 ## 3. Frontend Architecture (`/client`)
 - `src/pages/`: Main route pages (e.g., `ProfilePage`, `AiCoach`, `RulesPage`).
@@ -20,12 +21,13 @@ This document provides context, rules, and architectural guidelines for AI agent
 - `src/store/` & `src/stores/`: Zustand global state managers (`useAppStore`, `useAlertStore`).
 - `src/app.css`: The central CSS file using **Tailwind v4** syntax. It defines `@theme` variables (`--color-background`, `--color-foreground`, `--color-card`, etc.) and handles Light/Dark mode via the `.dark` class toggle.
 
-## 4. Backend Architecture (`/server`)
-- `src/routes/`: Express route definitions.
-- `src/controllers/`: Request handling and response formatting.
-- `src/services/`: Core business logic and database interactions.
-- `src/models/`: MongoDB schemas (Mongoose).
-- `src/middlewares/`: Authentication and error handling middlewares.
+## 4. Backend Architecture
+- `ShuttleSync.API`: Thin controllers, authentication, SignalR `/hubs/realtime`, middleware, DI.
+- `ShuttleSync.Service`: Business logic and validation in feature modules; services inject MongoContext directly.
+- `ShuttleSync.Repository`: MongoDB entities and collection mappings; preserve existing ObjectId IDs and collections.
+- Dependencies: API > Service > Repository. Keep `/api/v1` contracts and camelCase JSON.
+- Run: `dotnet run --project ShuttleSync.API`. Build: `dotnet build ShuttleSync.sln`.
+- Tests: set `MONGO_TEST_URI` to a test replica set, then `dotnet test ShuttleSync.Test`.
 
 ## 5. UI/UX Rules & Styling Guidelines (CRITICAL)
 1. **Never use hardcoded black/white colors**: 
