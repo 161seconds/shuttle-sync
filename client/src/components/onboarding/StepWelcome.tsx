@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { ChevronRight, Zap } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
+import BrandMark from '../BrandMark';
 
 export default function StepWelcome({ onNext, onSkip }: { onNext: () => void; onSkip: () => void }) {
     return (
@@ -20,7 +21,7 @@ export default function StepWelcome({ onNext, onSkip }: { onNext: () => void; on
                         animate={{ x: ['-100%', '200%'] }}
                         transition={{ duration: 2, repeat: Infinity, repeatDelay: 1, ease: "easeInOut" }}
                     />
-                    <Zap className="w-14 h-14 text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)] fill-emerald-400" />
+                    <BrandMark className="w-14 h-14 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
                 </div>
             </motion.div>
 

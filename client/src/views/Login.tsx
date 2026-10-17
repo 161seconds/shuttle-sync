@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import BrandMark from '../components/BrandMark';
 import { Eye, Mail, Lock, ChevronRight, User, TrendingUp, Users, Calendar, Star, Zap, ArrowLeft, Phone, X } from 'lucide-react';
 import { theme as DS, getGreetingByTime } from '../utils/theme';
 import { useAppStore } from '../store';
@@ -277,7 +278,7 @@ export default function Login() {
                     {/* 🔥 BIỂU TƯỢNG LOGO MỚI PHÁT QUANG ĐỒNG BỘ HEADER */}
                     <div className="relative flex items-center justify-center w-20 h-20 mx-auto mb-6">
                         <div className="w-20 h-20 rounded-3xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-glow-md group-hover:scale-105 group-hover:border-emerald-500/40 group-hover:shadow-[0_0_50px_rgba(16,185,129,0.35)] transition-all duration-300">
-                            <Zap className="w-10 h-10 text-emerald-400 fill-emerald-400/10 group-hover:scale-110 transition-transform duration-300" />
+                            <BrandMark className="w-10 h-10 group-hover:scale-110 transition-transform duration-300" />
                         </div>
                         <div className="absolute top-0 right-0 w-4 h-4 bg-emerald-400 rounded-full border-4 border-[#0a0d0f] animate-pulse"></div>
                     </div>

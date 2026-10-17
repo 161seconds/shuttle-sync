@@ -1,4 +1,5 @@
-import { Calendar, Search, Bell, Menu, Zap } from 'lucide-react';
+import { Calendar, Search, Bell, Menu } from 'lucide-react';
+import BrandMark from '../BrandMark';
 import { useAppStore } from '../../store';
 import { theme as t } from '../../utils/theme';
 import { useState, useEffect } from 'react';
@@ -69,15 +70,15 @@ export default function Header() {
                         </button>
                     )}
 
-                    {/* 🔥 KHU VỰC LOGO MỚI (LUCIDE SYSTEM) */}
                     <button
                         onClick={() => setPage('home')}
+                        aria-label="ShuttleSync - Trang chủ"
                         className="flex items-center gap-2.5 group text-left"
                     >
                         <div className="relative flex items-center justify-center">
                             {/* Khung chứa icon phát quang nhẹ */}
                             <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-glow group-hover:scale-105 group-hover:border-emerald-500/40 group-hover:shadow-glow-lg transition-all duration-300">
-                                <Zap className="w-4 h-4 text-emerald-400 fill-emerald-400/10 group-hover:scale-110 transition-transform" />
+                                <BrandMark className="w-6 h-6 group-hover:scale-110 transition-transform" />
                             </div>
                         </div>
 

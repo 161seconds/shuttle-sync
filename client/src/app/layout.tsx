@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'ShuttleSync',
   description: 'Đặt sân, ghép kèo và quản lý sân thể thao.',
   referrer: 'no-referrer',
-  icons: { icon: '/favicon.svg' },
+  icons: { icon: { url: '/shuttlesync-mark.svg', type: 'image/svg+xml' } },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

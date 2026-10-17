@@ -28,6 +28,8 @@ API: `http://localhost:5000/api/v1`. Development Swagger: `http://localhost:5000
 
 Run the frontend separately:
 
+On Windows, stop any running Next.js process with `Ctrl+C` before `npm ci`; otherwise Windows locks the native SWC file and installation fails with `EPERM`.
+
 ```bash
 cd client
 npm ci

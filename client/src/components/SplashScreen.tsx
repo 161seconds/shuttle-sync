@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState, useRef } from 'react';
-import { Zap } from 'lucide-react';
+import BrandMark from './BrandMark';
 
 const QUOTES = [
   "Nơi đam mê bùng cháy trên từng đường cầu.",
@@ -266,7 +266,7 @@ export default function SplashScreen({ onComplete, isLoading = true }: SplashScr
               transition={{ duration: 1.5, delay: 1, ease: "easeInOut" }}
               className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg]"
             />
-            <Zap className="w-12 h-12 text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)] fill-emerald-400" />
+            <BrandMark className="w-12 h-12 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
           </div>
         </motion.div>
 
