@@ -6,7 +6,7 @@ This document provides context, rules, and architectural guidelines for AI agent
 **ShuttleSync** is a platform for booking and managing badminton (and potentially other sports like pickleball) courts. It features user facing apps for booking, AI coaching, Group Play (Matchmaking), and social engagement, as well as an admin dashboard for court owners to manage revenues, expenses, and operations.
 
 ## 2. Tech Stack
-- **Frontend**: React (Vite), TypeScript, Tailwind CSS v4, Framer Motion (Animations), Recharts (Charts), Lucide React (Icons), Zustand (State Management). Global 80% scale applied via HTML font-size for an enterprise viewport.
+- **Frontend**: Next.js 16 (React), TypeScript, Tailwind CSS v4, Framer Motion (Animations), Recharts (Charts), Lucide React (Icons), Zustand (State Management). Global 80% scale applied via HTML font-size for an enterprise viewport.
 - **Backend**: .NET 10, ASP.NET Core, MongoDB.Driver, JWT cookies, SignalR.
 - **Monorepo Structure**:
   - `/client`: Frontend codebase.
@@ -14,7 +14,7 @@ This document provides context, rules, and architectural guidelines for AI agent
   - `/ShuttleSync.Test`: xUnit backend integration tests.
 
 ## 3. Frontend Architecture (`/client`)
-- `src/pages/`: Main route pages (e.g., `ProfilePage`, `AiCoach`, `RulesPage`).
+- `src/app/`: Next.js routes and layouts; `src/views/`: reusable page components (e.g., `ProfilePage`, `AiCoach`, `RulesPage`).
 - `src/features/`: Feature-specific logic and complex components (e.g., `admin/AdminDashboard.tsx`, `booking/BookingSheet.tsx`).
 - `src/components/`: Reusable UI components (e.g., `Sidebar`, `BottomNav`, `theme-provider`).
 - `src/api/`: Axios configurations and API wrapper functions.

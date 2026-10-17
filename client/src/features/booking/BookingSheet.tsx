@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { X, ChevronLeft, Check, Loader2, MapPin, AlertTriangle, ChevronRight, Zap, Repeat } from 'lucide-react';
 import { formatPrice } from '../../utils/theme';
@@ -7,7 +7,7 @@ import type { Court } from '../../types';
 import { bookingApi } from '../../api/booking.api';
 import axiosClient from '../../api/axiosClient';
 import { useAppStore } from '../../store';
-import Payment from '../../pages/Payment';
+import Payment from '../../views/Payment';
 import { useAlertStore } from '../../stores/useAlertStore';
 import { voucherApi } from '../../api/voucher.api';
 
@@ -46,7 +46,7 @@ const stepVariants: Variants = {
 
 export default function BookingSheet({ court, onClose }: BookingSheetProps) {
     const { user, setPage } = useAppStore();
-    const navigate = useNavigate();
+    const router = useRouter();
     const [step, setStep] = useState(1);
     const [direction, setDirection] = useState(1);
     const [selectedDate, setSelectedDate] = useState(0);
@@ -313,7 +313,7 @@ export default function BookingSheet({ court, onClose }: BookingSheetProps) {
                     slots={[`${finalStartTime} - ${finalEndTime}`]}
                     onComplete={() => {
                         onClose();
-                        navigate('/profile/history');
+                        router.push('/profile/history');
                     }}
                     onBack={() => changeStep(2)}
                     expiresAt={bookingData.expiresAt || bookingData.bookings?.[0]?.payment?.expiresAt}

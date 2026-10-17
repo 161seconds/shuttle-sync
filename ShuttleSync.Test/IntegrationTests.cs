@@ -37,7 +37,7 @@ public sealed class IntegrationTests : IAsyncLifetime
             ["MONGO_URI"] = url.ToString(),
             ["JWT_ACCESS_SECRET"] = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)),
             ["JWT_REFRESH_SECRET"] = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)),
-            ["ALLOWED_ORIGINS"] = "http://localhost:5173",
+            ["ALLOWED_ORIGINS"] = "http://localhost:3000",
             ["SEPAY_ACCOUNT_NUMBER"] = "CHECK-ACCOUNT",
             ["SEPAY_WEBHOOK_SECRET"] = "check-webhook-secret",
             ["SEPAY_API_TOKEN"] = "check-webhook-token"
@@ -88,6 +88,22 @@ public sealed class IntegrationTests : IAsyncLifetime
         var denied = new HttpRequestMessage(HttpMethod.Get, "/api/v1/health");
         denied.Headers.Add("Origin", "https://untrusted.example");
         Assert.True((await client.SendAsync(denied)).StatusCode == HttpStatusCode.Forbidden, "untrusted CORS origin rejected");
+        using var allowed = new HttpRequestMessage(HttpMethod.Get, "/api/v1/health");
+        allowed.Headers.Add("Origin", "http://localhost:3000");
+        using var cors = await client.SendAsync(allowed);
+        Assert.True(cors.IsSuccessStatusCode, "Next frontend origin accepted");
+        Assert.Equal("http://localhost:3000", cors.Headers.GetValues("Access-Control-Allow-Origin").Single());
+        Assert.Equal("true", cors.Headers.GetValues("Access-Control-Allow-Credentials").Single());
+        using var preflight = new HttpRequestMessage(HttpMethod.Options, "/api/v1/auth/login");
+        preflight.Headers.Add("Origin", "http://localhost:3000");
+        preflight.Headers.Add("Access-Control-Request-Method", "POST");
+        preflight.Headers.Add("Access-Control-Request-Headers", "content-type");
+        using var preflightResponse = await client.SendAsync(preflight);
+        Assert.True(preflightResponse.IsSuccessStatusCode, "Next JSON login preflight accepted");
+        Assert.Equal("http://localhost:3000", preflightResponse.Headers.GetValues("Access-Control-Allow-Origin").Single());
+        Assert.Equal("true", preflightResponse.Headers.GetValues("Access-Control-Allow-Credentials").Single());
+        Assert.Contains("POST", string.Join(",", preflightResponse.Headers.GetValues("Access-Control-Allow-Methods")).Split(',', StringSplitOptions.TrimEntries));
+        Assert.Contains("content-type", string.Join(",", preflightResponse.Headers.GetValues("Access-Control-Allow-Headers")).ToLowerInvariant().Split(',', StringSplitOptions.TrimEntries));
         Assert.True((await client.GetAsync("/api/v1/auth/profile")).StatusCode == HttpStatusCode.Unauthorized, "anonymous profile rejected");
         Assert.True((await client.GetAsync("/api/v1/owner/venue")).StatusCode == HttpStatusCode.Unauthorized, "anonymous owner endpoint rejected");
         var registration = await client.PostAsJsonAsync("/api/v1/auth/register", new { email = "http@example.test", password = "Password123", displayName = "HTTP Player", role = "admin" });
@@ -128,6 +144,12 @@ public sealed class IntegrationTests : IAsyncLifetime
         await WebhookTestsAsync(client);
         Assert.True((await client.PostAsJsonAsync("/api/v1/auth/logout", new { })).IsSuccessStatusCode, "HTTP logout clears session cookies");
         Assert.True((await client.GetAsync("/api/v1/auth/profile")).StatusCode == HttpStatusCode.Unauthorized, "HTTP logout removes cookie authorization");
+        Assert.True((await client.PostAsJsonAsync("/api/v1/auth/login", new { email = "http@example.test", password = "wrong" })).StatusCode == HttpStatusCode.Unauthorized, "HTTP login rejects wrong password");
+        Assert.True((await client.GetAsync("/api/v1/auth/profile")).StatusCode == HttpStatusCode.Unauthorized, "failed login does not create cookie session");
+        var login = await client.PostAsJsonAsync("/api/v1/auth/login", new { email = "http@example.test", password = "Password123" });
+        Assert.True(login.IsSuccessStatusCode, "HTTP login restores cookie session after logout");
+        var loggedIn = await client.GetFromJsonAsync<JsonElement>("/api/v1/auth/profile");
+        Assert.Equal(id, loggedIn.GetProperty("data").GetProperty("_id").GetString());
     }
 
     static async Task WebhookTestsAsync(HttpClient client)

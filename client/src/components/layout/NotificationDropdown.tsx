@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Rocket, Trophy, CalendarClock, Users, CreditCard, ShieldAlert, Info, Loader2, CheckCheck } from 'lucide-react';
 import axiosClient from '../../api/axiosClient';
 import { useAppStore } from '../../store';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 interface NotificationDropdownProps {
     isOpen: boolean;
@@ -53,7 +53,7 @@ const getIconBackground = (type: string) => {
 
 export default function NotificationDropdown({ isOpen, onClose }: NotificationDropdownProps) {
     const { setPage } = useAppStore();
-    const navigate = useNavigate();
+    const router = useRouter();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [notifications, setNotifications] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -173,7 +173,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
                                         onClick={() => {
                                             if (noti.data?.link) {
                                                 onClose();
-                                                navigate(noti.data.link);
+                                                router.push(noti.data.link);
                                             } else if (noti.type === 'GROUP' || noti.type === 'group_play') {
                                                 onClose();
                                                 setPage('chat');

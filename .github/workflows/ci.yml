@@ -28,7 +28,7 @@ jobs:
         working-directory: client
         run: npm run build
         env:
-          VITE_API_URL: http://localhost:5000
+          NEXT_PUBLIC_API_URL: http://localhost:5000
       - name: Start test MongoDB replica set
         run: |
           docker run -d --name shuttle-test-mongo -p 127.0.0.1:27018:27017 mongo:8 --replSet rs0 --bind_ip_all
@@ -54,4 +54,4 @@ jobs:
       - name: Build API image
         run: docker build -t shuttlesync/server -f server.Dockerfile .
       - name: Build frontend image
-        run: docker build -t shuttlesync/client -f client.Dockerfile --build-arg VITE_API_URL=http://localhost:5000 .
+        run: docker build -t shuttlesync/client -f client.Dockerfile --build-arg NEXT_PUBLIC_API_URL=http://localhost:5000 .

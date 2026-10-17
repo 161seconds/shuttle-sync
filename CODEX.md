@@ -8,7 +8,7 @@ This guide provides technical specifications, codebase indexing, and development
 
 ```
 shuttle-sync/
-  client/                 React, Vite, Tailwind, frontend API clients
+  client/                 Next.js, React, Tailwind, frontend API clients
   shared/                 Frontend TypeScript contracts
   ShuttleSync.API/         Controllers, auth, SignalR, middleware, DI
   ShuttleSync.Service/     Feature business logic and validation

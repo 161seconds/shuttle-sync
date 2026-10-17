@@ -1,27 +1,31 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { UserPreferences } from './type';
 
-function useLocalStorage<T>(key: string, initial: T): [T, (v: T | ((p: T) => T)) => void] {
-    const [stored, setStored] = useState<T>(() => {
+function useLocalStorage<T>(key: string, initial: T): [T, (v: T | ((p: T) => T)) => void, boolean] {
+    const [stored, setStored] = useState<T>(initial);
+    const [ready, setReady] = useState(false);
+    useEffect(() => {
         try {
             const item = window.localStorage.getItem(key);
-            return item ? JSON.parse(item) : initial;
-        } catch { return initial; }
-    });
+            if (item) setStored(JSON.parse(item));
+        } catch { /* Keep defaults if saved preferences are unavailable. */ }
+        setReady(true);
+    }, [key]);
     const setValue = (value: T | ((p: T) => T)) => {
         const val = value instanceof Function ? value(stored) : value;
         setStored(val);
         window.localStorage.setItem(key, JSON.stringify(val));
     };
-    return [stored, setValue];
+    return [stored, setValue, ready];
 }
 
 export function useOnboarding() {
-    const [hasOnboarded, setHasOnboarded] = useLocalStorage('hasOnboarded', false);
+    const [hasOnboarded, setHasOnboarded, ready] = useLocalStorage('hasOnboarded', false);
     const [preferences, setPreferences] = useLocalStorage<UserPreferences>('userPreferences', {
         sports: [], skillLevel: null, location: '',
     });
-    const [showOnboarding, setShowOnboarding] = useState(!hasOnboarded);
+    const [showOnboarding, setShowOnboarding] = useState(false);
+    useEffect(() => { if (ready) setShowOnboarding(!hasOnboarded); }, [hasOnboarded, ready]);
     const [showTour, setShowTour] = useState(false);
 
     const completeOnboarding = useCallback((prefs: UserPreferences) => {

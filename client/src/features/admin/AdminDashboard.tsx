@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import {
     ShoppingCart, DollarSign, Activity,
     ArrowUpRight, ArrowDownRight, ChevronLeft, ChevronRight, Loader2, X, Calendar, MapPin, User as UserIcon
@@ -47,12 +47,12 @@ export default function AdminDashboard() {
         setSelectedData(null);
     };
 
-    const navigate = useNavigate();
+    const router = useRouter();
 
     useEffect(() => {
         if (!user || user.role !== 'admin') {
             useAlertStore.getState().showAlert('Bạn không có quyền truy cập trang quản trị', 'Truy cập bị từ chối', 'error');
-            navigate('/', { replace: true });
+            router.replace('/');
             return;
         }
 
@@ -192,7 +192,7 @@ export default function AdminDashboard() {
                                 Khám phá ngay <ArrowDownRight className="w-5 h-5" />
                             </button>
                             <button
-                                onClick={() => navigate('/admin/vouchers')}
+                                onClick={() => router.push('/admin/vouchers')}
                                 className="bg-white/10 text-white font-black uppercase tracking-widest text-[14px] px-8 py-4 rounded-xl hover:bg-white/20 transition-all border border-white/10 active:scale-95 flex items-center gap-2"
                             >
                                 Quản lý Voucher

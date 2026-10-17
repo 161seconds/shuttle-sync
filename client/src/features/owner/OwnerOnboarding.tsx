@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { ownerApi } from '../../services/ownerApi';
 import { CustomSelect } from '../../components/ui/CustomSelect';
 import { Loader2, ArrowRight, Building2, MapPin, Phone } from 'lucide-react';
@@ -18,7 +18,7 @@ const PRESET_IMAGES = [
 
 
 export const OwnerOnboarding = () => {
-    const navigate = useNavigate();
+    const router = useRouter();
     const { showAlert } = useAlertStore();
     const [isLoading, setIsLoading] = useState(false);
     
@@ -67,7 +67,7 @@ export const OwnerOnboarding = () => {
             });
             
             showAlert("Tạo cơ sở thành công! Chào mừng bạn.", "Thành công", "success");
-            navigate('/owner/dashboard');
+            router.push('/owner/dashboard');
         } catch (error: any) {
             showAlert(error.response?.data?.message || "Có lỗi xảy ra khi tạo cơ sở", "Lỗi", "error");
         } finally {

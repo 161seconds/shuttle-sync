@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAlertStore } from '../stores/useAlertStore';
 import type { AppPage, Court, CourtFilters, User } from '../types';
 
@@ -52,12 +52,12 @@ export function AppProvider({ children }: AppProviderProps) {
     const [isSideBarOpen, setIsSideBarOpen] = useState(false);
     const [justLoggedIn, setJustLoggedIn] = useState(false);
 
-    const navigate = useNavigate();
-    const location = useLocation();
+    const router = useRouter();
+    const pathname = usePathname();
 
     // Sync URL path back to page state (for Back/Forward buttons)
     useEffect(() => {
-        const path = location.pathname;
+        const path = pathname;
         let newPage = '';
         if (path === '/') newPage = 'home';
         else if (path === '/login') newPage = 'login';
@@ -80,7 +80,7 @@ export function AppProvider({ children }: AppProviderProps) {
             setPage(newPage as AppPage);
         }
         setIsSideBarOpen(false); // Luôn đóng sidebar khi chuyển trang
-    }, [location.pathname]);
+    }, [pathname]);
 
     const setFilters = useCallback((partial: Partial<CourtFilters>) => {
         setFiltersState(prev => ({ ...prev, ...partial }));
@@ -96,17 +96,17 @@ export function AppProvider({ children }: AppProviderProps) {
         }
         setPage(newPage);
         if (newPage === 'home') {
-            if (user?.role === 'court_owner') navigate('/owner/dashboard');
-            else if (user?.role === 'admin') navigate('/admin');
-            else navigate('/');
+            if (user?.role === 'court_owner') router.push('/owner/dashboard');
+            else if (user?.role === 'admin') router.push('/admin');
+            else router.push('/');
         }
         else if (newPage === 'profile' && user?.role === 'court_owner') {
-            navigate('/owner/settings');
+            router.push('/owner/settings');
         }
-        else if (newPage === 'edit-profile') navigate('/edit-profile');
-        else if (newPage === 'match-leaderboard') navigate('/match-leaderboard');
-        else navigate(`/${newPage}`);
-    }, [navigate, user]);
+        else if (newPage === 'edit-profile') router.push('/edit-profile');
+        else if (newPage === 'match-leaderboard') router.push('/match-leaderboard');
+        else router.push(`/${newPage}`);
+    }, [router, user]);
 
     const toggleSidebar = useCallback(() => {
         setIsSideBarOpen(prev => !prev);

@@ -1,5 +1,6 @@
-import { useState, useEffect, Suspense } from 'react';
-import { useNavigate, Outlet, useLocation } from 'react-router-dom';
+import { useState, useEffect, Suspense, type ReactNode } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { useAppStore } from '../../store';
 import { ownerApi } from '../../services/ownerApi';
 import { authApi } from '../../api/auth.api';
@@ -9,17 +10,17 @@ import PremiumBackground from '../../components/ui/PremiumBackground';
 import { OwnerWelcomeFlow } from './OwnerWelcomeFlow';
 
 
-export const OwnerLayout = () => {
+export const OwnerLayout = ({ children }: { children: ReactNode }) => {
     const { user, setUser } = useAppStore();
-    const navigate = useNavigate();
-    const location = useLocation();
+    const router = useRouter();
+    const pathname = usePathname();
     
     const [isLoading, setIsLoading] = useState(true);
     const [hasVenue, setHasVenue] = useState(false);
 
     useEffect(() => {
         if (!user || user.role !== 'court_owner') {
-            navigate('/login', { replace: true });
+            router.replace('/login');
             return;
         }
 
@@ -27,8 +28,8 @@ export const OwnerLayout = () => {
             .then(stats => {
                 setHasVenue(stats.hasVenue);
                 // Nếu chưa có venue và đang không ở trang onboarding thì redirect sang onboarding
-                if (!stats.hasVenue && !location.pathname.includes('/onboarding')) {
-                    navigate('/owner/onboarding', { replace: true });
+                if (!stats.hasVenue && !pathname.includes('/onboarding')) {
+                    router.replace('/owner/onboarding');
                 }
             })
             .catch(err => {
@@ -37,13 +38,13 @@ export const OwnerLayout = () => {
             .finally(() => {
                 setIsLoading(false);
             });
-    }, [user, navigate, location.pathname]);
+    }, [user, router, pathname]);
 
     const handleLogout = async () => {
         try {
             await authApi.logout();
             setUser(null);
-            navigate('/login');
+            router.push('/login');
         } catch {
             useAlertStore.getState().showAlert('Không thể đăng xuất. Vui lòng thử lại.', 'Lỗi', 'error');
         }
@@ -73,9 +74,9 @@ export const OwnerLayout = () => {
             
             {/* Main content wrapper to sit above background */}
             <div className="flex w-full h-full relative z-10">
-                {hasVenue && !location.pathname.includes('/onboarding') && <OwnerWelcomeFlow />}
+                {hasVenue && !pathname.includes('/onboarding') && <OwnerWelcomeFlow />}
                 {/* Sidebar chỉ hiển thị khi đã có Venue (không ở trang onboarding) */}
-                {hasVenue && !location.pathname.includes('/onboarding') && (
+                {hasVenue && !pathname.includes('/onboarding') && (
                     <aside className="w-64 bg-[#0a0f16]/60 backdrop-blur-3xl border-r border-white/5 flex flex-col hidden md:flex shrink-0">
                         <div className="h-16 flex items-center px-6 border-b border-white/5">
                         <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-teal-500">
@@ -97,11 +98,11 @@ export const OwnerLayout = () => {
 
                     <nav className="flex-1 px-4 py-6 space-y-2">
                         {navigation.map((item) => {
-                            const isActive = location.pathname.startsWith(item.href);
+                            const isActive = pathname.startsWith(item.href);
                             return (
-                                <button
+                                <Link
                                     key={item.name}
-                                    onClick={() => navigate(item.href)}
+                                    href={item.href}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                                         isActive 
                                             ? 'bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]' 
@@ -110,19 +111,19 @@ export const OwnerLayout = () => {
                                 >
                                     <item.icon className="h-5 w-5" />
                                     {item.name}
-                                </button>
+                                </Link>
                             );
                         })}
                     </nav>
 
                     <div className="p-4 border-t border-white/5 space-y-2">
-                        <button
-                            onClick={() => navigate('/support')}
+                        <Link
+                            href="/support"
                             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-purple-400 hover:bg-purple-500/10 transition-all duration-200"
                         >
                             <HelpCircle className="h-5 w-5" />
                             Hỗ trợ
-                        </button>
+                        </Link>
                         <button
                             onClick={handleLogout}
                             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all duration-200"
@@ -141,7 +142,7 @@ export const OwnerLayout = () => {
                                 <div className="w-8 h-8 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin"></div>
                             </div>
                         }>
-                            <Outlet />
+                            {children}
                         </Suspense>
                     </div>
                 </main>

@@ -61,7 +61,7 @@ builder.Services.AddAuthentication("Session").AddScheme<AuthenticationSchemeOpti
 builder.Services.AddAuthorization();
 builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new BsonJsonConverter()));
 builder.Services.Configure<ApiBehaviorOptions>(options => options.InvalidModelStateResponseFactory = context => new BadRequestObjectResult(new { success = false, message = "Dữ liệu không hợp lệ", errors = context.ModelState.Where(x => x.Value?.Errors.Count > 0).ToDictionary(x => x.Key, x => x.Value!.Errors.Select(e => e.ErrorMessage).ToArray()) }));
-var origins = (builder.Configuration["ALLOWED_ORIGINS"] ?? builder.Configuration["CLIENT_URL"] ?? "http://localhost:5173").Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+var origins = (builder.Configuration["ALLOWED_ORIGINS"] ?? builder.Configuration["CLIENT_URL"] ?? "http://localhost:3000").Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
 builder.Services.AddRateLimiter(options =>
 {

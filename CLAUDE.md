@@ -7,7 +7,7 @@ This document provides essential commands, architectural patterns, and developme
 ## 1. Quick Reference & Commands
 
 ### Monorepo Structure
-- `client/`: React 19 frontend with Vite, Tailwind CSS v4, Framer Motion, and Zustand.
+- `client/`: React 19 frontend with Next.js 16 App Router, Tailwind CSS v4, Framer Motion, and Zustand.
 - `ShuttleSync.API`, `ShuttleSync.Service`, `ShuttleSync.Repository`: .NET 10 API > Service > Repository with MongoDB.
 - `ShuttleSync.Test`: xUnit integration tests against a test replica set.
 - `shared/`: Frontend TypeScript types, enums, and constants.
@@ -16,8 +16,8 @@ This document provides essential commands, architectural patterns, and developme
 ```bash
 # Frontend (Client)
 cd client
-npm run dev          # Start Vite dev server (default: http://localhost:5173)
-npm run build        # Typecheck and build production bundle (dist/)
+npm run dev          # Start Next.js dev server (default: http://localhost:3000)
+npm run build        # Typecheck and build Next.js production output (.next/)
 npx tsc --noEmit     # Verify TypeScript types without emitting files
 
 # Backend, from repository root
@@ -32,10 +32,10 @@ dotnet test ShuttleSync.Test
 ## 2. Architecture & Tech Stack
 
 ### Frontend (`/client`)
-- **Core**: React 19, TypeScript, Vite.
+- **Core**: Next.js 16 App Router, React 19, TypeScript.
 - **Styling**: Tailwind CSS v4 (configured in `src/app.css` via `@theme`), Vanilla CSS, Framer Motion.
 - **State Management**:
-  - `useAppStore` (`src/store/index.ts`): User authentication, active tab/page routing, sport filter preferences.
+  - `useAppStore` (`src/store/index.ts`): User authentication and sport filter preferences; page routing uses Next.js.
   - `useAlertStore` (`src/stores/useAlertStore.ts`): Custom toast alerts, modal confirmations, and error dialogs.
 - **Networking**: Axios client (`src/api/axiosClient.ts`) with automatic JWT refresh interceptor and base URL routing.
 - **Realtime**: SignalR at `/hubs/realtime` for court locking, chat, and notifications.

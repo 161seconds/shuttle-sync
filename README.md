@@ -8,7 +8,7 @@ ShuttleSync manages court bookings, owner operations, group play, tournaments, c
 - `ShuttleSync.Service`: business rules, validation, transactions, integrations.
 - `ShuttleSync.Repository`: MongoDB entities and database context.
 - `ShuttleSync.Test`: xUnit integration tests.
-- `client`: React, TypeScript, Vite, Tailwind CSS.
+- `client`: Next.js 16 App Router, React, TypeScript, Tailwind CSS.
 
 Dependencies follow API > Service > Repository. REST retains `/api/v1`, existing JSON envelopes, ObjectId strings, lowercase statuses, and cookie authentication. Realtime uses SignalR at `/hubs/realtime`.
 
@@ -34,7 +34,9 @@ npm ci
 npm run dev
 ```
 
-Frontend: `http://localhost:5173`. Set `VITE_API_URL=http://localhost:5000` in `client/.env` when overriding the default. Frontend build values are public; keep provider secrets on the server.
+Frontend: `http://localhost:3000`. Copy `client/.env.example` to `client/.env.local` to configure `NEXT_PUBLIC_API_URL` and public integrations. Frontend build values are public; keep provider secrets on the server. Existing `VITE_*` variables must be renamed to `NEXT_PUBLIC_*`.
+
+Production frontend: `npm run build`, then `npm start` from `client/`. Next.js serves page routes and frontend assets; the .NET API remains a separate process on port `5000`.
 
 ## Configuration
 
@@ -52,7 +54,7 @@ Frontend: `http://localhost:5173`. Set `VITE_API_URL=http://localhost:5000` in `
 
 Use `ASPNETCORE_ENVIRONMENT=Development` locally. Production requires HTTPS, secure cookies, explicit frontend origins, and valid JWT secrets. Missing provider configuration disables the corresponding integration.
 
-Frontend QR settings: `VITE_SEPAY_BANK_ID`, `VITE_SEPAY_BANK_ACC`, `VITE_SEPAY_BANK_HOLDER`. Compose derives the account number from `SEPAY_ACCOUNT_NUMBER`. Expired, cancelled, or underpaid transfers require reconciliation; paid bookings need explicit refund handling.
+Frontend QR settings: `NEXT_PUBLIC_SEPAY_BANK_ID`, `NEXT_PUBLIC_SEPAY_BANK_ACC`, `NEXT_PUBLIC_SEPAY_BANK_HOLDER`. Compose derives the account number from `SEPAY_ACCOUNT_NUMBER`. Expired, cancelled, or underpaid transfers require reconciliation; paid bookings need explicit refund handling.
 
 ## Verification
 
@@ -84,4 +86,4 @@ docker compose up --build
 
 Compose starts a single-node replica set, waits for its primary, then starts the .NET API and frontend. Database files persist in `mongodb_data`; MongoDB has no published port. Compose uses `badminton_db`; standalone development defaults to `shuttle_sync`. Set `MONGO_URI` explicitly when connecting to existing data. Back up data before deployment.
 
-Default frontend: `http://localhost`. API: `http://localhost:5000`. Configure `VITE_API_URL` to the API address reachable by the browser; set `ALLOWED_ORIGINS` to the deployed frontend origins. Rebuild the frontend image after changing build variables.
+Default frontend: `http://localhost` (host port `80` maps to Next.js port `3000`). API: `http://localhost:5000`. The frontend image runs the Next.js standalone Node server. Configure `NEXT_PUBLIC_API_URL` to the API address reachable by the browser; set `ALLOWED_ORIGINS` to the deployed frontend origins. Rebuild the frontend image after changing build variables.
