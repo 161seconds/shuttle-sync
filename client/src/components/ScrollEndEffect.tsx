@@ -56,19 +56,22 @@ export default function ScrollEndEffect({ containerRef }: { containerRef?: React
         <AnimatePresence>
             {isAtBottom && (
                 <motion.div
-                    initial={{ opacity: 0, scaleY: 0 }}
-                    animate={{ opacity: 1, scaleY: 1 }}
-                    exit={{ opacity: 0, scaleY: 0 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none z-50 origin-bottom"
+                    aria-hidden="true"
+                    initial={{ opacity: 0, scaleX: 0.65, y: 6 }}
+                    animate={{ opacity: 1, scaleX: 1, y: 0 }}
+                    exit={{ opacity: 0, scaleX: 1.08, y: 3, transition: { duration: 0.55 } }}
+                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute bottom-0 inset-x-0 mx-auto h-16 w-full max-w-2xl pointer-events-none z-50 overflow-hidden motion-reduce:hidden"
                     style={{
-                        background: 'linear-gradient(to top, rgba(16, 185, 129, 0.15) 0%, transparent 100%)',
+                        background: 'radial-gradient(ellipse at 50% 100%, rgba(16,185,129,0.18), rgba(45,212,191,0.05) 40%, transparent 72%)',
                     }}
                 >
-                    <motion.div 
-                        animate={{ opacity: [0.3, 0.6, 0.3] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60%] h-8 bg-emerald-500/20 blur-xl rounded-full"
+                    <div
+                        className="absolute bottom-0 inset-x-0 mx-auto h-px w-3/4 max-w-sm"
+                        style={{
+                            background: 'linear-gradient(90deg, transparent, rgba(52,211,153,0.3) 25%, rgba(167,243,208,0.8) 50%, rgba(52,211,153,0.3) 75%, transparent)',
+                            boxShadow: '0 -2px 12px rgba(16,185,129,0.2)',
+                        }}
                     />
                 </motion.div>
             )}

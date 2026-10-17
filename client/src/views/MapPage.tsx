@@ -634,7 +634,7 @@ export default function MapPage() {
     if (!VIETMAP_KEY) return <div className="h-full flex items-center justify-center text-emerald-500 font-bold bg-card">Thiếu KEY Bản đồ</div>;
 
     return (
-        <div className="relative w-full h-[calc(100dvh-64px)] overflow-hidden font-sans">
+        <div className="relative w-full h-[calc(100dvh-4rem)] overflow-hidden font-sans">
             <div ref={mapContainer} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} className="bg-card" />
 
             <div className="absolute top-0 left-0 right-0 h-40 bg-linear-to-b from-background via-background/50 to-transparent z-10 pointer-events-none" />
