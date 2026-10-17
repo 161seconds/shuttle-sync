@@ -5,7 +5,7 @@ using ShuttleSync.Service.Exceptions;
 
 namespace ShuttleSync.API.Controllers;
 [Route("api/v1/bookings")]
-public sealed class BookingsController(BookingService bookings) : ApiControllerBase
+public sealed class BookingsController(IBookingService bookings) : ApiControllerBase
 {
     [HttpGet("court/{courtId}")]
     public async Task<IActionResult> Court(string courtId, [FromQuery] string? date, CancellationToken ct) => Success(await bookings.CourtBookingsAsync(courtId, date, ct));

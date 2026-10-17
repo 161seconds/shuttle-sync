@@ -9,9 +9,8 @@ This guide provides technical specifications, codebase indexing, and development
 ```
 shuttle-sync/
   client/                 Next.js, React, Tailwind, frontend API clients
-  shared/                 Frontend TypeScript contracts
   ShuttleSync.API/         Controllers, auth, SignalR, middleware, DI
-  ShuttleSync.Service/     Feature business logic and validation
+  ShuttleSync.Service/     Feature modules: Request.cs, Response.cs, IService.cs, Service.cs, Validator/
   ShuttleSync.Repository/  MongoDB entities and MongoContext
   ShuttleSync.Test/        xUnit integration tests
 ```

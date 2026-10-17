@@ -1,3 +1,4 @@
+using ShuttleSync.Service.AiCoach.Validator;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -6,11 +7,11 @@ using ShuttleSync.Service.Common;
 using ShuttleSync.Service.Exceptions;
 
 namespace ShuttleSync.Service.AiCoach;
-public sealed class Service(HttpClient http, IConfiguration config)
+public sealed class Service(HttpClient http, IConfiguration config) : IAiCoachService
 {
-    public async Task<object> AskAsync(string? message, CancellationToken ct)
+    public async Task<CoachResponse> AskAsync(AskRequest request, CancellationToken ct)
     {
-        message = Guard.Text(message, "Message", 4000);
+        var message = CoachValidator.Message(request);
         var key = config["GEMINI_API_KEY"];
         if (string.IsNullOrWhiteSpace(key))
             throw new ApiException(503, "AI Coach is not configured");
@@ -35,19 +36,12 @@ public sealed class Service(HttpClient http, IConfiguration config)
             try
             {
                 using var answer = JsonDocument.Parse(text);
-                return new
-                {
-                    reply = answer.RootElement.GetProperty("reply").GetString(),
-                    suggestions = answer.RootElement.TryGetProperty("suggestions", out var suggestions) ? suggestions.Clone() : JsonSerializer.SerializeToElement(Array.Empty<string>())
-                };
+                return new CoachResponse(answer.RootElement.GetProperty("reply").GetString(),
+                    answer.RootElement.TryGetProperty("suggestions", out var suggestions) ? suggestions.Clone() : JsonSerializer.SerializeToElement(Array.Empty<string>()));
             }
             catch (JsonException)
             {
-                return new
-                {
-                    reply = text,
-                    suggestions = Array.Empty<string>()
-                };
+                return new CoachResponse(text, JsonSerializer.SerializeToElement(Array.Empty<string>()));
             }
         }
 

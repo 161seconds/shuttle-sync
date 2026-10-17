@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
+using ShuttleSync.Service.Auth.Validator;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 using MailKit.Net.Smtp;
@@ -13,7 +13,7 @@ using ShuttleSync.Service.Common;
 using ShuttleSync.Service.Exceptions;
 
 namespace ShuttleSync.Service.Auth;
-public sealed class Service(MongoContext db, TokenService tokens, IRealtime realtime, IConfiguration config)
+public sealed class Service(MongoContext db, TokenService tokens, IRealtime realtime, IConfiguration config) : IAuthService
 {
     public async Task<ClaimsPrincipal?> ValidateAccessTokenAsync(string token, CancellationToken ct = default)
     {
@@ -41,22 +41,6 @@ public sealed class Service(MongoContext db, TokenService tokens, IRealtime real
         return principal;
     }
 
-    public static string Password(string? value)
-    {
-        if (value is null || value.Length < 6 || value.Length > 50)
-            throw ApiException.BadRequest("Mật khẩu phải có từ 6 đến 50 ký tự");
-        if (!Regex.IsMatch(value, @"[a-z]") || !Regex.IsMatch(value, @"[A-Z]") || !Regex.IsMatch(value, @"[0-9]"))
-            throw ApiException.BadRequest("Mật khẩu phải có chữ hoa, chữ thường và chữ số");
-        return value;
-    }
-
-    static string? Phone(string? phone)
-    {
-        if (phone is not null && !Regex.IsMatch(phone, @"^(0|\+84)\d{9}$"))
-            throw ApiException.BadRequest("Số điện thoại không hợp lệ");
-        return phone;
-    }
-
     public async Task<Session> RegisterAsync(RegisterRequest request, CancellationToken ct)
     {
         var email = Guard.Email(request.Email);
@@ -66,8 +50,8 @@ public sealed class Service(MongoContext db, TokenService tokens, IRealtime real
         {
             Email = email,
             DisplayName = Guard.Text(request.DisplayName, "DisplayName", 50, 2),
-            Phone = Phone(request.Phone),
-            Password = BCrypt.Net.BCrypt.HashPassword(Password(request.Password), 12)
+            Phone = AuthValidator.Phone(request.Phone),
+            Password = BCrypt.Net.BCrypt.HashPassword(AuthValidator.Password(request.Password), 12)
         };
         await db.Users.InsertOneAsync(user, cancellationToken: ct);
         return await SessionAsync(user, ct);
@@ -94,12 +78,21 @@ public sealed class Service(MongoContext db, TokenService tokens, IRealtime real
             throw ApiException.Unauthorized("Tài khoản đã bị khóa");
     }
 
+    static FilterDefinition<User> SessionFilter(User user)
+    {
+        var filter = Builders<User>.Filter;
+        var version = filter.Eq(x => x.TokenVersion, user.TokenVersion);
+        if (user.TokenVersion == 0)
+            version |= filter.Exists(x => x.TokenVersion, false);
+        return filter.Eq(x => x.Id, user.Id) & version & (filter.Eq(x => x.Status, "active") | filter.Exists(x => x.Status, false));
+    }
+
     async Task<Session> SessionAsync(User user, CancellationToken ct)
     {
         await ActiveAsync(user, ct);
         var access = tokens.Create(user);
         var refresh = tokens.Create(user, true);
-        var saved = await db.Users.UpdateOneAsync(x => x.Id == user.Id && x.TokenVersion == user.TokenVersion && x.Status == "active", Builders<User>.Update.PushEach(x => x.RefreshTokens, [refresh], slice: -5).Set(x => x.LastLoginAt, DateTime.UtcNow), cancellationToken: ct);
+        var saved = await db.Users.UpdateOneAsync(SessionFilter(user), Builders<User>.Update.Set(x => x.TokenVersion, user.TokenVersion).Set(x => x.Status, "active").PushEach(x => x.RefreshTokens, [refresh], slice: -5).Set(x => x.LastLoginAt, DateTime.UtcNow), cancellationToken: ct);
         if (saved.MatchedCount == 0)
             throw ApiException.Unauthorized();
         return new(user, access, refresh);
@@ -113,7 +106,7 @@ public sealed class Service(MongoContext db, TokenService tokens, IRealtime real
         await ActiveAsync(user, ct);
         if (user.TokenVersion != (int.TryParse(principal.FindFirstValue("tokenVersion"), out var v) ? v : 0))
             throw ApiException.Unauthorized();
-        var consumed = await db.Users.UpdateOneAsync(x => x.Id == id && x.RefreshTokens.Contains(token) && x.Status == "active" && x.TokenVersion == user.TokenVersion, Builders<User>.Update.Pull(x => x.RefreshTokens, token), cancellationToken: ct);
+        var consumed = await db.Users.UpdateOneAsync(SessionFilter(user) & Builders<User>.Filter.AnyEq(x => x.RefreshTokens, token), Builders<User>.Update.Pull(x => x.RefreshTokens, token), cancellationToken: ct);
         if (consumed.ModifiedCount == 0)
         {
             await db.Users.UpdateOneAsync(x => x.Id == id, Builders<User>.Update.Set(x => x.RefreshTokens, new List<string>()), cancellationToken: ct);
@@ -129,7 +122,7 @@ public sealed class Service(MongoContext db, TokenService tokens, IRealtime real
         var user = await db.Users.Find(x => x.Id == id).FirstOrDefaultAsync(ct) ?? throw ApiException.NotFound();
         if (user.Password is null || !BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.Password))
             throw ApiException.BadRequest("Mật khẩu hiện tại không chính xác");
-        var result = await db.Users.UpdateOneAsync(x => x.Id == id && x.Password == user.Password, Builders<User>.Update.Set(x => x.Password, BCrypt.Net.BCrypt.HashPassword(Password(request.NewPassword), 12)).Set(x => x.RefreshTokens, new List<string>()).Inc(x => x.TokenVersion, 1), cancellationToken: ct);
+        var result = await db.Users.UpdateOneAsync(x => x.Id == id && x.Password == user.Password, Builders<User>.Update.Set(x => x.Password, BCrypt.Net.BCrypt.HashPassword(AuthValidator.Password(request.NewPassword), 12)).Set(x => x.RefreshTokens, new List<string>()).Inc(x => x.TokenVersion, 1), cancellationToken: ct);
         if (result.ModifiedCount == 0)
             throw ApiException.Conflict("Mật khẩu đã được thay đổi, vui lòng thử lại");
         await realtime.DisconnectAsync(id, ct);
@@ -174,9 +167,8 @@ public sealed class Service(MongoContext db, TokenService tokens, IRealtime real
     public async Task<Session> VerifyOtpAsync(string email, string? otp, CancellationToken ct)
     {
         email = Guard.Email(email);
-        if (otp is null || !Regex.IsMatch(otp, @"^\d{6}$"))
-            throw ApiException.BadRequest("Mã OTP không hợp lệ");
-        var digest = Digest(otp);
+        AuthValidator.Otp(otp);
+        var digest = Digest(otp!);
         var user = await db.Users.FindOneAndUpdateAsync(x => x.Email == email && x.OtpCode == digest && x.OtpExpires > DateTime.UtcNow && x.OtpAttempts < 5 && x.Status == "active", Builders<User>.Update.Unset(x => x.OtpCode).Unset(x => x.OtpExpires).Set(x => x.OtpAttempts, 0), new FindOneAndUpdateOptions<User> { ReturnDocument = ReturnDocument.After }, ct);
         if (user is null)
         {

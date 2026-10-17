@@ -1,3 +1,5 @@
+using MongoDB.Driver;
+using BookingEntity = ShuttleSync.Repository.Entities.Booking;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -8,6 +10,7 @@ using ShuttleSync.Service.Exceptions;
 namespace ShuttleSync.Service.Booking;
 public static class BookingRules
 {
+    public static FilterDefinition<BookingEntity> ActiveFilter(DateTime now) => Builders<BookingEntity>.Filter.Where(b => b.Status == "confirmed" || b.Status == "completed" || (b.Status == "pending_payment" && b.Payment.ExpiresAt > now));
     public static readonly string[] Sports = ["BADMINTON", "PICKLEBALL", "TENNIS"];
     public static readonly string[] Statuses = ["pending_payment", "confirmed", "completed", "cancelled", "no_show"];
     public static readonly string[] ExpenseCategories = ["Mặt bằng", "Điện Nước", "Nhân sự", "Bảo trì", "Marketing", "Khác"];
@@ -45,21 +48,6 @@ public static class BookingRules
         if (!Sports.Contains(value))
             throw ApiException.BadRequest("Môn thể thao không hợp lệ");
         return value;
-    }
-
-    public static List<DateTime> Dates(CreateBookingRequest input)
-    {
-        Guard.Id(input.CourtId);
-        Guard.Id(input.SubCourtId);
-        Range(input.StartTime, input.EndTime);
-        var date = Date(input.Date);
-        if (date < Today)
-            throw ApiException.BadRequest("Không thể đặt sân trong quá khứ");
-        if (input.Type is "casual" or "group_play" or "tournament")
-            return[date];
-        if (input.Type != "fixed" || input.Months is null or < 1 or > 12 || input.DaysOfWeek is not { Count: > 0 and <= 7 } days || days.Distinct().Count() != days.Count || days.Any(d => d is < 0 or > 6))
-            throw ApiException.BadRequest("Gói cố định không hợp lệ");
-        return days.SelectMany(day => Enumerable.Range(0, input.Months.Value * 4).Select(week => date.AddDays((day - (int)date.DayOfWeek + 7) % 7 + week * 7))).Order().ToList();
     }
 
     public static double Price(Court court, DateTime date, string start, string end)

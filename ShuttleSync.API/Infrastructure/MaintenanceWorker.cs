@@ -16,7 +16,7 @@ public sealed class MaintenanceWorker(IServiceScopeFactory scopes, ILogger<Maint
             {
                 using var scope = scopes.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<MongoContext>();
-                await scope.ServiceProvider.GetRequiredService<BookingService>().CleanupExpiredAsync(stoppingToken);
+                await scope.ServiceProvider.GetRequiredService<IBookingService>().CleanupExpiredAsync(stoppingToken);
                 // Update only expired locks; a fresh lock can never be cleared by this cleanup.
                 var slots = db.Database.GetCollection<BsonDocument>("timeslots");
                 await slots.UpdateManyAsync(new BsonDocument { { "status", "selected" }, { "lockedAt", new BsonDocument("$lt", DateTime.UtcNow.AddMinutes(-5)) } }, new BsonDocument("$set", new BsonDocument { { "status", "available" }, { "lockedBy", BsonNull.Value }, { "lockedAt", BsonNull.Value } }), cancellationToken: stoppingToken);

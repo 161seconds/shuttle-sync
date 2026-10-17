@@ -1,3 +1,4 @@
+using ShuttleSync.Service.NotificationService.Validator;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using ShuttleSync.Repository;
@@ -24,16 +25,16 @@ public sealed class Service(MongoContext db, IRealtime realtime) : INotification
         return notification;
     }
 
-    public async Task<(object Data, object Pagination)> GetAsync(string userId, bool unreadOnly, int page, int limit, CancellationToken ct)
+    public async Task<(object Data, object Pagination)> GetAsync(string userId, NotificationQuery query, CancellationToken ct)
     {
-        (page, limit) = Guard.Page(page, limit);
+        var (page, limit) = NotificationValidator.Page(query);
         var filter = Builders<Notification>.Filter.Eq(n => n.UserId, userId);
-        if (unreadOnly)
+        if (query.UnreadOnly)
             filter &= Builders<Notification>.Filter.Eq(n => n.IsRead, false);
         var total = await db.Notifications.CountDocumentsAsync(filter, cancellationToken: ct);
         var notifications = await db.Notifications.Find(filter).SortByDescending(n => n.CreatedAt).Skip((page - 1) * limit).Limit(limit).ToListAsync(ct);
         var unreadCount = await db.Notifications.CountDocumentsAsync(n => n.UserId == userId && !n.IsRead, cancellationToken: ct);
-        return (new { notifications, unreadCount }, Guard.Pagination(page, limit, total));
+        return (new NotificationListResponse(notifications, unreadCount), Guard.Pagination(page, limit, total));
     }
 
     public async Task ReadAsync(string id, string userId, CancellationToken ct)

@@ -1,6 +1,9 @@
+using ShuttleSync.Service.Account;
+using ShuttleSync.Service.Community;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using ShuttleSync.Repository;
 using ShuttleSync.Repository.Entities;
@@ -13,20 +16,53 @@ public static class IdentityTests
     public static async Task RunAsync(MongoContext db, IServiceProvider services)
     {
         var ct = CancellationToken.None;
-        var auth = services.GetRequiredService<ShuttleSync.Service.Auth.Service>();
-        var admin = services.GetRequiredService<ShuttleSync.Service.Admin.Service>();
-        var community = services.GetRequiredService<ShuttleSync.Service.Community.Service>();
+        var auth = services.GetRequiredService<ShuttleSync.Service.Auth.IAuthService>();
+        var admin = services.GetRequiredService<ShuttleSync.Service.Admin.IAdminService>();
+        var community = services.GetRequiredService<ShuttleSync.Service.Community.ICommunityService>();
         await community.EnsureIndexesAsync(ct);
         var email = $"identity-{Guid.NewGuid():N}@example.test";
-        var account = services.GetRequiredService<ShuttleSync.Service.Account.Service>();
+        var account = services.GetRequiredService<ShuttleSync.Service.Account.IAccountService>();
         foreach (var invalidProfile in new[] { "{\"displayName\":42}", "{\"phone\":false}", "{\"avatar\":{}}", "{\"sportPreferences\":null}", "{\"sportPreferences\":[42]}", "{\"settings\":null}", "{\"settings\":{\"notifications\":\"true\"}}", "{\"settings\":{\"language\":7}}" })
         {
             using var invalid = System.Text.Json.JsonDocument.Parse(invalidProfile);
-            await TestAssert.ThrowsAsync<ApiException>(() => account.UpdateAsync(MongoDB.Bson.ObjectId.GenerateNewId().ToString(), invalid.RootElement, ct), "malformed profile JSON rejects before Mongo write");
+            await TestAssert.ThrowsAsync<ApiException>(() => account.UpdateAsync(MongoDB.Bson.ObjectId.GenerateNewId().ToString(), System.Text.Json.JsonSerializer.Deserialize<ProfileRequest>(invalid.RootElement)!, ct), "malformed profile JSON rejects before Mongo write");
         }
         var registered = await auth.RegisterAsync(new RegisterRequest(email, "Password123", "Test Player"), ct);
         Assert.True(registered.User.Role == "user" && BCrypt.Net.BCrypt.Verify("Password123", registered.User.Password), "registration stores bcrypt and user role");
         Assert.True(await auth.ValidateAccessTokenAsync(registered.AccessToken, ct) != null, "issued JWT validates current Mongo user");
+        var rawUsers = db.Database.GetCollection<BsonDocument>("users");
+        foreach (var missingFields in new[] { new[] { "tokenVersion" }, new[] { "status" }, new[] { "tokenVersion", "status" } })
+        {
+            var legacy = new User { Email = $"legacy-auth-{Guid.NewGuid():N}@example.test", DisplayName = "Legacy login", Password = registered.User.Password };
+            var document = legacy.ToBsonDocument();
+            foreach (var field in missingFields) document.Remove(field);
+            await rawUsers.InsertOneAsync(document, cancellationToken: ct);
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(legacy.Id));
+            await TestAssert.ThrowsAsync<ApiException>(() => auth.LoginAsync(new LoginRequest(legacy.Email, "wrong"), ct), "legacy wrong password rejected");
+            var unchanged = await rawUsers.Find(filter).FirstAsync(ct);
+            foreach (var field in missingFields) Assert.False(unchanged.Contains(field), "failed login must not initialize " + field);
+            var session = await auth.LoginAsync(new LoginRequest(legacy.Email, "Password123"), ct);
+            var initialized = await rawUsers.Find(filter).FirstAsync(ct);
+            Assert.Equal(0, initialized["tokenVersion"].AsInt32);
+            Assert.Equal("active", initialized["status"].AsString);
+            Assert.NotNull(await auth.ValidateAccessTokenAsync(session.AccessToken, ct));
+            // Recreate a legacy session with a persisted refresh token and missing default fields.
+            await rawUsers.UpdateOneAsync(filter, new BsonDocument("$unset", new BsonDocument(missingFields.Select(field => new BsonElement(field, 1)))), cancellationToken: ct);
+            var legacyRefresh = await auth.RefreshAsync(session.RefreshToken, ct);
+            initialized = await rawUsers.Find(filter).FirstAsync(ct);
+            Assert.Equal(0, initialized["tokenVersion"].AsInt32);
+            Assert.Equal("active", initialized["status"].AsString);
+            Assert.NotEqual(session.RefreshToken, legacyRefresh.RefreshToken);
+            await rawUsers.UpdateOneAsync(filter, Builders<BsonDocument>.Update.Inc("tokenVersion", 1), cancellationToken: ct);
+            await TestAssert.ThrowsAsync<ApiException>(() => auth.RefreshAsync(legacyRefresh.RefreshToken, ct), "legacy compatibility does not bypass version revocation");
+            Assert.Null(await auth.ValidateAccessTokenAsync(legacyRefresh.AccessToken, ct));
+            Assert.Equal(1, (await rawUsers.Find(filter).FirstAsync(ct))["tokenVersion"].AsInt32);
+            var current = await auth.LoginAsync(new LoginRequest(legacy.Email, "Password123"), ct);
+            await rawUsers.UpdateOneAsync(filter, Builders<BsonDocument>.Update.Set("status", "banned"), cancellationToken: ct);
+            await TestAssert.ThrowsAsync<ApiException>(() => auth.LoginAsync(new LoginRequest(legacy.Email, "Password123"), ct), "legacy compatibility does not allow banned login");
+            await TestAssert.ThrowsAsync<ApiException>(() => auth.RefreshAsync(current.RefreshToken, ct), "legacy compatibility does not allow banned refresh");
+            Assert.Equal("banned", (await rawUsers.Find(filter).FirstAsync(ct))["status"].AsString);
+        }
         await TestAssert.ThrowsAsync<ApiException>(() => auth.LoginAsync(new LoginRequest(email, "wrong"), ct), "wrong password rejected");
         var logged = await auth.LoginAsync(new LoginRequest(email, "Password123"), ct);
         Assert.True(await auth.ValidateAccessTokenAsync(logged.AccessToken, ct) != null, "bcrypt account login remains compatible");
@@ -64,8 +100,8 @@ public static class IdentityTests
             DisplayName = "Owner"
         };
         await db.Users.InsertOneAsync(applicant, cancellationToken: ct);
-        var application = await community.ApplyAsync(applicant.Id, new OwnerApplication { CourtName = "Identity Court", CourtAddress = new() { Street = "Street", Ward = "Ward", District = "District", FullAddress = "Full address" }, CourtLocation = new() { Lat = 10, Lng = 106 }, SportTypes = ["badminton"], IdentityDocument = "identity.pdf" }, ct);
-        await TestAssert.ThrowsAsync<ApiException>(() => community.ApplyAsync(applicant.Id, new OwnerApplication { CourtName = "Other Court", CourtAddress = application.CourtAddress, CourtLocation = application.CourtLocation, SportTypes = ["badminton"], IdentityDocument = "id" }, ct), "duplicate pending owner application rejected");
+        var application = await community.ApplyAsync(applicant.Id, new OwnerApplicationRequest { CourtName = "Identity Court", CourtAddress = new() { Street = "Street", Ward = "Ward", District = "District", FullAddress = "Full address" }, CourtLocation = new() { Lat = 10, Lng = 106 }, SportTypes = ["badminton"], IdentityDocument = "identity.pdf" }, ct);
+        await TestAssert.ThrowsAsync<ApiException>(() => community.ApplyAsync(applicant.Id, new OwnerApplicationRequest { CourtName = "Other Court", CourtAddress = application.CourtAddress, CourtLocation = application.CourtLocation, SportTypes = ["badminton"], IdentityDocument = "id" }, ct), "duplicate pending owner application rejected");
         await admin.ReviewAsync(application.Id, administrator.Id, "approved", null, ct);
         await admin.ReviewAsync(application.Id, administrator.Id, "approved", null, ct);
         Assert.True(await db.Collection<Venue>("venues").CountDocumentsAsync(x => x.OwnerId == applicant.Id, cancellationToken: ct) == 1, "approval idempotently creates one venue");
@@ -82,17 +118,17 @@ public static class IdentityTests
             BookingCode = "CHECK-" + Guid.NewGuid().ToString("N")
         };
         await db.Collection<Booking>("bookings").InsertOneAsync(booking, cancellationToken: ct);
-        await TestAssert.ThrowsAsync<ApiException>(() => community.ReviewAsync(applicant.Id, new Review { CourtId = venue.Id, BookingId = booking.Id, Rating = 5 }, ct), "review rejects another user's booking");
-        await community.ReviewAsync(registered.User.Id, new Review { CourtId = venue.Id, BookingId = booking.Id, Rating = 4 }, ct);
-        await TestAssert.ThrowsAsync<MongoWriteException>(() => community.ReviewAsync(registered.User.Id, new Review { CourtId = venue.Id, BookingId = booking.Id, Rating = 5 }, ct), "duplicate booking review rejected by unique index");
+        await TestAssert.ThrowsAsync<ApiException>(() => community.ReviewAsync(applicant.Id, new ReviewRequest { CourtId = venue.Id, BookingId = booking.Id, Rating = 5 }, ct), "review rejects another user's booking");
+        await community.ReviewAsync(registered.User.Id, new ReviewRequest { CourtId = venue.Id, BookingId = booking.Id, Rating = 4 }, ct);
+        await TestAssert.ThrowsAsync<MongoWriteException>(() => community.ReviewAsync(registered.User.Id, new ReviewRequest { CourtId = venue.Id, BookingId = booking.Id, Rating = 5 }, ct), "duplicate booking review rejected by unique index");
         venue = await db.Collection<Venue>("venues").Find(x => x.Id == venue.Id).FirstAsync(ct);
         Assert.True(venue.Rating.TotalScore == 4 && venue.Rating.ReviewsCount == 1, "review rating totals update once atomically");
-        var dashboard = System.Text.Json.JsonSerializer.SerializeToElement(await admin.DashboardAsync(ct));
+        var dashboard = System.Text.Json.JsonSerializer.SerializeToElement(await admin.DashboardAsync(ct), new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
         var expectedCourts = await db.Collection<Venue>("venues").CountDocumentsAsync(x => x.IsActive, cancellationToken: ct);
         var expectedBookings = await db.Collection<Booking>("bookings").Find(x => x.Status == "confirmed" || x.Status == "completed").ToListAsync(ct);
         Assert.True(dashboard.GetProperty("totalCourts").GetInt64() == expectedCourts, "admin dashboard counts active venues");
         Assert.True(dashboard.GetProperty("totalBookings").GetInt32() == expectedBookings.Count && dashboard.GetProperty("totalRevenue").GetDouble() == expectedBookings.Sum(x => x.FinalAmount), "admin dashboard retains completed booking revenue");
-        var report = await community.ReportAsync(registered.User.Id, new Report { TargetCourtId = venue.Id, Description = "Report venue fixture", Reason = "other" }, ct);
+        var report = await community.ReportAsync(registered.User.Id, new ReportRequest { TargetCourtId = venue.Id, Description = "Report venue fixture", Reason = "other" }, ct);
         var reports = await admin.ListAsync("reports", null, null, null, null, 1, 100, ct);
         var reportItems = System.Text.Json.JsonSerializer.SerializeToElement(reports.Data).EnumerateArray();
         var populatedReport = reportItems.Single(x => x.GetProperty("_id").GetString() == report.Id);

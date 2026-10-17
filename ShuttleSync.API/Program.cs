@@ -12,15 +12,12 @@ using ShuttleSync.Repository.Entities;
 using ShuttleSync.Service.Common;
 using ShuttleSync.Service.Exceptions;
 using ShuttleSync.Service.Booking;
-using ShuttleSync.Service.Social;
 using ShuttleSync.API.Hubs;
 
 var envPath = new[]
 {
     ".env",
-    "../.env",
-    "server/.env",
-    "../server/.env"
+    "../.env"
 }.FirstOrDefault(File.Exists);
 if (envPath is not null)
     DotNetEnv.Env.NoClobber().Load(envPath);
@@ -38,22 +35,21 @@ if (builder.Configuration["ASPNETCORE_URLS"] is null)
     builder.WebHost.UseUrls($"http://0.0.0.0:{builder.Configuration["PORT"] ?? "5000"}");
 builder.Services.AddSingleton(_ => new MongoContext(builder.Configuration["MONGO_URI"] ?? "mongodb://localhost:27017/shuttle_sync?replicaSet=rs0"));
 builder.Services.AddSingleton<ShuttleSync.Service.Auth.TokenService>();
-builder.Services.AddScoped<ShuttleSync.Service.Auth.Service>();
-builder.Services.AddScoped<ShuttleSync.Service.Account.Service>();
-builder.Services.AddScoped<ShuttleSync.Service.Admin.Service>();
-builder.Services.AddHttpClient<ShuttleSync.Service.AiCoach.Service>();
-builder.Services.AddScoped<ShuttleSync.Service.NotificationService.Service>();
-builder.Services.AddScoped<ShuttleSync.Service.NotificationService.INotificationService>(sp => sp.GetRequiredService<ShuttleSync.Service.NotificationService.Service>());
-builder.Services.AddScoped<BookingService>();
-builder.Services.AddScoped<OwnerService>();
-builder.Services.AddScoped<CourtService>();
-builder.Services.AddScoped<VoucherService>();
-builder.Services.AddScoped<ChatService>();
-builder.Services.AddScoped<FriendService>();
-builder.Services.AddScoped<GroupPlayService>();
-builder.Services.AddScoped<TournamentService>();
-builder.Services.AddScoped<RealtimeSlotService>();
-builder.Services.AddScoped<ShuttleSync.Service.Community.Service>();
+builder.Services.AddScoped<ShuttleSync.Service.Auth.IAuthService, ShuttleSync.Service.Auth.Service>();
+builder.Services.AddScoped<ShuttleSync.Service.Account.IAccountService, ShuttleSync.Service.Account.Service>();
+builder.Services.AddScoped<ShuttleSync.Service.Admin.IAdminService, ShuttleSync.Service.Admin.Service>();
+builder.Services.AddHttpClient<ShuttleSync.Service.AiCoach.IAiCoachService, ShuttleSync.Service.AiCoach.Service>();
+builder.Services.AddScoped<ShuttleSync.Service.Booking.IBookingService, ShuttleSync.Service.Booking.BookingService>();
+builder.Services.AddScoped<ShuttleSync.Service.Courts.ICourtService, ShuttleSync.Service.Courts.CourtService>();
+builder.Services.AddScoped<ShuttleSync.Service.Owner.IOwnerService, ShuttleSync.Service.Owner.OwnerService>();
+builder.Services.AddScoped<ShuttleSync.Service.Vouchers.IVoucherService, ShuttleSync.Service.Vouchers.VoucherService>();
+builder.Services.AddScoped<ShuttleSync.Service.Chat.IChatService, ShuttleSync.Service.Chat.ChatService>();
+builder.Services.AddScoped<ShuttleSync.Service.Friends.IFriendService, ShuttleSync.Service.Friends.FriendService>();
+builder.Services.AddScoped<ShuttleSync.Service.GroupPlays.IGroupPlayService, ShuttleSync.Service.GroupPlays.GroupPlayService>();
+builder.Services.AddScoped<ShuttleSync.Service.Tournaments.ITournamentService, ShuttleSync.Service.Tournaments.TournamentService>();
+builder.Services.AddScoped<ShuttleSync.Service.RealtimeSlots.IRealtimeSlotService, ShuttleSync.Service.RealtimeSlots.RealtimeSlotService>();
+builder.Services.AddScoped<ShuttleSync.Service.Community.ICommunityService, ShuttleSync.Service.Community.Service>();
+builder.Services.AddScoped<ShuttleSync.Service.NotificationService.INotificationService, ShuttleSync.Service.NotificationService.Service>();
 builder.Services.AddSingleton<SignalRRealtime>();
 builder.Services.AddSingleton<IRealtime>(sp => sp.GetRequiredService<SignalRRealtime>());
 builder.Services.AddSignalR(options => options.MaximumReceiveMessageSize = 64 * 1024).AddJsonProtocol(options => options.PayloadSerializerOptions.Converters.Add(new BsonJsonConverter()));
@@ -136,8 +132,8 @@ using (var scope = app.Services.CreateScope())
     if (!hello.Contains("setName") && hello.GetValue("msg", "") != "isdbgrid")
         throw new InvalidOperationException("MongoDB replica set or Atlas is required for booking transactions");
     await db.Users.Indexes.CreateOneAsync(new CreateIndexModel<User>(Builders<User>.IndexKeys.Ascending(u => u.Email), new CreateIndexOptions { Unique = true }));
-    await scope.ServiceProvider.GetRequiredService<BookingService>().InitializeIndexesAsync();
-    await scope.ServiceProvider.GetRequiredService<ShuttleSync.Service.Community.Service>().EnsureIndexesAsync();
+    await scope.ServiceProvider.GetRequiredService<IBookingService>().InitializeIndexesAsync();
+    await scope.ServiceProvider.GetRequiredService<ShuttleSync.Service.Community.ICommunityService>().EnsureIndexesAsync();
     await SocialIndexes.EnsureIndexesAsync(db);
     _ = scope.ServiceProvider.GetRequiredService<ShuttleSync.Service.Auth.TokenService>();
 }

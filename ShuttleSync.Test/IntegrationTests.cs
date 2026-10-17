@@ -113,6 +113,14 @@ public sealed class IntegrationTests : IAsyncLifetime
         Assert.True(user.GetProperty("role").GetString() == "user" && ObjectId.TryParse(user.GetProperty("_id").GetString(), out _), "HTTP user role allowlist and ObjectId contract");
         Assert.True(!body.Contains("password", StringComparison.OrdinalIgnoreCase) && !body.Contains("refreshTokens") && !body.Contains("tokenVersion"), "HTTP user excludes secrets");
         Assert.True((await client.GetAsync("/api/v1/auth/profile")).IsSuccessStatusCode, "HTTP auth accepts HttpOnly cookies");
+        Assert.True((await client.PutAsJsonAsync("/api/v1/auth/profile", new { displayName = "Updated Player", avatar = (string?)null, role = "admin" })).IsSuccessStatusCode);
+        var updated = (await client.GetFromJsonAsync<JsonElement>("/api/v1/users/profile")).GetProperty("data");
+        Assert.Equal("Updated Player", updated.GetProperty("displayName").GetString());
+        Assert.Equal("user", updated.GetProperty("role").GetString());
+        Assert.Equal(JsonValueKind.Null, updated.GetProperty("avatar").ValueKind);
+        Assert.True(updated.GetProperty("settings").GetProperty("notifications").GetBoolean());
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PutAsJsonAsync("/api/v1/users/profile", new { displayName = (string?)null })).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PutAsync("/api/v1/auth/profile", new StringContent("[]", Encoding.UTF8, "application/json"))).StatusCode);
         Assert.True((await client.GetAsync("/api/v1/admin/dashboard")).StatusCode == HttpStatusCode.Forbidden, "user cannot call admin");
         Assert.True((await client.PostAsJsonAsync("/api/v1/reviews", new { courtId = "bad", bookingId = "bad", rating = 6 })).StatusCode == HttpStatusCode.BadRequest, "HTTP invalid ObjectId returns envelope400");
         var refresh = await client.PostAsJsonAsync("/api/v1/auth/refresh-token", new { });

@@ -1,3 +1,8 @@
+using ShuttleSync.Service.Common;
+using ShuttleSync.Service.Chat;
+using ShuttleSync.Service.Friends;
+using ShuttleSync.Service.GroupPlays;
+using ShuttleSync.Service.Tournaments;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -5,7 +10,6 @@ using MongoDB.Driver;
 using ShuttleSync.Repository;
 using ShuttleSync.Repository.Entities;
 using ShuttleSync.Service.Exceptions;
-using ShuttleSync.Service.Social;
 
 namespace ShuttleSync.Test;
 public static class SocialTests
@@ -34,10 +38,10 @@ public static class SocialTests
         Assert.True(roundTrip["legacyFlag"] == "preserved" && roundTrip["participants"][0]["legacyMemberFlag"].AsBoolean, "social replacements retain legacy unknown document and embedded fields");
         Assert.True(roundTrip["participants"][0]["_id"] == legacy["participants"][0]["_id"], "social embedded participant IDs survive round trip");
         using var scope = services.CreateScope();
-        var chat = scope.ServiceProvider.GetRequiredService<ChatService>();
-        var friends = scope.ServiceProvider.GetRequiredService<FriendService>();
-        var groups = scope.ServiceProvider.GetRequiredService<GroupPlayService>();
-        var tournaments = scope.ServiceProvider.GetRequiredService<TournamentService>();
+        var chat = scope.ServiceProvider.GetRequiredService<IChatService>();
+        var friends = scope.ServiceProvider.GetRequiredService<IFriendService>();
+        var groups = scope.ServiceProvider.GetRequiredService<IGroupPlayService>();
+        var tournaments = scope.ServiceProvider.GetRequiredService<ITournamentService>();
         var owner = new User
         {
             Email = "social-owner@example.test",
@@ -136,8 +140,11 @@ public static class SocialTests
         Assert.True(tour.Matches.Where(m => m.Round == 1).Count(m => m.WinnerId != null) == 3, "bracket generates exactly three byes");
         await TestAssert.ThrowsAsync<ApiException>(() => tournaments.StartAsync(tour.Id, owner.Id), "tournament bracket starts only once");
         var match = tour.Matches.First(m => m.Team1Id != null && m.Team2Id != null);
-        await TestAssert.ThrowsAsync<ApiException>(() => tournaments.UpdateAsync(tour.Id, match.Id, owner.Id, System.Text.Json.JsonSerializer.SerializeToElement(new { winnerId = ObjectId.GenerateNewId().ToString() })), "winner must be a participant in the match");
-        await tournaments.UpdateAsync(tour.Id, match.Id, owner.Id, System.Text.Json.JsonSerializer.SerializeToElement(new { score1 = 21, score2 = 10, winnerId = match.Team1Id }));
+        MatchRequest Update(object value) => System.Text.Json.JsonSerializer.Deserialize<MatchRequest>(System.Text.Json.JsonSerializer.Serialize(value))!;
+        await TestAssert.ThrowsAsync<ApiException>(() => tournaments.UpdateAsync(tour.Id, match.Id, owner.Id, Update(new { winnerId = ObjectId.GenerateNewId().ToString() })), "winner must be a participant in the match");
+        await TestAssert.ThrowsAsync<ApiException>(() => tournaments.UpdateAsync(tour.Id, match.Id, owner.Id, Update(new { organizerId = owner.Id })), "match update rejects unknown fields");
+        await TestAssert.ThrowsAsync<ApiException>(() => tournaments.UpdateAsync(tour.Id, match.Id, owner.Id, Update(new { score1 = "21" })), "match score requires a JSON number");
+        await tournaments.UpdateAsync(tour.Id, match.Id, owner.Id, Update(new { score1 = 21, score2 = 10, winnerId = match.Team1Id }));
         Assert.True((await tournaments.GetAsync(tour.Id)).Matches.Single(m => m.Id == match.Id).WinnerId == match.Team1Id, "valid match result persists");
     }
 }

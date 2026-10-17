@@ -1,3 +1,4 @@
+using ShuttleSync.Service.Community.Validator;
 using System.Security.Cryptography;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -7,7 +8,7 @@ using ShuttleSync.Service.Common;
 using ShuttleSync.Service.Exceptions;
 
 namespace ShuttleSync.Service.Community;
-public sealed class Service(MongoContext db)
+public sealed class Service(MongoContext db) : ICommunityService
 {
     public async Task EnsureIndexesAsync(CancellationToken ct = default)
     {
@@ -16,14 +17,9 @@ public sealed class Service(MongoContext db)
         await db.Events.Indexes.CreateOneAsync(new CreateIndexModel<Event>(Builders<Event>.IndexKeys.Ascending("voucher.code"), new CreateIndexOptions<Event> { Name = "unique_event_voucher_code", Unique = true, PartialFilterExpression = new BsonDocument("voucher.code", new BsonDocument("$type", "string")) }), cancellationToken: ct);
     }
 
-    public async Task<Review> ReviewAsync(string userId, Review request, CancellationToken ct)
+    public async Task<Review> ReviewAsync(string userId, ReviewRequest request, CancellationToken ct)
     {
-        Guard.Id(request.CourtId);
-        Guard.Id(request.BookingId);
-        if (request.Rating < 1 || request.Rating > 5)
-            throw ApiException.BadRequest("Rating must be between 1 and 5");
-        if (request.Comment?.Length > 1000)
-            throw ApiException.BadRequest("Comment too long");
+        CommunityValidator.Review(request);
         var review = new Review
         {
             UserId = userId,
@@ -87,23 +83,9 @@ public sealed class Service(MongoContext db)
         return await db.Reviews.FindOneAndUpdateAsync(x => x.Id == id, Builders<Review>.Update.Set(x => x.Reply, new ReviewReply { UserId = ownerId, Comment = Guard.Text(comment, "Comment", 1000) }), new FindOneAndUpdateOptions<Review> { ReturnDocument = ReturnDocument.After }, ct);
     }
 
-    public async Task<OwnerApplication> ApplyAsync(string userId, OwnerApplication request, CancellationToken ct)
+    public async Task<OwnerApplication> ApplyAsync(string userId, OwnerApplicationRequest request, CancellationToken ct)
     {
-        var address = request.CourtAddress ?? throw ApiException.BadRequest("Address required");
-        if (request.CourtLocation is null || request.SportTypes is null || request.CourtPhotos is null)
-            throw ApiException.BadRequest("Invalid application");
-        if (request.CourtPhotos.Any(x => !Uri.TryCreate(x, UriKind.Absolute, out _)))
-            throw ApiException.BadRequest("Invalid photo URL");
-        Guard.Text(address.Street, "Street", 200);
-        Guard.Text(address.Ward, "Ward", 100);
-        Guard.Text(address.District, "District", 100);
-        Guard.Text(address.FullAddress, "Address", 500);
-        if (!double.IsFinite(request.CourtLocation.Lat) || !double.IsFinite(request.CourtLocation.Lng) || Math.Abs(request.CourtLocation.Lat) > 90 || Math.Abs(request.CourtLocation.Lng) > 180)
-            throw ApiException.BadRequest("Invalid coordinates");
-        if (request.SportTypes.Count == 0 || request.SportTypes.Any(x => !new[] { "badminton", "pickleball" }.Contains(x)))
-            throw ApiException.BadRequest("Invalid sports");
-        if (request.AdditionalNotes?.Length > 1000)
-            throw ApiException.BadRequest("Notes too long");
+        var address = CommunityValidator.Application(request);
         if (await db.OwnerApplications.Find(x => x.UserId == userId && (x.Status == "pending" || x.Status == "under_review")).AnyAsync(ct))
             throw ApiException.Conflict("Application already pending");
         var application = new OwnerApplication
@@ -124,22 +106,9 @@ public sealed class Service(MongoContext db)
     }
 
     public async Task<List<OwnerApplication>> ApplicationsAsync(string userId, CancellationToken ct) => await db.OwnerApplications.Find(x => x.UserId == userId).SortByDescending(x => x.CreatedAt).ToListAsync(ct);
-    public async Task<Report> ReportAsync(string userId, Report request, CancellationToken ct)
+    public async Task<Report> ReportAsync(string userId, ReportRequest request, CancellationToken ct)
     {
-        if (request.TargetUserId is not null)
-            Guard.Id(request.TargetUserId);
-        if (request.TargetCourtId is not null)
-            Guard.Id(request.TargetCourtId);
-        if (!new[]
-        {
-            "spam",
-            "harassment",
-            "no_show",
-            "inappropriate_behavior",
-            "fake_court",
-            "other"
-        }.Contains(request.Reason))
-            throw ApiException.BadRequest("Invalid reason");
+        CommunityValidator.Report(request);
         var report = new Report
         {
             ReporterId = userId,
@@ -153,38 +122,9 @@ public sealed class Service(MongoContext db)
         return report;
     }
 
-    public async Task<Event> EventAsync(string userId, Event request, CancellationToken ct)
+    public async Task<Event> EventAsync(string userId, EventRequest request, CancellationToken ct)
     {
-        if (request.StartDate == default || request.EndDate <= request.StartDate)
-            throw ApiException.BadRequest("Invalid event dates");
-        if (!new[]
-        {
-            "tournament",
-            "voucher",
-            "promotion",
-            "announcement"
-        }.Contains(request.Type))
-            throw ApiException.BadRequest("Invalid event type");
-        if (request.CourtId is not null)
-            Guard.Id(request.CourtId);
-        if (request.TournamentId is not null)
-            Guard.Id(request.TournamentId);
-        var voucher = request.Voucher;
-        if (voucher is not null)
-        {
-            if (!new[]
-            {
-                "percentage",
-                "fixed_amount",
-                "free_slot"
-            }.Contains(voucher.Type) || !double.IsFinite(voucher.Value) || voucher.Value < 0 || (voucher.Type == "percentage" && voucher.Value > 100) || voucher.UsageLimit < 1 || voucher.MinBookingAmount < 0 || voucher.MaxDiscount < 0)
-                throw ApiException.BadRequest("Invalid voucher");
-            voucher.Code = string.IsNullOrWhiteSpace(voucher.Code) ? "SS-" + Convert.ToHexString(RandomNumberGenerator.GetBytes(4)) : Guard.Text(voucher.Code, "Voucher code", 50).ToUpperInvariant();
-            voucher.UsedCount = 0;
-            foreach (var id in voucher.ApplicableCourtIds)
-                Guard.Id(id);
-        }
-
+        var voucher = CommunityValidator.Event(request);
         var item = new Event
         {
             CreatedBy = userId,
@@ -233,13 +173,9 @@ public sealed class Service(MongoContext db)
     }
 
     public async Task<object> GetEventAsync(string id, CancellationToken ct) => await EventDocument(await db.Events.Find(x => x.Id == Guard.Id(id)).FirstOrDefaultAsync(ct) ?? throw ApiException.NotFound(), ct);
-    public async Task<object> ValidateVoucherAsync(string? code, double amount, string? courtId, CancellationToken ct)
+    public async Task<EventVoucherResponse> ValidateVoucherAsync(string? code, double amount, string? courtId, CancellationToken ct)
     {
-        code = Guard.Text(code, "Code", 50).ToUpperInvariant();
-        if (!double.IsFinite(amount) || amount < 0)
-            throw ApiException.BadRequest("Invalid booking amount");
-        if (courtId is not null)
-            Guard.Id(courtId);
+        code = CommunityValidator.Voucher(code, amount, courtId);
         var now = DateTime.UtcNow;
         var item = await db.Events.Find(x => x.IsActive && x.StartDate <= now && x.EndDate >= now && x.Voucher != null && x.Voucher.Code == code).FirstOrDefaultAsync(ct);
         var voucher = item?.Voucher ?? throw ApiException.NotFound("Invalid voucher");
@@ -248,12 +184,6 @@ public sealed class Service(MongoContext db)
         if (voucher.ApplicableCourtIds.Count > 0 && (courtId is null || !voucher.ApplicableCourtIds.Contains(courtId)))
             throw ApiException.BadRequest("Voucher does not apply to this court");
         var discount = voucher.Type == "percentage" ? Math.Min(Math.Floor(amount * voucher.Value / 100), voucher.MaxDiscount ?? double.MaxValue) : voucher.Type == "fixed_amount" ? voucher.Value : 0;
-        return new
-        {
-            code = voucher.Code,
-            discount = Math.Min(discount, amount),
-            type = voucher.Type,
-            value = voucher.Value
-        };
+        return new EventVoucherResponse(voucher.Code, Math.Min(discount, amount), voucher.Type, voucher.Value);
     }
 }

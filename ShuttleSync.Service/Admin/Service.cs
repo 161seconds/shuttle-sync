@@ -1,3 +1,4 @@
+using ShuttleSync.Service.Admin.Validator;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using ShuttleSync.Repository;
@@ -7,23 +8,10 @@ using ShuttleSync.Service.Exceptions;
 using ShuttleSync.Service.NotificationService;
 
 namespace ShuttleSync.Service.Admin;
-public sealed class Service(MongoContext db, IRealtime realtime, INotificationService notifications)
+public sealed class Service(MongoContext db, IRealtime realtime, INotificationService notifications) : IAdminService
 {
     static ObjectId Id(string id) => ObjectId.Parse(Guard.Id(id));
     IMongoCollection<BsonDocument> Collection(string name) => db.Collection<BsonDocument>(name);
-    public static object? Json(BsonValue value) => value.BsonType switch
-    {
-        BsonType.Document => value.AsBsonDocument.Elements.Where(x => !new[] { "password", "refreshTokens", "otpCode", "otpExpires", "otpAttempts", "tokenVersion" }.Contains(x.Name)).ToDictionary(x => x.Name, x => Json(x.Value)),
-        BsonType.Array => value.AsBsonArray.Select(Json).ToArray(),
-        BsonType.ObjectId => value.AsObjectId.ToString(),
-        BsonType.DateTime => value.ToUniversalTime(),
-        BsonType.Null => null,
-        BsonType.Boolean => value.AsBoolean,
-        BsonType.Int32 => value.AsInt32,
-        BsonType.Int64 => value.AsInt64,
-        BsonType.Double => value.AsDouble,
-        BsonType.Decimal128 => value.AsDecimal128.ToString(),
-        _ => value.ToString()};
     async Task Populate(List<BsonDocument> docs, string key, string collection, string[] fields, CancellationToken ct)
     {
         foreach (var doc in docs)
@@ -91,15 +79,13 @@ public sealed class Service(MongoContext db, IRealtime realtime, INotificationSe
             await Populate(docs, "userId", "users", ["displayName", "email", "phone"], ct);
         }
 
-        return (docs.Select(Json).ToArray(), Guard.Pagination(page, limit, total));
+        return (docs.Select(AdminResponse.Json).ToArray(), Guard.Pagination(page, limit, total));
     }
 
     public async Task<User> BanAsync(string id, string adminId, string? reason, DateTime? expiry, CancellationToken ct)
     {
         id = Guard.Id(id);
-        reason = Guard.Text(reason, "Reason", 1000);
-        if (expiry.HasValue && expiry <= DateTime.UtcNow)
-            throw ApiException.BadRequest("Expiry must be in the future");
+        reason = AdminValidator.Ban(reason, expiry);
         var user = await db.Users.Find(x => x.Id == id).FirstOrDefaultAsync(ct) ?? throw ApiException.NotFound();
         if (user.Role == "admin")
             throw ApiException.Forbidden("Cannot ban an administrator");
@@ -118,43 +104,21 @@ public sealed class Service(MongoContext db, IRealtime realtime, INotificationSe
 
     public async Task<object> CourtStatusAsync(string id, string? status, string adminId, CancellationToken ct)
     {
-        if (!new[]
-        {
-            "pending_approval",
-            "active",
-            "inactive",
-            "rejected"
-        }.Contains(status))
-            throw ApiException.BadRequest("Invalid court status");
+        AdminValidator.CourtStatus(status);
         var doc = await Collection("courts").FindOneAndUpdateAsync(new BsonDocument("_id", Id(id)), new BsonDocument("$set", new BsonDocument { { "status", status }, { "updatedAt", DateTime.UtcNow } }), new FindOneAndUpdateOptions<BsonDocument> { ReturnDocument = ReturnDocument.After }, ct) ?? throw ApiException.NotFound();
-        return Json(doc)!;
+        return AdminResponse.Json(doc)!;
     }
 
     public async Task<object> ResolveAsync(string id, string adminId, string? resolution, string? status, CancellationToken ct)
     {
-        resolution = Guard.Text(resolution, "Resolution", 2000);
-        status ??= "resolved";
-        if (!new[]
-        {
-            "pending",
-            "reviewing",
-            "resolved",
-            "dismissed"
-        }.Contains(status))
-            throw ApiException.BadRequest("Invalid report status");
+        (resolution, status) = AdminValidator.Resolution(resolution, status);
         var report = await Collection("reports").FindOneAndUpdateAsync(new BsonDocument("_id", Id(id)), new BsonDocument("$set", new BsonDocument { { "status", status }, { "resolution", resolution }, { "resolvedBy", Id(adminId) }, { "resolvedAt", DateTime.UtcNow }, { "updatedAt", DateTime.UtcNow } }), new FindOneAndUpdateOptions<BsonDocument> { ReturnDocument = ReturnDocument.After }, ct) ?? throw ApiException.NotFound();
-        return Json(report)!;
+        return AdminResponse.Json(report)!;
     }
 
     public async Task<object> ReviewAsync(string id, string adminId, string? status, string? notes, CancellationToken ct)
     {
-        if (!new[]
-        {
-            "approved",
-            "rejected",
-            "requires_more_info"
-        }.Contains(status))
-            throw ApiException.BadRequest("Invalid application status");
+        AdminValidator.ApplicationStatus(status);
         using var session = await db.Client.StartSessionAsync(cancellationToken: ct);
         var app = await session.WithTransactionAsync(async (s, c) =>
         {
@@ -205,7 +169,7 @@ public sealed class Service(MongoContext db, IRealtime realtime, INotificationSe
             await Collection("notifications").InsertOneAsync(s, new BsonDocument { { "_id", ObjectId.GenerateNewId() }, { "userId", Id(userId) }, { "title", "Owner application " + status }, { "message", notes ?? "Application reviewed" }, { "type", "system" }, { "isRead", false }, { "createdAt", DateTime.UtcNow }, { "updatedAt", DateTime.UtcNow } }, cancellationToken: c);
             return result;
         }, cancellationToken: ct);
-        return Json(app)!;
+        return AdminResponse.Json(app)!;
     }
 
     public async Task<object> DashboardAsync(CancellationToken ct)
@@ -245,7 +209,7 @@ public sealed class Service(MongoContext db, IRealtime realtime, INotificationSe
             userGrowth,
             bookingTrend,
             topCourts,
-            recentBookings = recent.Select(Json).ToArray(),
+            recentBookings = recent.Select(AdminResponse.Json).ToArray(),
             bookingRatio = ratio
         };
     }

@@ -10,7 +10,6 @@ This document provides essential commands, architectural patterns, and developme
 - `client/`: React 19 frontend with Next.js 16 App Router, Tailwind CSS v4, Framer Motion, and Zustand.
 - `ShuttleSync.API`, `ShuttleSync.Service`, `ShuttleSync.Repository`: .NET 10 API > Service > Repository with MongoDB.
 - `ShuttleSync.Test`: xUnit integration tests against a test replica set.
-- `shared/`: Frontend TypeScript types, enums, and constants.
 
 ### Development Commands
 ```bash
@@ -43,7 +42,7 @@ dotnet test ShuttleSync.Test
 ### Backend
 - **Core**: .NET 10 ASP.NET Core; thin controllers, DI, feature services.
 - **Database**: MongoDB.Driver, typed entities and MongoContext; existing data/IDs retained.
-- **Validation**: Typed requests plus explicit service validation at trust boundaries.
+- **Service modules**: `Request.cs`, `Response.cs`, `IService.cs`, `Service.cs`, and `Validator/`. Controllers and feature dependencies inject interfaces; services keep database and business-state checks.
 - **Authentication**: JWT cookies and refresh rotation; current Mongo status/role/tokenVersion checks.
 - **Testing**: `ShuttleSync.Test` with xUnit; MongoDB replica set required.
 - **Payment & Webhooks**:
@@ -90,7 +89,7 @@ dotnet test ShuttleSync.Test
 
 ## 5. Coding Standards & Conventions
 
-- **TypeScript**: Strict typing across all components and services. Avoid using `any` when explicit types exist in `shared/` or local interfaces.
+- **TypeScript**: Strict typing across all components and services. Keep frontend contracts with their API clients; avoid `any` when local interfaces exist.
 - **Error Handling**: Use `ShuttleSync.Service.Exceptions.ApiException` in services; middleware maps errors to HTTP.
 - **Responses**: Use `ApiControllerBase.Success` and `SuccessCreated`, preserving the REST envelope.
 - **Git Commits**: Follow Conventional Commits (`feat: ...`, `fix: ...`, `refactor: ...`, `test: ...`, `chore: ...`).

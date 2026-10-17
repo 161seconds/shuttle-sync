@@ -5,7 +5,7 @@ ShuttleSync manages court bookings, owner operations, group play, tournaments, c
 ## Architecture
 
 - `ShuttleSync.API`: .NET 10 controllers, authentication, SignalR, middleware, maintenance workers.
-- `ShuttleSync.Service`: business rules, validation, transactions, integrations.
+- `ShuttleSync.Service`: feature modules with `Request.cs`, `Response.cs`, `IService.cs`, `Service.cs`, and `Validator/`; shared helpers in `Common/` and `Exceptions/`.
 - `ShuttleSync.Repository`: MongoDB entities and database context.
 - `ShuttleSync.Test`: xUnit integration tests.
 - `client`: Next.js 16 App Router, React, TypeScript, Tailwind CSS.

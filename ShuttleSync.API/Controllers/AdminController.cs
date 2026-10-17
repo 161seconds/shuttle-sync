@@ -1,14 +1,11 @@
+using ShuttleSync.Service.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ShuttleSync.API.Controllers;
 [Authorize(Roles = "admin"), Route("api/v1/admin")]
-public sealed class AdminController(Service.Admin.Service service) : ApiControllerBase
+public sealed class AdminController(Service.Admin.IAdminService service) : ApiControllerBase
 {
-    public sealed record BanRequest(string? Reason, DateTime? ExpiresAt);
-    public sealed record StatusRequest(string? Status);
-    public sealed record ReviewRequest(string? Status, string? ReviewNotes);
-    public sealed record ResolveRequest(string? Resolution, string? Status);
     [HttpGet("dashboard")]
     public async Task<IActionResult> Dashboard(CancellationToken ct) => Success(await service.DashboardAsync(ct));
     [HttpGet("users")]

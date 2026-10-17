@@ -1,3 +1,6 @@
+using ShuttleSync.Service.Owner;
+using ShuttleSync.Service.Courts;
+using ShuttleSync.Service.Vouchers;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
@@ -14,10 +17,10 @@ public static class BookingTests
 {
     public static async Task RunAsync(MongoContext db, IServiceProvider services)
     {
-        var bookings = services.GetRequiredService<BookingService>();
-        var owners = services.GetRequiredService<OwnerService>();
-        var vouchers = services.GetRequiredService<VoucherService>();
-        var courtsService = services.GetRequiredService<CourtService>();
+        var bookings = services.GetRequiredService<IBookingService>();
+        var owners = services.GetRequiredService<IOwnerService>();
+        var vouchers = services.GetRequiredService<IVoucherService>();
+        var courtsService = services.GetRequiredService<ICourtService>();
         var owner = ObjectId.GenerateNewId().ToString();
         var user = ObjectId.GenerateNewId().ToString();
         var venue = new Venue
@@ -40,7 +43,7 @@ public static class BookingTests
         };
         async Task<BookingEntity> Create(int court, string customer)
         {
-            var result = JsonSerializer.SerializeToElement(await bookings.CreateAsync(customer, Input(court)));
+            var result = JsonSerializer.SerializeToElement(await bookings.CreateAsync(customer, Input(court)), new JsonSerializerOptions(JsonSerializerDefaults.Web));
             return await db.Bookings.AsQueryable().FirstAsync(b => b.BookingCode == result.GetProperty("bookingCode").GetString());
         }
 
@@ -64,7 +67,7 @@ public static class BookingTests
         Assert.True(race.Count(x => x) == 1, "five competing transactions produce exactly one booking");
         var mixed = await Task.WhenAll(new[] { Attempt(() => Create(1, user)), Attempt(() => owners.BlockAsync(owner, new() { SubCourtId = courts[1].Id, Date = date, StartTime = "08:00", EndTime = "09:00" })) });
         Assert.True(mixed.Count(x => x) == 1, "owner block and customer booking share the same court guard");
-        var schedule = JsonSerializer.SerializeToElement(await owners.ScheduleAsync(owner, date));
+        var schedule = JsonSerializer.SerializeToElement(await owners.ScheduleAsync(owner, date), new JsonSerializerOptions(JsonSerializerDefaults.Web));
         Assert.True(schedule.GetProperty("bookings").EnumerateArray().All(b => b.GetProperty("subCourtId").ValueKind == JsonValueKind.String), "owner schedule preserves string child court IDs");
         var a = await Create(2, user);
         var b = await Create(3, user);
@@ -100,7 +103,7 @@ public static class BookingTests
         };
         await db.Vouchers.InsertOneAsync(voucher);
         fixedInput.VoucherCode = voucher.Code;
-        var groupResult = JsonSerializer.SerializeToElement(await bookings.CreateAsync(user, fixedInput));
+        var groupResult = JsonSerializer.SerializeToElement(await bookings.CreateAsync(user, fixedInput), new JsonSerializerOptions(JsonSerializerDefaults.Web));
         var groupCode = groupResult.GetProperty("bookingCode").GetString()!;
         var group = await bookings.ByCodeAsync(groupCode, user);
         Assert.True(group.Count == 4 && group.Sum(x => x.Discount) == 50000 && group.All(x => x.FinalAmount >= 0), "fixed booking applies bounded voucher across all sessions");

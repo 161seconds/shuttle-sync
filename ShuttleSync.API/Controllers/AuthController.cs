@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShuttleSync.Service.Auth;
-using AuthService = ShuttleSync.Service.Auth.Service;
-using AccountService = ShuttleSync.Service.Account.Service;
+using AuthService = ShuttleSync.Service.Auth.IAuthService;
+using AccountService = ShuttleSync.Service.Account.IAccountService;
 
 namespace ShuttleSync.API.Controllers;
 [Route("api/v1/auth")]
@@ -41,7 +41,7 @@ public sealed class AuthController(AuthService auth, AccountService account, IWe
     {
         var session = await auth.RegisterAsync(request, ct);
         Cookies(session);
-        return SuccessCreated(new { user = session.User }, "Đăng ký thành công");
+        return SuccessCreated(new AuthResponse(session.User), "Đăng ký thành công");
     }
 
     [HttpPost("login")]
@@ -49,7 +49,7 @@ public sealed class AuthController(AuthService auth, AccountService account, IWe
     {
         var session = await auth.LoginAsync(request, ct);
         Cookies(session);
-        return Success(new { user = session.User }, "Đăng nhập thành công");
+        return Success(new AuthResponse(session.User), "Đăng nhập thành công");
     }
 
     [HttpPost("request-otp")]
@@ -64,7 +64,7 @@ public sealed class AuthController(AuthService auth, AccountService account, IWe
     {
         var session = await auth.VerifyOtpAsync(request.Email, request.Otp, ct);
         Cookies(session);
-        return Success(new { user = session.User }, "Đăng nhập thành công");
+        return Success(new AuthResponse(session.User), "Đăng nhập thành công");
     }
 
     [HttpPost("refresh-token")]
@@ -95,7 +95,7 @@ public sealed class AuthController(AuthService auth, AccountService account, IWe
     [Authorize, HttpGet("profile")]
     public async Task<IActionResult> Profile(CancellationToken ct) => Success(await account.ProfileAsync(UserId, true, ct));
     [Authorize, HttpPut("profile")]
-    public async Task<IActionResult> Update(System.Text.Json.JsonElement request, CancellationToken ct) => Success(await account.UpdateAsync(UserId, request, ct));
+    public async Task<IActionResult> Update(ShuttleSync.Service.Account.ProfileRequest request, CancellationToken ct) => Success(await account.UpdateAsync(UserId, request, ct));
     [Authorize, HttpPut("change-password")]
     public async Task<IActionResult> Password(PasswordRequest request, CancellationToken ct)
     {

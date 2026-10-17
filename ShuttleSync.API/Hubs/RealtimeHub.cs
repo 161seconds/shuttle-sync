@@ -1,10 +1,11 @@
+using ShuttleSync.Service.Chat;
+using ShuttleSync.Service.RealtimeSlots;
 using System.Collections.Concurrent;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
 using ShuttleSync.Service.Common;
-using ShuttleSync.Service.Social;
-using AuthService = ShuttleSync.Service.Auth.Service;
+using AuthService = ShuttleSync.Service.Auth.IAuthService;
 
 namespace ShuttleSync.API.Hubs;
 public sealed class SignalRRealtime(IHubContext<RealtimeHub> hub) : IRealtime
@@ -25,7 +26,7 @@ public sealed class SignalRRealtime(IHubContext<RealtimeHub> hub) : IRealtime
     }
 }
 
-public sealed class RealtimeHub(AuthService auth, ChatService chat, RealtimeSlotService slots, SignalRRealtime realtime) : Hub
+public sealed class RealtimeHub(AuthService auth, IChatService chat, IRealtimeSlotService slots, SignalRRealtime realtime) : Hub
 {
     string? Token => Context.GetHttpContext()?.Request.Cookies["accessToken"] ?? Context.GetHttpContext()?.Request.Headers.Authorization.ToString().Replace("Bearer ", "");
 
@@ -111,9 +112,8 @@ public sealed class RealtimeHub(AuthService auth, ChatService chat, RealtimeSlot
 
     async Task SlotAsync(string userId, JsonElement payload, bool select)
     {
-        var courtId = Guard.Id(payload.GetProperty("courtId").GetString());
-        var slotId = Guard.Id(payload.GetProperty("slotId").GetString());
-        await slots.SelectAsync(userId, courtId, slotId, select, Context.ConnectionAborted);
+        var request = payload.Deserialize<SlotRequest>(new JsonSerializerOptions(JsonSerializerDefaults.Web)) ?? throw new HubException("Invalid payload");
+        await slots.SelectAsync(userId, request, select, Context.ConnectionAborted);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)

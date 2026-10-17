@@ -4,12 +4,12 @@ using Notifications = ShuttleSync.Service.NotificationService;
 
 namespace ShuttleSync.API.Controllers;
 [Authorize, Route("api/v1/notifications")]
-public sealed class NotificationsController(Notifications.Service service) : ApiControllerBase
+public sealed class NotificationsController(Notifications.INotificationService service) : ApiControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> Get(bool unreadOnly = false, int page = 1, int limit = 20, CancellationToken ct = default)
     {
-        var result = await service.GetAsync(UserId, unreadOnly, page, limit, ct);
+        var result = await service.GetAsync(UserId, new(unreadOnly, page, limit), ct);
         return Success(result.Data, pagination: result.Pagination);
     }
 

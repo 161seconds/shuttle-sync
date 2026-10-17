@@ -2,9 +2,6 @@ FROM node:22-alpine AS build
 
 WORKDIR /app
 
-# Copy shared folder
-COPY shared ./shared
-
 # Copy client folder
 COPY client ./client
 

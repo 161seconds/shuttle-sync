@@ -1,11 +1,14 @@
+using ShuttleSync.Service.Chat;
+using ShuttleSync.Service.Friends;
+using ShuttleSync.Service.GroupPlays;
+using ShuttleSync.Service.Tournaments;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ShuttleSync.Service.Social;
 using System.Text.Json;
 
 namespace ShuttleSync.API.Controllers;
 [Route("api/v1/chat"), Authorize]
-public sealed class ChatController(ChatService service) : ApiControllerBase
+public sealed class ChatController(IChatService service) : ApiControllerBase
 {
     [HttpGet("group/{id}")]
     public async Task<IActionResult> History(string id, int page = 1, int limit = 50, CancellationToken ct = default) => Success(await service.HistoryAsync(id, UserId, page, limit, ct));
@@ -45,7 +48,7 @@ public sealed class ChatController(ChatService service) : ApiControllerBase
 }
 
 [Route("api/v1/friends"), Authorize]
-public sealed class FriendsController(FriendService service) : ApiControllerBase
+public sealed class FriendsController(IFriendService service) : ApiControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> Friends(CancellationToken ct) => Success(await service.ListAsync(UserId, false, ct));
@@ -54,7 +57,7 @@ public sealed class FriendsController(FriendService service) : ApiControllerBase
     [HttpGet("search")]
     public async Task<IActionResult> Search(string query, CancellationToken ct) => Success(await service.SearchAsync(UserId, query, ct));
     [HttpPost("request")]
-    public async Task<IActionResult> SendRequest(RecipientRequest request, CancellationToken ct) => SuccessCreated(await service.RequestAsync(UserId, request.RecipientId, ct));
+    public async Task<IActionResult> SendRequest(FriendRequest request, CancellationToken ct) => SuccessCreated(await service.RequestAsync(UserId, request.RecipientId, ct));
     [HttpPost("accept/{id}")]
     public async Task<IActionResult> Accept(string id, CancellationToken ct) => Success(await service.RespondAsync(UserId, id, true, ct));
     [HttpDelete("request/{id}/decline")]
@@ -66,7 +69,7 @@ public sealed class FriendsController(FriendService service) : ApiControllerBase
 }
 
 [Route("api/v1/group-plays")]
-public sealed class GroupPlaysController(GroupPlayService service) : ApiControllerBase
+public sealed class GroupPlaysController(IGroupPlayService service) : ApiControllerBase
 {
     [HttpGet("search")]
     public async Task<IActionResult> Search([FromQuery] GroupSearch query, CancellationToken ct)
@@ -101,22 +104,16 @@ public sealed class GroupPlaysController(GroupPlayService service) : ApiControll
 }
 
 [Route("api/v1/tournaments")]
-public sealed class TournamentsController(TournamentService service) : ApiControllerBase
+public sealed class TournamentsController(ITournamentService service) : ApiControllerBase
 {
     [HttpGet("my"), Authorize]
-    public async Task<IActionResult> My(CancellationToken ct) => Success(await service.MyAsync(UserId, ct));
+    public async Task<IActionResult> My(CancellationToken ct) => Success((await service.MyAsync(UserId, ct)).Select(TournamentResponse.From));
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get(string id, CancellationToken ct) => Success(await service.GetAsync(id, ct));
+    public async Task<IActionResult> Get(string id, CancellationToken ct) => Success(TournamentResponse.From(await service.GetAsync(id, ct)));
     [HttpPost("quick"), Authorize]
-    public async Task<IActionResult> Quick(TitleRequest request, CancellationToken ct) => SuccessCreated(await service.QuickAsync(UserId, request.Title, ct));
+    public async Task<IActionResult> Quick(TitleRequest request, CancellationToken ct) => SuccessCreated(TournamentResponse.From(await service.QuickAsync(UserId, request.Title, ct)));
     [HttpPost("{id}/start"), Authorize]
-    public async Task<IActionResult> Start(string id, CancellationToken ct) => Success(await service.StartAsync(id, UserId, ct));
+    public async Task<IActionResult> Start(string id, CancellationToken ct) => Success(TournamentResponse.From(await service.StartAsync(id, UserId, ct)));
     [HttpPut("{id}/matches/{matchId}"), Authorize]
-    public async Task<IActionResult> Match(string id, string matchId, JsonElement request, CancellationToken ct) => Success(await service.UpdateAsync(id, matchId, UserId, request, ct));
+    public async Task<IActionResult> Match(string id, string matchId, MatchRequest request, CancellationToken ct) => Success(TournamentResponse.From(await service.UpdateAsync(id, matchId, UserId, request, ct)));
 }
-
-public sealed record RecipientRequest(string RecipientId);
-public sealed record ArchiveRequest(bool IsArchived);
-public sealed record DeleteMessageRequest(string Type);
-public sealed record ReasonRequest(string? Reason);
-public sealed record TitleRequest(string? Title);

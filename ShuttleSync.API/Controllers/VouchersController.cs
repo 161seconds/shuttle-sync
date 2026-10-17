@@ -1,10 +1,11 @@
+using ShuttleSync.Service.Vouchers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShuttleSync.Service.Booking;
 
 namespace ShuttleSync.API.Controllers;
 [Authorize, Route("api/v1/vouchers")]
-public sealed class VouchersController(VoucherService vouchers) : ApiControllerBase
+public sealed class VouchersController(IVoucherService vouchers) : ApiControllerBase
 {
     [Authorize(Roles = "admin"), HttpGet("admin/all")]
     public async Task<IActionResult> All(CancellationToken ct) => Success(await vouchers.AllAsync(ct));

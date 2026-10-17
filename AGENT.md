@@ -23,7 +23,7 @@ This document provides context, rules, and architectural guidelines for AI agent
 
 ## 4. Backend Architecture
 - `ShuttleSync.API`: Thin controllers, authentication, SignalR `/hubs/realtime`, middleware, DI.
-- `ShuttleSync.Service`: Business logic and validation in feature modules; services inject MongoContext directly.
+- `ShuttleSync.Service`: Each business module owns `Request.cs`, `Response.cs`, `IService.cs`, `Service.cs`, and `Validator/`. Controllers and cross-feature callers inject service interfaces; implementations inject MongoContext directly. Shared infrastructure stays in `Common/` and `Exceptions/`.
 - `ShuttleSync.Repository`: MongoDB entities and collection mappings; preserve existing ObjectId IDs and collections.
 - Dependencies: API > Service > Repository. Keep `/api/v1` contracts and camelCase JSON.
 - Run: `dotnet run --project ShuttleSync.API`. Build: `dotnet build ShuttleSync.sln`.

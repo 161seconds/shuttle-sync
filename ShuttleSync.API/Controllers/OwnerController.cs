@@ -1,10 +1,12 @@
+using ShuttleSync.Service.Owner;
+using ShuttleSync.Service.Courts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShuttleSync.Service.Booking;
 
 namespace ShuttleSync.API.Controllers;
 [Authorize(Roles = "court_owner"), Route("api/v1/owner")]
-public sealed class OwnerController(OwnerService owners) : ApiControllerBase
+public sealed class OwnerController(IOwnerService owners) : ApiControllerBase
 {
     [HttpGet("venue")]
     public async Task<IActionResult> Venue(CancellationToken ct) => Success(await owners.VenueAsync(UserId, ct));

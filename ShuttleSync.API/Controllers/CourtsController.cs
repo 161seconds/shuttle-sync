@@ -1,10 +1,11 @@
+using ShuttleSync.Service.Courts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShuttleSync.Service.Booking;
 
 namespace ShuttleSync.API.Controllers;
 [Route("api/v1/courts")]
-public sealed class CourtsController(CourtService courts) : ApiControllerBase
+public sealed class CourtsController(ICourtService courts) : ApiControllerBase
 {
     [HttpGet("search")]
     public async Task<IActionResult> Search([FromQuery] CourtSearchRequest input, CancellationToken ct)

@@ -8,7 +8,7 @@ using ShuttleSync.Service.Exceptions;
 
 namespace ShuttleSync.API.Controllers;
 [Route("api/v1/payment")]
-public sealed partial class PaymentController(BookingService bookings, IConfiguration configuration) : ApiControllerBase
+public sealed partial class PaymentController(IBookingService bookings, IConfiguration configuration) : ApiControllerBase
 {
     [HttpPost("sepay-webhook")]
     public async Task<IActionResult> Webhook(CancellationToken ct)
